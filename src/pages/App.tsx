@@ -1,9 +1,9 @@
 import React, { Suspense, useEffect } from "react";
 import styled from "styled-components";
-import Router from "./routes";
+import Router from "../routes";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTokenList } from "./state/reducers/tokens";
-import { AppDispatch, AppState } from "./state";
+import { fetchTokenList } from "../state/reducers/tokens";
+import { AppDispatch, AppState } from "../state";
 
 const AppWrapper = styled.div`
   display: flex;
@@ -35,6 +35,7 @@ const Marginer = styled.div`
 
 export default function App() {
   const dispatch = useDispatch<AppDispatch>();
+
   // const tokenList = useSelector<AppState, AppState["tokenList"]>((state) => {
   //   return state.tokenList;
   // });
