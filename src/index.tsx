@@ -6,6 +6,7 @@ import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
 import store from "./state";
 import { StarknetProvider } from "./pages/starknet-provider";
+import ThemeProvider, { ThemedGlobalStyle } from "./theme";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -14,7 +15,10 @@ root.render(
   <React.StrictMode>
     <StarknetProvider>
       <Provider store={store}>
-        <App />
+        <ThemeProvider>
+          <ThemedGlobalStyle />
+          <App />
+        </ThemeProvider>
       </Provider>
     </StarknetProvider>
   </React.StrictMode>
