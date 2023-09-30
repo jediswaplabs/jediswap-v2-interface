@@ -1,12 +1,12 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
 import App from "./pages/App";
 import reportWebVitals from "./reportWebVitals";
 import { Provider } from "react-redux";
 import store from "./state";
 import { StarknetProvider } from "./pages/starknet-provider";
 import ThemeProvider, { ThemedGlobalStyle } from "./theme";
+import { HashRouter } from "react-router-dom";
 
 const root = ReactDOM.createRoot(
   document.getElementById("root") as HTMLElement
@@ -15,10 +15,12 @@ root.render(
   <React.StrictMode>
     <StarknetProvider>
       <Provider store={store}>
-        <ThemeProvider>
-          <ThemedGlobalStyle />
-          <App />
-        </ThemeProvider>
+        <HashRouter>
+          <ThemeProvider>
+            <ThemedGlobalStyle />
+            <App />
+          </ThemeProvider>
+        </HashRouter>
       </Provider>
     </StarknetProvider>
   </React.StrictMode>

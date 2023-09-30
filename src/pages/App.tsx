@@ -4,6 +4,7 @@ import Router from "../routes";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchTokenList } from "../state/reducers/tokens";
 import { AppDispatch, AppState } from "../state";
+import Header from "../components/Header";
 
 const AppWrapper = styled.div`
   display: flex;
@@ -48,7 +49,9 @@ export default function App() {
     <Suspense fallback={null}>
       {/* <Route component={DarkModeQueryParamReader} /> */}
       <AppWrapper>
-        <HeaderWrapper>{/* <Header /> */}</HeaderWrapper>
+        <HeaderWrapper>
+          <Header />
+        </HeaderWrapper>
         <BodyWrapper>
           <Router />
           <Marginer />
