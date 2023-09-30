@@ -1,17 +1,23 @@
-import { useAccount, useBalance, useConnect } from "@starknet-react/core";
+import {
+  useAccount,
+  useBalance,
+  useConnect,
+  useProvider
+} from "@starknet-react/core";
 import React from "react";
+import { constants } from "starknet";
 
-const useAccountDetails = () => {
-  const { account, address } = useAccount();
-  return { account, address };
+export const useAccountDetails = () => {
+  const { account, address, isConnected } = useAccount();
+  return { account, address, isConnected };
 };
 
-const useConnectors = () => {
+export const useConnectors = () => {
   const { connect, connectors } = useConnect();
   return { connect, connectors };
 };
 
-const useBalances = () => {
+export const useBalances = () => {
   const { address } = useAccount();
   const {
     data: balance,

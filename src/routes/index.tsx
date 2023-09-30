@@ -4,7 +4,7 @@ import Pool from "../pages/Pool";
 
 const Router = () => {
   return (
-    <HashRouter>
+    <>
       <Routes>
         <Route path="/swap" element={<Swap />} />
       </Routes>
@@ -35,7 +35,7 @@ const Router = () => {
       <Routes>
         <Route path="/remove/:currencyIdA/:currencyIdB" element={<Swap />} />
       </Routes>
-    </HashRouter>
+    </>
   );
 };
 
