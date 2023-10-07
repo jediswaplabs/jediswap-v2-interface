@@ -47,6 +47,26 @@ const Base = styled(RebassButton)<BaseButtonProps>`
   }
 `;
 
+export const ButtonText = styled(Base)`
+  padding: 0;
+  width: fit-content;
+  background: none;
+  text-decoration: none;
+  &:focus {
+    text-decoration: underline;
+  }
+  &:hover {
+    opacity: 0.9;
+  }
+  &:active {
+    text-decoration: underline;
+  }
+  &:disabled {
+    opacity: 50%;
+    cursor: auto;
+  }
+`;
+
 export const ButtonPrimary = styled(Base)`
   background-color: ${({ theme }) => theme.jediBlue};
   background: linear-gradient(95.64deg, #29aafd 8.08%, #ff00e9 105.91%);

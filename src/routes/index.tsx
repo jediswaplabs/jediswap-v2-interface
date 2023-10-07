@@ -1,6 +1,7 @@
 import { HashRouter, Route, Routes } from "react-router-dom";
 import Swap from "../pages/Swap";
 import Pool from "../pages/Pool";
+import RedirectDuplicateTokenIdsV2 from "pages/AddLiquidityV2/redirects";
 
 const Router = () => {
   return (
@@ -14,6 +15,10 @@ const Router = () => {
       <Routes>
         <Route path="/add" element={<Swap />} />
       </Routes>
+      <Route path="add/v2" element={<RedirectDuplicateTokenIdsV2 />}>
+        <Route path=":currencyIdA" />
+        <Route path=":currencyIdA/:currencyIdB" />
+      </Route>
       <Routes>
         <Route path="/add/:currencyIdA" element={<Swap />} />
       </Routes>

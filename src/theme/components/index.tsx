@@ -10,8 +10,8 @@ import React, {
 } from "react";
 import { Link } from "react-router-dom";
 import styled, { css, keyframes } from "styled-components";
-
 import { ReactComponent as TooltipTriangle } from "../../assets/svg/tooltip_triangle.svg";
+export { ThemedText } from "./text";
 
 // TODO: Break this file into a components folder
 
@@ -33,6 +33,12 @@ const StyledLink = styled.a`
   :active {
     text-decoration: none;
   }
+`;
+
+export const HideSmall = styled.span`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
+    display: none;
+  `};
 `;
 
 export function ExternalLink({
