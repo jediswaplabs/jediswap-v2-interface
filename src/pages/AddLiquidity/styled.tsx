@@ -13,7 +13,7 @@ export const ScrollablePage = styled.div`
   display: flex;
   flex-direction: column;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     margin: 0 auto;
   `};
 
@@ -49,13 +49,13 @@ export const ResponsiveTwoColumns = styled.div<{ wide: boolean }>`
 
   border-top: 1px solid ${({ theme }) => theme.surface3};
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     margin-top: 0;
   `};
 `;
 
 export const MediumOnly = styled.div`
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     display: none;
   `};
 `;

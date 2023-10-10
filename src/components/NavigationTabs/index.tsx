@@ -27,7 +27,7 @@ const StyledLink = styled(Link)<{ flex?: string }>`
   display: flex;
   align-items: center;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     flex: none;
     margin-right: 10px;
   `};

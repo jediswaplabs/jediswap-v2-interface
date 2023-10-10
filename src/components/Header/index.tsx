@@ -24,7 +24,7 @@ const HeaderFrame = styled.div`
   z-index: 2;
   padding: 1rem 64px;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
   // justify-content: flex-start;
     grid-template-columns: 1fr;
     padding: 0 1rem;
@@ -32,7 +32,7 @@ const HeaderFrame = styled.div`
     position: relative;
   `};
 
-  ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToExtraSmall`
         padding: 0.5rem 1rem;
   `}
 `;
@@ -43,7 +43,7 @@ const HeaderControls = styled.div`
   align-items: center;
   justify-self: flex-end;
   gap: 30px;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     flex-direction: row;
     justify-content: space-between;
     justify-self: center;
@@ -66,7 +66,7 @@ const HeaderElement = styled.div`
   align-items: center;
   gap: 8px;
 
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
    flex-direction: row-reverse;
     align-items: center;
   `};
@@ -74,7 +74,7 @@ const HeaderElement = styled.div`
 
 const HeaderLinks = styled(Row)`
   justify-content: space-around;
-  ${({ theme }) => theme.mediaWidth.upToMedium`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     // padding: 1rem 0 1rem 1rem;
     justify-content: flex-start;
 `};
@@ -104,7 +104,7 @@ const AccountElement = styled.div<{ active: boolean }>`
 `;
 
 const HideSmall = styled.div`
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     display: none;
   `};
 `;
@@ -119,7 +119,7 @@ const NetworkCard = styled(YellowCard)`
   padding: 0.82rem 2rem;
   border: 2px solid transparent;
 
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     margin: 0;
     margin-right: 0.5rem;
     width: initial;
@@ -130,7 +130,7 @@ const NetworkCard = styled(YellowCard)`
 `;
 
 // const BalanceText = styled(Text)`
-//   ${({ theme }) => theme.mediaWidth.upToExtraSmall`
+//   ${({ theme }) => theme.deprecated_mediaWidth.upToExtraSmall`
 //     display: none;
 //   `};
 // `
@@ -141,7 +141,7 @@ const Title = styled.a`
   pointer-events: auto;
   justify-self: flex-start;
   margin-right: 12px;
-  ${({ theme }) => theme.mediaWidth.upToSmall`
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     justify-self: center;
   `};
   :hover {

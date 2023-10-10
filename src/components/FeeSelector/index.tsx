@@ -202,7 +202,7 @@ export default function FeeSelector({
               onClick={() => setShowOptions(!showOptions)}
               width="auto"
               padding="4px"
-              borderRadius="6px"
+              $borderRadius="6px"
             >
               {/* {showOptions ? <Trans>Hide</Trans> : <Trans>Edit</Trans>} */}
             </ButtonGray>

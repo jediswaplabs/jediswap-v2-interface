@@ -1,19 +1,26 @@
-import React from "react";
+// import { rootCssString } from 'nft/css/cssStringFromTheme'
+import React, { useMemo } from "react";
 import {
   createGlobalStyle,
   css,
   ThemeProvider as StyledComponentsThemeProvider
 } from "styled-components";
-import { colors } from "./colors";
+// import { useIsDarkMode } from 'theme/components/ThemeToggle'
 
-const MEDIA_WIDTHS = {
-  upToExtraSmall: 500,
-  upToSmall: 720,
-  upToMedium: 960,
-  upToLarge: 1280
+// import { navDimensions } from '../nft/css/sprinkles.css'
+import { darkTheme, lightTheme } from "./colors";
+import { darkDeprecatedTheme, lightDeprecatedTheme } from "./deprecatedColors";
+
+export const MEDIA_WIDTHS = {
+  deprecated_upToExtraSmall: 500,
+  deprecated_upToSmall: 720,
+  deprecated_upToMedium: 960,
+  deprecated_upToLarge: 1280
 };
 
-const mediaWidthTemplates: {
+const MAX_CONTENT_WIDTH = "1200px";
+
+const deprecated_mediaWidthTemplates: {
   [width in keyof typeof MEDIA_WIDTHS]: typeof css;
 } = Object.keys(MEDIA_WIDTHS).reduce((acc, size) => {
   acc[size] = (a: any, b: any, c: any) => css`
@@ -69,40 +76,37 @@ const gapValues = {
 };
 export type Gap = keyof typeof gapValues;
 
-// eslint-disable-next-line import/no-unused-modules -- used in styled.d.ts
-export function getTheme() {
+function getSettings(darkMode: boolean) {
   return {
-    ...colors(),
+    grids: gapValues,
     fonts,
 
+    // shadows
+    shadow1: darkMode ? "#000" : "#2F80ED",
+
+    // media queries
+    deprecated_mediaWidth: deprecated_mediaWidthTemplates,
+
+    // navHeight: navDimensions.height,
+    // navVerticalPad: navDimensions.verticalPad,
+    mobileBottomBarHeight: 48,
+    maxWidth: MAX_CONTENT_WIDTH,
+
+    // deprecated - please use hardcoded exported values instead of
+    // adding to the theme object
     breakpoint: BREAKPOINTS,
     transition: transitions,
-    opacity: opacities,
+    opacity: opacities
+  };
+}
 
-    grids: {
-      sm: 8,
-      md: 12,
-      lg: 24
-    },
-
-    // media queries
-    mediaWidth: mediaWidthTemplates,
-
-    //shadows
-    shadow1: "#000",
-
-    // media queries
-    // mediaWidth: mediaWidthTemplates,
-
-    // css snippets
-    flexColumnNoWrap: css`
-      display: flex;
-      flex-flow: column nowrap;
-    `,
-    flexRowNoWrap: css`
-      display: flex;
-      flex-flow: row nowrap;
-    `
+// eslint-disable-next-line import/no-unused-modules -- used in styled.d.ts
+export function getTheme(darkMode: boolean) {
+  return {
+    darkMode,
+    ...(darkMode ? darkTheme : lightTheme),
+    ...(darkMode ? darkDeprecatedTheme : lightDeprecatedTheme),
+    ...getSettings(darkMode)
   };
 }
 
@@ -112,8 +116,7 @@ export default function ThemeProvider({
   children: React.ReactNode;
 }) {
   // const darkMode = useIsDarkMode()
-  // const themeObject = useMemo(() => getTheme(darkMode), [darkMode])
-  const themeObject = getTheme();
+  const themeObject = useMemo(() => getTheme(true), [true]);
   return (
     <StyledComponentsThemeProvider theme={themeObject}>
       {children}
@@ -122,22 +125,16 @@ export default function ThemeProvider({
 }
 
 export const ThemedGlobalStyle = createGlobalStyle`
-html {
-  color: ${({ theme }) => theme.text1};
-  font-family: 'Avenir LT Std', sans-serif;
-  background-color: ${({ theme }) => theme.jediBg};
-  background: linear-gradient(108.58deg, #03001E 20.7%, #EC38BC 36.65%, #7303C0 57.02%, #2A3EF5 71.08%, #38742F 93.32%);
-  background-repeat: no-repeat;
-  background-size: cover;
-  //backdrop-filter: blur(400px);
-}
+  html {
+    color: ${({ theme }) => theme.neutral1};
+    background-color: ${({ theme }) => theme.background} !important;
+  }
 
-body {
-  min-height: 100vh;
-  margin: 0;
-  background: linear-gradient(66.46deg, #03001E 24.27%, rgba(3, 0, 30, 0.612102) 57.29%, rgba(3, 0, 30, 0) 100%);
-  //backdrop-filter: blur(400px);
-  background-repeat: no-repeat;
-  background-size: cover;
-}
+ summary::-webkit-details-marker {
+    display:none;
+  }
+
+  a {
+    color: ${({ theme }) => theme.accent1}; 
+  }
 `;

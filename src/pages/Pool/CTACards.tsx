@@ -12,7 +12,7 @@
 //   gap: 8px;
 //   opacity: 0.8;
 
-//   ${({ theme }) => theme.mediaWidth.deprecated_upToSmall`
+//   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
 //     grid-template-columns: auto;
 //     grid-template-rows: auto;
 //   `};
@@ -45,7 +45,7 @@
 //   display: flex;
 //   font-size: 16px;
 //   font-weight: 535 !important;
-//   ${({ theme }) => theme.mediaWidth.deprecated_upToMedium`
+//   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
 //     font-size: 16px;
 //   `};
 // `
@@ -55,7 +55,7 @@
 //   width: 100%;
 //   gap: 8px;
 
-//   ${({ theme }) => theme.mediaWidth.deprecated_upToMedium`
+//   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
 //     gap: 8px;
 //   `};
 //   justify-content: space-between;
