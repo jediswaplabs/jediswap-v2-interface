@@ -6,13 +6,6 @@ import { fetchTokenList } from "../state/reducers/tokens";
 import { AppDispatch, AppState } from "../state";
 import Header from "../components/Header";
 
-const AppWrapper = styled.div`
-  display: flex;
-  flex-flow: column;
-  align-items: flex-start;
-  overflow-x: hidden;
-`;
-
 const HeaderWrapper = styled.div`
   width: 100%;
   justify-content: space-between;
@@ -22,12 +15,10 @@ const BodyWrapper = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  padding-top: 100px;
+  min-height: 100vh;
+  padding: ${({ theme }) => theme.navHeight}px 0px 5rem 0px;
   align-items: center;
   flex: 1;
-  overflow-y: auto;
-  overflow-x: hidden;
-  z-index: 10;
 `;
 
 const Marginer = styled.div`
@@ -48,16 +39,14 @@ export default function App() {
   return (
     <Suspense fallback={null}>
       {/* <Route component={DarkModeQueryParamReader} /> */}
-      <AppWrapper>
-        <HeaderWrapper>
-          <Header />
-        </HeaderWrapper>
-        <BodyWrapper>
-          <Router />
-          <Marginer />
-        </BodyWrapper>
-        {/* <Footer /> */}
-      </AppWrapper>
+      <HeaderWrapper>
+        <Header />
+      </HeaderWrapper>
+      <BodyWrapper>
+        <Router />
+        <Marginer />
+      </BodyWrapper>
+      {/* <Footer /> */}
     </Suspense>
   );
 }

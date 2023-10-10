@@ -1,39 +1,39 @@
-import styled from "styled-components";
-import { Box } from "rebass/styled-components";
+import { Box } from 'rebass/styled-components'
+import styled from 'styled-components'
+import { Gap } from 'theme'
 
+// TODO(WEB-1983):
+// Setting `width: 100%` by default prevents composability in complex flex layouts.
+// Same applies to `RowFixed` and its negative margins. This component needs to be
+// further investigated and improved to make UI work easier.
 const Row = styled(Box)<{
-  align?: string;
-  padding?: string;
-  border?: string;
-  borderRadius?: string;
-  gap?: string;
+  width?: string
+  align?: string
+  justify?: string
+  padding?: string
+  border?: string
+  borderRadius?: string
+  gap?: Gap | string
 }>`
-  width: 100%;
+  width: ${({ width }) => width ?? '100%'};
   display: flex;
   padding: 0;
-  align-items: ${({ align }) => (align ? align : "center")};
+  align-items: ${({ align }) => align ?? 'center'};
+  justify-content: ${({ justify }) => justify ?? 'flex-start'};
   padding: ${({ padding }) => padding};
   border: ${({ border }) => border};
   border-radius: ${({ borderRadius }) => borderRadius};
-  gap: ${({ gap }) => gap && gap};
-`;
+  gap: ${({ gap, theme }) => gap && (theme.grids[gap as Gap] || gap)};
+`
 
 export const RowBetween = styled(Row)`
   justify-content: space-between;
-`;
-
-export const RowCentered = styled(Row)`
-  justify-content: center;
-`;
-
-export const RowStart = styled(Row)`
-  justify-content: flex-start;
-`;
+`
 
 export const RowFlat = styled.div`
   display: flex;
   align-items: flex-end;
-`;
+`
 
 export const AutoRow = styled(Row)<{ gap?: string; justify?: string }>`
   flex-wrap: wrap;
@@ -43,11 +43,11 @@ export const AutoRow = styled(Row)<{ gap?: string; justify?: string }>`
   & > * {
     margin: ${({ gap }) => gap} !important;
   }
-`;
+`
 
 export const RowFixed = styled(Row)<{ gap?: string; justify?: string }>`
   width: fit-content;
   margin: ${({ gap }) => gap && `-${gap}`};
-`;
+`
 
-export default Row;
+export default Row
