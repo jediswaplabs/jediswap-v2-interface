@@ -100,7 +100,7 @@ export function AddRemoveTabs({
           //     dispatch(resetMintV3State())
           //   }
           // }}
-          // flex={children ? '1' : undefined}
+          flex={children ? "1" : undefined}
         >
           <StyledArrowLeft stroke={theme.neutral2} />
         </StyledLink>

@@ -57,7 +57,7 @@ const Container = styled.div<{ hideInput: boolean; disabled: boolean }>`
 
 const CurrencySelect = styled(ButtonGray)<{
   visible: boolean;
-  selected?: boolean;
+  selected: boolean;
   hideInput?: boolean;
   disabled?: boolean;
   pointerEvents?: string;
@@ -80,6 +80,11 @@ const CurrencySelect = styled(ButtonGray)<{
   padding: 0 8px;
   justify-content: space-between;
   margin-left: ${({ hideInput }) => (hideInput ? "0" : "12px")};
+  :focus,
+  :hover {
+    background-color: ${({ selected, theme }) =>
+      selected ? theme.surface2 : darken(0.05, theme.accent1)};
+  }
   visibility: ${({ visible }) => (visible ? "visible" : "hidden")};
   ${({ pointerEvents }) => pointerEvents && `pointer-events: none`}
 `;
