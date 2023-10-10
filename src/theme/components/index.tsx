@@ -36,7 +36,7 @@ const StyledLink = styled.a`
 `;
 
 export const HideSmall = styled.span`
-  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
+  ${({ theme }) => theme.mediaWidth.upToSmall`
     display: none;
   `};
 `;

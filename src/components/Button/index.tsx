@@ -1,9 +1,8 @@
 import React from "react";
-import styled from "styled-components";
+import styled, { useTheme } from "styled-components";
 import { darken, lighten } from "polished";
-
+import { Check, ChevronDown } from "react-feather";
 import { RowBetween } from "../Row";
-import { ChevronDown } from "react-feather";
 import {
   Button as RebassButton,
   ButtonProps as ButtonPropsOriginal
@@ -66,6 +65,82 @@ export const ButtonText = styled(Base)`
     cursor: auto;
   }
 `;
+
+export const ButtonOutlined = styled(Base)`
+  border: 1px solid ${({ theme }) => theme.bg2};
+  background-color: transparent;
+  color: ${({ theme }) => theme.text1};
+
+  &:focus {
+    box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
+  }
+  &:hover {
+    box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
+  }
+  &:active {
+    box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
+  }
+  &:disabled {
+    opacity: 50%;
+    cursor: auto;
+  }
+`;
+
+const CheckboxWrapper = styled.div`
+  width: 20px;
+  padding: 0 10px;
+  position: absolute;
+  top: 11px;
+  right: 15px;
+`;
+
+const ResponsiveCheck = styled(Check)`
+  size: 13px;
+`;
+
+const ActiveOutlined = styled(ButtonOutlined)`
+  border: 1px solid;
+  border-color: ${({ theme }) => theme.accent1};
+`;
+
+const Circle = styled.div`
+  height: 17px;
+  width: 17px;
+  border-radius: 50%;
+  background-color: ${({ theme }) => theme.accent1};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+export function ButtonRadioChecked({
+  active = false,
+  children,
+  ...rest
+}: { active?: boolean } & ButtonProps) {
+  const theme = useTheme();
+
+  if (!active) {
+    return (
+      <ButtonOutlined $borderRadius="12px" padding="12px 8px" {...rest}>
+        <RowBetween>{children}</RowBetween>
+      </ButtonOutlined>
+    );
+  } else {
+    return (
+      <ActiveOutlined {...rest} padding="12px 8px" $borderRadius="12px">
+        <RowBetween>
+          {children}
+          <CheckboxWrapper>
+            <Circle>
+              <ResponsiveCheck size={13} stroke={theme.white} />
+            </Circle>
+          </CheckboxWrapper>
+        </RowBetween>
+      </ActiveOutlined>
+    );
+  }
+}
 
 export const ButtonPrimary = styled(Base)`
   background-color: ${({ theme }) => theme.jediBlue};
@@ -198,26 +273,6 @@ export const ButtonPink = styled(Base)`
   }
   &:disabled {
     background-color: ${({ theme }) => theme.primary1};
-    opacity: 50%;
-    cursor: auto;
-  }
-`;
-
-export const ButtonOutlined = styled(Base)`
-  border: 1px solid ${({ theme }) => theme.bg2};
-  background-color: transparent;
-  color: ${({ theme }) => theme.text1};
-
-  &:focus {
-    box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
-  }
-  &:hover {
-    box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
-  }
-  &:active {
-    box-shadow: 0 0 0 1px ${({ theme }) => theme.bg4};
-  }
-  &:disabled {
     opacity: 50%;
     cursor: auto;
   }
