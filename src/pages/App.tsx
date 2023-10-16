@@ -2,7 +2,7 @@ import React, { Suspense, useEffect } from "react";
 import styled from "styled-components";
 import Router from "../routes";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchTokenList } from "../state/reducers/tokens";
+import { fetchTokenList } from "../state/lists/reducer";
 import { AppDispatch, AppState } from "../state";
 import Header from "../components/Header";
 

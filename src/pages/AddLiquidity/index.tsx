@@ -80,6 +80,7 @@ import {
   Wrapper
 } from "./styled";
 import { BodyWrapper } from "pages/AppBody";
+import { useTokenList } from "state/lists/hooks";
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -528,6 +529,13 @@ function AddLiquidity() {
   //   hasExistingPosition && account && !ownsNFT
   // );
 
+  const { defaultList: currencies } = useTokenList();
+  console.log(
+    "🚀 ~ file: index.tsx:533 ~ AddLiquidity ~ currencies:",
+    currencies
+  );
+  // console.log("🚀 ~ file: index.tsx:535 ~ AddLiquidity ~ data:", data);
+
   return (
     <>
       <ScrollablePage>
@@ -605,7 +613,7 @@ function AddLiquidity() {
                         // }}
                         // onCurrencySelect={handleCurrencyASelect}
                         // showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
-                        // currency={}
+                        currency={currencies.tokens[0] ?? null}
                         id="add-liquidity-input-tokena"
                         showCommonBases
                       />

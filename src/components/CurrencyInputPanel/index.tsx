@@ -234,14 +234,13 @@ export default function CurrencyInputPanel({
 
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>
-      {!locked && (
-        <>
-          <Container hideInput={hideInput} disabled={!chainAllowed}>
-            <InputRow
-              style={hideInput ? { padding: "0", borderRadius: "8px" } : {}}
-              selected={!onCurrencySelect}
-            >
-              {/* {!hideInput && (
+      <>
+        <Container hideInput={hideInput} disabled={!chainAllowed}>
+          <InputRow
+            style={hideInput ? { padding: "0", borderRadius: "8px" } : {}}
+            selected={!onCurrencySelect}
+          >
+            {/* {!hideInput && (
                 <StyledNumericalInput
                   className="token-amount-input"
                   value={value}
@@ -251,39 +250,41 @@ export default function CurrencyInputPanel({
                 />
               )} */}
 
-              {/* <StyledPrefetchBalancesWrapper shouldFetchOnAccountUpdate={modalOpen} $fullWidth={hideInput}> */}
-              <CurrencySelect
-                disabled={!chainAllowed}
-                visible={currency !== undefined}
-                selected={!!currency}
-                hideInput={hideInput}
-                className="open-currency-select-button"
-                onClick={() => {
-                  if (onCurrencySelect) {
-                    setModalOpen(true);
-                  }
-                }}
-                pointerEvents={!onCurrencySelect ? "none" : undefined}
-              >
-                <Aligner>
-                  <RowFixed>
-                    {/* {pair ? (
+            {/* <StyledPrefetchBalancesWrapper shouldFetchOnAccountUpdate={modalOpen} $fullWidth={hideInput}> */}
+            <CurrencySelect
+              disabled={!chainAllowed}
+              // visible={currency !== undefined}
+              visible={true}
+              // selected={!!currency}
+              selected={true}
+              hideInput={hideInput}
+              className="open-currency-select-button"
+              onClick={() => {
+                if (onCurrencySelect) {
+                  setModalOpen(true);
+                }
+              }}
+              pointerEvents={!onCurrencySelect ? "none" : undefined}
+            >
+              <Aligner>
+                <RowFixed>
+                  {/* {pair ? (
                         <span style={{ marginRight: '0.5rem' }}>
                           <DoubleCurrencyLogo currency0={pair.token0} currency1={pair.token1} size={24} margin={true} />
                         </span>
                       ) : (
                         currency && <CurrencyLogo style={{ marginRight: '0.5rem' }} currency={currency} size="24px" />
                       )} */}
-                    {pair ? (
-                      <StyledTokenName className="pair-name-container">
-                        {pair?.token0.symbol}:{pair?.token1.symbol}
-                      </StyledTokenName>
-                    ) : (
-                      <StyledTokenName
-                        className="token-symbol-container"
-                        active={Boolean(currency && currency.symbol)}
-                      >
-                        {(currency &&
+                  {pair ? (
+                    <StyledTokenName className="pair-name-container">
+                      {pair?.token0.symbol}:{pair?.token1.symbol}
+                    </StyledTokenName>
+                  ) : (
+                    <StyledTokenName
+                      className="token-symbol-container"
+                      active={Boolean(currency && currency.symbol)}
+                    >
+                      {/* {(currency &&
                         currency.symbol &&
                         currency.symbol.length > 20
                           ? currency.symbol.slice(0, 4) +
@@ -292,43 +293,45 @@ export default function CurrencyInputPanel({
                               currency.symbol.length - 5,
                               currency.symbol.length
                             )
-                          : currency?.symbol) || <>Select a token</>}
-                      </StyledTokenName>
-                    )}
-                  </RowFixed>
-                  {onCurrencySelect && <StyledDropDown selected={!!currency} />}
-                </Aligner>
-              </CurrencySelect>
-              {/* </StyledPrefetchBalancesWrapper> */}
-            </InputRow>
-            {Boolean(!hideInput && !hideBalance && currency) && (
-              <FiatRow>
-                <RowBetween>
-                  <LoadingOpacityContainer $loading={loading}>
-                    {fiatValue && <FiatValue fiatValue={fiatValue} />}
-                  </LoadingOpacityContainer>
-                  {/* {account && ( */}
-                  <RowFixed style={{ height: "17px" }}>
-                    <ThemedText.DeprecatedBody
-                      onClick={onMax}
-                      color={theme.neutral3}
-                      fontWeight={535}
-                      fontSize={14}
-                      style={{ display: "inline", cursor: "pointer" }}
-                    >
-                      {/* {Boolean(!hideBalance && currency && selectedCurrencyBalance) &&
+                          : currency?.symbol) || <>Select a token</>} */}
+                      ETH
+                    </StyledTokenName>
+                  )}
+                </RowFixed>
+                {/* {onCurrencySelect &&  */}
+                <StyledDropDown selected={false} />
+                {/* } */}
+              </Aligner>
+            </CurrencySelect>
+            {/* </StyledPrefetchBalancesWrapper> */}
+          </InputRow>
+          {Boolean(!hideInput && !hideBalance && currency) && (
+            <FiatRow>
+              <RowBetween>
+                <LoadingOpacityContainer $loading={loading}>
+                  {fiatValue && <FiatValue fiatValue={fiatValue} />}
+                </LoadingOpacityContainer>
+                {/* {account && ( */}
+                <RowFixed style={{ height: "17px" }}>
+                  <ThemedText.DeprecatedBody
+                    onClick={onMax}
+                    color={theme.neutral3}
+                    fontWeight={535}
+                    fontSize={14}
+                    style={{ display: "inline", cursor: "pointer" }}
+                  >
+                    {/* {Boolean(!hideBalance && currency && selectedCurrencyBalance) &&
                           (renderBalance?.(selectedCurrencyBalance as CurrencyAmount<Currency>) || (
                             <Trans>Balance: {formatCurrencyAmount(selectedCurrencyBalance, 4)}</Trans>
                           ))} */}
-                    </ThemedText.DeprecatedBody>
-                  </RowFixed>
-                  {/* )} */}
-                </RowBetween>
-              </FiatRow>
-            )}
-          </Container>
-        </>
-      )}
+                  </ThemedText.DeprecatedBody>
+                </RowFixed>
+                {/* )} */}
+              </RowBetween>
+            </FiatRow>
+          )}
+        </Container>
+      </>
       {/* {onCurrencySelect && (
         <CurrencySearchModal
           isOpen={modalOpen}
