@@ -57,7 +57,7 @@ const inputRegex = RegExp(`^\\d*(?:\\\\[.])?\\d*$`); // match escaped "." charac
 interface InputProps
   extends Omit<React.HTMLProps<HTMLInputElement>, "ref" | "onChange" | "as"> {
   value: string | number;
-  onUserInput: (input: string) => void;
+  onUserInput?: (input: string) => void;
   error?: boolean;
   fontSize?: string;
   align?: "right" | "left";

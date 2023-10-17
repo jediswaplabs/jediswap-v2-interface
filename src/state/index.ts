@@ -1,9 +1,9 @@
 import { configureStore } from "@reduxjs/toolkit";
-import tokenList from "./reducers/tokens";
+import lists from "./lists/reducer";
 
 const store = configureStore({
   reducer: {
-    tokenList
+    lists
   }
 });
 

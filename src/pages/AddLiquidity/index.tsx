@@ -80,6 +80,8 @@ import {
   Wrapper
 } from "./styled";
 import { BodyWrapper } from "pages/AppBody";
+import { useTokenList } from "state/lists/hooks";
+import { Currency } from "@jediswap/sdk";
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -365,17 +367,8 @@ function AddLiquidity() {
   //   [chainId]
   // )
 
-  // const handleCurrencyASelect = useCallback(
-  //   (currencyANew: Currency) => {
-  //     const [idA, idB] = handleCurrencySelect(currencyANew, currencyIdB)
-  //     if (idB === undefined) {
-  //       navigate(`/add/${idA}`)
-  //     } else {
-  //       navigate(`/add/${idA}/${idB}`)
-  //     }
-  //   },
-  //   [handleCurrencySelect, currencyIdB, navigate]
-  // )
+  const handleCurrencyASelect = useCallback((currencyANew: Currency) => {}, []);
+  const handleCurrencyBSelect = useCallback((currencyANew: Currency) => {}, []);
 
   // const handleCurrencyBSelect = useCallback(
   //   (currencyBNew: Currency) => {
@@ -528,6 +521,8 @@ function AddLiquidity() {
   //   hasExistingPosition && account && !ownsNFT
   // );
 
+  const { defaultList: currencies } = useTokenList();
+
   return (
     <>
       <ScrollablePage>
@@ -603,9 +598,9 @@ function AddLiquidity() {
                         //     maxAmounts[Field.CURRENCY_A]?.toExact() ?? ""
                         //   );
                         // }}
-                        // onCurrencySelect={handleCurrencyASelect}
+                        onCurrencySelect={handleCurrencyASelect}
                         // showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
-                        // currency={}
+                        currency={currencies?.list?.tokens[1] ?? null}
                         id="add-liquidity-input-tokena"
                         showCommonBases
                       />
@@ -614,14 +609,14 @@ function AddLiquidity() {
                         // value={formattedAmounts[Field.CURRENCY_B]}
                         hideInput
                         // onUserInput={onFieldBInput}
-                        // onCurrencySelect={handleCurrencyBSelect}
+                        onCurrencySelect={handleCurrencyBSelect}
                         // onMax={() => {
                         //   onFieldBInput(
                         //     maxAmounts[Field.CURRENCY_B]?.toExact() ?? ""
                         //   );
                         // }}
                         // showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
-                        // currency={currencies[Field.CURRENCY_B] ?? null}
+                        currency={currencies?.list?.tokens[0] ?? null}
                         id="add-liquidity-input-tokenb"
                         showCommonBases
                       />

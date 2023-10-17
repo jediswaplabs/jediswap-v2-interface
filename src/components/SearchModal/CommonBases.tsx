@@ -1,96 +1,75 @@
-// import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
-// import { Currency } from '@uniswap/sdk-core'
-// import { TraceEvent } from 'analytics'
-// import CurrencyLogo from 'components/Logo/CurrencyLogo'
-// import { AutoRow } from 'components/Row'
-// import { COMMON_BASES } from 'constants/routing'
-// import { Text } from 'rebass'
-// import styled from 'styled-components'
-// import { currencyId } from 'utils/currencyId'
+import React from "react";
+import { Text } from "rebass";
+import { Currency, currencyEquals, ETHER, Token } from "@jediswap/sdk";
+import styled from "styled-components";
 
-// const BaseWrapper = styled.div<{ disable?: boolean }>`
-//   border: 1px solid ${({ theme }) => theme.surface3};
-//   border-radius: 18px;
-//   display: flex;
-//   padding: 6px;
-//   padding-top: 5px;
-//   padding-bottom: 5px;
-//   padding-right: 12px;
-//   line-height: 0px;
+// import { SUGGESTED_BASES } from '../../constants'
+import { AutoColumn } from "../Column";
+// import QuestionHelper from '../QuestionHelper'
+import { AutoRow } from "../Row";
+// import { StarknetChainId } from 'starknet/dist/constants'
+import CurrencyLogo from "components/Logo/CurrencyLogo";
 
-//   align-items: center;
-//   :hover {
-//     cursor: ${({ disable }) => !disable && 'pointer'};
-//     background-color: ${({ theme }) => theme.deprecated_hoverDefault};
-//   }
+const BaseWrapper = styled.div<{ disable?: boolean }>`
+  border: 1px solid
+    ${({ theme, disable }) => (disable ? "transparent" : theme.bg3)};
+  border-radius: 10px;
+  display: flex;
+  padding: 6px;
 
-//   color: ${({ theme, disable }) => disable && theme.neutral1};
-//   background-color: ${({ theme, disable }) => disable && theme.surface3};
-// `
+  align-items: center;
+  :hover {
+    cursor: ${({ disable }) => !disable && "pointer"};
+    background-color: ${({ theme, disable }) => !disable && theme.bg2};
+  }
 
-// const formatAnalyticsEventProperties = (currency: Currency, searchQuery: string, isAddressSearch: string | false) => ({
-//   token_symbol: currency?.symbol,
-//   token_chain_id: currency?.chainId,
-//   token_address: getTokenAddress(currency),
-//   is_suggested_token: true,
-//   is_selected_from_list: false,
-//   is_imported_by_user: false,
-//   ...(isAddressSearch === false
-//     ? { search_token_symbol_input: searchQuery }
-//     : { search_token_address_input: isAddressSearch }),
-// })
+  background-color: ${({ theme, disable }) => disable && theme.bg3};
+  opacity: ${({ disable }) => disable && "0.4"};
+`;
 
-// export default function CommonBases({
-//   chainId,
-//   onSelect,
-//   selectedCurrency,
-//   searchQuery,
-//   isAddressSearch,
-// }: {
-//   chainId?: number
-//   selectedCurrency?: Currency | null
-//   onSelect: (currency: Currency) => void
-//   searchQuery: string
-//   isAddressSearch: string | false
-// }) {
-//   const bases = chainId !== undefined ? COMMON_BASES[chainId] ?? [] : []
-
-//   return bases.length > 0 ? (
-//     <AutoRow gap="4px">
-//       {bases.map((currency: Currency) => {
-//         const isSelected = selectedCurrency?.equals(currency)
-
-//         return (
-//           <TraceEvent
-//             events={[BrowserEvent.onClick, BrowserEvent.onKeyPress]}
-//             name={InterfaceEventName.TOKEN_SELECTED}
-//             properties={formatAnalyticsEventProperties(currency, searchQuery, isAddressSearch)}
-//             element={InterfaceElementName.COMMON_BASES_CURRENCY_BUTTON}
-//             key={currencyId(currency)}
-//           >
-//             <BaseWrapper
-//               tabIndex={0}
-//               onKeyPress={(e) => !isSelected && e.key === 'Enter' && onSelect(currency)}
-//               onClick={() => !isSelected && onSelect(currency)}
-//               disable={isSelected}
-//               key={currencyId(currency)}
-//               data-testid={`common-base-${currency.symbol}`}
-//             >
-//               <CurrencyLogoFromList currency={currency} />
-//               <Text fontWeight={535} fontSize={16} lineHeight="16px">
-//                 {currency.symbol}
-//               </Text>
-//             </BaseWrapper>
-//           </TraceEvent>
-//         )
-//       })}
-//     </AutoRow>
-//   ) : null
-// }
-
-// /** helper component to retrieve a base currency from the active token lists */
-// function CurrencyLogoFromList({ currency }: { currency: Currency }) {
-//   const token = useTokenInfoFromActiveList(currency)
-
-//   return <CurrencyLogo currency={token} style={{ marginRight: 8 }} />
-// }
+export default function CommonBases({
+  chainId,
+  onSelect,
+  selectedCurrency
+}: {
+  chainId: object;
+  selectedCurrency?: Currency | null;
+  onSelect: (currency: Currency) => void;
+}) {
+  return (
+    <AutoColumn gap="md">
+      <AutoRow>
+        <Text fontWeight={500} fontSize={14}>
+          Common bases
+        </Text>
+        {/* <QuestionHelper text="These tokens are commonly paired with other tokens." /> */}
+      </AutoRow>
+      <AutoRow gap="4px">
+        <BaseWrapper
+          onClick={() => {
+            if (!selectedCurrency || !currencyEquals(selectedCurrency, ETHER)) {
+              onSelect(ETHER);
+            }
+          }}
+          disable={selectedCurrency === ETHER}
+        >
+          <CurrencyLogo currency={ETHER} style={{ marginRight: 8 }} />
+          <Text fontWeight={500} fontSize={16}>
+            ETH
+          </Text>
+        </BaseWrapper>
+        {/* {(chainId ? SUGGESTED_BASES[chainId] : []).map((token: Token) => {
+          const selected = selectedCurrency instanceof Token && selectedCurrency.address === token.address
+          return (
+            <BaseWrapper onClick={() => !selected && onSelect(token)} disable={selected} key={token.address}>
+              <CurrencyLogo currency={token} style={{ marginRight: 8 }} />
+              <Text fontWeight={500} fontSize={16}>
+                {token.symbol}
+              </Text>
+            </BaseWrapper>
+          )
+        })} */}
+      </AutoRow>
+    </AutoColumn>
+  );
+}

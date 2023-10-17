@@ -1,13 +1,33 @@
-import searchIcon from 'assets/svg/search.svg'
-import { LoadingRows as BaseLoadingRows } from 'components/Loader/styled'
-import styled from 'styled-components'
+import styled from "styled-components";
+import { AutoColumn } from "../Column";
+import { RowBetween, RowFixed } from "../Row";
+import searchIcon from "assets/svg/search.svg";
+import { LoadingRows as BaseLoadingRows } from "components/Loader/styled";
 
-import { AutoColumn } from '../Column'
-import { RowBetween } from '../Row'
+export const ModalInfo = styled.div`
+  ${({ theme }) => theme.flexRowNoWrap}
+  align-items: center;
+  padding: 1rem 1rem;
+  margin: 0.25rem 0.5rem;
+  justify-content: center;
+  flex: 1;
+  user-select: none;
+`;
+
+export const FadedSpan = styled(RowFixed)`
+  color: ${({ theme }) => theme.primary1};
+  font-size: 14px;
+`;
+
+export const SeparatorDark = styled.div`
+  width: 100%;
+  height: 1px;
+  background-color: ${({ theme }) => theme.bg3};
+`;
 
 export const PaddedColumn = styled(AutoColumn)`
   padding: 20px;
-`
+`;
 
 export const MenuItem = styled(RowBetween)<{ dim?: boolean }>`
   padding: 4px 20px;
@@ -15,13 +35,14 @@ export const MenuItem = styled(RowBetween)<{ dim?: boolean }>`
   display: grid;
   grid-template-columns: auto minmax(auto, 1fr) auto minmax(0, 72px);
   grid-gap: 16px;
-  cursor: ${({ disabled }) => !disabled && 'pointer'};
-  pointer-events: ${({ disabled }) => disabled && 'none'};
+  cursor: ${({ disabled }) => !disabled && "pointer"};
+  pointer-events: ${({ disabled }) => disabled && "none"};
   :hover {
     background-color: ${({ theme }) => theme.deprecated_hoverDefault};
   }
-  opacity: ${({ disabled, selected, dim }) => (dim || disabled || selected ? 0.4 : 1)};
-`
+  opacity: ${({ disabled, selected, dim }) =>
+    dim || disabled || selected ? 0.4 : 1};
+`;
 
 export const SearchInput = styled.input`
   background: no-repeat scroll 7px 7px;
@@ -30,7 +51,6 @@ export const SearchInput = styled.input`
   background-position: 12px center;
   position: relative;
   display: flex;
-  padding: 16px;
   padding-left: 40px;
   height: 40px;
   align-items: center;
@@ -58,12 +78,12 @@ export const SearchInput = styled.input`
     background-color: ${({ theme }) => theme.surface2};
     outline: none;
   }
-`
+`;
 export const Separator = styled.div`
   width: 100%;
   height: 1px;
   background-color: ${({ theme }) => theme.surface3};
-`
+`;
 
 export const LoadingRows = styled(BaseLoadingRows)`
   grid-column-gap: 0.5em;
@@ -85,4 +105,4 @@ export const LoadingRows = styled(BaseLoadingRows)`
     grid-column: 1 / 4;
     height: 0.75em;
   }
-`
+`;
