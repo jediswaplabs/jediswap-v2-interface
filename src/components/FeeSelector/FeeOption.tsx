@@ -36,6 +36,7 @@ export function FeeOption({ active, onClick }: FeeOptionProps) {
         <AutoColumn justify="flex-start" gap="6px">
           <ResponsiveText>
             {/* <Trans>{FEE_AMOUNT_DETAIL[feeAmount].label}%</Trans> */}
+            <>0.05%</>
           </ResponsiveText>
           <ThemedText.DeprecatedMain
             fontWeight={485}
@@ -43,6 +44,7 @@ export function FeeOption({ active, onClick }: FeeOptionProps) {
             textAlign="left"
           >
             {/* {FEE_AMOUNT_DETAIL[feeAmount].description} */}
+            <>Best for stable pairs</>
           </ThemedText.DeprecatedMain>
         </AutoColumn>
 

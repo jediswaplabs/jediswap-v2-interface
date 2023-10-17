@@ -39,7 +39,7 @@ export const BaseButton = styled(RebassButton)<BaseButtonProps>`
   line-height: 24px;
   font-weight: 535;
   text-align: center;
-  border-radius: ${({ $borderRadius }) => $borderRadius ?? "16px"};
+  border-radius: ${({ $borderRadius }) => $borderRadius ?? "8px"};
   outline: none;
   border: 1px solid transparent;
   color: ${({ theme }) => theme.neutral1};
@@ -155,10 +155,6 @@ export const ButtonGray = styled(BaseButton)`
   font-size: 16px;
   font-weight: 535;
 
-  &:hover {
-    background-color: ${({ theme, disabled }) =>
-      !disabled && darken(0.05, theme.surface2)};
-  }
   &:active {
     background-color: ${({ theme, disabled }) =>
       !disabled && darken(0.1, theme.surface2)};
@@ -512,7 +508,7 @@ function pickThemeButtonTextColor({
 const BaseThemeButton = styled.button<BaseThemeButtonProps>`
   align-items: center;
   background-color: ${pickThemeButtonBackgroundColor};
-  border-radius: 16px;
+  border-radius: 8px;
   border: 0;
   color: ${pickThemeButtonTextColor};
   cursor: pointer;

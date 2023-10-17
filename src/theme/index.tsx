@@ -125,16 +125,19 @@ export default function ThemeProvider({
 }
 
 export const ThemedGlobalStyle = createGlobalStyle`
-  html {
-    color: ${({ theme }) => theme.neutral1};
-    background-color: ${({ theme }) => theme.background} !important;
-  }
+html {
+  color: ${({ theme }) => theme.text1};
+  background-color: ${({ theme }) => theme.jediBg};
+  background: linear-gradient(108.58deg, #03001E 20.7%, #EC38BC 36.65%, #7303C0 57.02%, #2A3EF5 71.08%, #010d63 93.32%);
+  background-repeat: no-repeat;
+  background-size: cover;
+}
 
- summary::-webkit-details-marker {
-    display:none;
-  }
-
-  a {
-    color: ${({ theme }) => theme.accent1}; 
-  }
+body {
+  min-height: 100vh;
+  background: linear-gradient(66.46deg, #03001E 24.27%, rgba(3, 0, 30, 0.612102) 37.29%, #010d63 100%);
+  background-repeat: no-repeat;
+  background-size: cover;
+  margin: 0
+}
 `;

@@ -193,6 +193,7 @@ export default function FeeSelector({
                         poolState={poolsByFeeTier[feeAmount]}
                       />
                     )} */}
+                    0% select
                   </Box>
                 </>
               )}

@@ -522,11 +522,6 @@ function AddLiquidity() {
   // );
 
   const { defaultList: currencies } = useTokenList();
-  console.log(
-    "🚀 ~ file: index.tsx:533 ~ AddLiquidity ~ currencies:",
-    currencies
-  );
-  // console.log("🚀 ~ file: index.tsx:535 ~ AddLiquidity ~ data:", data);
 
   return (
     <>
