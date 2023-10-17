@@ -25,10 +25,14 @@
     "react-router-dom": "^6.16.0",
     "react-scripts": "5.0.1",
     "react-spring": "^9.7.3",
+    "react-use-gesture": "^9.1.3",
+    "react-virtualized-auto-sizer": "^1.0.20",
+    "react-window": "^1.8.9",
     "rebass": "^4.0.7",
     "starknet": "^5.19.5",
     "styled-components": "^6.0.8",
     "typescript": "^4.4.2",
+    "ua-parser-js": "^1.0.36",
     "web-vitals": "^2.1.0"
   },
   "scripts": {
@@ -56,11 +60,15 @@
     ]
   },
   "devDependencies": {
+    "@jediswap/sdk": "^2.3.4",
+    "@jediswap/token-lists": "^1.0.0-beta.2",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.7.13",
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@types/react-redux": "^7.1.26",
-    "@types/rebass": "^4.0.11"
+    "@types/react-window": "^1.8.6",
+    "@types/rebass": "^4.0.11",
+    "@types/ua-parser-js": "^0.7.37"
   }
 }

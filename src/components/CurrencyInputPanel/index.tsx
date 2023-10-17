@@ -1,6 +1,6 @@
 // import { Trans } from '@lingui/macro'
 // import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
-import { Currency, CurrencyAmount } from "@uniswap/sdk-core";
+import { Currency, CurrencyAmount } from "@jediswap/sdk";
 import { Pair } from "@uniswap/v2-sdk";
 // import { useWeb3React } from '@web3-react/core'
 // import { TraceEvent } from 'analytics'
@@ -21,11 +21,11 @@ import { ReactComponent as DropDown } from "../../assets/images/dropdown.svg";
 // import { useCurrencyBalance } from '../../state/connection/hooks'
 import { ButtonGray } from "../Button";
 // import DoubleCurrencyLogo from '../DoubleLogo'
-// import CurrencyLogo from '../Logo/CurrencyLogo'
 import { Input as NumericalInput } from "../NumericalInput";
 import { RowBetween, RowFixed } from "../Row";
 import { FiatValue } from "./FiatValue";
-// import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
+import CurrencyLogo from "components/Logo/CurrencyLogo";
+import CurrencySearchModal from "components/SearchModal/CurrencySearchModal";
 
 const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${flexColumnNoWrap};
@@ -195,7 +195,7 @@ interface CurrencyInputPanelProps {
   showCommonBases?: boolean;
   showCurrencyAmount?: boolean;
   disableNonToken?: boolean;
-  renderBalance?: (amount: CurrencyAmount<Currency>) => ReactNode;
+  // renderBalance?: (amount: CurrencyAmount<Currency>) => ReactNode;
   locked?: boolean;
   loading?: boolean;
 }
@@ -212,7 +212,7 @@ export default function CurrencyInputPanel({
   showCommonBases,
   showCurrencyAmount,
   disableNonToken,
-  renderBalance,
+  // renderBalance,
   fiatValue,
   hideBalance = false,
   pair = null, // used for double token logo
@@ -275,6 +275,13 @@ export default function CurrencyInputPanel({
                       ) : (
                         currency && <CurrencyLogo style={{ marginRight: '0.5rem' }} currency={currency} size="24px" />
                       )} */}
+                  {currency && (
+                    <CurrencyLogo
+                      style={{ marginRight: "0.5rem" }}
+                      currency={currency}
+                      size={24}
+                    />
+                  )}
                   {pair ? (
                     <StyledTokenName className="pair-name-container">
                       {pair?.token0.symbol}:{pair?.token1.symbol}
@@ -284,17 +291,16 @@ export default function CurrencyInputPanel({
                       className="token-symbol-container"
                       active={Boolean(currency && currency.symbol)}
                     >
-                      {/* {(currency &&
-                        currency.symbol &&
-                        currency.symbol.length > 20
-                          ? currency.symbol.slice(0, 4) +
-                            "..." +
-                            currency.symbol.slice(
-                              currency.symbol.length - 5,
-                              currency.symbol.length
-                            )
-                          : currency?.symbol) || <>Select a token</>} */}
-                      ETH
+                      {(currency &&
+                      currency.symbol &&
+                      currency.symbol.length > 20
+                        ? currency.symbol.slice(0, 4) +
+                          "..." +
+                          currency.symbol.slice(
+                            currency.symbol.length - 5,
+                            currency.symbol.length
+                          )
+                        : currency?.symbol) || <>Select a token</>}
                     </StyledTokenName>
                   )}
                 </RowFixed>
@@ -332,7 +338,7 @@ export default function CurrencyInputPanel({
           )}
         </Container>
       </>
-      {/* {onCurrencySelect && (
+      {onCurrencySelect && (
         <CurrencySearchModal
           isOpen={modalOpen}
           onDismiss={handleDismissSearch}
@@ -340,10 +346,10 @@ export default function CurrencyInputPanel({
           selectedCurrency={currency}
           otherSelectedCurrency={otherCurrency}
           showCommonBases={showCommonBases}
-          showCurrencyAmount={showCurrencyAmount}
-          disableNonToken={disableNonToken}
+          // showCurrencyAmount={showCurrencyAmount}
+          // disableNonToken={disableNonToken}
         />
-      )} */}
+      )}
     </InputPanel>
   );
 }

@@ -1,11 +1,10 @@
 import { DialogContent, DialogOverlay } from "@reach/dialog";
 import React from "react";
 import { animated, useSpring, useTransition } from "react-spring";
-import { useGesture } from "@use-gesture/react";
+import { useGesture } from "react-use-gesture";
 import styled, { css } from "styled-components";
 import { Z_INDEX } from "theme/zIndex";
-
-// import { isMobile } from "../../utils/userAgent";
+import { isMobile } from "utils/userAgent";
 
 export const MODAL_TRANSITION_DURATION = 200;
 
@@ -100,7 +99,7 @@ export default function Modal({
   onDismiss,
   minHeight = false,
   maxHeight = 90,
-  // maxWidth = 420,
+  maxWidth = 420,
   height,
   initialFocusRef,
   children,
@@ -124,9 +123,12 @@ export default function Modal({
       set({
         y: state.down ? state.movement[1] : 0
       });
-      // if (state.movement[1] > 300 || (state.velocity > 3 && state.direction[1] > 0)) {
-      //   onSwipe?.()
-      // }
+      if (
+        state.movement[1] > 300 ||
+        (state.velocity > 3 && state.direction[1] > 0)
+      ) {
+        onSwipe?.();
+      }
     }
   });
 
@@ -143,7 +145,30 @@ export default function Modal({
               initialFocusRef={initialFocusRef}
               unstable_lockFocusAcrossFrames={false}
               $scrollOverlay={$scrollOverlay}
-            ></StyledDialogOverlay>
+            >
+              <StyledDialogContent
+                {...(isMobile
+                  ? {
+                      ...bind(),
+                      style: {
+                        transform: y.interpolate(
+                          (y) => `translateY(${(y as number) > 0 ? y : 0}px)`
+                        )
+                      }
+                    }
+                  : {})}
+                aria-label="dialog"
+                $minHeight={height ?? minHeight}
+                $maxHeight={height ?? maxHeight}
+                $scrollOverlay={$scrollOverlay}
+                $hideBorder={hideBorder}
+                $maxWidth={maxWidth}
+              >
+                {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
+                {!initialFocusRef && isMobile ? <div tabIndex={1} /> : null}
+                {children}
+              </StyledDialogContent>
+            </StyledDialogOverlay>
           )
       )}
     </>

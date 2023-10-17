@@ -1,18 +1,27 @@
 import { createAsyncThunk, createReducer, createSlice } from "@reduxjs/toolkit";
+import { TokenList } from "@jediswap/token-lists/dist/types";
 
 export interface ListsState {
-  isLoading: boolean;
-  isError: any;
-  // this contains the default list of tokens
-  readonly defaultList: object;
+  readonly defaultList: {
+    readonly list: TokenList | null;
+    readonly pendingUpdate: TokenList | null;
+    readonly loadingRequestId: string | null;
+    readonly error: string | null;
+  };
 }
 
+type ListState = ListsState["defaultList"];
+
+const NEW_LIST_STATE: ListState = {
+  error: null,
+  list: null,
+  loadingRequestId: null,
+  pendingUpdate: null
+};
+
 const initialState: ListsState = {
-  isLoading: false,
-  isError: null,
-  defaultList: {
-    tokens: []
-  }
+  defaultList: NEW_LIST_STATE
+  // defaultList: {}
 };
 
 // Action
@@ -27,14 +36,14 @@ export const fetchTokenList = createAsyncThunk("fetchTokenList", async () => {
 export default createReducer(initialState, (builder) =>
   builder
     .addCase(fetchTokenList.pending, (state, action) => {
-      state.isLoading = true;
+      // state.isLoading = true;
     })
     .addCase(fetchTokenList.fulfilled, (state, action) => {
-      state.isLoading = false;
-      state.defaultList = action.payload;
+      // state.isLoading = false;
+      state.defaultList.list = action.payload;
     })
     .addCase(fetchTokenList.rejected, (state, action) => {
       console.log("Error", action.payload);
-      state.isError = true;
+      // state.isError = true;
     })
 );
