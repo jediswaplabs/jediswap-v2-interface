@@ -89,7 +89,7 @@ const StyledBodyWrapper = styled(BodyWrapper)<{
   $hasExistingPosition: boolean;
 }>`
   padding: ${({ $hasExistingPosition }) => ($hasExistingPosition ? "10px" : 0)};
-  width: 640px;
+  max-width: 600px;
 `;
 
 export default function AddLiquidityWrapper() {

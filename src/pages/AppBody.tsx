@@ -12,7 +12,7 @@ export const BodyWrapper = styled.main<BodyWrapperProps>`
   margin-top: ${({ $margin }) => $margin ?? "0px"};
   width: 100%;
   background: transparent;
-  border-radius: 16px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: inset 0px 30.0211px 43.1072px -27.7118px rgba(255, 255, 255, 0.5),
     inset 0px 5.38841px 8.46749px -3.07909px #ffffff,
