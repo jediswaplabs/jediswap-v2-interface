@@ -154,6 +154,7 @@ const commonTheme = {
   promotionalGradient: colors.accent1_light,
 
   //jediswap palette
+  jediWhite: "#ffffff",
   jediBlue: "#50D5FF",
   jediPink: "#FF00E9",
   jediGrey: "#959595",
@@ -185,6 +186,7 @@ export const darkTheme = {
   scrim: colors.scrim,
 
   //jediswap palette
+  jediWhite: "#ffffff",
   jediBlue: "#50D5FF",
   jediPink: "#FF00E9",
   jediGrey: "#959595",
