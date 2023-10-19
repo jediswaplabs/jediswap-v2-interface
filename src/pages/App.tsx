@@ -5,8 +5,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchTokenList } from "../state/lists/reducer";
 import { AppDispatch, AppState } from "../state";
 import Header from "../components/Header";
+import { flexRowNoWrap } from "theme/styles";
 
 const HeaderWrapper = styled.div`
+  ${flexRowNoWrap};
   width: 100%;
   justify-content: space-between;
 `;

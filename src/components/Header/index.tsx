@@ -4,11 +4,14 @@ import { NavLink, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import Logo from "../../assets/jedi/logo.png";
 import { YellowCard } from "../Card";
-import Row from "../Row";
 import { ExternalLink } from "../../theme/components";
 import { useAccountDetails } from "../../hooks/starknet-react";
 import { useProvider } from "@starknet-react/core";
 import { constants } from "starknet";
+import Web3Status from "components/Web3Status";
+import Row from "components/Row";
+import { flexRowNoWrap } from "theme/styles";
+import { isTestnetChainId } from "constants/connector";
 
 const HeaderFrame = styled.div`
   display: grid;
@@ -159,7 +162,7 @@ const JediIcon = styled.div`
 const activeClassName = "ACTIVE";
 
 const StyledNavLink = styled(NavLink)`
-  ${({ theme }) => theme.flexRowNoWrap}
+  ${flexRowNoWrap};
   align-items: left;
   // border-radius: 3rem;
   outline: none;
@@ -178,7 +181,7 @@ const StyledNavLink = styled(NavLink)`
 `;
 
 const StyledExternalLink = styled(ExternalLink)`
-  ${({ theme }) => theme.flexRowNoWrap}
+  ${flexRowNoWrap};
   align-items: left;
   // border-radius: 3rem;
   outline: none;
@@ -204,24 +207,18 @@ const StyledExternalLink = styled(ExternalLink)`
 
 function Header() {
   const { address, isConnected } = useAccountDetails();
-  const { pathname } = useLocation();
-  const network =
-    process.env.NEXT_PUBLIC_IS_TESTNET === "true" ? "testnet" : "mainnet";
   const [isWrongNetwork, setIsWrongNetwork] = useState<boolean>(false);
+  const [isTestnet, setIsTestnet] = useState<boolean>(false);
   const { provider } = useProvider();
 
   useEffect(() => {
     if (!isConnected) return;
 
     provider.getChainId().then((chainId) => {
-      const isWrongNetwork =
-        (chainId === constants.StarknetChainId.SN_GOERLI &&
-          network === "mainnet") ||
-        (chainId === constants.StarknetChainId.SN_MAIN &&
-          network === "testnet");
-      setIsWrongNetwork(isWrongNetwork);
+      const isTestnet = isTestnetChainId(chainId);
+      setIsTestnet(isTestnet);
     });
-  }, [provider, network, isConnected]);
+  }, [provider, isConnected]);
 
   return (
     <HeaderFrame>
@@ -269,7 +266,7 @@ function Header() {
         <HeaderElement>
           <HideSmall>
             {isConnected ? (
-              !isWrongNetwork ? (
+              !isTestnet ? (
                 <NetworkCard title={"Starknet Mainnet"}>
                   {"Starknet Mainnet"}
                 </NetworkCard>
@@ -281,7 +278,7 @@ function Header() {
             ) : null}
           </HideSmall>
           <AccountElement active={!!address} style={{ pointerEvents: "auto" }}>
-            {/* <Web3Status /> */}
+            <Web3Status />
           </AccountElement>
         </HeaderElement>
       </HeaderControls>
