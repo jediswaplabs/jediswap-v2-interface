@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@argent/starknet-react-webwallet-connector": "^6.6.0",
     "@popperjs/core": "^2.11.8",
     "@reach/dialog": "^0.18.0",
     "@reach/portal": "^0.18.0",

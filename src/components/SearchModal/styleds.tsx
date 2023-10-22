@@ -3,9 +3,10 @@ import { AutoColumn } from "../Column";
 import { RowBetween, RowFixed } from "../Row";
 import searchIcon from "assets/svg/search.svg";
 import { LoadingRows as BaseLoadingRows } from "components/Loader/styled";
+import { flexRowNoWrap } from "theme/styles";
 
 export const ModalInfo = styled.div`
-  ${({ theme }) => theme.flexRowNoWrap}
+  ${flexRowNoWrap};
   align-items: center;
   padding: 1rem 1rem;
   margin: 0.25rem 0.5rem;
