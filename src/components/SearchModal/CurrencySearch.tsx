@@ -185,68 +185,68 @@ export function CurrencySearch({
   // const selectedListInfo = useSelectedListInfo();
 
   return (
-    <ContentWrapper>
-      <Column style={{ width: "100%", flex: "1 1" }}>
-        <PaddedColumn gap="16px">
-          <RowBetween>
-            <Text fontWeight={400} fontSize={20} color={"#FFFFFF"}>
-              {showLPTokens ? "Select LP Token" : "Select Token"}
-              {/* <QuestionHelper text="Find a token by searching for its name or symbol or by pasting its address below." /> */}
-            </Text>
-            {/* <CloseIcon onClick={onDismiss} /> */}
-          </RowBetween>
-          <Row>
-            <SearchInput
-              type="text"
-              id="token-search-input"
-              data-testid="token-search-input"
-              placeholder={`Search name or paste address`}
-              autoComplete="off"
-              value={searchQuery}
-              ref={inputRef as RefObject<HTMLInputElement>}
-              // onChange={handleInput}
-              // onKeyDown={handleEnter}
-            />
-          </Row>
-          {/* {showCommonBases && (
+    // <ContentWrapper>
+    <Column style={{ width: "100%", flex: "1 1" }}>
+      <PaddedColumn gap="16px">
+        <RowBetween>
+          <Text fontWeight={400} fontSize={20} color={"#FFFFFF"}>
+            {showLPTokens ? "Select LP Token" : "Select Token"}
+            {/* <QuestionHelper text="Find a token by searching for its name or symbol or by pasting its address below." /> */}
+          </Text>
+          {/* <CloseIcon onClick={onDismiss} /> */}
+        </RowBetween>
+        <Row>
+          <SearchInput
+            type="text"
+            id="token-search-input"
+            data-testid="token-search-input"
+            placeholder={`Search name or paste address`}
+            autoComplete="off"
+            value={searchQuery}
+            ref={inputRef as RefObject<HTMLInputElement>}
+            // onChange={handleInput}
+            // onKeyDown={handleEnter}
+          />
+        </Row>
+        {/* {showCommonBases && (
           <CommonBases
             chainId={1}
             onSelect={handleCurrencySelect}
             selectedCurrency={selectedCurrency}
           />
         )} */}
-          <RowBetween>
-            <Text
-              fontSize={16}
-              fontWeight={700}
-              fontFamily={"DM Sans"}
-              letterSpacing={"0px"}
-              color={"#FFFFFF"}
-            >
-              Token Name
-            </Text>
-            {/* <SortButton ascending={invertSearchOrder} toggleSortOrder={() => setInvertSearchOrder(iso => !iso)} /> */}
-          </RowBetween>
-        </PaddedColumn>
+        <RowBetween>
+          <Text
+            fontSize={16}
+            fontWeight={700}
+            fontFamily={"DM Sans"}
+            letterSpacing={"0px"}
+            color={"#FFFFFF"}
+          >
+            Token Name
+          </Text>
+          {/* <SortButton ascending={invertSearchOrder} toggleSortOrder={() => setInvertSearchOrder(iso => !iso)} /> */}
+        </RowBetween>
+      </PaddedColumn>
 
-        <Separator />
+      <Separator />
 
-        <div style={{ flex: "1" }}>
-          <AutoSizer disableWidth>
-            {({ height }: { height: any }) => (
-              <CurrencyList
-                height={height}
-                showETH={showTOKEN0 && !showLPTokens}
-                currencies={[]}
-                onCurrencySelect={handleCurrencySelect}
-                otherCurrency={otherSelectedCurrency}
-                selectedCurrency={selectedCurrency}
-                // fixedListRef={fixedList}
-              />
-            )}
-          </AutoSizer>
-        </div>
-      </Column>
-    </ContentWrapper>
+      <div style={{ flex: "1" }}>
+        <AutoSizer disableWidth>
+          {({ height }: { height: any }) => (
+            <CurrencyList
+              height={height}
+              showETH={showTOKEN0 && !showLPTokens}
+              currencies={[]}
+              onCurrencySelect={handleCurrencySelect}
+              otherCurrency={otherSelectedCurrency}
+              selectedCurrency={selectedCurrency}
+              // fixedListRef={fixedList}
+            />
+          )}
+        </AutoSizer>
+      </div>
+    </Column>
+    // </ContentWrapper>
   );
 }
