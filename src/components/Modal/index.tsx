@@ -1,4 +1,5 @@
 import { DialogContent, DialogOverlay } from "@reach/dialog";
+import { transparentize } from "polished";
 import React from "react";
 import { animated, useSpring, useTransition } from "react-spring";
 import { useGesture } from "react-use-gesture";
@@ -26,7 +27,7 @@ const StyledDialogOverlay = styled(AnimatedDialogOverlay)<{
     overflow-y: ${({ $scrollOverlay }) => $scrollOverlay && "scroll"};
     justify-content: center;
 
-    background-color: ${({ theme }) => theme.scrim};
+    background-color: ${({ theme }) => theme.modalBG};
   }
 `;
 
@@ -39,15 +40,16 @@ type StyledDialogProps = {
 };
 
 const AnimatedDialogContent = animated(DialogContent);
+
 const StyledDialogContent = styled(AnimatedDialogContent)<StyledDialogProps>`
   overflow-y: auto;
 
   &[data-reach-dialog-content] {
     margin: auto;
-    background-color: ${({ theme }) => theme.surface2};
-    border: ${({ theme, $hideBorder }) =>
-      !$hideBorder && `1px solid ${theme.surface3}`};
-    box-shadow: ${({ theme }) => theme.deprecated_deepShadow};
+    background-color: ${({ theme }) => theme.jediNavyBlue};
+    box-shadow: 0 4px 8px 0
+      ${({ theme }) => transparentize(0.95, theme.shadow1)};
+
     padding: 0px;
     width: 50vw;
     overflow-y: auto;
@@ -65,7 +67,7 @@ const StyledDialogContent = styled(AnimatedDialogContent)<StyledDialogProps>`
       `}
     display: ${({ $scrollOverlay }) =>
       $scrollOverlay ? "inline-table" : "flex"};
-    border-radius: 20px;
+    border-radius: 8px;
 
     @media screen and (max-width: ${({ theme }) => theme.breakpoint.md}px) {
       width: 65vw;
@@ -73,11 +75,17 @@ const StyledDialogContent = styled(AnimatedDialogContent)<StyledDialogProps>`
     @media screen and (max-width: ${({ theme }) => theme.breakpoint.sm}px) {
       margin: 0;
       width: 100vw;
-      border-radius: 20px;
+      border-radius: 8px;
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
     }
   }
+`;
+
+const BorderWrapper = styled.div`
+  background: linear-gradient(to top right, #50d5ff, #ef35ff);
+  padding: 2px;
+  border-radius: 8px;
 `;
 
 interface ModalProps {
@@ -146,28 +154,30 @@ export default function Modal({
               unstable_lockFocusAcrossFrames={false}
               $scrollOverlay={$scrollOverlay}
             >
-              <StyledDialogContent
-                {...(isMobile
-                  ? {
-                      ...bind(),
-                      style: {
-                        transform: y.interpolate(
-                          (y) => `translateY(${(y as number) > 0 ? y : 0}px)`
-                        )
+              <BorderWrapper>
+                <StyledDialogContent
+                  {...(isMobile
+                    ? {
+                        ...bind(),
+                        style: {
+                          transform: y.interpolate(
+                            (y) => `translateY(${(y as number) > 0 ? y : 0}px)`
+                          )
+                        }
                       }
-                    }
-                  : {})}
-                aria-label="dialog"
-                $minHeight={height ?? minHeight}
-                $maxHeight={height ?? maxHeight}
-                $scrollOverlay={$scrollOverlay}
-                $hideBorder={hideBorder}
-                $maxWidth={maxWidth}
-              >
-                {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
-                {!initialFocusRef && isMobile ? <div tabIndex={1} /> : null}
-                {children}
-              </StyledDialogContent>
+                    : {})}
+                  aria-label="dialog"
+                  $minHeight={height ?? minHeight}
+                  $maxHeight={height ?? maxHeight}
+                  $scrollOverlay={$scrollOverlay}
+                  $hideBorder={hideBorder}
+                  $maxWidth={maxWidth}
+                >
+                  {/* prevents the automatic focusing of inputs on mobile by the reach dialog */}
+                  {!initialFocusRef && isMobile ? <div tabIndex={1} /> : null}
+                  {children}
+                </StyledDialogContent>
+              </BorderWrapper>
             </StyledDialogOverlay>
           )
       )}

@@ -1,5 +1,13 @@
 // Based mostly on https://github.com/Uniswap/interface/blob/main/src/theme/index.tsx
 
+const signalRed = "#FF3257";
+const signalGreen = "#21E70F";
+const jediBlue = "#50D5FF";
+const jediPink = "#FF00E9";
+const jediWhite = "#FFFFFF";
+const jediGrey = "#959595";
+const jediNavyBlue = "#141451";
+
 export const colors = {
   white: "#FFFFFF",
   black: "#000000",
@@ -153,6 +161,12 @@ const commonTheme = {
   brandedGradient: "linear-gradient(139.57deg, #FF79C9 4.35%, #FFB8E2 96.44%);",
   promotionalGradient: colors.accent1_light,
 
+  primary1: jediBlue,
+  primary2: jediPink,
+  primary3: "#4D8FEA",
+  primary4: "#376bad70",
+  primary5: "#153d6f70",
+
   //jediswap palette
   jediWhite: "#ffffff",
   jediBlue: "#50D5FF",
@@ -161,7 +175,36 @@ const commonTheme = {
   jediNavyBlue: "#141451",
 
   signalRed: "#FF3257",
-  signalGreen: "#21E70F"
+  signalGreen: "#21E70F",
+
+  // text
+  text1: jediWhite,
+  text2: "#C3C5CB",
+  text3: "#6C7284",
+  text4: "#565A69",
+  text5: "#2C2F36",
+
+  // backgrounds / greys
+  bg1: "#212429",
+  bg2: "#2C2F36",
+  bg3: "#40444F",
+  bg4: "#565A69",
+  bg5: "#6C7284",
+
+  jediBg: "#5D5DDF",
+  jediGradientBg: "linear-gradient(95.64deg, #29AAFD 8.08%, #FF00E9 105.91%)",
+
+  //specialty colors
+  modalBG: "rgba(0,0,0,.425)",
+  advancedBG: "rgba(0,0,0,0.1)",
+
+  // other
+  red1: signalRed,
+  red2: signalRed,
+  green1: signalGreen,
+  yellow1: "#FFE270",
+  yellow2: "#F3841E",
+  blue1: "#2172E5"
 };
 
 export const darkTheme = {
@@ -193,7 +236,42 @@ export const darkTheme = {
   jediNavyBlue: "#141451",
 
   signalRed: "#FF3257",
-  signalGreen: "#21E70F"
+  signalGreen: "#21E70F",
+
+  primary1: jediBlue,
+  primary2: jediPink,
+  primary3: "#4D8FEA",
+  primary4: "#376bad70",
+  primary5: "#153d6f70",
+
+  // text
+  text1: jediWhite,
+  text2: "#C3C5CB",
+  text3: "#6C7284",
+  text4: "#565A69",
+  text5: "#2C2F36",
+
+  // backgrounds / greys
+  bg1: "#212429",
+  bg2: "#2C2F36",
+  bg3: "#40444F",
+  bg4: "#565A69",
+  bg5: "#6C7284",
+
+  jediBg: "#5D5DDF",
+  jediGradientBg: "linear-gradient(95.64deg, #29AAFD 8.08%, #FF00E9 105.91%)",
+
+  //specialty colors
+  modalBG: "rgba(0,0,0,.425)",
+  advancedBG: "rgba(0,0,0,0.1)",
+
+  // other
+  red1: signalRed,
+  red2: signalRed,
+  green1: signalGreen,
+  yellow1: "#FFE270",
+  yellow2: "#F3841E",
+  blue1: "#2172E5"
 };
 
 export const lightTheme: Theme = {

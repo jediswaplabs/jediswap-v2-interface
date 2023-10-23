@@ -71,31 +71,30 @@ export const BaseButton = styled(RebassButton)<BaseButtonProps>`
 `;
 
 export const ButtonPrimary = styled(BaseButton)`
-  background-color: ${({ theme }) => theme.accent1};
-  font-size: 20px;
-  font-weight: 535;
-  padding: 16px;
-  color: ${({ theme }) => theme.white};
-  &:focus {
-    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.05, theme.accent1)};
-    background-color: ${({ theme }) => darken(0.05, theme.accent1)};
+  background-color: ${({ theme }) => theme.jediBlue};
+  background: linear-gradient(95.64deg, #29aafd 8.08%, #ff00e9 105.91%);
+  color: ${({ theme }) => theme.jediWhite};
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  :hover,
+  :focus,
+  :active {
+    background: linear-gradient(95.64deg, #ff00e9 8.08%, #29aafd 105.91%);
   }
-  &:hover {
-    background-color: ${({ theme }) => darken(0.05, theme.accent1)};
-  }
-  &:active {
-    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.1, theme.accent1)};
-    background-color: ${({ theme }) => darken(0.1, theme.accent1)};
-  }
+  /* &:active {
+    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.1, theme.primary1)};
+    background-color: ${({ theme }) => darken(0.1, theme.primary1)};
+  } */
   &:disabled {
-    background-color: ${({ theme, disabled }) =>
-      disabled ? theme.accent1 : theme.surface3};
-    color: ${({ disabled, theme }) =>
-      disabled ? theme.white : theme.neutral2};
-    cursor: auto;
-    box-shadow: none;
-    border: 1px solid transparent;
-    outline: none;
+    background: ${({ theme }) => theme.jediNavyBlue};
+    mix-blend-mode: normal;
+    box-shadow: inset 0px 75.4377px 76.9772px -36.9491px rgba(202, 172, 255, 0.3),
+      inset 0px 3.07909px 13.8559px rgba(154, 146, 210, 0.3),
+      inset 0px 0.769772px 30.7909px rgba(227, 222, 255, 0.2);
+    border-radius: 8px;
   }
 `;
 
@@ -264,26 +263,29 @@ const ButtonConfirmedStyle = styled(BaseButton)`
 `;
 
 const ButtonErrorStyle = styled(BaseButton)`
-  background-color: ${({ theme }) => theme.critical};
-  border: 1px solid ${({ theme }) => theme.critical};
+  background-color: ${({ theme }) => theme.red1};
+  border: 1px solid ${({ theme }) => theme.red1};
+  box-shadow: inset 0px 75.4377px 76.9772px -36.9491px rgba(202, 172, 255, 0.3),
+    inset 0px 3.07909px 13.8559px rgba(154, 146, 210, 0.3),
+    inset 0px 0.769772px 30.7909px rgba(227, 222, 255, 0.2);
 
   &:focus {
-    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.05, theme.critical)};
-    background-color: ${({ theme }) => darken(0.05, theme.critical)};
+    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.05, theme.red1)};
+    background-color: ${({ theme }) => darken(0.05, theme.red1)};
   }
   &:hover {
-    background-color: ${({ theme }) => darken(0.05, theme.critical)};
+    background-color: ${({ theme }) => darken(0.05, theme.red1)};
   }
   &:active {
-    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.1, theme.critical)};
-    background-color: ${({ theme }) => darken(0.1, theme.critical)};
+    box-shadow: 0 0 0 1pt ${({ theme }) => darken(0.1, theme.red1)};
+    background-color: ${({ theme }) => darken(0.1, theme.red1)};
   }
   &:disabled {
     opacity: 50%;
     cursor: auto;
     box-shadow: none;
-    background-color: ${({ theme }) => theme.critical};
-    border: 1px solid ${({ theme }) => theme.critical};
+    background-color: ${({ theme }) => theme.red1};
+    border: 1px solid ${({ theme }) => theme.red1};
   }
 `;
 

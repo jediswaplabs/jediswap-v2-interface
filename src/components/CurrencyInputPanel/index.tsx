@@ -40,13 +40,13 @@ const InputPanel = styled.div<{ hideInput?: boolean }>`
 
 const Container = styled.div<{ hideInput: boolean; disabled: boolean }>`
   border-radius: 8px;
-  border: 1px solid ${({ theme }) => theme.surface3};
+  background: transparent;
   background: rgba(196, 196, 196, 0.01);
+  box-shadow: inset 0px -63.1213px 52.3445px -49.2654px rgba(96, 68, 145, 0.3),
+    inset 0px 75.4377px 76.9772px -36.9491px rgba(202, 172, 255, 0.3),
+    inset 0px 3.07909px 13.8559px rgba(154, 146, 210, 0.3),
+    inset 0px 0.769772px 30.7909px rgba(227, 222, 255, 0.2);
   width: ${({ hideInput }) => (hideInput ? "100%" : "initial")};
-  box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
-    0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
-    0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset,
-    0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.3) inset;
 `;
 
 const CurrencySelect = styled(ButtonGray)<{
