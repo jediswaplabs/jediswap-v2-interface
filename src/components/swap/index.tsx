@@ -47,15 +47,9 @@ const SwapWrapperOuter = styled.main<{ isDark?: boolean }>`
   }
 `;
 
-export const SwapWrapper = (
-  props: React.ComponentProps<typeof SwapWrapperOuter>
-) => {
-  return (
-    <SwapWrapperOuter {...props}>
-      <SwapWrapperInner>{props.children}</SwapWrapperInner>
-    </SwapWrapperOuter>
-  );
-};
+export const SwapWrapper = styled.div`
+  position: relative;
+`;
 
 const SwapWrapperInner = styled.div`
   border-radius: 24px;

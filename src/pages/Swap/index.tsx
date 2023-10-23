@@ -163,24 +163,20 @@ export default function Swap() {
               id="swap-currency-input"
             />
             <AutoColumn justify="space-between">
-              <AutoRow
-                // justify={isExpertMode ? "space-between" : "center"}
-                style={{ padding: "0 1rem" }}
-              >
+              <AutoRow justify={"center"} style={{ padding: "0 1rem" }}>
                 <ArrowWrapper clickable>
-                  <Icon noMargin unlimited src={SwapWidget} />
-                  {/* </IconWrapper> */}
+                  <IconWrapper
+                  // onClick={() => {
+                  //   setApprovalSubmitted(false) // reset 2 step UI for approvals
+                  //   onSwitchTokens()
+                  // }}
+                  >
+                    <Icon noMargin unlimited src={SwapWidget} />
+                  </IconWrapper>
                 </ArrowWrapper>
               </AutoRow>
             </AutoColumn>
-            <HeaderRow
-            // style={
-            //   currencyBalances.OUTPUT &&
-            //   currencyBalances.OUTPUT?.toSignificant(6).length > 10
-            //     ? { marginTop: "25px" }
-            //     : {}
-            // }
-            >
+            <HeaderRow style={{ marginTop: "25px" }}>
               <BalanceText>Swap To (est.)</BalanceText>
               {/* {address && currencies[Field.OUTPUT] ? (
                 <BalanceText>Balance: {currencyBalances.OUTPUT?.toSignificant(6) ?? <Loader />}</BalanceText>
@@ -200,6 +196,12 @@ export default function Swap() {
             <Card padding={"17px 0"} borderRadius={"20px"}>
               <AutoColumn gap="10px"></AutoColumn>
             </Card>
+          </AutoColumn>
+
+          <AutoColumn gap="md">
+            <ButtonError>
+              <Text fontWeight={535}>Swap</Text>
+            </ButtonError>
           </AutoColumn>
 
           {/*{account && outputToken && (*/}
