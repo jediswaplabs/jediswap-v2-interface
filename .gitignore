@@ -1,14 +1,30 @@
 # See https://help.github.com/ignore-files/ for more about ignoring files.
 
+
+# generated contract types
+/src/types/v3
+/src/abis/types
+/src/locales/**/*.js
+/src/locales/**/*.po
+
+# generated files
+/src/**/__generated__
+
+# schema
+schema.graphql
+
 # dependencies
 /node_modules
 
 # testing
 /coverage
+/cache
+/functions/coverage
+/.swc
 
-# production
+# builds
 /build
-/dist
+/dts
 
 # misc
 .DS_Store
@@ -16,6 +32,10 @@
 .env.development.local
 .env.test.local
 .env.production.local
+
+instrumented
+.nyc_output
+.nyc_output/**/*
 
 /.netlify
 
@@ -26,6 +46,12 @@ yarn-error.log*
 notes.txt
 .idea/
 
-.vscode/
-
 package-lock.json
+
+cypress/downloads
+cypress/videos
+cypress/screenshots
+
+.vercel
+
+.wrangler
