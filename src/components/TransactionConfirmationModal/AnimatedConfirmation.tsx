@@ -1,9 +1,9 @@
-import styled, { keyframes, useTheme } from "styled-components";
+import styled, { keyframes, useTheme } from 'styled-components'
 
 const Wrapper = styled.div<{ size?: string }>`
   height: 90px;
   width: 90px;
-`;
+`
 
 const dash = keyframes`
   0% {
@@ -12,7 +12,7 @@ const dash = keyframes`
   100% {
     stroke-dashoffset: 0;
   }
-`;
+`
 
 const dashCheck = keyframes`
   0% {
@@ -21,14 +21,14 @@ const dashCheck = keyframes`
   100% {
     stroke-dashoffset: 900;
   }
-`;
+`
 
 const Circle = styled.circle`
   stroke-dasharray: 1000;
   stroke-dashoffset: 0;
   -webkit-animation: ${dash} 0.9s ease-in-out;
   animation: ${dash} 0.9s ease-in-out;
-`;
+`
 
 const PolyLine = styled.polyline`
   stroke-dasharray: 1000;
@@ -36,22 +36,14 @@ const PolyLine = styled.polyline`
   stroke-dashoffset: -100;
   -webkit-animation: ${dashCheck} 0.9s 0.35s ease-in-out forwards;
   animation: ${dashCheck} 0.9s 0.35s ease-in-out forwards;
-`;
+`
 
-export default function AnimatedConfirmation({
-  className
-}: {
-  className?: string;
-}) {
-  const theme = useTheme();
+export default function AnimatedConfirmation({ className }: { className?: string }) {
+  const theme = useTheme()
 
   return (
     <Wrapper className={className} data-testid="animated-confirmation">
-      <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 130.2 130.2"
-      >
+      <svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 130.2 130.2">
         <Circle
           className="path circle"
           fill="none"
@@ -73,5 +65,5 @@ export default function AnimatedConfirmation({
         />
       </svg>
     </Wrapper>
-  );
+  )
 }
