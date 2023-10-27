@@ -31,6 +31,7 @@
     "useUnknownInCatchVariables": false
   },
   "include": [
-//    "src/**/*", "src/**/*.json"
+    "src/**/*",
+    "src/**/*.json"
   ],
 }

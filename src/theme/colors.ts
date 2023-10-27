@@ -97,13 +97,13 @@ export const colors = {
   networkPolygonSoft: 'rgba(164, 87, 255, 0.16)',
   networkEthereumSoft: 'rgba(98, 126, 234, 0.16)',
   networkBase: '#0052FF',
-  //NEW COLORS FOR SPORE - need to define light/dark here cause they are root colors now (different system)
+  // NEW COLORS FOR SPORE - need to define light/dark here cause they are root colors now (different system)
   neutral1_dark: '#FFFFFF',
   neutral2_dark: '#9B9B9B',
   neutral3_dark: '#5E5E5E',
   surface1_dark: '#131313',
   surface2_dark: '#1B1B1B',
-  surface3_dark: '#FFFFFF12',
+  surface3_dark: '#95959540',
   surface4_dark: '#FFFFFF20',
   surface5_dark: '#00000004',
   accent1_dark: '#FC72FF',
@@ -121,7 +121,7 @@ export const colors = {
   success: '#40B66B',
   critical: '#FF5F52',
   scrim: 'rgba(0, 0, 0, 0.60)',
-}
+};
 
 type Theme = typeof darkTheme
 
@@ -152,7 +152,7 @@ const commonTheme = {
 
   brandedGradient: 'linear-gradient(139.57deg, #FF79C9 4.35%, #FFB8E2 96.44%);',
   promotionalGradient: colors.accent1_light,
-}
+};
 
 export const darkTheme = {
   ...commonTheme,
@@ -174,7 +174,7 @@ export const darkTheme = {
   success: colors.success,
   critical: colors.critical,
   scrim: colors.scrim,
-}
+};
 
 export const lightTheme: Theme = {
   ...commonTheme,
@@ -197,4 +197,4 @@ export const lightTheme: Theme = {
   success: colors.success,
   critical: colors.critical,
   scrim: colors.scrim,
-}
+};
