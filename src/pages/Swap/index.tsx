@@ -57,7 +57,6 @@ import { useDefaultsFromURLSearch, useDerivedSwapInfo, useSwapActionHandlers } f
 import swapReducer, { initialState as initialSwapState, SwapState } from 'state/swap/reducer'
 import styled, { useTheme } from 'styled-components'
 import { LinkStyledButton, ThemedText } from 'theme/components'
-import { maybeLogFirstSwapAction } from 'tracing/swapFlowLoggers'
 import { computeFiatValuePriceImpact } from 'utils/computeFiatValuePriceImpact'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
@@ -373,14 +372,12 @@ export function Swap({
   const handleTypeInput = useCallback(
     (value: string) => {
       onUserInput(Field.INPUT, value)
-      maybeLogFirstSwapAction(trace)
     },
     [onUserInput, trace]
   )
   const handleTypeOutput = useCallback(
     (value: string) => {
       onUserInput(Field.OUTPUT, value)
-      maybeLogFirstSwapAction(trace)
     },
     [onUserInput, trace]
   )
@@ -553,7 +550,7 @@ export function Swap({
         },
         [Field.OUTPUT]: state[Field.OUTPUT],
       })
-      maybeLogFirstSwapAction(trace)
+      
     },
     [onCurrencyChange, onCurrencySelection, state, trace]
   )
@@ -561,7 +558,7 @@ export function Swap({
 
   const handleMaxInput = useCallback(() => {
     maxInputAmount && onUserInput(Field.INPUT, maxInputAmount.toExact())
-    maybeLogFirstSwapAction(trace)
+    
   }, [maxInputAmount, onUserInput, trace])
 
   const handleOutputSelect = useCallback(
@@ -573,7 +570,7 @@ export function Swap({
           currencyId: getSwapCurrencyId(outputCurrency),
         },
       })
-      maybeLogFirstSwapAction(trace)
+      
     },
     [onCurrencyChange, onCurrencySelection, state, trace]
   )
@@ -680,7 +677,7 @@ export function Swap({
               onClick={() => {
                 if (disableTokenInputs) return
                 onSwitchTokens(inputTokenHasTax, formattedAmounts[dependentField])
-                maybeLogFirstSwapAction(trace)
+                
               }}
               color={theme.neutral1}
             >

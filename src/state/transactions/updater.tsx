@@ -6,7 +6,6 @@ import LibUpdater from 'lib/hooks/transactions/updater'
 import { useCallback, useMemo } from 'react'
 import { PopupType } from 'state/application/reducer'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
-import { logSwapSuccess } from 'tracing/swapFlowLoggers'
 
 import { L2_CHAIN_IDS } from '../../constants/chains'
 import { useAddPopup } from '../application/hooks'
@@ -58,9 +57,6 @@ export default function Updater() {
         })
       )
 
-      if (pendingTransactions[hash] && pendingTransactions[hash].info?.type === TransactionType.SWAP) {
-        logSwapSuccess(hash, chainId, analyticsContext)
-      }
 
       addPopup(
         {
