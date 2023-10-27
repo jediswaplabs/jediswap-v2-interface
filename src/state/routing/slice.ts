@@ -4,8 +4,6 @@ import { TradeType } from '@uniswap/sdk-core'
 import { sendAnalyticsEvent } from 'analytics'
 import { isUniswapXSupportedChain } from 'constants/chains'
 import ms from 'ms'
-import { logSwapQuoteRequest } from 'tracing/swapFlowLoggers'
-import { trace } from 'tracing/trace'
 
 import {
   GetQuoteArgs,
@@ -97,34 +95,10 @@ export const routingApi = createApi({
   endpoints: (build) => ({
     getQuote: build.query<TradeResult, GetQuoteArgs>({
       async onQueryStarted(args: GetQuoteArgs, { queryFulfilled }) {
-        trace(
-          'quote',
-          async ({ setTraceError, setTraceStatus }) => {
-            try {
-              await queryFulfilled
-            } catch (error: unknown) {
-              if (error && typeof error === 'object' && 'error' in error) {
-                const queryError = (error as Record<'error', FetchBaseQueryError>).error
-                if (typeof queryError.status === 'number') {
-                  setTraceStatus(queryError.status)
-                }
-                setTraceError(queryError)
-              } else {
-                throw error
-              }
-            }
-          },
-          {
-            data: {
-              ...args,
-              isPrice: args.routerPreference === INTERNAL_ROUTER_PREFERENCE_PRICE,
-              isAutoRouter: args.routerPreference === RouterPreference.API,
-            },
-          }
-        )
+
       },
       async queryFn(args, _api, _extraOptions, fetch) {
-        logSwapQuoteRequest(args.tokenInChainId, args.routerPreference, false)
+
         const quoteStartMark = performance.mark(`quote-fetch-start-${Date.now()}`)
         try {
           const {
