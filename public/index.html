@@ -15,16 +15,16 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="theme-color" content="#fff" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      <% if (process.env.REACT_APP_CSP_ALLOW_UNSAFE_EVAL) { %>
-        content="script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-      <% } else { %>
-        content="script-src 'self' 'unsafe-inline'"
-      <% } %>
-    />
+<!--    <meta-->
+<!--      http-equiv="Content-Security-Policy"-->
+<!--      <% if (process.env.REACT_APP_CSP_ALLOW_UNSAFE_EVAL) { %>-->
+<!--        content="script-src 'self' 'unsafe-inline' 'unsafe-eval'"-->
+<!--      <% } else { %>-->
+<!--        content="script-src 'self' 'unsafe-inline'"-->
+<!--      <% } %>-->
+<!--    />-->
 
-    <!-- 
+    <!--
       Apple Smart App Banner for Safari on iOS
       https://developer.apple.com/documentation/webkit/promoting_apps_with_smart_app_banners
      -->
@@ -42,7 +42,7 @@
     <link rel="preload" href="%PUBLIC_URL%/fonts/Basel-Book.woff" as="font" type="font/woff" crossorigin />
     <link rel="preload" href="%PUBLIC_URL%/fonts/Basel-Medium.woff" as="font" type="font/woff" crossorigin />
 
-   
+
     <style>
       * {
         font-family: 'Basel', sans-serif;
@@ -58,7 +58,7 @@
         font-style: normal;
         font-display: block;
         font-named-instance: 'Book';
-        src: 
+        src:
           url(%PUBLIC_URL%/fonts/Basel-Medium.woff) format('woff');
       }
 
@@ -68,14 +68,14 @@
         font-style: normal;
         font-display: block;
         font-named-instance: 'Book';
-        src: 
+        src:
           url(%PUBLIC_URL%/fonts/Basel-Book.woff) format('woff');
       }
 
       @supports (font-variation-settings: normal) {
         * {
           font-family: 'Basel', sans-serif;
-          
+
         }
       }
 
