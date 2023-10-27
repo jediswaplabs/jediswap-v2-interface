@@ -1,137 +1,70 @@
 <!DOCTYPE html>
-<html translate="no">
-  <head>
-    <meta charset="utf-8" />
+<html lang="en">
 
-    <title>Uniswap Interface</title>
 
-    <!--
-      %PUBLIC_URL% will be replaced with the URL of the `public` folder during build.
-      Only files inside the `public` folder can be referenced from the HTML.
-    -->
-    <link rel="shortcut icon" type="image/png" href="%PUBLIC_URL%/favicon.png" />
-    <link rel="apple-touch-icon" sizes="192x192" href="%PUBLIC_URL%/images/192x192_App_Icon.png" />
-    <link rel="apple-touch-icon" sizes="512x512" href="%PUBLIC_URL%/images/512x512_App_Icon.png" />
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#fff" />
-    <meta
-      http-equiv="Content-Security-Policy"
-      <% if (process.env.REACT_APP_CSP_ALLOW_UNSAFE_EVAL) { %>
-        content="script-src 'self' 'unsafe-inline' 'unsafe-eval'"
-      <% } else { %>
-        content="script-src 'self' 'unsafe-inline'"
-      <% } %>
-    />
+<head>
+  <meta charset="utf-8" />
 
-    <!-- 
-      Apple Smart App Banner for Safari on iOS
-      https://developer.apple.com/documentation/webkit/promoting_apps_with_smart_app_banners
-     -->
-    <meta name="apple-itunes-app" content="app-id=6443944476">
+  <!-- Primary Meta Tags -->
+  <title>JediSwap Interface</title>
+  <meta name="title" content="JediSwap Interface" />
+  <meta name="description" content="A community-led fully permissionless and composable AMM on Starknet." />
 
-    <!--
-      manifest.json provides metadata used when the app is installed as a PWA.
-      See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://app.jediswap.xyz/" />
+  <meta property="og:title" content="JediSwap Interface" />
+  <meta property="og:description" content="A community-led fully permissionless and composable AMM on Starknet." />
+  <meta property="og:image" content="%PUBLIC_URL%/images/social-hero.png" />
 
-    <link rel="preconnect" href="https://api.uniswap.org/" crossorigin/>
-    <link rel="preconnect" href="https://mainnet.infura.io/" crossorigin/>
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://app.jediswap.xyz/" />
+  <meta name="twitter:title" content="JediSwap Interface" />
+  <meta name="twitter:description" content="A community-led fully permissionless and composable AMM on Starknet." />
+  <meta name="twitter:image" content="https://app.jediswap.xyz/images/social-hero.png" />
 
-    <link rel="preload" href="%PUBLIC_URL%/fonts/Basel-Book.woff" as="font" type="font/woff" crossorigin />
-    <link rel="preload" href="%PUBLIC_URL%/fonts/Basel-Medium.woff" as="font" type="font/woff" crossorigin />
+  <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/favicon/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon/favicon-16x16.png" />
+  <link rel="manifest" href="%PUBLIC_URL%/favicon/site.webmanifest" />
+  <link rel="mask-icon" href="%PUBLIC_URL%/favicon/safari-pinned-tab.svg" color="#5bbad5" />
+  <meta name="msapplication-TileColor" content="#da532c" />
+  <meta name="theme-color" content="#ffffff" />
 
-   
-    <style>
-      * {
-        font-family: 'Basel', sans-serif;
-        box-sizing: border-box;
-      }
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ff007a" />
+  <meta name="fortmatic-site-verification" content="j93LgcVZk79qcgyo" />
 
-      /**
-          Explicitly load Basel var from public/ so it does not block LCP's critical path.
-        */
-      @font-face {
-        font-family: 'Basel';
-        font-weight: 535;
-        font-style: normal;
-        font-display: block;
-        font-named-instance: 'Book';
-        src: 
-          url(%PUBLIC_URL%/fonts/Basel-Medium.woff) format('woff');
-      }
+  <meta
+          http-equiv="Content-Security-Policy"
+          content="script-src 'self' *.google-analytics.com https://www.googletagmanager.com 'unsafe-inline' 'unsafe-eval'"
+  />
 
-      @font-face {
-        font-family: 'Basel';
-        font-weight: 485;
-        font-style: normal;
-        font-display: block;
-        font-named-instance: 'Book';
-        src: 
-          url(%PUBLIC_URL%/fonts/Basel-Book.woff) format('woff');
-      }
+  <link rel="preconnect" href="https://www.googletagmanager.com /" />
+  <link rel="preconnect" href="https://www.google-analytics.com/" />
+  <link href=" https://fonts.cdnfonts.com/css/avenir-lt-std" rel="stylesheet" />
+  <link href="https://fonts.cdnfonts.com/css/soloist" rel="stylesheet" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
 
-      @supports (font-variation-settings: normal) {
-        * {
-          font-family: 'Basel', sans-serif;
-          
-        }
-      }
+  <!--
+    manifest.json provides metadata used when your web app is installed on a
+    user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
+  -->
+  <link rel="manifest" href="%PUBLIC_URL%/favicon/site.webmanifest.json" />
+  <!--
+    Notice the use of %PUBLIC_URL% in the tags above.
+    It will be replaced with the URL of the `public` folder during the build.
+    Only files inside the `public` folder can be referenced from the HTML.
 
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-      }
-
-      button {
-        user-select: none;
-      }
-
-      html {
-        font-size: 16px;
-        font-weight: 485;
-        font-variant: none;
-        font-smooth: always;
-        text-rendering: optimizeLegibility !important;
-        -webkit-font-smoothing: antialiased !important;
-        -moz-osx-font-smoothing: grayscale;
-        -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-      }
-
-      /* Use this to apply network-specific gradient backgrounds, in RadialGradientByChainUpdater.ts */
-      #background-radial-gradient {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        pointer-events: none;
-        width: 200vw;
-        height: 200vh;
-        transform: translate(-50vw, -100vh);
-        z-index: -1;
-      }
-
-      html,
-      body,
-      #root {
-        min-height: 100%;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        html {
-          background: linear-gradient(rgb(19, 19, 19) 0%, rgb(19, 19, 19) 100%);
-        }
-      }
-
-      @media (prefers-color-scheme: light) {
-        html {
-          background: radial-gradient(100% 100% at 50% 0%, rgba(255, 184, 226, 0) 0%, rgba(255, 255, 255, 0) 100%), rgb(255, 255, 255);
-        }
-      }
-    </style>
-  </head>
+    Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
+    work correctly both with client-side routing and a non-root public URL.
+    Learn how to configure a non-root public URL by running `npm run build`.
+  -->
+</head>
 
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
@@ -141,6 +74,6 @@
       <div>&emsp;</div>
     </div>
 
-    <div id="background-radial-gradient"></div>
+<!--    <div id="background-radial-gradient"></div>-->
   </body>
 </html>

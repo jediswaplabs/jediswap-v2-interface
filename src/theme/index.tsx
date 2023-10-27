@@ -85,7 +85,7 @@ function getSettings(darkMode: boolean) {
 
     navHeight: navDimensions.height,
     navVerticalPad: navDimensions.verticalPad,
-    mobileBottomBarHeight: 48,
+    mobileBottomBarHeight: 60,
     maxWidth: MAX_CONTENT_WIDTH,
 
     // deprecated - please use hardcoded exported values instead of
@@ -113,18 +113,53 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
 }
 
 export const ThemedGlobalStyle = createGlobalStyle`
+  html, input, textarea, button {
+    font-family: 'Avenir LT Std', sans-serif;
+    font-display: fallback;
+  }
+  @supports (font-variation-settings: normal) {
+    html, input, textarea, button {
+      font-family: 'Avenir LT Std', sans-serif;
+    }
+  }
+
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  button {
+    user-select: none;
+  }
+
   html {
+    font-size: 16px;
+    font-variant: none;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    font-feature-settings: 'ss01' on, 'ss02' on, 'cv01' on, 'cv03' on;
+
     color: ${({ theme }) => theme.neutral1};
-    background-color: ${({ theme }) => theme.background} !important;
+    background: linear-gradient(108.58deg, #03001E 20.7%, #EC38BC 36.65%, #7303C0 57.02%, #2A3EF5 71.08%, #38742F 93.32%);
+    background-repeat: no-repeat;
+    background-size: cover;
   }
-
- summary::-webkit-details-marker {
-    display:none;
+  
+  body {
+    min-height: 100vh;
+    background: linear-gradient(66.46deg, #03001E 24.27%, rgba(3, 0, 30, 0.612102) 57.29%, rgba(3, 0, 30, 0) 100%);
+    background-repeat: no-repeat;
+    background-size: cover;
   }
-
-  a {
-    color: ${({ theme }) => theme.accent1}; 
-  }
+  // a {
+  //   color: ${({ theme }) => theme.accent1}; 
+  // }
 
   :root {
     ${({ theme }) => rootCssString(theme.darkMode)}
