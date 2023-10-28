@@ -1,18 +1,18 @@
-import { LoadingRows as BaseLoadingRows } from 'components/Loader/styled'
-import { Text } from 'rebass'
-import styled from 'styled-components'
+import { Text } from 'rebass';
+import styled from 'styled-components';
+
+import { LoadingRows as BaseLoadingRows } from 'components/Loader/styled';
 
 export const Wrapper = styled.div`
   position: relative;
   padding: 20px;
-`
-
+`;
 export const ClickableText = styled(Text)`
   :hover {
     cursor: pointer;
   }
   color: ${({ theme }) => theme.accent1};
-`
+`;
 export const MaxButton = styled.button<{ width: string }>`
   padding: 0.5rem 1rem;
   background-color: ${({ theme }) => theme.accent2};
@@ -34,7 +34,7 @@ export const MaxButton = styled.button<{ width: string }>`
     border: 1px solid ${({ theme }) => theme.accent1};
     outline: none;
   }
-`
+`;
 
 export const Dots = styled.span`
   &::after {
@@ -55,10 +55,9 @@ export const Dots = styled.span`
       content: '...';
     }
   }
-`
+`;
 
 export const LoadingRows = styled(BaseLoadingRows)`
-  padding-top: 36px;
   min-width: 75%;
   max-width: 960px;
   grid-column-gap: 0.5em;
@@ -73,4 +72,4 @@ export const LoadingRows = styled(BaseLoadingRows)`
     grid-column: 3 / 4;
     margin-bottom: 2em;
   }
-`
+`;

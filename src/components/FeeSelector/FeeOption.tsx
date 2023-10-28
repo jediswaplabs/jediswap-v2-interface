@@ -1,15 +1,15 @@
-import { Trans } from '@lingui/macro'
-import { FeeAmount } from '@uniswap/v3-sdk'
-import { ButtonRadioChecked } from 'components/Button'
-import { AutoColumn } from 'components/Column'
-import { useFeeTierDistribution } from 'hooks/useFeeTierDistribution'
-import { PoolState } from 'hooks/usePools'
-import React from 'react'
-import styled from 'styled-components'
-import { ThemedText } from 'theme/components'
+import { Trans } from '@lingui/macro';
+import { FeeAmount } from '@uniswap/v3-sdk';
+import React from 'react';
+import styled from 'styled-components';
 
-import { FeeTierPercentageBadge } from './FeeTierPercentageBadge'
-import { FEE_AMOUNT_DETAIL } from './shared'
+import { ButtonRadioChecked } from 'components/Button';
+import { AutoColumn } from 'components/Column';
+import { useFeeTierDistribution } from 'hooks/useFeeTierDistribution';
+import { PoolState } from 'hooks/usePools';
+import { ThemedText } from 'theme/components';
+import { FeeTierPercentageBadge } from './FeeTierPercentageBadge';
+import { FEE_AMOUNT_DETAIL } from './shared';
 
 const ResponsiveText = styled(ThemedText.DeprecatedLabel)`
   line-height: 16px;
@@ -19,7 +19,7 @@ const ResponsiveText = styled(ThemedText.DeprecatedLabel)`
     font-size: 12px;
     line-height: 12px;
   `};
-`
+`;
 
 interface FeeOptionProps {
   feeAmount: FeeAmount
@@ -47,5 +47,5 @@ export function FeeOption({ feeAmount, active, poolState, distributions, onClick
         )}
       </AutoColumn>
     </ButtonRadioChecked>
-  )
+  );
 }

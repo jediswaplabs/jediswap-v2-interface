@@ -1,5 +1,6 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import { NavLink } from 'react-router-dom';
+import { darken, lighten } from 'polished';
 
 import { Box } from 'nft/components/Box';
 
@@ -22,17 +23,18 @@ export const LogoContainer = styled(Box)`
   display: flex;
   margin-right: 12px;
   align-items: center;
-  cursor: pointer;
+  
+  img {
+    cursor: pointer;
+  }
 `;
 
 export const MenuContainer = styled(Box)`
-  margin-right: 12px;
   align-items: center;
   justify-content: space-around;
-  cursor: pointer;
 `;
 
-const BaseMenuItem = styled(NavLink)`
+const baseLinkCss = css`
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,16 +51,18 @@ const BaseMenuItem = styled(NavLink)`
   color: ${({ theme }) => theme.neutral1};
 
   :hover {
-    color: rgba(255, 255, 255, 0.8);
+    color: ${({ theme }) => darken(0.2, theme.neutral1)}
   }
+`;
+
+const BaseMenuItem = styled(NavLink)`
+  ${baseLinkCss};
 `;
 
 export const StatusContainer = styled(Box)`
   display: flex;
-  margin-right: 12px;
   align-items: center;
   justify-content: flex-end;
-  cursor: pointer;
 `;
 
 export const MenuItem = styled(BaseMenuItem)``;
@@ -82,4 +86,8 @@ export const ActiveMenuItem = styled(BaseMenuItem)`
       bottom: 0;
     }
   }
+`;
+
+export const ExternalMenuItem = styled.a`
+  ${baseLinkCss};
 `;

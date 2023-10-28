@@ -1,23 +1,21 @@
-import { useTheme } from 'styled-components'
+import { useTheme } from 'styled-components';
 
-import { StyledRotatingSVG, StyledSVG } from './shared'
+import { StyledRotatingSVG, StyledSVG } from './shared';
 
 /**
  * Takes in custom size and stroke for circle color, default to primary color as fill,
  * need ...rest for layered styles on top
  */
-export default function Loader({
-  size = '16px',
+export default function Loader({ size = '16px',
   stroke,
   strokeWidth,
-  ...rest
-}: {
+  ...rest }: {
   size?: string
   stroke?: string
   strokeWidth?: number
   [k: string]: any
 }) {
-  const theme = useTheme()
+  const theme = useTheme();
   return (
     <StyledRotatingSVG
       viewBox="0 0 24 24"
@@ -27,6 +25,7 @@ export default function Loader({
       stroke={stroke ?? theme.accent1}
       {...rest}
     >
+
       <path
         d="M2,12 a10,10 0 0,1 10,-10 M12,22 a10,10 0 0,1 -10,-10 M22,12 a10,10 0 0,1 -10,10"
         strokeWidth={strokeWidth ?? '2.5'}
@@ -34,11 +33,11 @@ export default function Loader({
         strokeLinejoin="round"
       />
     </StyledRotatingSVG>
-  )
+  );
 }
 
 export function LoaderV2() {
-  const theme = useTheme()
+  const theme = useTheme();
   return (
     <StyledRotatingSVG size="16px" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
       <StyledSVG size="16px" viewBox="0 0 16 16" fill={theme.surface3} xmlns="http://www.w3.org/2000/svg">
@@ -56,11 +55,11 @@ export function LoaderV2() {
         />
       </StyledSVG>
     </StyledRotatingSVG>
-  )
+  );
 }
 
 export function LoaderV3({ size = '16px', color, ...rest }: { size?: string; color?: string; [k: string]: any }) {
-  const theme = useTheme()
+  const theme = useTheme();
   return (
     <StyledRotatingSVG
       size={size}
@@ -80,5 +79,5 @@ export function LoaderV3({ size = '16px', color, ...rest }: { size?: string; col
         fill={color ?? theme.neutral3}
       />
     </StyledRotatingSVG>
-  )
+  );
 }
