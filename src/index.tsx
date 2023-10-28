@@ -4,18 +4,18 @@ import '@reach/dialog/styles.css';
 // import 'connection/eagerlyConnect'
 
 import { ApolloProvider } from '@apollo/client';
-import { FeatureFlagsProvider } from 'featureFlags';
-import { apolloClient } from 'graphql/data/apollo';
-import { BlockNumberProvider } from 'lib/hooks/useBlockNumber';
-import { MulticallUpdater } from 'lib/state/multicall';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Helmet } from 'react-helmet';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { Provider } from 'react-redux';
 import { HashRouter, useLocation } from 'react-router-dom';
-import { SystemThemeUpdater, ThemeColorMetaUpdater } from 'theme/components/ThemeToggle';
 
+import { MulticallUpdater } from 'lib/state/multicall';
+import { BlockNumberProvider } from 'lib/hooks/useBlockNumber';
+import { apolloClient } from 'graphql/data/apollo';
+import { FeatureFlagsProvider } from 'featureFlags';
+import { SystemThemeUpdater, ThemeColorMetaUpdater } from 'theme/components/ThemeToggle';
 import Web3Provider from './components/Web3Provider';
 import { LanguageProvider } from './i18n';
 import App from './pages/App';

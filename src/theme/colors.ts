@@ -1,5 +1,11 @@
 // Based mostly on https://github.com/Uniswap/interface/blob/main/src/theme/index.tsx
 
+const jediBlue = '#50D5FF';
+const jediPink = '#FF00E9';
+const jediWhite = '#fff';
+const jediGrey = '#959595';
+const jediNavyBlue = '#141451';
+
 export const colors = {
   white: '#FFFFFF',
   black: '#000000',
@@ -97,25 +103,31 @@ export const colors = {
   networkPolygonSoft: 'rgba(164, 87, 255, 0.16)',
   networkEthereumSoft: 'rgba(98, 126, 234, 0.16)',
   networkBase: '#0052FF',
+
   // NEW COLORS FOR SPORE - need to define light/dark here cause they are root colors now (different system)
   neutral1_dark: '#FFFFFF',
   neutral2_dark: '#9B9B9B',
   neutral3_dark: '#5E5E5E',
-  surface1_dark: '#131313',
-  surface2_dark: '#1B1B1B',
-  surface3_dark: '#95959540',
-  surface4_dark: '#FFFFFF20',
-  surface5_dark: '#00000004',
-  accent1_dark: '#FC72FF',
-  accent2_dark: '#311C31',
+
+  surface1_dark: '#212429',
+  surface2_dark: '#2C2F36',
+  surface3_dark: '#40444F',
+  surface4_dark: '#565A69',
+  surface5_dark: '#ffffff26',
+
+  accent1_dark: jediBlue,
+  accent2_dark: jediPink,
+
   neutral1_light: '#222222',
   neutral2_light: '#7D7D7D',
   neutral3_light: '#CECECE',
+
   surface1_light: '#FFFFFF',
   surface2_light: '#F9F9F9',
   surface3_light: '#22222212',
   surface4_light: '#FFFFFF64',
   surface5_light: '#00000004',
+
   accent1_light: '#FC72FF',
   accent2_light: '#FFEFFF',
   success: '#40B66B',
@@ -150,8 +162,15 @@ const commonTheme = {
   chain_56_background: colors.networkBsc,
   promotional: colors.magenta300,
 
-  brandedGradient: 'linear-gradient(139.57deg, #FF79C9 4.35%, #FFB8E2 96.44%);',
-  promotionalGradient: colors.accent1_light,
+  brandedGradient: 'linear-gradient(95.64deg, #29aafd 8.08%, #ff00e9 105.91%)',
+  brandedGradientReversed: 'linear-gradient(95.64deg, #ff00e9 8.08%, #29aafd 105.91%)',
+  promotionalGradient: 'linear-gradient(95.64deg, #ff00e9 8.08%, #29aafd 105.91%)',
+
+  jediBlue,
+  jediPink,
+  jediWhite,
+  jediGrey,
+  jediNavyBlue,
 };
 
 export const darkTheme = {

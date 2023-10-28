@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Trans } from '@lingui/macro';
 import { ReactNode, useCallback } from 'react';
 import { NavLinkProps, useLocation, useNavigate } from 'react-router-dom';
@@ -7,21 +8,13 @@ import Web3Status from 'components/Web3Status';
 import { useIsPoolsPage } from 'hooks/useIsPoolsPage';
 import { Row } from 'nft/components/Flex';
 import Logo from 'assets/jedi/logo.png';
-import { Nav, LogoContainer, MenuContainer, StatusContainer, MenuItem, ActiveMenuItem } from './styled';
+import { Nav, LogoContainer, MenuContainer, StatusContainer, MenuItem, ActiveMenuItem, ExternalMenuItem } from './styled';
 
-interface MenuItemProps {
-    href: string
-    id?: NavLinkProps['id']
-    isActive?: boolean
-    children: ReactNode
-    dataTestId?: string
-}
-
-const MenuItemLink = ({ href, dataTestId, id, isActive, children }: MenuItemProps) => {
+const MenuItemLink = ({ to, dataTestId, id, isActive, children }) => {
   const Component = isActive ? ActiveMenuItem : MenuItem;
   return (
     <Component
-      to={href}
+      to={to}
       id={id}
       style={{ textDecoration: 'none' }}
       data-testid={dataTestId}
@@ -31,21 +24,25 @@ const MenuItemLink = ({ href, dataTestId, id, isActive, children }: MenuItemProp
   );
 };
 
+const ExternalMenuItemLink = ({ to, children }) => (
+  <ExternalMenuItem target="_blank" rel="noopener noreferrer" href={to}>{children}</ExternalMenuItem>
+);
+
 export const PageTabs = () => {
   const { pathname } = useLocation();
   const isPoolActive = useIsPoolsPage();
 
   return (
     <>
-      <MenuItemLink href="/swap" isActive={pathname.startsWith('/swap')}>
+      <MenuItemLink to="/swap" isActive={pathname.startsWith('/swap')}>
         <Trans>Trade</Trans>
       </MenuItemLink>
-      <MenuItemLink href="/pool" dataTestId="pool-nav-link" isActive={isPoolActive}>
+      <MenuItemLink to="/pool" dataTestId="pool-nav-link" isActive={isPoolActive}>
         <Trans>Pool</Trans>
       </MenuItemLink>
-      <MenuItemLink href="https://info.jediswap.xyz/">
+      <ExternalMenuItemLink to="https://info.jediswap.xyz/">
         <Trans>Dashboard</Trans>
-      </MenuItemLink>
+      </ExternalMenuItemLink>
     </>
   );
 };
@@ -55,7 +52,7 @@ const Navbar = () => {
 
   const [accountDrawerOpen, toggleAccountDrawer] = useAccountDrawer();
 
-  const handleUniIconClick = useCallback(() => {
+  const handleLogoIconClick = useCallback(() => {
     if (accountDrawerOpen) {
       toggleAccountDrawer();
     }
@@ -67,7 +64,7 @@ const Navbar = () => {
   return (
     <Nav>
       <LogoContainer>
-        <img width={'195px'} height={'32px'} src={Logo} alt="logo" onClick={handleUniIconClick} />
+        <img width={'195px'} height={'32px'} src={Logo} alt="logo" onClick={handleLogoIconClick} />
       </LogoContainer>
 
       <MenuContainer display={{ sm: 'none', lg: 'flex' }}>
@@ -80,6 +77,7 @@ const Navbar = () => {
         </Row>
       </StatusContainer>
     </Nav>
+
   );
 };
 

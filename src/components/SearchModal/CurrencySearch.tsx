@@ -1,34 +1,33 @@
 // eslint-disable-next-line no-restricted-imports
-import { t, Trans } from '@lingui/macro'
-import { InterfaceEventName, InterfaceModalName } from '@uniswap/analytics-events'
-import { ChainId, Currency, CurrencyAmount, Token } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
-import { Trace } from 'analytics'
-import { useCachedPortfolioBalancesQuery } from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
-import { supportedChainIdFromGQLChain } from 'graphql/data/util'
-import useDebounce from 'hooks/useDebounce'
-import { useOnClickOutside } from 'hooks/useOnClickOutside'
-import useToggle from 'hooks/useToggle'
-import useNativeCurrency from 'lib/hooks/useNativeCurrency'
-import { getTokenFilter } from 'lib/hooks/useTokenList/filtering'
-import { TokenBalances, tokenComparator, useSortTokensByQuery } from 'lib/hooks/useTokenList/sorting'
-import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
-import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import AutoSizer from 'react-virtualized-auto-sizer'
-import { FixedSizeList } from 'react-window'
-import { Text } from 'rebass'
-import styled, { useTheme } from 'styled-components'
-import { CloseIcon, ThemedText } from 'theme/components'
-import { UserAddedToken } from 'types/tokens'
+import { t, Trans } from '@lingui/macro';
+import { InterfaceEventName, InterfaceModalName } from '@uniswap/analytics-events';
+import { ChainId, Currency, CurrencyAmount, Token } from '@uniswap/sdk-core';
+import { useWeb3React } from '@web3-react/core';
+import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import { FixedSizeList } from 'react-window';
+import { Text } from 'rebass';
+import styled, { useTheme } from 'styled-components';
 
-import { useDefaultActiveTokens, useIsUserAddedToken, useSearchInactiveTokenLists, useToken } from '../../hooks/Tokens'
-import { isAddress } from '../../utils'
-import Column from '../Column'
-import Row, { RowBetween } from '../Row'
-import CommonBases from './CommonBases'
-import { CurrencyRow, formatAnalyticsEventProperties } from './CurrencyList'
-import CurrencyList from './CurrencyList'
-import { PaddedColumn, SearchInput, Separator } from './styled'
+import { Trace } from 'analytics';
+import { useCachedPortfolioBalancesQuery } from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper';
+import { supportedChainIdFromGQLChain } from 'graphql/data/util';
+import useDebounce from 'hooks/useDebounce';
+import { useOnClickOutside } from 'hooks/useOnClickOutside';
+import useToggle from 'hooks/useToggle';
+import useNativeCurrency from 'lib/hooks/useNativeCurrency';
+import { getTokenFilter } from 'lib/hooks/useTokenList/filtering';
+import { TokenBalances, tokenComparator, useSortTokensByQuery } from 'lib/hooks/useTokenList/sorting';
+import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount';
+import { CloseIcon, ThemedText } from 'theme/components';
+import { UserAddedToken } from 'types/tokens';
+import { useDefaultActiveTokens, useIsUserAddedToken, useSearchInactiveTokenLists, useToken } from '../../hooks/Tokens';
+import { isAddress } from '../../utils';
+import Column from '../Column';
+import Row, { RowBetween } from '../Row';
+import CommonBases from './CommonBases';
+import CurrencyList, { CurrencyRow, formatAnalyticsEventProperties } from './CurrencyList';
+import { PaddedColumn, SearchInput, Separator } from './styled';
 
 const ContentWrapper = styled(Column)`
   background-color: ${({ theme }) => theme.surface1};
@@ -37,7 +36,7 @@ const ContentWrapper = styled(Column)`
   flex: 1 1;
   position: relative;
   border-radius: 20px;
-`
+`;
 
 interface CurrencySearchProps {
   isOpen: boolean
@@ -51,8 +50,7 @@ interface CurrencySearchProps {
   onlyShowCurrenciesWithBalance?: boolean
 }
 
-export function CurrencySearch({
-  selectedCurrency,
+export function CurrencySearch({ selectedCurrency,
   onCurrencySelect,
   otherSelectedCurrency,
   showCommonBases,
@@ -60,84 +58,81 @@ export function CurrencySearch({
   disableNonToken,
   onDismiss,
   isOpen,
-  onlyShowCurrenciesWithBalance,
-}: CurrencySearchProps) {
-  const { chainId, account } = useWeb3React()
-  const theme = useTheme()
+  onlyShowCurrenciesWithBalance }: CurrencySearchProps) {
+  const { chainId, account } = useWeb3React();
+  const theme = useTheme();
 
-  const [tokenLoaderTimerElapsed, setTokenLoaderTimerElapsed] = useState(false)
+  const [tokenLoaderTimerElapsed, setTokenLoaderTimerElapsed] = useState(false);
 
   // refs for fixed size lists
-  const fixedList = useRef<FixedSizeList>()
+  const fixedList = useRef<FixedSizeList>();
 
-  const [searchQuery, setSearchQuery] = useState<string>('')
-  const debouncedQuery = useDebounce(searchQuery, 200)
-  const isAddressSearch = isAddress(debouncedQuery)
-  const searchToken = useToken(debouncedQuery)
-  const searchTokenIsAdded = useIsUserAddedToken(searchToken)
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const debouncedQuery = useDebounce(searchQuery, 200);
+  const isAddressSearch = isAddress(debouncedQuery);
+  const searchToken = useToken(debouncedQuery);
+  const searchTokenIsAdded = useIsUserAddedToken(searchToken);
 
-  const defaultTokens = useDefaultActiveTokens(chainId)
+  const defaultTokens = useDefaultActiveTokens(chainId);
 
-  const { data, loading: balancesAreLoading } = useCachedPortfolioBalancesQuery({ account })
-  const balances: TokenBalances = useMemo(() => {
-    return (
-      data?.portfolios?.[0].tokenBalances?.reduce((balanceMap, tokenBalance) => {
-        if (
-          tokenBalance.token?.chain &&
-          supportedChainIdFromGQLChain(tokenBalance.token?.chain) === chainId &&
-          tokenBalance.token?.address !== undefined &&
-          tokenBalance.denominatedValue?.value !== undefined
-        ) {
-          const address = tokenBalance.token?.standard === 'ERC20' ? tokenBalance.token?.address?.toLowerCase() : 'ETH'
-          const usdValue = tokenBalance.denominatedValue?.value
-          const balance = tokenBalance.quantity
-          balanceMap[address] = { usdValue, balance: balance ?? 0 }
-        }
-        return balanceMap
-      }, {} as TokenBalances) ?? {}
-    )
-  }, [chainId, data?.portfolios])
+  const { data, loading: balancesAreLoading } = useCachedPortfolioBalancesQuery({ account });
+  const balances: TokenBalances = useMemo(() => (
+    data?.portfolios?.[0].tokenBalances?.reduce((balanceMap, tokenBalance) => {
+      if (
+        tokenBalance.token?.chain
+          && supportedChainIdFromGQLChain(tokenBalance.token?.chain) === chainId
+          && tokenBalance.token?.address !== undefined
+          && tokenBalance.denominatedValue?.value !== undefined
+      ) {
+        const address = tokenBalance.token?.standard === 'ERC20' ? tokenBalance.token?.address?.toLowerCase() : 'ETH';
+        const usdValue = tokenBalance.denominatedValue?.value;
+        const balance = tokenBalance.quantity;
+        balanceMap[address] = { usdValue, balance: balance ?? 0 };
+      }
+      return balanceMap;
+    }, {} as TokenBalances) ?? {}
+  ), [chainId, data?.portfolios]);
 
   const sortedTokens: Token[] = useMemo(() => {
     const portfolioTokens = data?.portfolios?.[0].tokenBalances
       ?.map((tokenBalance) => {
         if (!tokenBalance?.token?.chain || !tokenBalance.token?.address || !tokenBalance.token?.decimals) {
-          return undefined
+          return undefined;
         }
         return new Token(
           supportedChainIdFromGQLChain(tokenBalance.token?.chain) ?? ChainId.MAINNET,
           tokenBalance.token?.address,
           tokenBalance.token?.decimals,
           tokenBalance.token?.symbol,
-          tokenBalance.token?.name
-        )
+          tokenBalance.token?.name,
+        );
       })
-      .filter((token) => !!token) as Token[]
+      .filter((token) => !!token) as Token[];
 
     const filteredTokens = Object.values(defaultTokens)
       .filter(getTokenFilter(debouncedQuery))
       // Filter out tokens with balances so they aren't duplicated when we merge below.
-      .filter((token) => !(token.address?.toLowerCase() in balances))
-    const mergedTokens = [...(portfolioTokens ?? []), ...filteredTokens]
+      .filter((token) => !(token.address?.toLowerCase() in balances));
+    const mergedTokens = [...(portfolioTokens ?? []), ...filteredTokens];
 
     if (balancesAreLoading) {
-      return mergedTokens
+      return mergedTokens;
     }
 
     return mergedTokens
       .filter((token) => {
         if (onlyShowCurrenciesWithBalance) {
-          return balances[token.address?.toLowerCase()]?.usdValue > 0
+          return balances[token.address?.toLowerCase()]?.usdValue > 0;
         }
 
         // If there is no query, filter out unselected user-added tokens with no balance.
         if (!debouncedQuery && token instanceof UserAddedToken) {
-          if (selectedCurrency?.equals(token) || otherSelectedCurrency?.equals(token)) return true
-          return balances[token.address.toLowerCase()]?.usdValue > 0
+          if (selectedCurrency?.equals(token) || otherSelectedCurrency?.equals(token)) { return true; }
+          return balances[token.address.toLowerCase()]?.usdValue > 0;
         }
-        return true
+        return true;
       })
-      .sort(tokenComparator.bind(null, balances))
+      .sort(tokenComparator.bind(null, balances));
   }, [
     data,
     defaultTokens,
@@ -147,26 +142,25 @@ export function CurrencySearch({
     onlyShowCurrenciesWithBalance,
     selectedCurrency,
     otherSelectedCurrency,
-  ])
+  ]);
 
-  const isLoading = Boolean(balancesAreLoading && !tokenLoaderTimerElapsed)
+  const isLoading = Boolean(balancesAreLoading && !tokenLoaderTimerElapsed);
 
-  const filteredSortedTokens = useSortTokensByQuery(debouncedQuery, sortedTokens)
+  const filteredSortedTokens = useSortTokensByQuery(debouncedQuery, sortedTokens);
 
-  const native = useNativeCurrency(chainId)
-  const wrapped = native.wrapped
+  const native = useNativeCurrency(chainId);
+  const { wrapped } = native;
 
   const searchCurrencies: Currency[] = useMemo(() => {
-    const s = debouncedQuery.toLowerCase().trim()
+    const s = debouncedQuery.toLowerCase().trim();
 
-    const tokens = filteredSortedTokens.filter((t) => !(t.equals(wrapped) || (disableNonToken && t.isNative)))
-    const shouldShowWrapped =
-      !onlyShowCurrenciesWithBalance || (!balancesAreLoading && balances[wrapped.address]?.usdValue > 0)
+    const tokens = filteredSortedTokens.filter((t) => !(t.equals(wrapped) || (disableNonToken && t.isNative)));
+    const shouldShowWrapped = !onlyShowCurrenciesWithBalance || (!balancesAreLoading && balances[wrapped.address]?.usdValue > 0);
     const natives = (
       disableNonToken || native.equals(wrapped) ? [wrapped] : shouldShowWrapped ? [native, wrapped] : [native]
-    ).filter((n) => n.symbol?.toLowerCase()?.indexOf(s) !== -1 || n.name?.toLowerCase()?.indexOf(s) !== -1)
+    ).filter((n) => n.symbol?.toLowerCase()?.indexOf(s) !== -1 || n.name?.toLowerCase()?.indexOf(s) !== -1);
 
-    return [...natives, ...tokens]
+    return [...natives, ...tokens];
   }, [
     debouncedQuery,
     filteredSortedTokens,
@@ -176,68 +170,68 @@ export function CurrencySearch({
     wrapped,
     disableNonToken,
     native,
-  ])
+  ]);
 
   const handleCurrencySelect = useCallback(
     (currency: Currency, hasWarning?: boolean) => {
-      onCurrencySelect(currency, hasWarning)
-      if (!hasWarning) onDismiss()
+      onCurrencySelect(currency, hasWarning);
+      if (!hasWarning) { onDismiss(); }
     },
-    [onDismiss, onCurrencySelect]
-  )
+    [onDismiss, onCurrencySelect],
+  );
 
   // clear the input on open
   useEffect(() => {
-    if (isOpen) setSearchQuery('')
-  }, [isOpen])
+    if (isOpen) { setSearchQuery(''); }
+  }, [isOpen]);
 
   // manage focus on modal show
-  const inputRef = useRef<HTMLInputElement>()
+  const inputRef = useRef<HTMLInputElement>();
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
-    const input = event.target.value
-    const checksummedInput = isAddress(input)
-    setSearchQuery(checksummedInput || input)
-    fixedList.current?.scrollTo(0)
-  }, [])
+    const input = event.target.value;
+    const checksummedInput = isAddress(input);
+    setSearchQuery(checksummedInput || input);
+    fixedList.current?.scrollTo(0);
+  }, []);
 
   const handleEnter = useCallback(
     (e: KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter') {
-        const s = debouncedQuery.toLowerCase().trim()
+        const s = debouncedQuery.toLowerCase().trim();
         if (s === native?.symbol?.toLowerCase()) {
-          handleCurrencySelect(native)
+          handleCurrencySelect(native);
         } else if (searchCurrencies.length > 0) {
           if (
-            searchCurrencies[0].symbol?.toLowerCase() === debouncedQuery.trim().toLowerCase() ||
-            searchCurrencies.length === 1
+            searchCurrencies[0].symbol?.toLowerCase() === debouncedQuery.trim().toLowerCase()
+            || searchCurrencies.length === 1
           ) {
-            handleCurrencySelect(searchCurrencies[0])
+            handleCurrencySelect(searchCurrencies[0]);
           }
         }
       }
     },
-    [debouncedQuery, native, searchCurrencies, handleCurrencySelect]
-  )
+    [debouncedQuery, native, searchCurrencies, handleCurrencySelect],
+  );
 
   // menu ui
-  const [open, toggle] = useToggle(false)
-  const node = useRef<HTMLDivElement>()
-  useOnClickOutside(node, open ? toggle : undefined)
+  const [open, toggle] = useToggle(false);
+  const node = useRef<HTMLDivElement>();
+  useOnClickOutside(node, open ? toggle : undefined);
 
   // if no results on main list, show option to expand into inactive
   const filteredInactiveTokens = useSearchInactiveTokenLists(
     !onlyShowCurrenciesWithBalance && (sortedTokens.length === 0 || (debouncedQuery.length > 2 && !isAddressSearch))
       ? debouncedQuery
-      : undefined
-  )
+      : undefined,
+  );
 
   // Timeout token loader after 3 seconds to avoid hanging in a loading state.
   useEffect(() => {
     const tokenLoaderTimer = setTimeout(() => {
-      setTokenLoaderTimerElapsed(true)
-    }, 3000)
-    return () => clearTimeout(tokenLoaderTimer)
-  }, [])
+      setTokenLoaderTimerElapsed(true);
+    }, 3000);
+    return () => clearTimeout(tokenLoaderTimer);
+  }, []);
 
   return (
     <ContentWrapper>
@@ -290,12 +284,12 @@ export function CurrencySearch({
                 0,
                 [searchToken],
                 searchQuery,
-                isAddressSearch
+                isAddressSearch,
               )}
               balance={
                 tryParseCurrencyAmount(
                   String(balances[searchToken.isNative ? 'ETH' : searchToken.address?.toLowerCase()]?.balance ?? 0),
-                  searchToken
+                  searchToken,
                 ) ?? CurrencyAmount.fromRawAmount(searchToken, 0)
               }
             />
@@ -330,5 +324,5 @@ export function CurrencySearch({
         )}
       </Trace>
     </ContentWrapper>
-  )
+  );
 }

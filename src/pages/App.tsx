@@ -2,7 +2,6 @@ import { useWeb3React } from '@web3-react/core';
 import { useAtom } from 'jotai';
 import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useState } from 'react';
 import { Navigate, Route, Routes, useLocation, useSearchParams } from 'react-router-dom';
-import { StatsigProvider, StatsigUser, useGate } from 'statsig-react';
 import styled from 'styled-components';
 
 import ErrorBoundary from 'components/ErrorBoundary';
@@ -18,9 +17,6 @@ import { useRouterPreference, useUserOptedOutOfUniswapX } from 'state/user/hooks
 import { useIsDarkMode } from 'theme/components/ThemeToggle';
 import { flexRowNoWrap } from 'theme/styles';
 import { Z_INDEX } from 'theme/zIndex';
-import { getEnvName } from 'utils/env';
-import { getDownloadAppLink } from 'utils/openDownloadApp';
-import { getCurrentPageFromLocation } from 'utils/urlRoutes';
 import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions';
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
@@ -64,14 +60,17 @@ const MobileBottomBar = styled.div`
 
 const HeaderWrapper = styled.div<{ transparent?: boolean; bannerIsVisible?: boolean; scrollY: number }>`
   ${flexRowNoWrap};
-  background-color: transparent;
-  border-bottom: ${({ theme, transparent }) => !transparent && `1px solid ${theme.surface3}`};
+  background-color: ${({ theme, transparent }) => !transparent && theme.surface1};
+  border-bottom: ${({ theme }) => `1px solid ${theme.surface3}`};
   width: 100%;
   justify-content: space-between;
   position: fixed;
   top: 0;
   z-index: ${Z_INDEX.dropdown};
-
+  transition-property: background-color;
+  transition-duration: ${({ theme }) => theme.transition.duration.fast};
+  transition-timing-function: linear;
+  
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     top: 0;
   }
@@ -88,7 +87,10 @@ export default function App() {
   const { pathname } = location;
 
   const [scrollY, setScrollY] = useState(0);
+  const scrolledState = scrollY > 0;
   const routerConfig = useRouterConfig();
+
+  const isHeaderTransparent = !scrolledState;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -105,7 +107,7 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <HeaderWrapper scrollY={scrollY}>
+      <HeaderWrapper scrollY={scrollY} transparent={isHeaderTransparent}>
         <NavBar />
       </HeaderWrapper>
       <BodyWrapper>

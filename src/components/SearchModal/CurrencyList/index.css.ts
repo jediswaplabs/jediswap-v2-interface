@@ -1,5 +1,6 @@
-import { style } from '@vanilla-extract/css'
-import { themeVars } from 'nft/css/sprinkles.css'
+import { style } from '@vanilla-extract/css';
+
+import { themeVars } from 'nft/css/sprinkles.css';
 
 export const scrollbarStyle = style([
   {
@@ -17,4 +18,4 @@ export const scrollbarStyle = style([
       },
     },
   },
-])
+]);
