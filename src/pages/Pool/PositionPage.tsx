@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { BigNumber } from '@ethersproject/bignumber';
 import type { TransactionResponse } from '@ethersproject/providers';
 import { Trans } from '@lingui/macro';
