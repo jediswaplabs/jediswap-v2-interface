@@ -1,12 +1,12 @@
-import { Trans } from '@lingui/macro'
-import Column from 'components/Column'
-import { ScrollBarStyles } from 'components/Common'
-import Row from 'components/Row'
-import { ArrowDown } from 'react-feather'
-import styled from 'styled-components'
-import { ThemedText } from 'theme/components'
+import { Trans } from '@lingui/macro';
+import { ArrowDown } from 'react-feather';
+import styled from 'styled-components';
 
-import { DetailBubble, SmallDetailBubble } from './shared'
+import Column from 'components/Column';
+import { ScrollBarStyles } from 'components/Common';
+import Row from 'components/Row';
+import { ThemedText } from 'theme/components';
+import { DetailBubble, SmallDetailBubble } from './shared';
 
 const Table = styled(Column)`
   gap: 24px;
@@ -15,14 +15,14 @@ const Table = styled(Column)`
   padding-bottom: 12px;
   overflow-y: hidden;
   ${ScrollBarStyles}
-`
+`;
 
 const TableRow = styled(Row)<{ $borderBottom?: boolean }>`
   justify-content: space-between;
   border-bottom: ${({ $borderBottom, theme }) => ($borderBottom ? `1px solid ${theme.surface3}` : 'none')}};
   padding: 12px;
   min-width: max-content;
-`
+`;
 
 const TableElement = styled(ThemedText.BodySecondary)<{
   alignRight?: boolean
@@ -35,7 +35,7 @@ const TableElement = styled(ThemedText.BodySecondary)<{
   width: ${({ small }) => (small ? '44px' : 'auto')};
   min-width: ${({ large, small }) => (large ? '136px' : small ? 'unset' : '121px')} !important;
   justify-content: ${({ alignRight }) => (alignRight ? 'flex-end' : 'flex-start')};
-`
+`;
 {
   /* TODO(WEB-2735): When making real datatable, merge in this code and deprecate this skeleton file */
 }
@@ -94,5 +94,5 @@ export function PoolDetailsTableSkeleton() {
         </TableRow>
       ))}
     </Table>
-  )
+  );
 }
