@@ -12,4 +12,4 @@ export const ReversedArrowsIcon = (props: SVGProps) => (
       fill="#5E5E5E"
     />
   </svg>
-)
+);

@@ -1,47 +1,47 @@
-import { Trans } from '@lingui/macro'
-import { ChainId, Currency } from '@uniswap/sdk-core'
-import blankTokenUrl from 'assets/svg/blank_token.svg'
-import Column from 'components/Column'
-import { ChainLogo } from 'components/Logo/ChainLogo'
-import Row from 'components/Row'
-import { LoadingBubble } from 'components/Tokens/loading'
-import { BIPS_BASE } from 'constants/misc'
-import { chainIdToBackendName } from 'graphql/data/util'
-import { useCurrency } from 'hooks/Tokens'
-import useTokenLogoSource from 'hooks/useAssetLogoSource'
-import React from 'react'
-import { Link } from 'react-router-dom'
-import styled from 'styled-components'
-import { ClickableStyle, ThemedText } from 'theme/components'
-import { shortenAddress } from 'utils'
+import { Trans } from '@lingui/macro';
+import { ChainId, Currency } from '@uniswap/sdk-core';
+import React from 'react';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 
-import { ReversedArrowsIcon } from './icons'
-import { DetailBubble } from './shared'
+import blankTokenUrl from 'assets/svg/blank_token.svg';
+import Column from 'components/Column';
+import { ChainLogo } from 'components/Logo/ChainLogo';
+import Row from 'components/Row';
+import { LoadingBubble } from 'components/Tokens/loading';
+import { BIPS_BASE } from 'constants/misc';
+import { chainIdToBackendName } from 'graphql/data/util';
+import { useCurrency } from 'hooks/Tokens';
+import useTokenLogoSource from 'hooks/useAssetLogoSource';
+import { ClickableStyle, ThemedText } from 'theme/components';
+import { shortenAddress } from 'utils';
+import { ReversedArrowsIcon } from './icons';
+import { DetailBubble } from './shared';
 
 const HeaderColumn = styled(Column)`
   gap: 36px;
-`
+`;
 
 const StyledLink = styled(Link)`
   text-decoration: none;
   ${ClickableStyle}
-`
+`;
 
 const FeeTier = styled(ThemedText.LabelMicro)`
   background: ${({ theme }) => theme.surface2};
   padding: 2px 6px;
   border-radius: 4px;
-`
+`;
 
 const ToggleReverseArrows = styled(ReversedArrowsIcon)`
   ${ClickableStyle}
-`
+`;
 
 const IconBubble = styled(LoadingBubble)`
   width: 32px;
   height: 32px;
   border-radius: 50%;
-`
+`;
 
 interface Token {
   id: string
@@ -58,20 +58,18 @@ interface PoolDetailsHeaderProps {
   loading?: boolean
 }
 
-export function PoolDetailsHeader({
-  chainId,
+export function PoolDetailsHeader({ chainId,
   poolAddress,
   token0,
   token1,
   feeTier,
   toggleReversed,
-  loading,
-}: PoolDetailsHeaderProps) {
-  const currencies = [useCurrency(token0?.id, chainId) ?? undefined, useCurrency(token1?.id, chainId) ?? undefined]
-  const chainName = chainIdToBackendName(chainId)
-  const origin = `/tokens/${chainName}`
+  loading }: PoolDetailsHeaderProps) {
+  const currencies = [useCurrency(token0?.id, chainId) ?? undefined, useCurrency(token1?.id, chainId) ?? undefined];
+  const chainName = chainIdToBackendName(chainId);
+  const origin = `/tokens/${chainName}`;
 
-  if (loading)
+  if (loading) {
     return (
       <HeaderColumn data-testid="pdp-header-loading-skeleton">
         <DetailBubble $width={300} />
@@ -82,7 +80,8 @@ export function PoolDetailsHeader({
           </Row>
         </Column>
       </HeaderColumn>
-    )
+    );
+  }
 
   return (
     <HeaderColumn>
@@ -117,19 +116,17 @@ export function PoolDetailsHeader({
         <ToggleReverseArrows data-testid="toggle-tokens-reverse-arrows" onClick={toggleReversed} />
       </Row>
     </HeaderColumn>
-  )
+  );
 }
 
 const StyledLogoParentContainer = styled.div`
   position: relative;
   top: 0;
   left: 0;
-`
+`;
 
-function DoubleCurrencyAndChainLogo({
-  chainId,
-  currencies,
-}: {
+function DoubleCurrencyAndChainLogo({ chainId,
+  currencies }: {
   chainId: number
   currencies: Array<Currency | undefined>
 }) {
@@ -138,7 +135,7 @@ function DoubleCurrencyAndChainLogo({
       <DoubleCurrencyLogo chainId={chainId} currencies={currencies} />
       <SquareL2Logo chainId={chainId} />
     </StyledLogoParentContainer>
-  )
+  );
 }
 
 const L2LogoContainer = styled.div`
@@ -153,23 +150,23 @@ const L2LogoContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`
+`;
 
 function SquareL2Logo({ chainId }: { chainId: ChainId }) {
-  if (chainId === ChainId.MAINNET) return null
+  if (chainId === ChainId.MAINNET) { return null; }
 
   return (
     <L2LogoContainer>
       <ChainLogo chainId={chainId} size={12} />
     </L2LogoContainer>
-  )
+  );
 }
 
 function DoubleCurrencyLogo({ chainId, currencies }: { chainId: number; currencies: Array<Currency | undefined> }) {
-  const [src, nextSrc] = useTokenLogoSource(currencies?.[0]?.wrapped.address, chainId, currencies?.[0]?.isNative)
-  const [src2, nextSrc2] = useTokenLogoSource(currencies?.[1]?.wrapped.address, chainId, currencies?.[1]?.isNative)
+  const [src, nextSrc] = useTokenLogoSource(currencies?.[0]?.wrapped.address, chainId, currencies?.[0]?.isNative);
+  const [src2, nextSrc2] = useTokenLogoSource(currencies?.[1]?.wrapped.address, chainId, currencies?.[1]?.isNative);
 
-  return <DoubleLogo logo1={src} onError1={nextSrc} logo2={src2} onError2={nextSrc2} />
+  return <DoubleLogo logo1={src} onError1={nextSrc} logo2={src2} onError2={nextSrc2} />;
 }
 
 const DoubleLogoContainer = styled.div`
@@ -191,13 +188,13 @@ const DoubleLogoContainer = styled.div`
     border-radius: 0 16px 16px 0;
     object-position: 100% 0;
   }
-`
+`;
 
 const CircleLogoImage = styled.img`
   width: 32px;
   height: 32px;
   border-radius: 50%;
-`
+`;
 
 interface DoubleLogoProps {
   logo1?: string
@@ -212,5 +209,5 @@ function DoubleLogo({ logo1, onError1, logo2, onError2 }: DoubleLogoProps) {
       <CircleLogoImage src={logo1 ?? blankTokenUrl} onError={onError1} />
       <CircleLogoImage src={logo2 ?? blankTokenUrl} onError={onError2} />
     </DoubleLogoContainer>
-  )
+  );
 }

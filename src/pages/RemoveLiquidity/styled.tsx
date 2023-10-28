@@ -1,6 +1,7 @@
-import { MaxButton } from 'pages/Pool/styled'
-import { Text } from 'rebass'
-import styled from 'styled-components'
+import { Text } from 'rebass';
+import styled from 'styled-components';
+
+import { MaxButton } from 'pages/Pool/styled';
 
 export const Wrapper = styled.div`
   position: relative;
@@ -10,11 +11,11 @@ export const Wrapper = styled.div`
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToExtraSmall`
     min-width: 340px;
   `};
-`
+`;
 
 export const SmallMaxButton = styled(MaxButton)`
   font-size: 12px;
-`
+`;
 
 export const ResponsiveHeaderText = styled(Text)`
   font-size: 40px;
@@ -22,4 +23,4 @@ export const ResponsiveHeaderText = styled(Text)`
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToExtraSmall`
      font-size: 24px
   `};
-`
+`;

@@ -1,6 +1,7 @@
-import { Trans } from '@lingui/macro'
-import styled from 'styled-components'
-import { ThemedText } from 'theme/components'
+import { Trans } from '@lingui/macro';
+import styled from 'styled-components';
+
+import { ThemedText } from 'theme/components';
 
 const Divider = styled.div`
   width: 100%;
@@ -8,7 +9,7 @@ const Divider = styled.div`
   border-width: 0;
   margin: 12px 0;
   background-color: ${({ theme }) => theme.surface3};
-`
+`;
 
 export function OutputTaxTooltipBody({ currencySymbol }: { currencySymbol?: string }) {
   return (
@@ -30,5 +31,5 @@ export function OutputTaxTooltipBody({ currencySymbol }: { currencySymbol?: stri
         )}
       </ThemedText.LabelMicro>
     </>
-  )
+  );
 }
