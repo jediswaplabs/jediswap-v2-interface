@@ -1,25 +1,24 @@
-import { TransactionStatus } from 'graphql/data/__generated__/types-and-hooks' // Replace with the actual import if this is incorrect
-
-import { Activity } from './types'
-import { createGroups } from './utils'
+import { TransactionStatus } from 'graphql/data/types-and-hooks'; // Replace with the actual import if this is incorrect
+import { Activity } from './types';
+import { createGroups } from './utils';
 
 describe('createGroups', () => {
   it('should return undefined if activities is undefined', () => {
-    expect(createGroups(undefined)).toBeUndefined()
-  })
+    expect(createGroups(undefined)).toBeUndefined();
+  });
 
   it('should return an empty array if activities is empty', () => {
-    expect(createGroups([])).toEqual([])
-  })
+    expect(createGroups([])).toEqual([]);
+  });
 
   it('should sort and group activities based on status and time', () => {
     const mockActivities = [
       { timestamp: 1700000000, status: TransactionStatus.Pending },
       { timestamp: 1650000000, status: TransactionStatus.Confirmed },
       { timestamp: Date.now() / 1000 - 300, status: TransactionStatus.Confirmed },
-    ] as Activity[]
+    ] as Activity[];
 
-    const result = createGroups(mockActivities)
+    const result = createGroups(mockActivities);
 
     expect(result).toContainEqual(
       expect.objectContaining({
@@ -27,8 +26,8 @@ describe('createGroups', () => {
         transactions: expect.arrayContaining([
           expect.objectContaining({ timestamp: 1700000000, status: TransactionStatus.Pending }),
         ]),
-      })
-    )
+      }),
+    );
 
     expect(result).toContainEqual(
       expect.objectContaining({
@@ -36,7 +35,7 @@ describe('createGroups', () => {
         transactions: expect.arrayContaining([
           expect.objectContaining({ timestamp: expect.any(Number), status: TransactionStatus.Confirmed }),
         ]),
-      })
-    )
-  })
-})
+      }),
+    );
+  });
+});

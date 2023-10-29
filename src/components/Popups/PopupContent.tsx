@@ -1,24 +1,25 @@
-import { Trans } from '@lingui/macro'
-import { ChainId } from '@uniswap/sdk-core'
-import { useOpenOffchainActivityModal } from 'components/AccountDrawer/MiniPortfolio/Activity/OffchainActivityModal'
-import { signatureToActivity, transactionToActivity } from 'components/AccountDrawer/MiniPortfolio/Activity/parseLocal'
-import { Activity } from 'components/AccountDrawer/MiniPortfolio/Activity/types'
-import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo'
-import PortfolioRow from 'components/AccountDrawer/MiniPortfolio/PortfolioRow'
-import Column, { AutoColumn } from 'components/Column'
-import AlertTriangleFilled from 'components/Icons/AlertTriangleFilled'
-import { AutoRow } from 'components/Row'
-import { getChainInfo } from 'constants/chainInfo'
-import { TransactionStatus } from 'graphql/data/__generated__/types-and-hooks'
-import { useAllTokensMultichain } from 'hooks/Tokens'
-import useENSName from 'hooks/useENSName'
-import { X } from 'react-feather'
-import { useOrder } from 'state/signatures/hooks'
-import { useTransaction } from 'state/transactions/hooks'
-import styled from 'styled-components'
-import { EllipsisStyle, ThemedText } from 'theme/components'
-import { useFormatter } from 'utils/formatNumbers'
-import { ExplorerDataType, getExplorerLink } from 'utils/getExplorerLink'
+import { Trans } from '@lingui/macro';
+import { ChainId } from '@uniswap/sdk-core';
+import { X } from 'react-feather';
+import styled from 'styled-components';
+
+import { useOpenOffchainActivityModal } from 'components/AccountDrawer/MiniPortfolio/Activity/OffchainActivityModal';
+import { signatureToActivity, transactionToActivity } from 'components/AccountDrawer/MiniPortfolio/Activity/parseLocal';
+import { Activity } from 'components/AccountDrawer/MiniPortfolio/Activity/types';
+import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo';
+import PortfolioRow from 'components/AccountDrawer/MiniPortfolio/PortfolioRow';
+import Column, { AutoColumn } from 'components/Column';
+import AlertTriangleFilled from 'components/Icons/AlertTriangleFilled';
+import { AutoRow } from 'components/Row';
+import { getChainInfo } from 'constants/chainInfo';
+import { TransactionStatus } from 'graphql/data/types-and-hooks';
+import { useAllTokensMultichain } from 'hooks/Tokens';
+import useENSName from 'hooks/useENSName';
+import { useOrder } from 'state/signatures/hooks';
+import { useTransaction } from 'state/transactions/hooks';
+import { EllipsisStyle, ThemedText } from 'theme/components';
+import { useFormatter } from 'utils/formatNumbers';
+import { ExplorerDataType, getExplorerLink } from 'utils/getExplorerLink';
 
 const StyledClose = styled(X)<{ $padding: number }>`
   position: absolute;
@@ -29,7 +30,7 @@ const StyledClose = styled(X)<{ $padding: number }>`
   :hover {
     cursor: pointer;
   }
-`
+`;
 const PopupContainer = styled.div<{ padded?: boolean }>`
   display: inline-block;
   width: 100%;
@@ -49,24 +50,24 @@ const PopupContainer = styled.div<{ padded?: boolean }>`
     margin-right: 20px;
   }
 `}
-`
+`;
 
 const RowNoFlex = styled(AutoRow)`
   flex-wrap: nowrap;
-`
+`;
 
 const ColumnContainer = styled(AutoColumn)`
   margin: 0 12px;
-`
+`;
 
 const PopupAlertTriangle = styled(AlertTriangleFilled)`
   flex-shrink: 0;
   width: 32px;
   height: 32px;
-`
+`;
 
 export function FailedNetworkSwitchPopup({ chainId, onClose }: { chainId: ChainId; onClose: () => void }) {
-  const chainInfo = getChainInfo(chainId)
+  const chainInfo = getChainInfo(chainId);
 
   return (
     <PopupContainer padded>
@@ -84,17 +85,17 @@ export function FailedNetworkSwitchPopup({ chainId, onClose }: { chainId: ChainI
         </ColumnContainer>
       </RowNoFlex>
     </PopupContainer>
-  )
+  );
 }
 
 const Descriptor = styled(ThemedText.BodySmall)`
   ${EllipsisStyle}
-`
+`;
 
 type ActivityPopupContentProps = { activity: Activity; onClick: () => void; onClose: () => void }
 function ActivityPopupContent({ activity, onClick, onClose }: ActivityPopupContentProps) {
-  const success = activity.status === TransactionStatus.Confirmed && !activity.cancelled
-  const { ENSName } = useENSName(activity?.otherAccount)
+  const success = activity.status === TransactionStatus.Confirmed && !activity.cancelled;
+  const { ENSName } = useENSName(activity?.otherAccount);
 
   return (
     <PopupContainer>
@@ -115,54 +116,51 @@ function ActivityPopupContent({ activity, onClick, onClose }: ActivityPopupConte
           )
         }
         title={<ThemedText.SubHeader>{activity.title}</ThemedText.SubHeader>}
-        descriptor={
+        descriptor={(
           <Descriptor color="neutral2">
             {activity.descriptor}
             {ENSName ?? activity.otherAccount}
           </Descriptor>
-        }
+        )}
         onClick={onClick}
       />
     </PopupContainer>
-  )
+  );
 }
 
-export function TransactionPopupContent({
-  chainId,
+export function TransactionPopupContent({ chainId,
   hash,
-  onClose,
-}: {
+  onClose }: {
   chainId: ChainId
   hash: string
   onClose: () => void
 }) {
-  const transaction = useTransaction(hash)
-  const tokens = useAllTokensMultichain()
-  const { formatNumber } = useFormatter()
-  if (!transaction) return null
+  const transaction = useTransaction(hash);
+  const tokens = useAllTokensMultichain();
+  const { formatNumber } = useFormatter();
+  if (!transaction) { return null; }
 
-  const activity = transactionToActivity(transaction, chainId, tokens, formatNumber)
+  const activity = transactionToActivity(transaction, chainId, tokens, formatNumber);
 
-  if (!activity) return null
+  if (!activity) { return null; }
 
-  const onClick = () =>
-    window.open(getExplorerLink(activity.chainId, activity.hash, ExplorerDataType.TRANSACTION), '_blank')
+  const onClick = () => window.open(getExplorerLink(activity.chainId, activity.hash, ExplorerDataType.TRANSACTION), '_blank');
 
-  return <ActivityPopupContent activity={activity} onClose={onClose} onClick={onClick} />
+  return <ActivityPopupContent activity={activity} onClose={onClose} onClick={onClick} />;
 }
 
 export function UniswapXOrderPopupContent({ orderHash, onClose }: { orderHash: string; onClose: () => void }) {
-  const order = useOrder(orderHash)
-  const tokens = useAllTokensMultichain()
-  const openOffchainActivityModal = useOpenOffchainActivityModal()
-  const { formatNumber } = useFormatter()
-  if (!order) return null
+  const order = useOrder(orderHash);
+  const tokens = useAllTokensMultichain();
+  const openOffchainActivityModal = useOpenOffchainActivityModal();
+  const { formatNumber } = useFormatter();
+  if (!order) { return null; }
 
-  const activity = signatureToActivity(order, tokens, formatNumber)
+  const activity = signatureToActivity(order, tokens, formatNumber);
 
-  if (!activity) return null
+  if (!activity) { return null; }
 
-  const onClick = () => openOffchainActivityModal({ orderHash, status: order.status })
+  const onClick = () => openOffchainActivityModal({ orderHash, status: order.status });
 
-  return <ActivityPopupContent activity={activity} onClose={onClose} onClick={onClick} />
+  return <ActivityPopupContent activity={activity} onClose={onClose} onClick={onClick} />;
 }

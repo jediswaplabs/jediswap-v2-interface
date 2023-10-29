@@ -1,10 +1,10 @@
-import { parseEther } from '@ethersproject/units'
-import gql from 'graphql-tag'
-import { CollectionInfoForAsset, GenieAsset, Markets, SellOrder } from 'nft/types'
-import { wrapScientificNotation } from 'nft/utils'
-import { useMemo } from 'react'
+import { parseEther } from '@ethersproject/units';
+import gql from 'graphql-tag';
+import { useMemo } from 'react';
 
-import { NftAsset, useDetailsQuery } from '../__generated__/types-and-hooks'
+import { CollectionInfoForAsset, GenieAsset, Markets, SellOrder } from 'nft/types';
+import { wrapScientificNotation } from 'nft/utils';
+import { NftAsset, useDetailsQuery } from '../types-and-hooks';
 
 gql`
   query Details($address: String!, $tokenId: String!) {
@@ -90,23 +90,23 @@ gql`
       }
     }
   }
-`
+`;
 
 export function useNftAssetDetails(
   address: string,
-  tokenId: string
+  tokenId: string,
 ): { data: [GenieAsset, CollectionInfoForAsset]; loading: boolean } {
   const { data: queryData, loading } = useDetailsQuery({
     variables: {
       address,
       tokenId,
     },
-  })
+  });
 
-  const asset = queryData?.nftAssets?.edges[0]?.node as NonNullable<NftAsset> | undefined
-  const collection = asset?.collection
-  const listing = asset?.listings?.edges[0]?.node
-  const ethPrice = parseEther(wrapScientificNotation(listing?.price?.value?.toString() ?? '0')).toString()
+  const asset = queryData?.nftAssets?.edges[0]?.node as NonNullable<NftAsset> | undefined;
+  const collection = asset?.collection;
+  const listing = asset?.listings?.edges[0]?.node;
+  const ethPrice = parseEther(wrapScientificNotation(listing?.price?.value?.toString() ?? '0')).toString();
 
   return useMemo(
     () => ({
@@ -128,27 +128,23 @@ export function useNftAssetDetails(
             basePrice: ethPrice,
           },
           susFlag: asset?.suspiciousFlag,
-          sellorders: asset?.listings?.edges.map((listingNode) => {
-            return {
-              ...listingNode.node,
-              protocolParameters: listingNode.node.protocolParameters
-                ? JSON.parse(listingNode.node.protocolParameters.toString())
-                : undefined,
-            } as SellOrder
-          }),
+          sellorders: asset?.listings?.edges.map((listingNode) => ({
+            ...listingNode.node,
+            protocolParameters: listingNode.node.protocolParameters
+              ? JSON.parse(listingNode.node.protocolParameters.toString())
+              : undefined,
+          } as SellOrder)),
           smallImageUrl: asset?.smallImage?.url,
           tokenId,
           tokenType: asset?.collection?.nftContracts?.[0]?.standard,
           collectionIsVerified: asset?.collection?.isVerified,
           rarity: {
             primaryProvider: 'Rarity Sniper', // TODO update when backend adds more providers
-            providers: asset?.rarities?.map((rarity) => {
-              return {
-                rank: rarity.rank,
-                score: rarity.score,
-                provider: 'Rarity Sniper',
-              }
-            }),
+            providers: asset?.rarities?.map((rarity) => ({
+              rank: rarity.rank,
+              score: rarity.score,
+              provider: 'Rarity Sniper',
+            })),
           },
           ownerAddress: asset?.ownerAddress,
           creator: {
@@ -156,9 +152,7 @@ export function useNftAssetDetails(
             address: asset?.creator?.address ?? '',
           },
           metadataUrl: asset?.metadataUrl ?? '',
-          traits: asset?.traits?.map((trait) => {
-            return { trait_type: trait.name ?? '', trait_value: trait.value ?? '' }
-          }),
+          traits: asset?.traits?.map((trait) => ({ trait_type: trait.name ?? '', trait_value: trait.value ?? '' })),
         },
         {
           collectionDescription: collection?.description,
@@ -173,6 +167,6 @@ export function useNftAssetDetails(
       ],
       loading,
     }),
-    [address, asset, collection, ethPrice, listing?.marketplace, loading, tokenId]
-  )
+    [address, asset, collection, ethPrice, listing?.marketplace, loading, tokenId],
+  );
 }

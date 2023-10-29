@@ -1,6 +1,6 @@
-import gql from 'graphql-tag'
+import gql from 'graphql-tag';
 
-import { AllV3TicksQuery } from './__generated__/types-and-hooks'
+import { AllV3TicksQuery } from './types-and-hooks';
 
 gql`
   query AllV3Ticks($poolAddress: String, $skip: Int!) {
@@ -11,7 +11,7 @@ gql`
       price1
     }
   }
-`
+`;
 
 export type Ticks = AllV3TicksQuery['ticks']
 export type TickData = Ticks[number]

@@ -1,10 +1,10 @@
 import { Trans } from '@lingui/macro';
-import NotFound from 'pages/NotFound';
 import { useReducer } from 'react';
 import { useParams } from 'react-router-dom';
 import { Text } from 'rebass';
 import styled from 'styled-components';
 
+import NotFound from 'pages/NotFound';
 import Column from 'components/Column';
 import Row from 'components/Row';
 import { LoadingBubble } from 'components/Tokens/loading';

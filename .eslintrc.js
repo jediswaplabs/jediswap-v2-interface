@@ -103,6 +103,7 @@ module.exports = {
     'no-unused-vars': ['error', {
       varsIgnorePattern: 'Fragment', ignoreRestSiblings: true,
     }],
+    '@typescript-eslint/no-unused-vars': 'error',
     'no-use-before-define': 'off',
     'object-curly-newline': ['error', {
       ObjectExpression: { consistent: true },

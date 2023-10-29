@@ -8,7 +8,7 @@ import styled, { css } from 'styled-components';
 import { OrderContent } from 'components/AccountDrawer/MiniPortfolio/Activity/OffchainActivityModal';
 import Column, { ColumnCenter } from 'components/Column';
 import Row from 'components/Row';
-import { TransactionStatus } from 'graphql/data/__generated__/types-and-hooks';
+import { TransactionStatus } from 'graphql/data/types-and-hooks';
 import { SwapResult } from 'hooks/useSwapCallback';
 import { useUnmountingAnimation } from 'hooks/useUnmountingAnimation';
 import { UniswapXOrderStatus } from 'lib/hooks/orders/types';

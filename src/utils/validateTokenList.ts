@@ -1,49 +1,58 @@
-import type { TokenInfo, TokenList } from '@uniswap/token-lists'
-import type { ValidateFunction } from 'ajv'
+import type { TokenInfo, TokenList } from '@uniswap/token-lists';
+import type { ValidateFunction } from 'ajv';
+import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
+import jsonSchema from '@uniswap/token-lists/dist/tokenlist.schema.json';
 
-enum ValidationSchema {
-  LIST = 'list',
-  TOKENS = 'tokens',
-}
+const tokenListAjv = new Ajv({ code: { source: true, esm: true } });
+addFormats(tokenListAjv);
+const tokenListValidator = tokenListAjv.compile(jsonSchema);
 
-function getValidationErrors(validate: ValidateFunction | undefined): string {
+const tokensAjv = new Ajv({ code: { source: true, esm: true } });
+addFormats(tokensAjv);
+const tokensValidator = tokensAjv.compile({ ...jsonSchema, required: ['tokens'] });
+
+const ValidationSchemaLookup = {
+  LIST: 'list',
+  TOKENS: 'tokens',
+};
+
+function getValidationErrors(validator: ValidateFunction): string {
   return (
-    validate?.errors?.map((error) => [error.instancePath, error.message].filter(Boolean).join(' ')).join('; ') ??
-    'unknown error'
-  )
+    validator?.errors?.map((error) => [error.instancePath, error.message].filter(Boolean).join(' ')).join('; ')
+    ?? 'unknown error'
+  );
 }
 
-async function validate(schema: ValidationSchema, data: unknown): Promise<unknown> {
-  let validatorImport
-  switch (schema) {
-    case ValidationSchema.LIST:
-      validatorImport = await import('utils/__generated__/validateTokenList')
-      break
-    case ValidationSchema.TOKENS:
-      validatorImport = await import('utils/__generated__/validateTokens')
-      break
+function validate(schemaType: string, data: unknown): any {
+  let validator;
+  switch (schemaType) {
+    case ValidationSchemaLookup.LIST:
+      validator = tokenListValidator;
+      break;
+    case ValidationSchemaLookup.TOKENS:
+      validator = tokensValidator;
+      break;
     default:
-      throw new Error('No validation function specified for token list schema')
+      throw new Error('No validation function specified for token list schema');
   }
 
-  const [, validatorModule] = await Promise.all([import('ajv'), validatorImport])
-  const validator = validatorModule.default as ValidateFunction
   if (validator?.(data)) {
-    return data
+    return data;
   }
-  throw new Error(getValidationErrors(validator))
+  throw new Error(getValidationErrors(validator));
 }
 
 /**
  * Validates an array of tokens.
  * @param json the TokenInfo[] to validate
  */
-export async function validateTokens(json: TokenInfo[]): Promise<TokenInfo[]> {
+export function validateTokens(json: TokenInfo[]): TokenInfo[] {
   try {
-    await validate(ValidationSchema.TOKENS, { tokens: json })
-    return json
+    validate(ValidationSchemaLookup.TOKENS, { tokens: json });
+    return json;
   } catch (error) {
-    throw new Error(`Tokens failed validation: ${error.message}`)
+    throw new Error(`Tokens failed validation: ${error.message}`);
   }
 }
 
@@ -51,11 +60,11 @@ export async function validateTokens(json: TokenInfo[]): Promise<TokenInfo[]> {
  * Validates a token list.
  * @param json the TokenList to validate
  */
-export async function validateTokenList(json: TokenList): Promise<TokenList> {
+export function validateTokenList(json: TokenList): TokenList {
   try {
-    await validate(ValidationSchema.LIST, json)
-    return json
+    validate(ValidationSchemaLookup.LIST, json);
+    return json;
   } catch (error) {
-    throw new Error(`Token list failed validation: ${error.message}`)
+    throw new Error(`Token list failed validation: ${error.message}`);
   }
 }

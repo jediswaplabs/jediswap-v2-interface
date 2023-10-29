@@ -1,6 +1,7 @@
-import { NftAssetSortableField } from 'graphql/data/__generated__/types-and-hooks'
-import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
+
+import { NftAssetSortableField } from 'graphql/data/types-and-hooks';
 
 export enum SortBy {
   LowToHigh,
@@ -14,7 +15,7 @@ export const SortByPointers = {
   [SortBy.LowToHigh]: 'lowest',
   [SortBy.RareToCommon]: 'rare',
   [SortBy.CommonToRare]: 'common',
-}
+};
 interface QueryInfo {
   field: NftAssetSortableField
   asc: boolean
@@ -24,7 +25,7 @@ export const SortByQueries = {
   [SortBy.LowToHigh]: { field: 'PRICE', asc: true } as QueryInfo,
   [SortBy.RareToCommon]: { field: 'RARITY', asc: true } as QueryInfo,
   [SortBy.CommonToRare]: { field: 'RARITY', asc: false } as QueryInfo,
-}
+};
 
 export type Trait = {
   trait_type: string
@@ -81,7 +82,7 @@ export const initialCollectionFilterState: State = {
   search: '',
   sortBy: SortBy.LowToHigh,
   showFullTraitName: { shouldShow: false, trait_value: '', trait_type: '' },
-}
+};
 
 export const useCollectionFilters = create<CollectionFilters>()(
   devtools(
@@ -95,18 +96,16 @@ export const useCollectionFilters = create<CollectionFilters>()(
       addMarket: (market) => set(({ markets }) => ({ markets: [...markets, market] })),
       removeMarket: (market) => set(({ markets }) => ({ markets: markets.filter((_market) => market !== _market) })),
       addTrait: (trait) => set(({ traits }) => ({ traits: [...traits, trait] })),
-      removeTrait: (trait) =>
-        set(({ traits }) => ({
-          traits: traits.filter((x) => JSON.stringify(x) !== JSON.stringify(trait)),
-        })),
+      removeTrait: (trait) => set(({ traits }) => ({
+        traits: traits.filter((x) => JSON.stringify(x) !== JSON.stringify(trait)),
+      })),
       reset: () => set(() => ({ traits: [], minRarity: '', maxRarity: '', markets: [], minPrice: '', maxPrice: '' })),
       setMinPrice: (price) => set(() => ({ minPrice: price })),
       setMaxPrice: (price) => set(() => ({ maxPrice: price })),
       setMinRarity: (range) => set(() => ({ minRarity: range })),
       setMaxRarity: (range) => set(() => ({ maxRarity: range })),
-      toggleShowFullTraitName: ({ shouldShow, trait_value, trait_type }) =>
-        set(() => ({ showFullTraitName: { shouldShow, trait_value, trait_type } })),
+      toggleShowFullTraitName: ({ shouldShow, trait_value, trait_type }) => set(() => ({ showFullTraitName: { shouldShow, trait_value, trait_type } })),
     }),
-    { name: 'useCollectionTraits' }
-  )
-)
+    { name: 'useCollectionTraits' },
+  ),
+);

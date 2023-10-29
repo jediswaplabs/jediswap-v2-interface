@@ -1,8 +1,9 @@
-import { Currency } from '@uniswap/sdk-core'
-import { TokenTradeInput } from 'graphql/data/__generated__/types-and-hooks'
-import { devtools } from 'zustand/middleware'
-import { shallow } from 'zustand/shallow'
-import { createWithEqualityFn } from 'zustand/traditional'
+import { Currency } from '@uniswap/sdk-core';
+import { devtools } from 'zustand/middleware';
+import { shallow } from 'zustand/shallow';
+import { createWithEqualityFn } from 'zustand/traditional';
+
+import { TokenTradeInput } from 'graphql/data/types-and-hooks';
 
 interface TokenInputState {
   inputCurrency?: Currency
@@ -21,7 +22,7 @@ export const useTokenInput = createWithEqualityFn<TokenInputState>()(
       clearInputCurrency: () => set(() => ({ inputCurrency: undefined })),
       setTokenTradeInput: (tokenTradeInput) => set(() => ({ tokenTradeInput })),
     }),
-    { name: 'useTokenInput' }
+    { name: 'useTokenInput' },
   ),
-  shallow
-)
+  shallow,
+);

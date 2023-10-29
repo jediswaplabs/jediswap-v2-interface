@@ -1,25 +1,26 @@
-import { Trans } from '@lingui/macro'
-import { ChainId } from '@uniswap/sdk-core'
-import Column from 'components/Column'
-import { EtherscanLogo } from 'components/Icons/Etherscan'
-import { Globe } from 'components/Icons/Globe'
-import { TwitterXLogo } from 'components/Icons/TwitterX'
-import CurrencyLogo from 'components/Logo/CurrencyLogo'
-import Row from 'components/Row'
-import { NoInfoAvailable, truncateDescription, TruncateDescriptionButton } from 'components/Tokens/TokenDetails/shared'
-import { useTokenProjectQuery } from 'graphql/data/__generated__/types-and-hooks'
-import { chainIdToBackendName } from 'graphql/data/util'
-import { useCurrency } from 'hooks/Tokens'
-import { useColor } from 'hooks/useColor'
-import useCopyClipboard from 'hooks/useCopyClipboard'
-import { useCallback, useReducer } from 'react'
-import { Copy } from 'react-feather'
-import styled, { useTheme } from 'styled-components'
-import { BREAKPOINTS } from 'theme'
-import { ClickableStyle, EllipsisStyle, ExternalLink, ThemedText } from 'theme/components'
-import { opacify } from 'theme/utils'
-import { shortenAddress } from 'utils'
-import { ExplorerDataType, getExplorerLink } from 'utils/getExplorerLink'
+import { Trans } from '@lingui/macro';
+import { ChainId } from '@uniswap/sdk-core';
+import { useCallback, useReducer } from 'react';
+import { Copy } from 'react-feather';
+import styled, { useTheme } from 'styled-components';
+
+import Column from 'components/Column';
+import { EtherscanLogo } from 'components/Icons/Etherscan';
+import { Globe } from 'components/Icons/Globe';
+import { TwitterXLogo } from 'components/Icons/TwitterX';
+import CurrencyLogo from 'components/Logo/CurrencyLogo';
+import Row from 'components/Row';
+import { NoInfoAvailable, truncateDescription, TruncateDescriptionButton } from 'components/Tokens/TokenDetails/shared';
+import { useTokenProjectQuery } from 'graphql/data/types-and-hooks';
+import { chainIdToBackendName } from 'graphql/data/util';
+import { useCurrency } from 'hooks/Tokens';
+import { useColor } from 'hooks/useColor';
+import useCopyClipboard from 'hooks/useCopyClipboard';
+import { BREAKPOINTS } from 'theme';
+import { ClickableStyle, EllipsisStyle, ExternalLink, ThemedText } from 'theme/components';
+import { opacify } from 'theme/utils';
+import { shortenAddress } from 'utils';
+import { ExplorerDataType, getExplorerLink } from 'utils/getExplorerLink';
 
 const TokenInfoSection = styled(Column)`
   gap: 12px;
@@ -28,20 +29,20 @@ const TokenInfoSection = styled(Column)`
   @media (max-width: ${BREAKPOINTS.lg - 1}px) and (min-width: ${BREAKPOINTS.sm}px) {
     max-width: 45%;
   }
-`
+`;
 
 const TokenNameRow = styled(Row)`
   gap: 8px;
   width: 100%;
-`
+`;
 
 const TokenName = styled(ThemedText.BodyPrimary)`
   ${EllipsisStyle}
-`
+`;
 
 const TokenButtonRow = styled(TokenNameRow)`
   flex-wrap: wrap;
-`
+`;
 
 const TokenInfoButton = styled(Row)<{ tokenColor: string }>`
   gap: 8px;
@@ -54,7 +55,7 @@ const TokenInfoButton = styled(Row)<{ tokenColor: string }>`
   line-height: 16px;
   width: max-content;
   ${ClickableStyle}
-`
+`;
 
 const TokenDescriptionContainer = styled(ThemedText.BodyPrimary)`
   ${EllipsisStyle}
@@ -62,46 +63,44 @@ const TokenDescriptionContainer = styled(ThemedText.BodyPrimary)`
   // max-height: fit-content;
   line-height: 24px;
   white-space: pre-wrap;
-`
+`;
 
 const DescriptionVisibilityWrapper = styled.span<{ $visible: boolean }>`
   display: ${({ $visible }) => ($visible ? 'inline' : 'none')};
-`
+`;
 
-const TRUNCATE_CHARACTER_COUNT = 75
+const TRUNCATE_CHARACTER_COUNT = 75;
 
-export function TokenDescription({
-  tokenAddress,
+export function TokenDescription({ tokenAddress,
   chainId = ChainId.MAINNET,
-  showCopy = false,
-}: {
+  showCopy = false }: {
   tokenAddress: string
   chainId?: number
   showCopy?: boolean
 }) {
-  const currency = useCurrency(tokenAddress, chainId)
-  const theme = useTheme()
-  const color = useColor(currency?.wrapped, theme.surface1, theme.darkMode)
+  const currency = useCurrency(tokenAddress, chainId);
+  const theme = useTheme();
+  const color = useColor(currency?.wrapped, theme.surface1, theme.darkMode);
   const { data: tokenQuery } = useTokenProjectQuery({
     variables: {
       address: tokenAddress,
       chain: chainIdToBackendName(chainId),
     },
     errorPolicy: 'all',
-  })
-  const tokenProject = tokenQuery?.token?.project
-  const description = tokenProject?.description
-  const explorerUrl = getExplorerLink(chainId, tokenAddress, ExplorerDataType.TOKEN)
+  });
+  const tokenProject = tokenQuery?.token?.project;
+  const description = tokenProject?.description;
+  const explorerUrl = getExplorerLink(chainId, tokenAddress, ExplorerDataType.TOKEN);
 
-  const [, setCopied] = useCopyClipboard()
+  const [, setCopied] = useCopyClipboard();
   const copy = useCallback(() => {
-    setCopied(tokenAddress)
-  }, [tokenAddress, setCopied])
+    setCopied(tokenAddress);
+  }, [tokenAddress, setCopied]);
 
-  const [isDescriptionTruncated, toggleIsDescriptionTruncated] = useReducer((x) => !x, true)
-  const truncatedDescription = truncateDescription(description ?? '', TRUNCATE_CHARACTER_COUNT)
-  const shouldTruncate = !!description && description.length > TRUNCATE_CHARACTER_COUNT
-  const showTruncatedDescription = shouldTruncate && isDescriptionTruncated
+  const [isDescriptionTruncated, toggleIsDescriptionTruncated] = useReducer((x) => !x, true);
+  const truncatedDescription = truncateDescription(description ?? '', TRUNCATE_CHARACTER_COUNT);
+  const shouldTruncate = !!description && description.length > TRUNCATE_CHARACTER_COUNT;
+  const showTruncatedDescription = shouldTruncate && isDescriptionTruncated;
 
   return (
     <TokenInfoSection>
@@ -166,5 +165,5 @@ export function TokenDescription({
         )}
       </TokenDescriptionContainer>
     </TokenInfoSection>
-  )
+  );
 }

@@ -1,9 +1,9 @@
-import { ApolloError, useQuery } from '@apollo/client'
-import gql from 'graphql-tag'
-import { useMemo } from 'react'
+import { ApolloError, useQuery } from '@apollo/client';
+import gql from 'graphql-tag';
+import { useMemo } from 'react';
 
-import { FeeTierDistributionQuery } from './__generated__/types-and-hooks'
-import { apolloClient } from './apollo'
+import { FeeTierDistributionQuery } from './types-and-hooks';
+import { apolloClient } from './apollo';
 
 const query = gql`
   query FeeTierDistribution($token0: String!, $token1: String!) {
@@ -31,25 +31,23 @@ const query = gql`
       totalValueLockedToken1
     }
   }
-`
+`;
 
 export default function useFeeTierDistributionQuery(
   token0: string | undefined,
   token1: string | undefined,
-  interval: number
+  interval: number,
 ): { error?: ApolloError; isLoading: boolean; data: FeeTierDistributionQuery } {
-  const {
-    data,
+  const { data,
     loading: isLoading,
-    error,
-  } = useQuery(query, {
+    error } = useQuery(query, {
     variables: {
       token0: token0?.toLowerCase(),
       token1: token1?.toLowerCase(),
     },
     pollInterval: interval,
     client: apolloClient,
-  })
+  });
 
   return useMemo(
     () => ({
@@ -57,6 +55,6 @@ export default function useFeeTierDistributionQuery(
       isLoading,
       data,
     }),
-    [data, error, isLoading]
-  )
+    [data, error, isLoading],
+  );
 }

@@ -1,6 +1,5 @@
-import { renderHook } from 'test-utils/render'
-
-import { useNftAssetDetails } from './Details'
+import { renderHook } from 'test-utils/render';
+import { useNftAssetDetails } from './Details';
 
 describe('useNftAssetDetails', () => {
   it('should handle listing.price.value of 1e-18 without crashing', () => {
@@ -28,11 +27,11 @@ describe('useNftAssetDetails', () => {
         },
       },
       loading: false,
-    }))
-    jest.mock('../__generated__/types-and-hooks', () => ({
+    }));
+    jest.mock('../types-and-hooks', () => ({
       useDetailsQuery: mockUseDetailsQuery,
-    }))
-    const { result } = renderHook(() => useNftAssetDetails('address', 'tokenId'))
-    expect(result.current.data[0].priceInfo.ETHPrice).toBe('0')
-  })
-})
+    }));
+    const { result } = renderHook(() => useNftAssetDetails('address', 'tokenId'));
+    expect(result.current.data[0].priceInfo.ETHPrice).toBe('0');
+  });
+});

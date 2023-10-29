@@ -1,5 +1,5 @@
-import { MediaType, NftActivityType, NftStandard, OrderStatus } from 'graphql/data/__generated__/types-and-hooks'
-import { ActivityEvent, GenieAsset, Markets, WalletAsset } from 'nft/types'
+import { MediaType, NftActivityType, NftStandard, OrderStatus } from 'graphql/data/types-and-hooks';
+import { ActivityEvent, GenieAsset, Markets, WalletAsset } from 'nft/types';
 
 export const TEST_NFT_ASSET: GenieAsset = {
   id: 'TmZ0QXNzZXQ6MHhlZDVhZjM4ODY1MzU2N2FmMmYzODhlNjIyNGRjN2M0YjMyNDFjNTQ0XzMzMTg=',
@@ -32,7 +32,7 @@ export const TEST_NFT_ASSET: GenieAsset = {
     ],
   },
   creator: {},
-}
+};
 
 export const TEST_NFT_WALLET_ASSET: WalletAsset = {
   id: 'TmZ0QXNzZXQ6RVRIRVJFVU1fMHgyOTY1MkMyZTlEMzY1NjQzNEJjODEzM2M2OTI1OEM4ZDA1MjkwZjQxXzIzNTk=',
@@ -68,7 +68,7 @@ export const TEST_NFT_WALLET_ASSET: WalletAsset = {
   basisPoints: 0,
   date_acquired: '1682024661',
   sellOrders: [],
-}
+};
 
 export const TEST_NFT_ACTIVITY_EVENT: ActivityEvent = {
   collectionAddress: '0xed5af388653567af2f388e6224dc7c4b3241c544',
@@ -97,4 +97,4 @@ export const TEST_NFT_ACTIVITY_EVENT: ActivityEvent = {
   quantity: 1,
   url: 'https://opensea.io/assets/0xed5af388653567af2f388e6224dc7c4b3241c544/5674',
   eventTimestamp: 1682444662,
-}
+};

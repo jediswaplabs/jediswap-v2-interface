@@ -1,5 +1,5 @@
-import { NftRouteResponse, NftTrade } from 'graphql/data/__generated__/types-and-hooks'
-import { Markets, RouteResponse, RoutingActions, RoutingItem, TokenType } from 'nft/types'
+import { NftRouteResponse, NftTrade } from 'graphql/data/types-and-hooks';
+import { Markets, RouteResponse, RoutingActions, RoutingItem, TokenType } from 'nft/types';
 
 function buildRoutingItem(routingItem: NftTrade): RoutingItem {
   return {
@@ -29,18 +29,18 @@ function buildRoutingItem(routingItem: NftTrade): RoutingItem {
       marketplace: routingItem.marketplace.toLowerCase() as Markets,
       orderSource: 'api',
     },
-  }
+  };
 }
 
 function buildRoutingItems(routingItems: readonly NftTrade[]): RoutingItem[] {
-  return routingItems.map(buildRoutingItem)
+  return routingItems.map(buildRoutingItem);
 }
 
 export function buildRouteResponse(
   routeResponse: NftRouteResponse,
-  useErc20Token: boolean
+  useErc20Token: boolean,
 ): { route: RoutingItem[]; routeResponse: RouteResponse } {
-  const route = routeResponse.route ? buildRoutingItems(routeResponse.route) : []
+  const route = routeResponse.route ? buildRoutingItems(routeResponse.route) : [];
   return {
     route,
     routeResponse: {
@@ -49,5 +49,5 @@ export function buildRouteResponse(
       data: routeResponse.calldata,
       to: routeResponse.toAddress,
     },
-  }
+  };
 }
