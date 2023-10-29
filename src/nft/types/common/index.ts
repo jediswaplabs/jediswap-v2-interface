@@ -1,7 +1,6 @@
-import { MediaType, NftStandard } from 'graphql/data/__generated__/types-and-hooks'
-import { SortBy } from 'nft/hooks'
-
-import { SellOrder } from '../sell'
+import { MediaType, NftStandard } from 'graphql/data/types-and-hooks';
+import { SortBy } from 'nft/hooks';
+import { SellOrder } from '../sell';
 
 export enum TokenType {
   ERC20 = 'ERC20',
@@ -108,9 +107,9 @@ export enum Markets {
 }
 
 export const isPooledMarket = (market?: Markets): boolean => {
-  if (!market) return false
-  return market === Markets.NFTX || market === Markets.NFT20 || market === Markets.Sudoswap
-}
+  if (!market) { return false; }
+  return market === Markets.NFTX || market === Markets.NFT20 || market === Markets.Sudoswap;
+};
 
 // index starts at 1 for boolean reasons
 export interface DropDownOption {

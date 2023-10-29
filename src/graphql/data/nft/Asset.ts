@@ -1,18 +1,16 @@
-import { parseEther } from 'ethers/lib/utils'
-import gql from 'graphql-tag'
-import { GenieAsset, Markets, Trait } from 'nft/types'
-import { wrapScientificNotation } from 'nft/utils'
-import { useCallback, useMemo } from 'react'
+import { parseEther } from 'ethers/lib/utils';
+import gql from 'graphql-tag';
+import { useCallback, useMemo } from 'react';
 
-import {
-  AssetQueryVariables,
+import { GenieAsset, Markets, Trait } from 'nft/types';
+import { wrapScientificNotation } from 'nft/utils';
+import { AssetQueryVariables,
   NftAssetEdge,
   NftAssetsFilterInput,
   NftAssetSortableField,
   NftAssetTraitInput,
   NftMarketplace,
-  useAssetQuery,
-} from '../__generated__/types-and-hooks'
+  useAssetQuery } from '../types-and-hooks';
 
 gql`
   query Asset(
@@ -97,11 +95,11 @@ gql`
       }
     }
   }
-`
+`;
 
 function formatAssetQueryData(queryAsset: NftAssetEdge, totalCount?: number) {
-  const asset = queryAsset.node
-  const ethPrice = parseEther(wrapScientificNotation(asset.listings?.edges[0]?.node.price.value ?? 0)).toString()
+  const asset = queryAsset.node;
+  const ethPrice = parseEther(wrapScientificNotation(asset.listings?.edges[0]?.node.price.value ?? 0)).toString();
   return {
     id: asset.id,
     address: asset?.collection?.nftContracts?.[0]?.address ?? '',
@@ -119,14 +117,12 @@ function formatAssetQueryData(queryAsset: NftAssetEdge, totalCount?: number) {
       basePrice: ethPrice,
     },
     susFlag: asset.suspiciousFlag,
-    sellorders: asset.listings?.edges.map((listingNode) => {
-      return {
-        ...listingNode.node,
-        protocolParameters: listingNode.node?.protocolParameters
-          ? JSON.parse(listingNode.node?.protocolParameters.toString())
-          : undefined,
-      }
-    }),
+    sellorders: asset.listings?.edges.map((listingNode) => ({
+      ...listingNode.node,
+      protocolParameters: listingNode.node?.protocolParameters
+        ? JSON.parse(listingNode.node?.protocolParameters.toString())
+        : undefined,
+    })),
     smallImageUrl: asset.smallImage?.url,
     tokenId: asset.tokenId ?? '',
     tokenType: asset.collection?.nftContracts?.[0]?.standard,
@@ -134,12 +130,10 @@ function formatAssetQueryData(queryAsset: NftAssetEdge, totalCount?: number) {
     collectionIsVerified: asset.collection?.isVerified,
     rarity: {
       primaryProvider: 'Rarity Sniper', // TODO update when backend adds more providers
-      providers: asset.rarities?.map((rarity) => {
-        return {
-          ...rarity,
-          provider: 'Rarity Sniper',
-        }
-      }),
+      providers: asset.rarities?.map((rarity) => ({
+        ...rarity,
+        provider: 'Rarity Sniper',
+      })),
     },
     ownerAddress: asset.ownerAddress,
     creator: {
@@ -147,10 +141,10 @@ function formatAssetQueryData(queryAsset: NftAssetEdge, totalCount?: number) {
       address: asset.collection?.creator?.address,
     },
     metadataUrl: asset.metadataUrl,
-  }
+  };
 }
 
-export const ASSET_PAGE_SIZE = 25
+export const ASSET_PAGE_SIZE = 25;
 
 export interface AssetFetcherParams {
   address: string
@@ -169,47 +163,41 @@ const defaultAssetFetcherParams: Omit<AssetQueryVariables, 'address'> = {
   // tokenSearchQuery must be specified so that this exactly matches the initial query.
   filter: { listed: false, tokenSearchQuery: '' },
   first: ASSET_PAGE_SIZE,
-}
+};
 
 export function useNftAssets(params: AssetFetcherParams) {
-  const variables = useMemo(() => ({ ...defaultAssetFetcherParams, ...params }), [params])
+  const variables = useMemo(() => ({ ...defaultAssetFetcherParams, ...params }), [params]);
 
   const { data, loading, fetchMore } = useAssetQuery({
     variables,
-  })
-  const hasNext = data?.nftAssets?.pageInfo?.hasNextPage
+  });
+  const hasNext = data?.nftAssets?.pageInfo?.hasNextPage;
   const loadMore = useCallback(
-    () =>
-      fetchMore({
-        variables: {
-          after: data?.nftAssets?.pageInfo?.endCursor,
-        },
-      }),
-    [data, fetchMore]
-  )
+    () => fetchMore({
+      variables: {
+        after: data?.nftAssets?.pageInfo?.endCursor,
+      },
+    }),
+    [data, fetchMore],
+  );
 
   // TODO: setup polling while handling pagination
 
   // It is especially important for this to be memoized to avoid re-rendering from polling if data is unchanged.
   const assets: GenieAsset[] | undefined = useMemo(
-    () =>
-      data?.nftAssets?.edges?.map((queryAsset) => {
-        return formatAssetQueryData(queryAsset as NonNullable<NftAssetEdge>, data.nftAssets?.totalCount)
-      }),
-    [data?.nftAssets?.edges, data?.nftAssets?.totalCount]
-  )
+    () => data?.nftAssets?.edges?.map((queryAsset) => formatAssetQueryData(queryAsset as NonNullable<NftAssetEdge>, data.nftAssets?.totalCount)),
+    [data?.nftAssets?.edges, data?.nftAssets?.totalCount],
+  );
 
-  return useMemo(() => {
-    return {
-      data: assets,
-      hasNext,
-      loading,
-      loadMore,
-    }
-  }, [assets, hasNext, loadMore, loading])
+  return useMemo(() => ({
+    data: assets,
+    hasNext,
+    loading,
+    loadMore,
+  }), [assets, hasNext, loadMore, loading]);
 }
 
-const DEFAULT_SWEEP_AMOUNT = 50
+const DEFAULT_SWEEP_AMOUNT = 50;
 
 export interface SweepFetcherParams {
   contractAddress: string
@@ -226,15 +214,13 @@ function useSweepFetcherVars({ contractAddress, markets, price, traits }: SweepF
       minPrice: price?.low?.toString(),
       traits:
         traits && traits.length > 0
-          ? traits?.map((trait) => {
-              return { name: trait.trait_type, values: [trait.trait_value] } as unknown as NftAssetTraitInput
-            })
+          ? traits?.map((trait) => ({ name: trait.trait_type, values: [trait.trait_value] } as unknown as NftAssetTraitInput))
           : undefined,
       marketplaces:
         markets && markets.length > 0 ? markets?.map((market) => market.toUpperCase() as NftMarketplace) : undefined,
     }),
-    [markets, price?.high, price?.low, traits]
-  )
+    [markets, price?.high, price?.low, traits],
+  );
   return useMemo(
     () => ({
       address: contractAddress,
@@ -243,23 +229,20 @@ function useSweepFetcherVars({ contractAddress, markets, price, traits }: SweepF
       first: DEFAULT_SWEEP_AMOUNT,
       filter,
     }),
-    [contractAddress, filter]
-  )
+    [contractAddress, filter],
+  );
 }
 
 export function useSweepNftAssets(params: SweepFetcherParams) {
-  const variables = useSweepFetcherVars(params)
+  const variables = useSweepFetcherVars(params);
   const { data, loading } = useAssetQuery({
     variables,
     // This prevents overwriting the page's call to assets for cards shown
     fetchPolicy: 'no-cache',
-  })
+  });
   const assets = useMemo<GenieAsset[] | undefined>(
-    () =>
-      data?.nftAssets?.edges?.map((queryAsset) => {
-        return formatAssetQueryData(queryAsset as NonNullable<NftAssetEdge>, data.nftAssets?.totalCount)
-      }),
-    [data?.nftAssets?.edges, data?.nftAssets?.totalCount]
-  )
-  return useMemo(() => ({ data: assets, loading }), [assets, loading])
+    () => data?.nftAssets?.edges?.map((queryAsset) => formatAssetQueryData(queryAsset as NonNullable<NftAssetEdge>, data.nftAssets?.totalCount)),
+    [data?.nftAssets?.edges, data?.nftAssets?.totalCount],
+  );
+  return useMemo(() => ({ data: assets, loading }), [assets, loading]);
 }

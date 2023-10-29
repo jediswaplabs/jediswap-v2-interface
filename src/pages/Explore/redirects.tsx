@@ -23,6 +23,7 @@ export function useExploreParams(): {
   // /explore/:tab/:chainName
   return { tab: tab as ExploreTab, chainName, tokenAddress };
 }
+
 export default function RedirectExplore() {
   const { tab, chainName, tokenAddress } = useExploreParams();
   if (tab && chainName && tokenAddress) {

@@ -1,8 +1,8 @@
-import gql from 'graphql-tag'
-import { GenieCollection, Trait } from 'nft/types'
-import { useMemo } from 'react'
+import gql from 'graphql-tag';
+import { useMemo } from 'react';
 
-import { NftCollection, useCollectionQuery } from '../__generated__/types-and-hooks'
+import { GenieCollection, Trait } from 'nft/types';
+import { NftCollection, useCollectionQuery } from '../types-and-hooks';
 
 gql`
   query Collection($addresses: [String!]!) {
@@ -84,27 +84,25 @@ gql`
       }
     }
   }
-`
+`;
 
 export function formatCollectionQueryData(
   queryCollection: NonNullable<NftCollection>,
-  address?: string
+  address?: string,
 ): GenieCollection {
-  const market = queryCollection?.markets?.[0]
-  if (!address && !queryCollection?.nftContracts?.[0]?.address) return {} as GenieCollection
-  const traits = {} as Record<string, Trait[]>
+  const market = queryCollection?.markets?.[0];
+  if (!address && !queryCollection?.nftContracts?.[0]?.address) { return {} as GenieCollection; }
+  const traits = {} as Record<string, Trait[]>;
   if (queryCollection?.traits) {
     queryCollection?.traits.forEach((trait) => {
       if (trait.name && trait.stats) {
-        traits[trait.name] = trait.stats.map((stats) => {
-          return {
-            trait_type: stats.name,
-            trait_value: stats.value,
-            trait_count: stats.assets,
-          } as Trait
-        })
+        traits[trait.name] = trait.stats.map((stats) => ({
+          trait_type: stats.name,
+          trait_value: stats.value,
+          trait_count: stats.assets,
+        } as Trait));
       }
-    })
+    });
   }
   return {
     address: address ?? queryCollection?.nftContracts?.[0]?.address ?? '',
@@ -125,13 +123,11 @@ export function formatCollectionQueryData(
       total_volume: market?.totalVolume?.value,
     },
     traits,
-    marketplaceCount: market?.marketplaces?.map((market) => {
-      return {
-        marketplace: market.marketplace?.toLowerCase() ?? '',
-        count: market.listings ?? 0,
-        floorPrice: market.floorPrice ?? 0,
-      }
-    }),
+    marketplaceCount: market?.marketplaces?.map((market) => ({
+      marketplace: market.marketplace?.toLowerCase() ?? '',
+      count: market.listings ?? 0,
+      floorPrice: market.floorPrice ?? 0,
+    })),
     imageUrl: queryCollection?.image?.url ?? '',
     twitterUrl: queryCollection?.twitterName,
     instagram: queryCollection?.instagramName,
@@ -139,7 +135,7 @@ export function formatCollectionQueryData(
     externalUrl: queryCollection?.homepageUrl,
     rarityVerified: false, // TODO update when backend supports
     // isFoundation: boolean, // TODO ask backend to add
-  }
+  };
 }
 
 interface useCollectionReturnProps {
@@ -153,13 +149,11 @@ export function useCollection(address: string, skip?: boolean): useCollectionRet
       addresses: address,
     },
     skip,
-  })
+  });
 
-  const queryCollection = queryData?.nftCollections?.edges?.[0]?.node as NonNullable<NftCollection>
-  return useMemo(() => {
-    return {
-      data: formatCollectionQueryData(queryCollection, address),
-      loading,
-    }
-  }, [address, loading, queryCollection])
+  const queryCollection = queryData?.nftCollections?.edges?.[0]?.node as NonNullable<NftCollection>;
+  return useMemo(() => ({
+    data: formatCollectionQueryData(queryCollection, address),
+    loading,
+  }), [address, loading, queryCollection]);
 }

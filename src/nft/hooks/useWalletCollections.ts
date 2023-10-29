@@ -1,8 +1,8 @@
-import { NftStandard } from 'graphql/data/__generated__/types-and-hooks'
-import { create } from 'zustand'
-import { devtools } from 'zustand/middleware'
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
 
-import { WalletAsset, WalletCollection } from '../types'
+import { NftStandard } from 'graphql/data/types-and-hooks';
+import { WalletAsset, WalletCollection } from '../types';
 
 interface WalletCollectionState {
   walletAssets: WalletAsset[]
@@ -26,49 +26,26 @@ export const useWalletCollections = create<WalletCollectionState>()(
       displayAssets: [],
       collectionFilters: [],
       listFilter: 'All',
-      setWalletAssets: (assets) =>
-        set(() => {
-          return {
-            walletAssets: assets?.filter((asset) => asset.asset_contract?.tokenType === NftStandard.Erc721),
-          }
-        }),
-      setWalletCollections: (collections) =>
-        set(() => {
-          return { walletCollections: collections }
-        }),
-      setCollectionFilters: (address) =>
-        set(({ collectionFilters }) => {
-          if (collectionFilters.length === 0) return { collectionFilters: [address] }
-          else if (collectionFilters.some((x) => x === address))
-            return { collectionFilters: collectionFilters.filter((n) => n !== address) }
-          else return { collectionFilters: [...collectionFilters, address] }
-        }),
-      clearCollectionFilters: () =>
-        set(() => {
-          return { collectionFilters: [] }
-        }),
-      setListFilter: (value) =>
-        set(() => {
-          return { listFilter: value }
-        }),
-      setDisplayAssets: (walletAssets, listFilter) =>
-        set(() => {
-          return { displayAssets: filterWalletAssets(walletAssets, listFilter) }
-        }),
+      setWalletAssets: (assets) => set(() => ({
+        walletAssets: assets?.filter((asset) => asset.asset_contract?.tokenType === NftStandard.Erc721),
+      })),
+      setWalletCollections: (collections) => set(() => ({ walletCollections: collections })),
+      setCollectionFilters: (address) => set(({ collectionFilters }) => {
+        if (collectionFilters.length === 0) { return { collectionFilters: [address] }; }
+        if (collectionFilters.some((x) => x === address)) { return { collectionFilters: collectionFilters.filter((n) => n !== address) }; }
+        return { collectionFilters: [...collectionFilters, address] };
+      }),
+      clearCollectionFilters: () => set(() => ({ collectionFilters: [] })),
+      setListFilter: (value) => set(() => ({ listFilter: value })),
+      setDisplayAssets: (walletAssets, listFilter) => set(() => ({ displayAssets: filterWalletAssets(walletAssets, listFilter) })),
     }),
-    { name: 'useWalletCollections' }
-  )
-)
+    { name: 'useWalletCollections' },
+  ),
+);
 
 const filterWalletAssets = (walletAssets: WalletAsset[], listFilter: string) => {
-  let displayAssets = walletAssets
-  if (listFilter === 'Listed')
-    displayAssets = displayAssets?.filter((x) => {
-      return x.listing_date !== null
-    })
-  if (listFilter === 'Unlisted')
-    displayAssets = displayAssets?.filter((x) => {
-      return x.listing_date === null
-    })
-  return displayAssets
-}
+  let displayAssets = walletAssets;
+  if (listFilter === 'Listed') { displayAssets = displayAssets?.filter((x) => x.listing_date !== null); }
+  if (listFilter === 'Unlisted') { displayAssets = displayAssets?.filter((x) => x.listing_date === null); }
+  return displayAssets;
+};

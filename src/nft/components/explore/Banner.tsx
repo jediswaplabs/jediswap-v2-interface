@@ -1,12 +1,12 @@
-import { HistoryDuration } from 'graphql/data/__generated__/types-and-hooks'
-import { useTrendingCollections } from 'graphql/data/nft/TrendingCollections'
-import { calculateCardIndex } from 'nft/utils'
-import { useCallback, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
+import { useCallback, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
-import { Carousel, LoadingCarousel } from './Carousel'
-import { CarouselCard, LoadingCarouselCard } from './CarouselCard'
+import { HistoryDuration } from 'graphql/data/types-and-hooks';
+import { useTrendingCollections } from 'graphql/data/nft/TrendingCollections';
+import { calculateCardIndex } from 'nft/utils';
+import { Carousel, LoadingCarousel } from './Carousel';
+import { CarouselCard, LoadingCarouselCard } from './CarouselCard';
 
 const BannerContainer = styled.div`
   display: flex;
@@ -18,7 +18,7 @@ const BannerContainer = styled.div`
   @media only screen and (min-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     padding: 32px 16px;
   }
-`
+`;
 
 const BannerMainArea = styled.div`
   display: flex;
@@ -37,7 +37,7 @@ const BannerMainArea = styled.div`
     margin-top: 4px;
     margin-bottom: 6px;
   }
-`
+`;
 
 const HeaderContainer = styled.div`
   display: flex;
@@ -81,34 +81,32 @@ const HeaderContainer = styled.div`
       display: unset;
     }
   }
-`
+`;
 
 // Exclude collections that are not available in any of the following - OpenSea, X2Y2 and LooksRare:
-const EXCLUDED_COLLECTIONS = ['0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb']
-const TRENDING_COLLECTION_SIZE = 5
+const EXCLUDED_COLLECTIONS = ['0xb47e3cd837ddf8e4c57f05d70ab865de6e193bbb'];
+const TRENDING_COLLECTION_SIZE = 5;
 
 const Banner = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const { data: trendingCollections } = useTrendingCollections(
     TRENDING_COLLECTION_SIZE + EXCLUDED_COLLECTIONS.length,
-    HistoryDuration.Day
-  )
+    HistoryDuration.Day,
+  );
 
-  const collections = useMemo(() => {
-    return trendingCollections
-      ?.filter((collection) => collection.address && !EXCLUDED_COLLECTIONS.includes(collection.address))
-      .slice(0, TRENDING_COLLECTION_SIZE)
-  }, [trendingCollections])
+  const collections = useMemo(() => trendingCollections
+    ?.filter((collection) => collection.address && !EXCLUDED_COLLECTIONS.includes(collection.address))
+    .slice(0, TRENDING_COLLECTION_SIZE), [trendingCollections]);
 
-  const [activeCollectionIdx, setActiveCollectionIdx] = useState(0)
+  const [activeCollectionIdx, setActiveCollectionIdx] = useState(0);
   const onToggleNextSlide = useCallback(
     (direction: number) => {
-      if (!collections) return
-      setActiveCollectionIdx((idx) => calculateCardIndex(idx + direction, collections.length))
+      if (!collections) { return; }
+      setActiveCollectionIdx((idx) => calculateCardIndex(idx + direction, collections.length));
     },
-    [collections]
-  )
+    [collections],
+  );
 
   return (
     <BannerContainer>
@@ -134,7 +132,7 @@ const Banner = () => {
         )}
       </BannerMainArea>
     </BannerContainer>
-  )
-}
+  );
+};
 
-export default Banner
+export default Banner;

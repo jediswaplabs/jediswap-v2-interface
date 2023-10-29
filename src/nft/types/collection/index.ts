@@ -1,4 +1,4 @@
-import { NftActivityType, NftStandard, OrderStatus } from 'graphql/data/__generated__/types-and-hooks'
+import { NftActivityType, NftStandard, OrderStatus } from 'graphql/data/types-and-hooks'
 
 import { Markets, Rarity, TokenType } from '../common'
 export interface CollectionInfoForAsset {

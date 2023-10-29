@@ -8,7 +8,7 @@ import useMultiChainPositions from 'components/AccountDrawer/MiniPortfolio/Pools
 import { ButtonEmphasis, ButtonSize, ThemeButton } from 'components/Button';
 import Row from 'components/Row';
 import { LoadingBubble } from 'components/Tokens/loading';
-import { Token } from 'graphql/thegraph/__generated__/types-and-hooks';
+import { Token } from 'graphql/thegraph/types-and-hooks';
 import { useCurrency } from 'hooks/Tokens';
 import { useSwitchChain } from 'hooks/useSwitchChain';
 import { BREAKPOINTS } from 'theme';

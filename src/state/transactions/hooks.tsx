@@ -6,7 +6,7 @@ import { useWeb3React } from '@web3-react/core';
 import { useCallback, useMemo } from 'react';
 
 import { getTransactionStatus } from 'components/AccountDrawer/MiniPortfolio/Activity/parseLocal';
-import { TransactionStatus } from 'graphql/data/__generated__/types-and-hooks';
+import { TransactionStatus } from 'graphql/data/types-and-hooks';
 import { SwapResult } from 'hooks/useSwapCallback';
 import { useAppDispatch, useAppSelector } from 'state/hooks';
 import { TradeFillType } from 'state/routing/types';

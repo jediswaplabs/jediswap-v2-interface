@@ -1,10 +1,11 @@
-import { t } from '@lingui/macro'
-import { SwapOrderStatus, TransactionStatus } from 'graphql/data/__generated__/types-and-hooks'
-import { UniswapXOrderStatus } from 'lib/hooks/orders/types'
-import { TransactionType } from 'state/transactions/types'
+import { t } from '@lingui/macro';
+
+import { SwapOrderStatus, TransactionStatus } from 'graphql/data/types-and-hooks';
+import { UniswapXOrderStatus } from 'lib/hooks/orders/types';
+import { TransactionType } from 'state/transactions/types';
 
 // use even number because rows are in groups of 2
-export const DEFAULT_NFT_QUERY_AMOUNT = 26
+export const DEFAULT_NFT_QUERY_AMOUNT = 26;
 
 const TransactionTitleTable: { [key in TransactionType]: { [state in TransactionStatus]: string } } = {
   [TransactionType.SWAP]: {
@@ -137,7 +138,7 @@ const TransactionTitleTable: { [key in TransactionType]: { [state in Transaction
     [TransactionStatus.Confirmed]: t`Submitted proposal`,
     [TransactionStatus.Failed]: t`Submit proposal failed`,
   },
-}
+};
 
 export const CancelledTransactionTitleTable: { [key in TransactionType]: string } = {
   [TransactionType.SWAP]: t`Swap cancelled`,
@@ -166,7 +167,7 @@ export const CancelledTransactionTitleTable: { [key in TransactionType]: string 
   [TransactionType.ADD_LIQUIDITY_V2_POOL]: t`Add V2 liquidity cancelled`,
   [TransactionType.MIGRATE_LIQUIDITY_V3]: t`Migrate liquidity cancelled`,
   [TransactionType.SUBMIT_PROPOSAL]: t`Submit proposal cancelled`,
-}
+};
 
 const AlternateTransactionTitleTable: { [key in TransactionType]?: { [state in TransactionStatus]: string } } = {
   [TransactionType.WRAP]: {
@@ -179,17 +180,17 @@ const AlternateTransactionTitleTable: { [key in TransactionType]?: { [state in T
     [TransactionStatus.Confirmed]: t`Revoked approval`,
     [TransactionStatus.Failed]: t`Revoke approval failed`,
   },
-}
+};
 
 export function getActivityTitle(type: TransactionType, status: TransactionStatus, alternate?: boolean) {
   if (alternate) {
-    const alternateTitle = AlternateTransactionTitleTable[type]
-    if (alternateTitle !== undefined) return alternateTitle[status]
+    const alternateTitle = AlternateTransactionTitleTable[type];
+    if (alternateTitle !== undefined) { return alternateTitle[status]; }
   }
-  return TransactionTitleTable[type][status]
+  return TransactionTitleTable[type][status];
 }
 
-const SwapTitleTable = TransactionTitleTable[TransactionType.SWAP]
+const SwapTitleTable = TransactionTitleTable[TransactionType.SWAP];
 export const OrderTextTable: {
   [status in UniswapXOrderStatus]: { title: string; status: TransactionStatus; statusMessage?: string }
 } = {
@@ -219,7 +220,7 @@ export const OrderTextTable: {
     title: t`Swap cancelled`,
     status: TransactionStatus.Failed,
   },
-}
+};
 
 // Non-exhaustive list of addresses Moonpay uses when sending purchased tokens
 export const MOONPAY_SENDER_ADDRESSES = [
@@ -227,7 +228,7 @@ export const MOONPAY_SENDER_ADDRESSES = [
   '0x151b381058f91cf871e7ea1ee83c45326f61e96d',
   '0xb287eac48ab21c5fb1d3723830d60b4c797555b0',
   '0xd108fd0e8c8e71552a167e7a44ff1d345d233ba6',
-]
+];
 
 // Converts GQL backend orderStatus enum to the enum used by the frontend and UniswapX backend
 export const OrderStatusTable: { [key in SwapOrderStatus]: UniswapXOrderStatus } = {
@@ -235,4 +236,4 @@ export const OrderStatusTable: { [key in SwapOrderStatus]: UniswapXOrderStatus }
   [SwapOrderStatus.Expired]: UniswapXOrderStatus.EXPIRED,
   [SwapOrderStatus.Error]: UniswapXOrderStatus.ERROR,
   [SwapOrderStatus.InsufficientFunds]: UniswapXOrderStatus.INSUFFICIENT_FUNDS,
-}
+};

@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 import TokenDetails from 'components/Tokens/TokenDetails';
 import { TokenDetailsPageSkeleton } from 'components/Tokens/TokenDetails/Skeleton';
 import { NATIVE_CHAIN_ID } from 'constants/tokens';
-import { useTokenPriceQuery, useTokenQuery } from 'graphql/data/__generated__/types-and-hooks';
+import { useTokenPriceQuery, useTokenQuery } from 'graphql/data/types-and-hooks';
 import { TimePeriod, toHistoryDuration, validateUrlChainParam } from 'graphql/data/util';
 import useParsedQueryString from 'hooks/useParsedQueryString';
 import { getNativeTokenDBAddress } from 'utils/nativeTokens';

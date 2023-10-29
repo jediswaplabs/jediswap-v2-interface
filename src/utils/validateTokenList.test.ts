@@ -1,6 +1,6 @@
-import { TokenInfo } from '@uniswap/token-lists'
+import { TokenInfo } from '@uniswap/token-lists';
 
-import { validateTokens } from './validateTokenList'
+import { validateTokens } from './validateTokenList';
 
 const INVALID_TOKEN: TokenInfo = {
   name: 'Dai Stablecoin',
@@ -8,7 +8,7 @@ const INVALID_TOKEN: TokenInfo = {
   symbol: 'DAI',
   decimals: 18,
   chainId: 1,
-}
+};
 
 const INLINE_TOKEN_LIST = [
   {
@@ -29,14 +29,18 @@ const INLINE_TOKEN_LIST = [
     logoURI:
       'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
   },
-]
+];
 
 describe('validateTokens', () => {
-  it('throws on invalid tokens', async () => {
-    await expect(validateTokens([INVALID_TOKEN])).rejects.toThrow(/^Tokens failed validation:.*address/)
-  })
+  it('throws on invalid tokens', () => {
+    try {
+      validateTokens([INVALID_TOKEN]);
+    } catch (e) {
+      expect(e.message).toMatch(/^Tokens failed validation:.*address/);
+    }
+  });
 
-  it('validates the passed token info', async () => {
-    await expect(validateTokens(INLINE_TOKEN_LIST)).resolves.toBe(INLINE_TOKEN_LIST)
-  })
-})
+  it('validates the passed token info', () => {
+    expect(validateTokens(INLINE_TOKEN_LIST)).toBe(INLINE_TOKEN_LIST);
+  });
+});

@@ -1,65 +1,59 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { parseEther } from '@ethersproject/units'
-import { BrowserEvent, InterfaceElementName, NFTEventName } from '@uniswap/analytics-events'
-import { useWeb3React } from '@web3-react/core'
-import { TraceEvent } from 'analytics'
-import clsx from 'clsx'
-import { OpacityHoverState } from 'components/Common'
-import { NftAssetTraitInput, NftMarketplace, NftStandard } from 'graphql/data/__generated__/types-and-hooks'
-import { ASSET_PAGE_SIZE, AssetFetcherParams, useNftAssets } from 'graphql/data/nft/Asset'
-import useDebounce from 'hooks/useDebounce'
-import { useScreenSize } from 'hooks/useScreenSize'
-import { AnimatedBox, Box } from 'nft/components/Box'
-import { CollectionSearch, FilterButton } from 'nft/components/collection'
-import { CollectionAsset } from 'nft/components/collection/CollectionAsset'
-import * as styles from 'nft/components/collection/CollectionNfts.css'
-import { SortDropdown } from 'nft/components/common/SortDropdown'
-import { Center, Column, Row } from 'nft/components/Flex'
-import { SweepIcon } from 'nft/components/icons'
-import { bodySmall, buttonTextMedium, headlineMedium } from 'nft/css/common.css'
-import { loadingAsset } from 'nft/css/loading.css'
-import {
-  CollectionFilters,
+import { BigNumber } from '@ethersproject/bignumber';
+import { parseEther } from '@ethersproject/units';
+import { BrowserEvent, InterfaceElementName, NFTEventName } from '@uniswap/analytics-events';
+import { useWeb3React } from '@web3-react/core';
+import clsx from 'clsx';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { useLocation } from 'react-router-dom';
+import styled, { css } from 'styled-components';
+
+import { TraceEvent } from 'analytics';
+import { OpacityHoverState } from 'components/Common';
+import { NftAssetTraitInput, NftMarketplace, NftStandard } from 'graphql/data/types-and-hooks';
+import { ASSET_PAGE_SIZE, AssetFetcherParams, useNftAssets } from 'graphql/data/nft/Asset';
+import useDebounce from 'hooks/useDebounce';
+import { useScreenSize } from 'hooks/useScreenSize';
+import { AnimatedBox, Box } from 'nft/components/Box';
+import { CollectionSearch, FilterButton } from 'nft/components/collection';
+import { CollectionAsset } from 'nft/components/collection/CollectionAsset';
+import * as styles from 'nft/components/collection/CollectionNfts.css';
+import { SortDropdown } from 'nft/components/common/SortDropdown';
+import { Center, Column, Row } from 'nft/components/Flex';
+import { SweepIcon } from 'nft/components/icons';
+import { bodySmall, buttonTextMedium, headlineMedium } from 'nft/css/common.css';
+import { loadingAsset } from 'nft/css/loading.css';
+import { CollectionFilters,
   initialCollectionFilterState,
   SortBy,
   SortByQueries,
   useBag,
   useCollectionFilters,
   useFiltersExpanded,
-  useIsMobile,
-} from 'nft/hooks'
-import { useIsCollectionLoading } from 'nft/hooks/useIsCollectionLoading'
-import { usePriceRange } from 'nft/hooks/usePriceRange'
-import {
-  DropDownOption,
+  useIsMobile } from 'nft/hooks';
+import { useIsCollectionLoading } from 'nft/hooks/useIsCollectionLoading';
+import { usePriceRange } from 'nft/hooks/usePriceRange';
+import { DropDownOption,
   GenieAsset,
   GenieCollection,
   isPooledMarket,
   Markets,
   UniformAspectRatio,
-  UniformAspectRatios,
-} from 'nft/types'
-import {
-  calcPoolPrice,
+  UniformAspectRatios } from 'nft/types';
+import { calcPoolPrice,
   getMarketplaceIcon,
   getRarityStatus,
   isInSameMarketplaceCollection,
   isInSameSudoSwapPool,
-  pluralize,
-} from 'nft/utils'
-import { scrollToTop } from 'nft/utils/scrollToTop'
-import { applyFiltersFromURL, syncLocalFiltersWithURL } from 'nft/utils/urlParams'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import InfiniteScroll from 'react-infinite-scroll-component'
-import { useLocation } from 'react-router-dom'
-import styled, { css } from 'styled-components'
-import { ThemedText } from 'theme/components'
-
-import { LoadingAssets } from './CollectionAssetLoading'
-import { MARKETPLACE_ITEMS } from './MarketplaceSelect'
-import { ClearAllButton } from './shared'
-import { Sweep } from './Sweep'
-import { TraitChip } from './TraitChip'
+  pluralize } from 'nft/utils';
+import { scrollToTop } from 'nft/utils/scrollToTop';
+import { applyFiltersFromURL, syncLocalFiltersWithURL } from 'nft/utils/urlParams';
+import { ThemedText } from 'theme/components';
+import { LoadingAssets } from './CollectionAssetLoading';
+import { MARKETPLACE_ITEMS } from './MarketplaceSelect';
+import { ClearAllButton } from './shared';
+import { Sweep } from './Sweep';
+import { TraitChip } from './TraitChip';
 
 interface CollectionNftsProps {
   contractAddress: string
@@ -67,7 +61,7 @@ interface CollectionNftsProps {
   rarityVerified?: boolean
 }
 
-const rarityStatusCache = new Map<string, boolean>()
+const rarityStatusCache = new Map<string, boolean>();
 
 const InfiniteScrollWrapperCss = css`
   margin: 0 16px;
@@ -80,7 +74,7 @@ const InfiniteScrollWrapperCss = css`
   @media screen and (min-width: ${({ theme }) => theme.breakpoint.lg}px) {
     margin: 0 48px;
   }
-`
+`;
 
 const ActionsContainer = styled.div`
   display: flex;
@@ -89,7 +83,7 @@ const ActionsContainer = styled.div`
   justify-content: space-between;
 
   ${InfiniteScrollWrapperCss}
-`
+`;
 
 const ActionsSubContainer = styled.div`
   display: flex;
@@ -99,31 +93,31 @@ const ActionsSubContainer = styled.div`
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     gap: 10px;
   }
-`
+`;
 
 const SortDropdownContainer = styled.div<{ isFiltersExpanded: boolean }>`
   width: max-content;
   height: 44px;
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
-    ${({ isFiltersExpanded }) => isFiltersExpanded && `display: none;`}
+    ${({ isFiltersExpanded }) => isFiltersExpanded && 'display: none;'}
   }
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     display: none;
   }
-`
+`;
 
 const EmptyCollectionWrapper = styled.div`
   display: block;
   text-align: center;
-`
+`;
 
 const ViewFullCollection = styled.span`
   ${OpacityHoverState}
-`
+`;
 
 const InfiniteScrollWrapper = styled.div`
   ${InfiniteScrollWrapperCss}
-`
+`;
 
 const SweepButton = styled.div<{ toggled: boolean; disabled?: boolean }>`
   display: flex;
@@ -132,40 +126,34 @@ const SweepButton = styled.div<{ toggled: boolean; disabled?: boolean }>`
   border-radius: 12px;
   padding: 12px 18px 12px 12px;
   cursor: ${({ disabled }) => (disabled ? 'auto' : 'pointer')};
-  color: ${({ toggled, disabled, theme }) =>
-    toggled && !disabled ? theme.deprecated_accentTextLightPrimary : theme.neutral1};
-  background: ${({ theme, toggled, disabled }) =>
-    !disabled && toggled ? 'radial-gradient(101.8% 4091.31% at 0% 0%, #4673FA 0%, #9646FA 100%)' : theme.surface3};
+  color: ${({ toggled, disabled, theme }) => (toggled && !disabled ? theme.deprecated_accentTextLightPrimary : theme.neutral1)};
+  background: ${({ theme, toggled, disabled }) => (!disabled && toggled ? 'radial-gradient(101.8% 4091.31% at 0% 0%, #4673FA 0%, #9646FA 100%)' : theme.surface3)};
   opacity: ${({ disabled }) => (disabled ? 0.4 : 1)};
   :hover {
     background-color: ${({ theme }) => theme.surface3};
-    transition: ${({
-      theme: {
-        transition: { duration, timing },
-      },
-    }) => `${duration.fast} background-color ${timing.in}`};
+    transition: ${({ theme: { transition: { duration, timing } } }) => `${duration.fast} background-color ${timing.in}`};
   }
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     padding: 12px 12px 12px 12px;
   }
-`
+`;
 
 const SweepText = styled(ThemedText.BodyPrimary)`
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     display: none;
   }
-`
+`;
 
 const MarketNameWrapper = styled(Row)`
   gap: 8px;
-`
+`;
 
 const CollectionNftsLoading = ({ height }: { height?: number }) => (
   <Box width="full" className={styles.assetList}>
     <LoadingAssets height={height} />
   </Box>
-)
+);
 
 export const CollectionNftsAndMenuLoading = () => (
   <InfiniteScrollWrapper>
@@ -184,7 +172,7 @@ export const CollectionNftsAndMenuLoading = () => (
       <CollectionNftsLoading />
     </Column>
   </InfiniteScrollWrapper>
-)
+);
 
 export const getSortDropdownOptions = (setSortBy: (sortBy: SortBy) => void, hasRarity: boolean): DropDownOption[] => {
   const options = [
@@ -200,63 +188,63 @@ export const getSortDropdownOptions = (setSortBy: (sortBy: SortBy) => void, hasR
       reverseIndex: 1,
       sortBy: SortBy.HighToLow,
     },
-  ]
+  ];
   return hasRarity
     ? options.concat([
-        {
-          displayText: 'Rarity: Rare to Common',
-          onClick: () => setSortBy(SortBy.RareToCommon),
-          reverseIndex: 4,
-          sortBy: SortBy.RareToCommon,
-        },
-        {
-          displayText: 'Rarity: Common to Rare',
-          onClick: () => setSortBy(SortBy.CommonToRare),
-          reverseIndex: 3,
-          sortBy: SortBy.CommonToRare,
-        },
-      ])
-    : options
-}
+      {
+        displayText: 'Rarity: Rare to Common',
+        onClick: () => setSortBy(SortBy.RareToCommon),
+        reverseIndex: 4,
+        sortBy: SortBy.RareToCommon,
+      },
+      {
+        displayText: 'Rarity: Common to Rare',
+        onClick: () => setSortBy(SortBy.CommonToRare),
+        reverseIndex: 3,
+        sortBy: SortBy.CommonToRare,
+      },
+    ])
+    : options;
+};
 
 export const CollectionNfts = ({ contractAddress, collectionStats, rarityVerified }: CollectionNftsProps) => {
-  const { chainId } = useWeb3React()
-  const traits = useCollectionFilters((state) => state.traits)
-  const minPrice = useCollectionFilters((state) => state.minPrice)
-  const maxPrice = useCollectionFilters((state) => state.maxPrice)
-  const markets = useCollectionFilters((state) => state.markets)
-  const sortBy = useCollectionFilters((state) => state.sortBy)
-  const searchByNameText = useCollectionFilters((state) => state.search)
-  const setMarketCount = useCollectionFilters((state) => state.setMarketCount)
-  const setSortBy = useCollectionFilters((state) => state.setSortBy)
-  const buyNow = useCollectionFilters((state) => state.buyNow)
+  const { chainId } = useWeb3React();
+  const traits = useCollectionFilters((state) => state.traits);
+  const minPrice = useCollectionFilters((state) => state.minPrice);
+  const maxPrice = useCollectionFilters((state) => state.maxPrice);
+  const markets = useCollectionFilters((state) => state.markets);
+  const sortBy = useCollectionFilters((state) => state.sortBy);
+  const searchByNameText = useCollectionFilters((state) => state.search);
+  const setMarketCount = useCollectionFilters((state) => state.setMarketCount);
+  const setSortBy = useCollectionFilters((state) => state.setSortBy);
+  const buyNow = useCollectionFilters((state) => state.buyNow);
 
-  const setPriceRangeLow = usePriceRange((state) => state.setPriceRangeLow)
-  const priceRangeLow = usePriceRange((state) => state.priceRangeLow)
-  const priceRangeHigh = usePriceRange((state) => state.priceRangeHigh)
-  const setPriceRangeHigh = usePriceRange((state) => state.setPriceRangeHigh)
-  const setPrevMinMax = usePriceRange((state) => state.setPrevMinMax)
+  const setPriceRangeLow = usePriceRange((state) => state.setPriceRangeLow);
+  const priceRangeLow = usePriceRange((state) => state.priceRangeLow);
+  const priceRangeHigh = usePriceRange((state) => state.priceRangeHigh);
+  const setPriceRangeHigh = usePriceRange((state) => state.setPriceRangeHigh);
+  const setPrevMinMax = usePriceRange((state) => state.setPrevMinMax);
 
-  const setIsCollectionNftsLoading = useIsCollectionLoading((state) => state.setIsCollectionNftsLoading)
-  const removeTrait = useCollectionFilters((state) => state.removeTrait)
-  const removeMarket = useCollectionFilters((state) => state.removeMarket)
-  const reset = useCollectionFilters((state) => state.reset)
-  const setMin = useCollectionFilters((state) => state.setMinPrice)
-  const setMax = useCollectionFilters((state) => state.setMaxPrice)
-  const setHasRarity = useCollectionFilters((state) => state.setHasRarity)
+  const setIsCollectionNftsLoading = useIsCollectionLoading((state) => state.setIsCollectionNftsLoading);
+  const removeTrait = useCollectionFilters((state) => state.removeTrait);
+  const removeMarket = useCollectionFilters((state) => state.removeMarket);
+  const reset = useCollectionFilters((state) => state.reset);
+  const setMin = useCollectionFilters((state) => state.setMinPrice);
+  const setMax = useCollectionFilters((state) => state.setMaxPrice);
+  const setHasRarity = useCollectionFilters((state) => state.setHasRarity);
 
-  const toggleBag = useBag((state) => state.toggleBag)
-  const bagExpanded = useBag((state) => state.bagExpanded)
-  const itemsInBag = useBag((state) => state.itemsInBag)
+  const toggleBag = useBag((state) => state.toggleBag);
+  const bagExpanded = useBag((state) => state.bagExpanded);
+  const itemsInBag = useBag((state) => state.itemsInBag);
 
-  const debouncedMinPrice = useDebounce(minPrice, 500)
-  const debouncedMaxPrice = useDebounce(maxPrice, 500)
-  const debouncedSearchByNameText = useDebounce(searchByNameText, 500)
+  const debouncedMinPrice = useDebounce(minPrice, 500);
+  const debouncedMaxPrice = useDebounce(maxPrice, 500);
+  const debouncedSearchByNameText = useDebounce(searchByNameText, 500);
 
-  const [uniformAspectRatio, setUniformAspectRatio] = useState<UniformAspectRatio>(UniformAspectRatios.unset)
-  const [renderedHeight, setRenderedHeight] = useState<number | undefined>()
+  const [uniformAspectRatio, setUniformAspectRatio] = useState<UniformAspectRatio>(UniformAspectRatios.unset);
+  const [renderedHeight, setRenderedHeight] = useState<number | undefined>();
 
-  const [sweepIsOpen, setSweepOpen] = useState(false)
+  const [sweepIsOpen, setSweepOpen] = useState(false);
 
   const assetQueryParams: AssetFetcherParams = {
     address: contractAddress,
@@ -270,117 +258,111 @@ export const CollectionNfts = ({ contractAddress, collectionStats, rarityVerifie
       tokenSearchQuery: debouncedSearchByNameText,
       traits:
         traits.length > 0
-          ? traits.map((trait) => {
-              return { name: trait.trait_type, values: [trait.trait_value] } as unknown as NftAssetTraitInput
-            })
+          ? traits.map((trait) => ({ name: trait.trait_type, values: [trait.trait_value] } as unknown as NftAssetTraitInput))
           : undefined,
     },
     first: ASSET_PAGE_SIZE,
-  }
+  };
 
-  const { data: collectionNfts, loading, hasNext, loadMore } = useNftAssets(assetQueryParams)
+  const { data: collectionNfts, loading, hasNext, loadMore } = useNftAssets(assetQueryParams);
 
   const getPoolPosition = useCallback(
     (asset: GenieAsset) => {
       const assetInBag = itemsInBag.some(
-        (item) => asset.tokenId === item.asset.tokenId && asset.address === item.asset.address
-      )
+        (item) => asset.tokenId === item.asset.tokenId && asset.address === item.asset.address,
+      );
 
       if (asset.marketplace === Markets.Sudoswap) {
-        const bagItemsInSudoSwapPool = itemsInBag.filter((item) => isInSameSudoSwapPool(asset, item.asset))
+        const bagItemsInSudoSwapPool = itemsInBag.filter((item) => isInSameSudoSwapPool(asset, item.asset));
         if (assetInBag) {
-          return bagItemsInSudoSwapPool.findIndex((item) => item.asset.tokenId === asset.tokenId)
-        } else {
-          return bagItemsInSudoSwapPool.length
+          return bagItemsInSudoSwapPool.findIndex((item) => item.asset.tokenId === asset.tokenId);
         }
+        return bagItemsInSudoSwapPool.length;
       }
 
       return assetInBag
         ? itemsInBag
-            .filter((item) => isInSameMarketplaceCollection(asset, item.asset))
-            .findIndex((item) => item.asset.tokenId === asset.tokenId)
-        : itemsInBag.filter((item) => isInSameMarketplaceCollection(asset, item.asset)).length
+          .filter((item) => isInSameMarketplaceCollection(asset, item.asset))
+          .findIndex((item) => item.asset.tokenId === asset.tokenId)
+        : itemsInBag.filter((item) => isInSameMarketplaceCollection(asset, item.asset)).length;
     },
-    [itemsInBag]
-  )
+    [itemsInBag],
+  );
 
   const calculatePrice = useCallback(
-    (asset: GenieAsset) => {
-      return calcPoolPrice(asset, getPoolPosition(asset))
-    },
-    [getPoolPosition]
-  )
+    (asset: GenieAsset) => calcPoolPrice(asset, getPoolPosition(asset)),
+    [getPoolPosition],
+  );
 
   const collectionAssets = useMemo(() => {
     if (!collectionNfts || !collectionNfts.some((asset) => asset.marketplace && isPooledMarket(asset.marketplace))) {
-      return collectionNfts
+      return collectionNfts;
     }
 
-    const assets = [...collectionNfts]
+    const assets = [...collectionNfts];
 
     assets.forEach(
-      (asset) =>
-        asset.marketplace &&
-        isPooledMarket(asset.marketplace) &&
-        (asset.priceInfo.ETHPrice = calculatePrice(asset) ?? '0')
-    )
+      (asset) => asset.marketplace
+        && isPooledMarket(asset.marketplace)
+        && (asset.priceInfo.ETHPrice = calculatePrice(asset) ?? '0'),
+    );
 
     if (sortBy === SortBy.HighToLow || sortBy === SortBy.LowToHigh) {
       assets.sort((a, b) => {
-        const bigA = BigNumber.from(a.priceInfo?.ETHPrice ?? 0)
-        const bigB = BigNumber.from(b.priceInfo?.ETHPrice ?? 0)
+        const bigA = BigNumber.from(a.priceInfo?.ETHPrice ?? 0);
+        const bigB = BigNumber.from(b.priceInfo?.ETHPrice ?? 0);
 
         // Always sort not for sale (price = 0) assets to the end
         if (bigA.gt(0) && bigB.lte(0)) {
-          return -1
-        } else if (bigB.gt(0) && bigA.lte(0)) {
-          return 1
+          return -1;
+        } if (bigB.gt(0) && bigA.lte(0)) {
+          return 1;
         }
 
-        const diff = bigA.sub(bigB)
+        const diff = bigA.sub(bigB);
         if (diff.gt(0)) {
-          return sortBy === SortBy.LowToHigh ? 1 : -1
-        } else if (diff.lt(0)) {
-          return sortBy === SortBy.LowToHigh ? -1 : 1
+          return sortBy === SortBy.LowToHigh ? 1 : -1;
+        } if (diff.lt(0)) {
+          return sortBy === SortBy.LowToHigh ? -1 : 1;
         }
 
-        return 0
-      })
+        return 0;
+      });
     }
 
-    return assets
-  }, [collectionNfts, sortBy, calculatePrice])
+    return assets;
+  }, [collectionNfts, sortBy, calculatePrice]);
 
-  const [currentTokenPlayingMedia, setCurrentTokenPlayingMedia] = useState<string | undefined>()
-  const [isFiltersExpanded, setFiltersExpanded] = useFiltersExpanded()
-  const oldStateRef = useRef<CollectionFilters | null>(null)
-  const isMobile = useIsMobile()
-  const screenSize = useScreenSize()
+  const [currentTokenPlayingMedia, setCurrentTokenPlayingMedia] = useState<string | undefined>();
+  const [isFiltersExpanded, setFiltersExpanded] = useFiltersExpanded();
+  const oldStateRef = useRef<CollectionFilters | null>(null);
+  const isMobile = useIsMobile();
+  const screenSize = useScreenSize();
 
   useEffect(() => {
-    setIsCollectionNftsLoading(loading)
-  }, [loading, setIsCollectionNftsLoading])
+    setIsCollectionNftsLoading(loading);
+  }, [loading, setIsCollectionNftsLoading]);
 
   const hasRarity = useMemo(() => {
-    const hasRarity = getRarityStatus(rarityStatusCache, collectionStats?.address, collectionAssets) ?? false
-    setHasRarity(hasRarity)
-    return hasRarity
-  }, [collectionStats.address, collectionAssets, setHasRarity])
+    const hasRarity = getRarityStatus(rarityStatusCache, collectionStats?.address, collectionAssets) ?? false;
+    setHasRarity(hasRarity);
+    return hasRarity;
+  }, [collectionStats.address, collectionAssets, setHasRarity]);
 
   const sortDropDownOptions: DropDownOption[] = useMemo(
     () => getSortDropdownOptions(setSortBy, hasRarity),
-    [hasRarity, setSortBy]
-  )
+    [hasRarity, setSortBy],
+  );
 
   useEffect(() => {
-    setSweepOpen(false)
+    setSweepOpen(false);
     return () => {
-      useCollectionFilters.setState(initialCollectionFilterState)
-    }
-  }, [contractAddress])
+      useCollectionFilters.setState(initialCollectionFilterState);
+    };
+  }, [contractAddress]);
 
   const assets = useMemo(() => {
-    if (!collectionAssets) return null
+    if (!collectionAssets) { return null; }
     return collectionAssets.map((asset) => (
       <CollectionAsset
         key={asset.address + asset.tokenId}
@@ -394,89 +376,89 @@ export const CollectionNfts = ({ contractAddress, collectionStats, rarityVerifie
         renderedHeight={renderedHeight}
         setRenderedHeight={setRenderedHeight}
       />
-    ))
-  }, [collectionAssets, isMobile, currentTokenPlayingMedia, rarityVerified, uniformAspectRatio, renderedHeight])
+    ));
+  }, [collectionAssets, isMobile, currentTokenPlayingMedia, rarityVerified, uniformAspectRatio, renderedHeight]);
 
-  const hasNfts = collectionAssets && collectionAssets.length > 0
-  const hasErc1155s = hasNfts && collectionAssets[0] && collectionAssets[0]?.tokenType === NftStandard.Erc1155
+  const hasNfts = collectionAssets && collectionAssets.length > 0;
+  const hasErc1155s = hasNfts && collectionAssets[0] && collectionAssets[0]?.tokenType === NftStandard.Erc1155;
 
   const minMaxPriceChipText: string | undefined = useMemo(() => {
     if (debouncedMinPrice && debouncedMaxPrice) {
-      return `Price: ${debouncedMinPrice} - ${debouncedMaxPrice} ETH`
-    } else if (debouncedMinPrice) {
-      return `Min. Price: ${debouncedMinPrice} ETH`
-    } else if (debouncedMaxPrice) {
-      return `Max Price: ${debouncedMaxPrice} ETH`
+      return `Price: ${debouncedMinPrice} - ${debouncedMaxPrice} ETH`;
+    } if (debouncedMinPrice) {
+      return `Min. Price: ${debouncedMinPrice} ETH`;
+    } if (debouncedMaxPrice) {
+      return `Max Price: ${debouncedMaxPrice} ETH`;
     }
 
-    return undefined
-  }, [debouncedMinPrice, debouncedMaxPrice])
+    return undefined;
+  }, [debouncedMinPrice, debouncedMaxPrice]);
 
   useEffect(() => {
-    const marketCount: any = {}
+    const marketCount: any = {};
     collectionStats?.marketplaceCount?.forEach(({ marketplace, count }) => {
-      marketCount[marketplace] = count
-    })
-    setMarketCount(marketCount)
-    oldStateRef.current = useCollectionFilters.getState()
-  }, [collectionStats?.marketplaceCount, setMarketCount])
+      marketCount[marketplace] = count;
+    });
+    setMarketCount(marketCount);
+    oldStateRef.current = useCollectionFilters.getState();
+  }, [collectionStats?.marketplaceCount, setMarketCount]);
 
-  const location = useLocation()
+  const location = useLocation();
   // Applying filters from URL to local state
   useEffect(() => {
     if (collectionStats?.traits) {
-      const modifiedQuery = applyFiltersFromURL(location, collectionStats)
+      const modifiedQuery = applyFiltersFromURL(location, collectionStats);
 
       requestAnimationFrame(() => {
         if (modifiedQuery) {
-          useCollectionFilters.setState(modifiedQuery as any)
+          useCollectionFilters.setState(modifiedQuery as any);
         }
-      })
+      });
 
       useCollectionFilters.subscribe((state) => {
         if (JSON.stringify(oldStateRef.current) !== JSON.stringify(state)) {
-          syncLocalFiltersWithURL(state)
-          oldStateRef.current = state
+          syncLocalFiltersWithURL(state);
+          oldStateRef.current = state;
         }
-      })
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location])
+  }, [location]);
 
   useEffect(() => {
-    setUniformAspectRatio(UniformAspectRatios.unset)
-    setRenderedHeight(undefined)
-  }, [contractAddress])
+    setUniformAspectRatio(UniformAspectRatios.unset);
+    setRenderedHeight(undefined);
+  }, [contractAddress]);
 
   useEffect(() => {
     if (collectionStats && collectionStats.stats?.floor_price) {
-      const lowValue = collectionStats.stats?.floor_price
-      const maxValue = 10 * collectionStats.stats?.floor_price
+      const lowValue = collectionStats.stats?.floor_price;
+      const maxValue = 10 * collectionStats.stats?.floor_price;
 
       if (priceRangeLow === '') {
-        setPriceRangeLow(lowValue?.toFixed(2))
+        setPriceRangeLow(lowValue?.toFixed(2));
       }
 
       if (priceRangeHigh === '') {
-        setPriceRangeHigh(maxValue.toFixed(2))
+        setPriceRangeHigh(maxValue.toFixed(2));
       }
     }
-  }, [collectionStats, priceRangeLow, priceRangeHigh, setPriceRangeHigh, setPriceRangeLow])
+  }, [collectionStats, priceRangeLow, priceRangeHigh, setPriceRangeHigh, setPriceRangeLow]);
 
   const handleSweepClick = useCallback(() => {
-    if (hasErc1155s) return
+    if (hasErc1155s) { return; }
     if (!sweepIsOpen) {
-      scrollToTop()
-      if (!bagExpanded && !isMobile) toggleBag()
+      scrollToTop();
+      if (!bagExpanded && !isMobile) { toggleBag(); }
     }
-    setSweepOpen(!sweepIsOpen)
-  }, [bagExpanded, hasErc1155s, isMobile, sweepIsOpen, toggleBag])
+    setSweepOpen(!sweepIsOpen);
+  }, [bagExpanded, hasErc1155s, isMobile, sweepIsOpen, toggleBag]);
 
   const handleClearAllClick = useCallback(() => {
-    reset()
-    setPrevMinMax([0, 100])
-    scrollToTop()
-  }, [reset, setPrevMinMax])
+    reset();
+    setPrevMinMax([0, 100]);
+    scrollToTop();
+  }, [reset, setPrevMinMax]);
 
   return (
     <>
@@ -504,8 +486,8 @@ export const CollectionNfts = ({ contractAddress, collectionStats, rarityVerifie
                 isFiltersExpanded={isFiltersExpanded}
                 collectionCount={collectionAssets?.[0]?.totalCount ?? 0}
                 onClick={() => {
-                  if (bagExpanded && !screenSize['xl']) toggleBag()
-                  setFiltersExpanded(!isFiltersExpanded)
+                  if (bagExpanded && !screenSize.xl) { toggleBag(); }
+                  setFiltersExpanded(!isFiltersExpanded);
                 }}
               />
             </TraceEvent>
@@ -541,15 +523,15 @@ export const CollectionNfts = ({ contractAddress, collectionStats, rarityVerifie
             {markets.map((market) => (
               <TraitChip
                 key={market}
-                value={
+                value={(
                   <MarketNameWrapper>
                     {getMarketplaceIcon(market, '16')}
                     {MARKETPLACE_ITEMS[market as keyof typeof MARKETPLACE_ITEMS]}
                   </MarketNameWrapper>
-                }
+                )}
                 onClick={() => {
-                  scrollToTop()
-                  removeMarket(market)
+                  scrollToTop();
+                  removeMarket(market);
                 }}
               />
             ))}
@@ -562,8 +544,8 @@ export const CollectionNfts = ({ contractAddress, collectionStats, rarityVerifie
                     : `${trait.trait_type}: ${trait.trait_value}`
                 }
                 onClick={() => {
-                  scrollToTop()
-                  removeTrait(trait)
+                  scrollToTop();
+                  removeTrait(trait);
                 }}
               />
             ))}
@@ -571,10 +553,10 @@ export const CollectionNfts = ({ contractAddress, collectionStats, rarityVerifie
               <TraitChip
                 value={minMaxPriceChipText}
                 onClick={() => {
-                  scrollToTop()
-                  setMin('')
-                  setMax('')
-                  setPrevMinMax([0, 100])
+                  scrollToTop();
+                  setMin('');
+                  setMax('');
+                  setPrevMinMax([0, 100]);
                 }}
               />
             )}
@@ -618,5 +600,5 @@ export const CollectionNfts = ({ contractAddress, collectionStats, rarityVerifie
         )}
       </InfiniteScrollWrapper>
     </>
-  )
-}
+  );
+};
