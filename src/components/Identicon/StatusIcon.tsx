@@ -1,13 +1,13 @@
-import styled from 'styled-components';
+import styled from 'styled-components'
 
-import { Unicon } from 'components/Unicon';
-import { Connection, ConnectionType } from 'connection/types';
-import useENSAvatar from 'hooks/useENSAvatar';
-import { useIsDarkMode } from 'theme/components/ThemeToggle';
-import { flexColumnNoWrap } from 'theme/styles';
-import sockImg from '../../assets/svg/socks.svg';
-import { useHasSocks } from '../../hooks/useSocksBalance';
-import Identicon from '.';
+import { Unicon } from 'components/Unicon'
+import { Connection, ConnectionType } from 'connection/types'
+import useENSAvatar from 'hooks/useENSAvatar'
+import { useIsDarkMode } from 'theme/components/ThemeToggle'
+import { flexColumnNoWrap } from 'theme/styles'
+import sockImg from '../../assets/svg/socks.svg'
+import { useHasSocks } from '../../hooks/useSocksBalance'
+import Identicon from '.'
 
 export const IconWrapper = styled.div<{ size?: number }>`
   position: relative;
@@ -23,7 +23,7 @@ export const IconWrapper = styled.div<{ size?: number }>`
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     align-items: flex-end;
   `};
-`;
+`
 
 const MiniIconContainer = styled.div<{ side: 'left' | 'right' }>`
   position: absolute;
@@ -42,43 +42,46 @@ const MiniIconContainer = styled.div<{ side: 'left' | 'right' }>`
   @supports (overflow: clip) {
     overflow: clip;
   }
-`;
+`
 
 const MiniImg = styled.img`
   width: 16px;
   height: 16px;
-`;
+`
 
 const Socks = () => (
   <MiniIconContainer side="left">
     <MiniImg src={sockImg} />
   </MiniIconContainer>
-);
+)
 
 const MiniWalletIcon = ({ connection, side }: { connection: Connection; side: 'left' | 'right' }) => {
-  const isDarkMode = useIsDarkMode();
+  const isDarkMode = useIsDarkMode()
   return (
     <MiniIconContainer side={side}>
       <MiniImg src={connection.getIcon?.(isDarkMode)} alt={`${connection.getName()} icon`} />
     </MiniIconContainer>
-  );
-};
+  )
+}
 
 const MainWalletIcon = ({ account, connection, size }: { account: string; connection: Connection; size: number }) => {
-  const { avatar } = useENSAvatar(account ?? undefined);
+  const { avatar } = useENSAvatar(account ?? undefined)
 
   if (!account) {
-    return null;
-  } if (avatar || (connection.type === ConnectionType.INJECTED && connection.getName() === 'MetaMask')) {
-    return <Identicon account={account} size={size} />;
+    return null
   }
-  return <Unicon address={account} size={size} />;
-};
+  if (avatar || (connection.type === ConnectionType.INJECTED && connection.getName() === 'MetaMask')) {
+    return <Identicon account={account} size={size} />
+  }
+  return <Unicon address={account} size={size} />
+}
 
-export default function StatusIcon({ account,
+export default function StatusIcon({
+  account,
   connection,
   size = 16,
-  showMiniIcons = true }: {
+  showMiniIcons = true,
+}: {
   account: string
   connection: Connection
   size?: number
@@ -106,5 +109,5 @@ export default function StatusIcon({ account,
   //       </IconWrapper>
   //   )
   // }
-  return null;
+  return null
 }
