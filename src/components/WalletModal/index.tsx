@@ -15,6 +15,8 @@ import { flexColumnNoWrap } from 'theme/styles'
 import ConnectionErrorView from './ConnectionErrorView'
 import Option from './Option'
 import PrivacyPolicyNotice from './PrivacyPolicyNotice'
+import { useConnectors } from 'hooks/starknet-react'
+import OptionV2 from './OptionV2'
 
 const Wrapper = styled.div`
   ${flexColumnNoWrap};
@@ -40,6 +42,7 @@ const PrivacyPolicyWrapper = styled.div`
 
 export default function WalletModal({ openSettings }: { openSettings: () => void }) {
   const { connector, chainId } = useWeb3React()
+  const { connectors } = useConnectors()
 
   const { activationState } = useActivationState()
   const fallbackProviderEnabled = useFallbackProviderEnabled()
@@ -65,15 +68,16 @@ export default function WalletModal({ openSettings }: { openSettings: () => void
       ) : (
         <AutoColumn gap="16px">
           <OptionGrid data-testid="option-grid">
-            {connections
-              .filter((connection) => connection.shouldDisplay())
-              .map((connection) => (
-                <Option key={connection.getName()} connection={connection} />
-              ))}
+            {connectors.map((connector) => {
+              return (
+                <OptionV2
+                  key={connector.id}
+                  connector={connector}
+                  // disabled={!connector.available()}
+                />
+              )
+            })}
           </OptionGrid>
-          <PrivacyPolicyWrapper>
-            <PrivacyPolicyNotice />
-          </PrivacyPolicyWrapper>
         </AutoColumn>
       )}
     </Wrapper>

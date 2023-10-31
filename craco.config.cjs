@@ -69,6 +69,7 @@ module.exports = {
       new ProvidePlugin({
         // - react-markdown requires process.cwd
         process: 'process/browser.js',
+        Buffer: ['buffer', 'Buffer'],
       }),
       new VanillaExtractPlugin(),
       new RetryChunkLoadPlugin({
@@ -128,9 +129,9 @@ module.exports = {
           // - react-markdown requires path
           path: require.resolve('path-browserify'),
 
-          "crypto": false,
-          "fs": false,
-          "os": false,
+          crypto: false,
+          fs: false,
+          os: false,
         },
       })
 
@@ -179,7 +180,7 @@ module.exports = {
       )
 
       // Configure webpack resolution. webpackConfig.cache is unused with swc-loader, but the resolver can still cache:
-      webpackConfig.resolve = Object.assign(webpackConfig.resolve, { unsafeCache: true, })
+      webpackConfig.resolve = Object.assign(webpackConfig.resolve, { unsafeCache: true })
 
       return webpackConfig
     },
