@@ -10,6 +10,7 @@ import AuthenticatedHeader from './AuthenticatedHeader';
 import LanguageMenu from './LanguageMenu';
 import LocalCurrencyMenu from './LocalCurrencyMenu';
 import SettingsMenu from './SettingsMenu';
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const DefaultMenuWrap = styled(Column)`
   width: 100%;
@@ -24,8 +25,9 @@ enum MenuState {
 }
 
 function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
-  const { account } = useWeb3React();
-  const isAuthenticated = !!account;
+  // const { account } = useWeb3React()
+  const { address } = useAccountDetails()
+  const isAuthenticated = !!address
 
   const [menu, setMenu] = useState<MenuState>(MenuState.DEFAULT);
   const openSettings = useCallback(() => setMenu(MenuState.SETTINGS), []);
@@ -48,7 +50,7 @@ function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
     switch (menu) {
       case MenuState.DEFAULT:
         return isAuthenticated ? (
-          <AuthenticatedHeader account={account} openSettings={openSettings} />
+          <AuthenticatedHeader account={address} openSettings={openSettings} />
         ) : (
           <WalletModal openSettings={openSettings} />
         );
@@ -65,7 +67,7 @@ function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
       case MenuState.LOCAL_CURRENCY_SETTINGS:
         return <LocalCurrencyMenu onClose={openSettings} />;
     }
-  }, [account, closeSettings, isAuthenticated, menu, openLanguageSettings, openLocalCurrencySettings, openSettings]);
+  }, [address, closeSettings, isAuthenticated, menu, openLanguageSettings, openLocalCurrencySettings, openSettings])
 
   return <DefaultMenuWrap>{SubMenu}</DefaultMenuWrap>;
 }

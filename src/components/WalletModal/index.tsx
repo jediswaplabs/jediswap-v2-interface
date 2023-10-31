@@ -16,6 +16,8 @@ import ConnectionErrorView from './ConnectionErrorView'
 import Option from './Option'
 import PrivacyPolicyNotice from './PrivacyPolicyNotice'
 import { SUPPORTED_WALLETS, WalletInfo } from '../swap/constants'
+import { useConnectors } from 'hooks/starknet-react'
+import OptionV2 from './OptionV2'
 
 const Wrapper = styled.div`
   ${flexColumnNoWrap};
@@ -47,6 +49,7 @@ const PrivacyPolicyWrapper = styled.div`
 
 export default function WalletModal({ openSettings }: { openSettings: () => void }) {
   const { connector, chainId } = useWeb3React()
+  const { connectors } = useConnectors()
 
   const { activationState } = useActivationState()
   const fallbackProviderEnabled = useFallbackProviderEnabled()
@@ -72,27 +75,16 @@ export default function WalletModal({ openSettings }: { openSettings: () => void
       ) : (
         <AutoColumn gap="16px">
           <OptionGrid data-testid="option-grid">
-            {Object.keys(SUPPORTED_WALLETS).map((key) => {
-              const option = SUPPORTED_WALLETS[key]
-              // if (option.connector === connector)
+            {connectors.map((connector) => {
               return (
-                <BorderWrapper key={key}>
-                  <Option
-                    id={`connect-${key}`}
-                    clickable={false}
-                    color={option.color}
-                    header={option.name}
-                    subheader={option.subHeader}
-                    icon={option.icon}
-                    // connection={connector}
-                  />
-                </BorderWrapper>
+                <OptionV2
+                  key={connector.id}
+                  connector={connector}
+                  // disabled={!connector.available()}
+                />
               )
             })}
           </OptionGrid>
-          <PrivacyPolicyWrapper>
-            <PrivacyPolicyNotice />
-          </PrivacyPolicyWrapper>
         </AutoColumn>
       )}
     </Wrapper>

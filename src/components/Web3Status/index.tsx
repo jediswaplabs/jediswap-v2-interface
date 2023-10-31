@@ -19,6 +19,7 @@ import { flexRowNoWrap } from 'theme/styles'
 import { shortenAddress } from 'utils'
 import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
 import { RowBetween } from '../Row'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const Web3StatusGeneric = styled(ButtonSecondary)`
   ${flexRowNoWrap};
@@ -80,6 +81,8 @@ const StyledConnectButton = styled(ThemeButton)`
   font-family: 'Avenir LT Std';
   width: 200px;
   line-height: 18px;
+  font-weight: 800;
+  border: 2px solid ${({ theme }) => theme.white};
   :hover,
   :focus {
     background: ${({ theme }) => theme.brandedGradientReversed};
@@ -93,6 +96,7 @@ function Web3StatusInner() {
   const activeWeb3 = useWeb3React()
   const lastWeb3 = useLast(useWeb3React(), ignoreWhileSwitchingChain)
   const { account, connector } = useMemo(() => (activeWeb3.account ? activeWeb3 : lastWeb3), [activeWeb3, lastWeb3])
+  const { address } = useAccountDetails()
   const { ENSName, loading: ENSLoading } = useENSName(account)
   const connection = getConnection(connector)
 
@@ -145,7 +149,9 @@ function Web3StatusInner() {
     )
   }
 
-  if (account) {
+  if (address) {
+    const addressShort = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : null
+
     return (
       <Web3StatusConnected
         disabled={Boolean(switchingChain)}
@@ -154,7 +160,7 @@ function Web3StatusInner() {
         pending={hasPendingActivity}
       >
         {!hasPendingActivity && connection && (
-          <StatusIcon account={account} size={24} connection={connection} showMiniIcons={false} />
+          <StatusIcon account={address} size={24} connection={connection} showMiniIcons={false} />
         )}
         {hasPendingActivity ? (
           <RowBetween>
@@ -165,7 +171,7 @@ function Web3StatusInner() {
           </RowBetween>
         ) : (
           <AddressAndChevronContainer>
-            <Text>{ENSName ?? shortenAddress(account)}</Text>
+            <Text>{ENSName ?? addressShort}</Text>
           </AddressAndChevronContainer>
         )}
       </Web3StatusConnected>
