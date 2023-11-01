@@ -1,11 +1,6 @@
+/* eslint-disable no-nested-ternary */
+
 import { Trans } from '@lingui/macro';
-import { BrowserEvent,
-  InterfaceElementName,
-  InterfaceEventName,
-  InterfacePageName,
-  InterfaceSectionName,
-  SharedEventName,
-  SwapEventName } from '@uniswap/analytics-events';
 import { ChainId, Currency, CurrencyAmount, Percent, Token } from '@uniswap/sdk-core';
 import { UNIVERSAL_ROUTER_ADDRESS } from '@uniswap/universal-router-sdk';
 import { useWeb3React } from '@web3-react/core';
@@ -15,15 +10,14 @@ import { ArrowDown } from 'react-feather';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Text } from 'rebass';
 import styled, { useTheme } from 'styled-components';
+import { InterfaceSectionName } from '@uniswap/analytics-events';
 
-import { sendAnalyticsEvent, Trace, TraceEvent, useTrace } from 'analytics';
 import { useToggleAccountDrawer } from 'components/AccountDrawer';
 import AddressInputPanel from 'components/AddressInputPanel';
 import { ButtonError, ButtonLight, ButtonPrimary } from 'components/Button';
 import { GrayCard } from 'components/Card';
 import { AutoColumn } from 'components/Column';
 import SwapCurrencyInputPanel from 'components/CurrencyInputPanel/SwapCurrencyInputPanel';
-import { NetworkAlert } from 'components/NetworkAlert/NetworkAlert';
 import { AutoRow } from 'components/Row';
 import confirmPriceImpactWithoutFee from 'components/swap/confirmPriceImpactWithoutFee';
 import ConfirmSwapModal from 'components/swap/ConfirmSwapModal';
@@ -76,16 +70,17 @@ export const ArrowContainer = styled.div`
 `;
 
 const SwapSection = styled.div`
-  background-color: ${({ theme }) => theme.surface2};
-  border-radius: 16px;
+  background-color: ${({ theme }) => theme.surface4};
+  border-radius: 8px;
   color: ${({ theme }) => theme.neutral2};
+  box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.20) inset, 0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.30) inset, 0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.30) inset, 0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.30) inset;
   font-size: 14px;
   font-weight: 500;
-  height: 120px;
+  //height: 120px;
   line-height: 20px;
   padding: 16px;
   position: relative;
-
+ 
   &:before {
     box-sizing: border-box;
     background-size: 100%;
@@ -100,14 +95,6 @@ const SwapSection = styled.div`
     pointer-events: none;
     content: '';
     border: 1px solid ${({ theme }) => theme.surface2};
-  }
-
-  &:hover:before {
-    border-color: ${({ theme }) => theme.deprecated_stateOverlayHover};
-  }
-
-  &:focus-within:before {
-    border-color: ${({ theme }) => theme.deprecated_stateOverlayPressed};
   }
 `;
 
@@ -142,24 +129,18 @@ export default function SwapPage({ className }: { className?: string }) {
   const { chainId: connectedChainId } = useWeb3React();
   const loadedUrlParams = useDefaultsFromURLSearch();
 
-  const location = useLocation();
-
   const supportedChainId = asSupportedChain(connectedChainId);
 
   return (
-    <Trace page={InterfacePageName.SWAP_PAGE} shouldLogImpression>
-      <PageWrapper>
-        <Swap
-          className={className}
-          chainId={supportedChainId ?? ChainId.MAINNET}
-          initialInputCurrencyId={loadedUrlParams?.[Field.INPUT]?.currencyId}
-          initialOutputCurrencyId={loadedUrlParams?.[Field.OUTPUT]?.currencyId}
-          disableTokenInputs={supportedChainId === undefined}
-        />
-        <NetworkAlert />
-      </PageWrapper>
-      {location.pathname === '/swap' && <SwitchLocaleLink />}
-    </Trace>
+    <PageWrapper>
+      <Swap
+        className={className}
+        chainId={supportedChainId ?? ChainId.MAINNET}
+        initialInputCurrencyId={loadedUrlParams?.[Field.INPUT]?.currencyId}
+        initialOutputCurrencyId={loadedUrlParams?.[Field.OUTPUT]?.currencyId}
+        disableTokenInputs={supportedChainId === undefined}
+      />
+    </PageWrapper>
   );
 }
 
@@ -185,7 +166,6 @@ export function Swap({ className,
 }) {
   const connectionReady = useConnectionReady();
   const { account, chainId: connectedChainId, connector } = useWeb3React();
-  const trace = useTrace();
 
   // token warning stuff
   const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId);
@@ -358,13 +338,13 @@ export function Swap({ className,
     (value: string) => {
       onUserInput(Field.INPUT, value);
     },
-    [onUserInput, trace],
+    [onUserInput],
   );
   const handleTypeOutput = useCallback(
     (value: string) => {
       onUserInput(Field.OUTPUT, value);
     },
-    [onUserInput, trace],
+    [onUserInput],
   );
 
   const navigate = useNavigate();
@@ -485,13 +465,6 @@ export function Swap({ className,
       }));
       onUserInput(Field.INPUT, '');
     } catch (error) {
-      if (!didUserReject(error)) {
-        sendAnalyticsEvent(SwapEventName.SWAP_ERROR, {
-          wrapType,
-          input: currencies[Field.INPUT],
-          output: currencies[Field.OUTPUT],
-        });
-      }
       console.error('Could not wrap/unwrap', error);
       setSwapState((currentState) => ({
         ...currentState,
@@ -508,8 +481,8 @@ export function Swap({ className,
     }
 
     const marketPriceImpact = trade?.priceImpact ? computeRealizedPriceImpact(trade) : undefined;
-    const largerPriceImpact = largerPercentValue(marketPriceImpact, preTaxStablecoinPriceImpact);
-    return { priceImpactSeverity: warningSeverity(largerPriceImpact), largerPriceImpact };
+    const newLargerPriceImpact = largerPercentValue(marketPriceImpact, preTaxStablecoinPriceImpact);
+    return { priceImpactSeverity: warningSeverity(newLargerPriceImpact), newLargerPriceImpact };
   }, [preTaxStablecoinPriceImpact, trade]);
 
   const handleConfirmDismiss = useCallback(() => {
@@ -534,13 +507,15 @@ export function Swap({ className,
         [Field.OUTPUT]: state[Field.OUTPUT],
       });
     },
-    [onCurrencyChange, onCurrencySelection, state, trace],
+    [onCurrencyChange, onCurrencySelection, state],
   );
   const inputCurrencyNumericalInputRef = useRef<HTMLInputElement>(null);
 
   const handleMaxInput = useCallback(() => {
-    maxInputAmount && onUserInput(Field.INPUT, maxInputAmount.toExact());
-  }, [maxInputAmount, onUserInput, trace]);
+    if (maxInputAmount) { return; }
+    // @ts-ignore
+    onUserInput(Field.INPUT, maxInputAmount.toExact());
+  }, [maxInputAmount, onUserInput]);
 
   const handleOutputSelect = useCallback(
     (outputCurrency: Currency) => {
@@ -552,27 +527,15 @@ export function Swap({ className,
         },
       });
     },
-    [onCurrencyChange, onCurrencySelection, state, trace],
+    [onCurrencyChange, onCurrencySelection, state],
   );
 
   const showPriceImpactWarning = isClassicTrade(trade) && largerPriceImpact && priceImpactSeverity > 3;
 
   const prevTrade = usePrevious(trade);
   useEffect(() => {
-    if (!trade || prevTrade === trade) { return; } // no new swap quote to log
-
-    sendAnalyticsEvent(SwapEventName.SWAP_QUOTE_RECEIVED, {
-      ...formatSwapQuoteReceivedEventProperties(
-        trade,
-        allowedSlippage,
-        swapQuoteLatency,
-        inputTax,
-        outputTax,
-        outputFeeFiatValue,
-      ),
-      ...trace,
-    });
-  }, [prevTrade, trade, trace, allowedSlippage, swapQuoteLatency, inputTax, outputTax, outputFeeFiatValue]);
+    if (!trade || prevTrade === trade) { } // no new swap quote to log
+  }, [prevTrade, trade, allowedSlippage, swapQuoteLatency, inputTax, outputTax, outputFeeFiatValue]);
 
   const showDetailsDropdown = Boolean(
     !showWrap && userHasSpecifiedInputOutput && (trade || routeIsLoading || routeIsSyncing),
@@ -580,7 +543,7 @@ export function Swap({ className,
 
   const inputCurrency = currencies[Field.INPUT] ?? undefined;
   const switchChain = useSwitchChain();
-  const switchingChain = useAppSelector((state) => state.wallets.switchingChain);
+  const switchingChain = useAppSelector((st) => st.wallets.switchingChain);
   const showOptInSmall = !useScreenSize().navSearchInputVisible;
   const isDark = useIsDarkMode();
   const isUniswapXDefaultEnabled = useUniswapXDefaultEnabled();
@@ -627,72 +590,62 @@ export function Swap({ className,
 
       <div style={{ display: 'relative' }}>
         <SwapSection>
-          <Trace section={InterfaceSectionName.CURRENCY_INPUT_PANEL}>
-            <SwapCurrencyInputPanel
-              label={<Trans>You pay</Trans>}
-              disabled={disableTokenInputs}
-              value={formattedAmounts[Field.INPUT]}
-              showMaxButton={showMaxButton}
-              currency={currencies[Field.INPUT] ?? null}
-              onUserInput={handleTypeInput}
-              onMax={handleMaxInput}
-              fiatValue={showFiatValueInput ? fiatValueInput : undefined}
-              onCurrencySelect={handleInputSelect}
-              otherCurrency={currencies[Field.OUTPUT]}
-              showCommonBases
-              id={InterfaceSectionName.CURRENCY_INPUT_PANEL}
-              loading={independentField === Field.OUTPUT && routeIsSyncing}
-              ref={inputCurrencyNumericalInputRef}
-            />
-          </Trace>
+          <SwapCurrencyInputPanel
+            label={<Trans>From</Trans>}
+            disabled={disableTokenInputs}
+            value={formattedAmounts[Field.INPUT]}
+            showMaxButton={showMaxButton}
+            currency={currencies[Field.INPUT] ?? null}
+            onUserInput={handleTypeInput}
+            onMax={handleMaxInput}
+            fiatValue={showFiatValueInput ? fiatValueInput : undefined}
+            onCurrencySelect={handleInputSelect}
+            otherCurrency={currencies[Field.OUTPUT]}
+            showCommonBases
+            id={InterfaceSectionName.CURRENCY_INPUT_PANEL}
+            loading={independentField === Field.OUTPUT && routeIsSyncing}
+            ref={inputCurrencyNumericalInputRef}
+          />
         </SwapSection>
         <ArrowWrapper clickable={isSupportedChain(chainId)}>
-          <TraceEvent
-            events={[BrowserEvent.onClick]}
-            name={SwapEventName.SWAP_TOKENS_REVERSED}
-            element={InterfaceElementName.SWAP_TOKENS_REVERSE_ARROW_BUTTON}
+          <ArrowContainer
+            data-testid="swap-currency-button"
+            onClick={() => {
+              if (disableTokenInputs) { return; }
+              onSwitchTokens(inputTokenHasTax, formattedAmounts[dependentField]);
+            }}
+            color={theme.neutral1}
           >
-            <ArrowContainer
-              data-testid="swap-currency-button"
-              onClick={() => {
-                if (disableTokenInputs) { return; }
-                onSwitchTokens(inputTokenHasTax, formattedAmounts[dependentField]);
-              }}
-              color={theme.neutral1}
-            >
-              <ArrowDown size="16" color={theme.neutral1} />
-            </ArrowContainer>
-          </TraceEvent>
+            <ArrowDown size="16" color={theme.neutral1} />
+          </ArrowContainer>
         </ArrowWrapper>
       </div>
-      <AutoColumn gap="xs">
+      <AutoColumn gap="xl">
         <div>
           <OutputSwapSection>
-            <Trace section={InterfaceSectionName.CURRENCY_OUTPUT_PANEL}>
-              <SwapCurrencyInputPanel
-                value={formattedAmounts[Field.OUTPUT]}
-                disabled={disableTokenInputs}
-                onUserInput={handleTypeOutput}
-                label={<Trans>You receive</Trans>}
-                showMaxButton={false}
-                hideBalance={false}
-                fiatValue={showFiatValueOutput ? fiatValueOutput : undefined}
-                priceImpact={stablecoinPriceImpact}
-                currency={currencies[Field.OUTPUT] ?? null}
-                onCurrencySelect={handleOutputSelect}
-                otherCurrency={currencies[Field.INPUT]}
-                showCommonBases
-                id={InterfaceSectionName.CURRENCY_OUTPUT_PANEL}
-                loading={independentField === Field.INPUT && routeIsSyncing}
-                numericalInputSettings={{
-                  // We disable numerical input here if the selected token has tax, since we cannot guarantee exact_outputs for FOT tokens
-                  disabled: outputTokenHasTax,
-                  // Focus the input currency panel if the user tries to type into the disabled output currency panel
-                  onDisabledClick: () => inputCurrencyNumericalInputRef.current?.focus(),
-                  disabledTooltipBody: <OutputTaxTooltipBody currencySymbol={currencies[Field.OUTPUT]?.symbol} />,
-                }}
-              />
-            </Trace>
+            <SwapCurrencyInputPanel
+              value={formattedAmounts[Field.OUTPUT]}
+              disabled={disableTokenInputs}
+              onUserInput={handleTypeOutput}
+              label={<Trans>To</Trans>}
+              showMaxButton={false}
+              hideBalance={false}
+              fiatValue={showFiatValueOutput ? fiatValueOutput : undefined}
+              priceImpact={stablecoinPriceImpact}
+              currency={currencies[Field.OUTPUT] ?? null}
+              onCurrencySelect={handleOutputSelect}
+              otherCurrency={currencies[Field.INPUT]}
+              showCommonBases
+              id={InterfaceSectionName.CURRENCY_OUTPUT_PANEL}
+              loading={independentField === Field.INPUT && routeIsSyncing}
+              numericalInputSettings={{
+                // We disable numerical input here if the selected token has tax, since we cannot guarantee exact_outputs for FOT tokens
+                disabled: outputTokenHasTax,
+                // Focus the input currency panel if the user tries to type into the disabled output currency panel
+                onDisabledClick: () => inputCurrencyNumericalInputRef.current?.focus(),
+                disabledTooltipBody: <OutputTaxTooltipBody currencySymbol={currencies[Field.OUTPUT]?.symbol} />,
+              }}
+            />
             {recipient !== null && !showWrap ? (
               <>
                 <AutoRow justify="space-between" style={{ padding: '0 1rem' }}>
@@ -729,16 +682,9 @@ export function Swap({ className,
               <Trans>Connecting to {getChainInfo(switchingChain)?.label}</Trans>
             </ButtonPrimary>
           ) : connectionReady && !account ? (
-            <TraceEvent
-              events={[BrowserEvent.onClick]}
-              name={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
-              properties={{ received_swap_quote: getIsReviewableQuote(trade, tradeState, swapInputError) }}
-              element={InterfaceElementName.CONNECT_WALLET_BUTTON}
-            >
-              <ButtonLight onClick={toggleWalletDrawer} fontWeight={535} $borderRadius="16px">
-                <Trans>Connect wallet</Trans>
-              </ButtonLight>
-            </TraceEvent>
+            <ButtonLight onClick={toggleWalletDrawer} fontWeight={535} $borderRadius="16px">
+              <Trans>Connect wallet</Trans>
+            </ButtonLight>
           ) : chainId && chainId !== connectedChainId ? (
             <ButtonPrimary
               $borderRadius="16px"
@@ -780,31 +726,28 @@ export function Swap({ className,
               </ThemedText.DeprecatedMain>
             </GrayCard>
           ) : (
-            <TraceEvent
-              events={[BrowserEvent.onClick]}
-              name={SharedEventName.ELEMENT_CLICKED}
-              element={InterfaceElementName.SWAP_BUTTON}
+            <ButtonError
+              onClick={() => {
+                if (!showPriceImpactWarning) {
+                  handleContinueToReview();
+                  return;
+                }
+                setShowPriceImpactModal(true);
+              }}
+              id="swap-button"
+              data-testid="swap-button"
+              disabled={!getIsReviewableQuote(trade, tradeState, swapInputError)}
+              error={!swapInputError && priceImpactSeverity > 2 && allowance.state === AllowanceState.ALLOWED}
             >
-              <ButtonError
-                onClick={() => {
-                  showPriceImpactWarning ? setShowPriceImpactModal(true) : handleContinueToReview();
-                }}
-                id="swap-button"
-                data-testid="swap-button"
-                disabled={!getIsReviewableQuote(trade, tradeState, swapInputError)}
-                error={!swapInputError && priceImpactSeverity > 2 && allowance.state === AllowanceState.ALLOWED}
-              >
-                <Text fontSize={20}>
-                  {swapInputError || (routeIsSyncing || routeIsLoading ? (
-                    <Trans>Swap</Trans>
-                  ) : priceImpactSeverity > 2 ? (
-                    <Trans>Swap anyway</Trans>
-                  ) : (
-                    <Trans>Swap</Trans>
-                  ))}
-                </Text>
-              </ButtonError>
-            </TraceEvent>
+              <Text fontSize={20}>
+
+                {swapInputError || (routeIsSyncing || routeIsLoading ? (<Trans>Swap</Trans>) : priceImpactSeverity > 2 ? (
+                  <Trans>Swap anyway</Trans>
+                ) : (
+                  <Trans>Swap</Trans>
+                ))}
+              </Text>
+            </ButtonError>
           )}
         </div>
       </AutoColumn>

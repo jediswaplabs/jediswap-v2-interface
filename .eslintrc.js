@@ -100,10 +100,11 @@ module.exports = {
     'no-restricted-properties': 'off',
     'no-restricted-syntax': 'off',
     'no-promise-executor-return': 'off',
-    'no-unused-vars': ['error', {
+    'no-unused-vars': ['off', {
       varsIgnorePattern: 'Fragment', ignoreRestSiblings: true,
     }],
-    '@typescript-eslint/no-unused-vars': 'error',
+    'linebreak-style': 0,
+    '@typescript-eslint/no-unused-vars': 'off',
     'no-use-before-define': 'off',
     'object-curly-newline': ['error', {
       ObjectExpression: { consistent: true },

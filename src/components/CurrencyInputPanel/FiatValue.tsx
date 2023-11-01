@@ -1,45 +1,44 @@
-import { Trans } from '@lingui/macro'
-import { Percent } from '@uniswap/sdk-core'
-import Row from 'components/Row'
-import { LoadingBubble } from 'components/Tokens/loading'
-import { MouseoverTooltip } from 'components/Tooltip'
-import { useMemo } from 'react'
-import styled from 'styled-components'
-import { ThemedText } from 'theme/components'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
-import { warningSeverity } from 'utils/prices'
+import { Trans } from '@lingui/macro';
+import { Percent } from '@uniswap/sdk-core';
+import { useMemo } from 'react';
+import styled from 'styled-components';
+
+import Row from 'components/Row';
+import { LoadingBubble } from 'components/Tokens/loading';
+import { MouseoverTooltip } from 'components/Tooltip';
+import { ThemedText } from 'theme/components';
+import { NumberType, useFormatter } from 'utils/formatNumbers';
+import { warningSeverity } from 'utils/prices';
 
 const FiatLoadingBubble = styled(LoadingBubble)`
   border-radius: 4px;
   width: 4rem;
   height: 1rem;
-`
+`;
 
-export function FiatValue({
-  fiatValue,
-  priceImpact,
-}: {
+export function FiatValue({ fiatValue,
+  priceImpact }: {
   fiatValue: { data?: number; isLoading: boolean }
   priceImpact?: Percent
 }) {
-  const { formatNumber, formatPercent } = useFormatter()
+  const { formatNumber, formatPercent } = useFormatter();
 
   const priceImpactColor = useMemo(() => {
-    if (!priceImpact) return undefined
-    if (priceImpact.lessThan('0')) return 'success'
-    const severity = warningSeverity(priceImpact)
-    if (severity < 1) return 'neutral3'
-    if (severity < 3) return 'deprecated_yellow1'
-    return 'critical'
-  }, [priceImpact])
+    if (!priceImpact) { return undefined; }
+    if (priceImpact.lessThan('0')) { return 'success'; }
+    const severity = warningSeverity(priceImpact);
+    if (severity < 1) { return 'neutral3'; }
+    if (severity < 3) { return 'deprecated_yellow1'; }
+    return 'critical';
+  }, [priceImpact]);
 
   if (fiatValue.isLoading) {
-    return <FiatLoadingBubble />
+    return <FiatLoadingBubble />;
   }
 
   return (
     <Row gap="sm">
-      <ThemedText.BodySmall color="neutral2">
+      <ThemedText.LabelSmall color="neutral1">
         {fiatValue.data ? (
           formatNumber({
             input: fiatValue.data,
@@ -48,7 +47,7 @@ export function FiatValue({
         ) : (
           <MouseoverTooltip text={<Trans>Not enough liquidity to show accurate USD value.</Trans>}>-</MouseoverTooltip>
         )}
-      </ThemedText.BodySmall>
+      </ThemedText.LabelSmall>
       {priceImpact && (
         <ThemedText.BodySmall color={priceImpactColor}>
           <MouseoverTooltip
@@ -59,5 +58,5 @@ export function FiatValue({
         </ThemedText.BodySmall>
       )}
     </Row>
-  )
+  );
 }

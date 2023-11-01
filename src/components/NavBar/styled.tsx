@@ -46,7 +46,7 @@ const baseLinkCss = css`
   text-align: center;
   text-decoration: none;
   line-height: 22px;
-  font-weight: 800;
+  font-weight: 750;
   text-transform: uppercase;
   color: ${({ theme }) => theme.neutral1};
 

@@ -1,24 +1,26 @@
-import { t, Trans } from '@lingui/macro'
-import { Settings } from 'components/Icons/Settings'
-import Row from 'components/Row'
-import { InterfaceTrade } from 'state/routing/types'
-import { isUniswapXTrade } from 'state/routing/utils'
-import { useUserSlippageTolerance } from 'state/user/hooks'
-import { SlippageTolerance } from 'state/user/types'
-import styled from 'styled-components'
-import { ThemedText } from 'theme/components'
-import { useFormatter } from 'utils/formatNumbers'
-import validateUserSlippageTolerance, { SlippageValidationResult } from 'utils/validateUserSlippageTolerance'
+import { t, Trans } from '@lingui/macro';
+import styled from 'styled-components';
+
+import { Settings } from 'components/Icons/Settings';
+import Row from 'components/Row';
+import { InterfaceTrade } from 'state/routing/types';
+import { isUniswapXTrade } from 'state/routing/utils';
+import { useUserSlippageTolerance } from 'state/user/hooks';
+import { SlippageTolerance } from 'state/user/types';
+import { ThemedText } from 'theme/components';
+import { useFormatter } from 'utils/formatNumbers';
+import validateUserSlippageTolerance, { SlippageValidationResult } from 'utils/validateUserSlippageTolerance';
 
 const Icon = styled(Settings)`
-  height: 24px;
-  width: 24px;
+  height: 40px;
+  width: 40px;
   > * {
-    fill: ${({ theme }) => theme.neutral2};
+    fill: ${({ theme }) => theme.neutral1};
   }
-`
+`;
 
 const Button = styled.button<{ isActive: boolean }>`
+  display: flex;
   border: none;
   background-color: transparent;
   margin: 0;
@@ -30,36 +32,36 @@ const Button = styled.button<{ isActive: boolean }>`
     opacity: 0.7;
   }
 
-  ${({ isActive }) => isActive && `opacity: 0.7`}
-`
+  ${({ isActive }) => isActive && 'opacity: 0.7'}
+`;
 
 const IconContainer = styled(Row)`
-  padding: 6px 12px;
-  border-radius: 16px;
-`
+  padding: 0 6px;
+  border-radius: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+`;
 
 const IconContainerWithSlippage = styled(IconContainer)<{ displayWarning?: boolean }>`
   div {
-    color: ${({ theme, displayWarning }) => (displayWarning ? theme.deprecated_accentWarning : theme.neutral2)};
+    color: ${({ theme, displayWarning }) => (displayWarning ? theme.deprecated_accentWarning : theme.neutral1)};
   }
-
-  background-color: ${({ theme, displayWarning }) =>
-    displayWarning ? theme.deprecated_accentWarningSoft : theme.surface2};
-`
+  border-color: #fff;
+`;
 
 const ButtonContent = ({ trade }: { trade?: InterfaceTrade }) => {
-  const [userSlippageTolerance] = useUserSlippageTolerance()
-  const { formatPercent } = useFormatter()
+  const [userSlippageTolerance] = useUserSlippageTolerance();
+  const { formatPercent } = useFormatter();
 
   if (userSlippageTolerance === SlippageTolerance.Auto || isUniswapXTrade(trade)) {
     return (
       <IconContainer>
         <Icon />
       </IconContainer>
-    )
+    );
   }
 
-  const isInvalidSlippage = validateUserSlippageTolerance(userSlippageTolerance) !== SlippageValidationResult.Valid
+  const isInvalidSlippage = validateUserSlippageTolerance(userSlippageTolerance) !== SlippageValidationResult.Valid;
 
   return (
     <IconContainerWithSlippage data-testid="settings-icon-with-slippage" gap="sm" displayWarning={isInvalidSlippage}>
@@ -68,15 +70,13 @@ const ButtonContent = ({ trade }: { trade?: InterfaceTrade }) => {
       </ThemedText.BodySmall>
       <Icon />
     </IconContainerWithSlippage>
-  )
-}
+  );
+};
 
-export default function MenuButton({
-  disabled,
+export default function MenuButton({ disabled,
   onClick,
   isActive,
-  trade,
-}: {
+  trade }: {
   disabled: boolean
   onClick: () => void
   isActive: boolean
@@ -93,5 +93,5 @@ export default function MenuButton({
     >
       <ButtonContent trade={trade} />
     </Button>
-  )
+  );
 }

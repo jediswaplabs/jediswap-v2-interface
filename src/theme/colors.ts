@@ -107,12 +107,12 @@ export const colors = {
   // NEW COLORS FOR SPORE - need to define light/dark here cause they are root colors now (different system)
   neutral1_dark: '#FFFFFF',
   neutral2_dark: '#9B9B9B',
-  neutral3_dark: '#5E5E5E',
+  neutral3_dark: jediGrey,
 
-  surface1_dark: '#212429',
+  surface1_dark: '#131313',
   surface2_dark: '#2C2F36',
   surface3_dark: '#40444F',
-  surface4_dark: '#565A69',
+  surface4_dark: '#C4C4C403',
   surface5_dark: '#ffffff26',
 
   accent1_dark: jediBlue,

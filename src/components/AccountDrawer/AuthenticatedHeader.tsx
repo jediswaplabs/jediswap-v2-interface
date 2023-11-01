@@ -225,8 +225,6 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
   const percentChange = portfolio?.tokensTotalDenominatedValueChange?.percentage?.value
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false)
 
-  const addressShort = account ? `${account.slice(0, 6)}...${account.slice(-4)}` : null
-
   return (
     <AuthenticatedHeaderWrapper>
       <HeaderWrapper>
@@ -235,7 +233,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           {account && (
             <AccountNamesWrapper>
               <ThemedText.SubHeader>
-                <CopyText toCopy={ENSName ?? account}>{ENSName ?? addressShort}</CopyText>
+                <CopyText toCopy={ENSName ?? account}>{ENSName ?? shortenAddress(account)}</CopyText>
               </ThemedText.SubHeader>
               {/* Displays smaller view of account if ENS name was rendered above */}
               {ENSName && (
@@ -269,7 +267,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           </TraceEvent>
         </IconContainer>
       </HeaderWrapper>
-      {/*  <PortfolioDrawerContainer>
+      <PortfolioDrawerContainer>
         {totalBalance !== undefined ? (
           <FadeInColumn gap="xs">
             <ThemedText.HeadlineLarge fontWeight={535} data-testid="portfolio-total-balance">
@@ -359,7 +357,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
             <Trans>Claim Uniswap NFT Airdrop</Trans>
           </UNIButton>
         )}
-      </PortfolioDrawerContainer> */}
+      </PortfolioDrawerContainer>
     </AuthenticatedHeaderWrapper>
   )
 }

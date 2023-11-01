@@ -1,22 +1,20 @@
-import { useWeb3React } from '@web3-react/core'
-import IconButton from 'components/AccountDrawer/IconButton'
-import { AutoColumn } from 'components/Column'
-import { Settings } from 'components/Icons/Settings'
-import { AutoRow } from 'components/Row'
-import { connections, deprecatedNetworkConnection, networkConnection } from 'connection'
-import { ActivationStatus, useActivationState } from 'connection/activate'
-import { isSupportedChain } from 'constants/chains'
-import { useFallbackProviderEnabled } from 'featureFlags/flags/fallbackProvider'
-import { useEffect } from 'react'
-import styled from 'styled-components'
-import { ThemedText } from 'theme/components'
-import { flexColumnNoWrap } from 'theme/styles'
+import { useWeb3React } from '@web3-react/core';
+import { useEffect } from 'react';
+import styled from 'styled-components';
 
-import ConnectionErrorView from './ConnectionErrorView'
-import Option from './Option'
-import PrivacyPolicyNotice from './PrivacyPolicyNotice'
-import { useConnectors } from 'hooks/starknet-react'
-import OptionV2 from './OptionV2'
+import IconButton from 'components/AccountDrawer/IconButton';
+import { AutoColumn } from 'components/Column';
+import { Settings } from 'components/Icons/Settings';
+import { AutoRow } from 'components/Row';
+import { connections, deprecatedNetworkConnection, networkConnection } from 'connection';
+import { ActivationStatus, useActivationState } from 'connection/activate';
+import { isSupportedChain } from 'constants/chains';
+import { useFallbackProviderEnabled } from 'featureFlags/flags/fallbackProvider';
+import { ThemedText } from 'theme/components';
+import { flexColumnNoWrap } from 'theme/styles';
+import ConnectionErrorView from './ConnectionErrorView';
+import Option from './Option';
+import PrivacyPolicyNotice from './PrivacyPolicyNotice';
 
 const Wrapper = styled.div`
   ${flexColumnNoWrap};
@@ -24,7 +22,7 @@ const Wrapper = styled.div`
   width: 100%;
   padding: 14px 16px 16px;
   flex: 1;
-`
+`;
 
 const OptionGrid = styled.div`
   display: grid;
@@ -34,28 +32,27 @@ const OptionGrid = styled.div`
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     grid-template-columns: 1fr;
   `};
-`
+`;
 
 const PrivacyPolicyWrapper = styled.div`
   padding: 0 4px;
-`
+`;
 
 export default function WalletModal({ openSettings }: { openSettings: () => void }) {
-  const { connector, chainId } = useWeb3React()
-  const { connectors } = useConnectors()
+  const { connector, chainId } = useWeb3React();
 
-  const { activationState } = useActivationState()
-  const fallbackProviderEnabled = useFallbackProviderEnabled()
+  const { activationState } = useActivationState();
+  const fallbackProviderEnabled = useFallbackProviderEnabled();
   // Keep the network connector in sync with any active user connector to prevent chain-switching on wallet disconnection.
   useEffect(() => {
     if (chainId && isSupportedChain(chainId) && connector !== networkConnection.connector) {
       if (fallbackProviderEnabled) {
-        networkConnection.connector.activate(chainId)
+        networkConnection.connector.activate(chainId);
       } else {
-        deprecatedNetworkConnection.connector.activate(chainId)
+        deprecatedNetworkConnection.connector.activate(chainId);
       }
     }
-  }, [chainId, connector, fallbackProviderEnabled])
+  }, [chainId, connector, fallbackProviderEnabled]);
 
   return (
     <Wrapper data-testid="wallet-modal">
@@ -68,18 +65,17 @@ export default function WalletModal({ openSettings }: { openSettings: () => void
       ) : (
         <AutoColumn gap="16px">
           <OptionGrid data-testid="option-grid">
-            {connectors.map((connector) => {
-              return (
-                <OptionV2
-                  key={connector.id}
-                  connector={connector}
-                  // disabled={!connector.available()}
-                />
-              )
-            })}
+            {connections
+              .filter((connection) => connection.shouldDisplay())
+              .map((connection) => (
+                <Option key={connection.getName()} connection={connection} />
+              ))}
           </OptionGrid>
+          <PrivacyPolicyWrapper>
+            <PrivacyPolicyNotice />
+          </PrivacyPolicyWrapper>
         </AutoColumn>
       )}
     </Wrapper>
-  )
+  );
 }

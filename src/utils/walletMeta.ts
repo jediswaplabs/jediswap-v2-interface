@@ -1,12 +1,12 @@
-import type { ExternalProvider, JsonRpcProvider, Web3Provider } from '@ethersproject/providers'
-import type WalletConnectProvider from '@walletconnect/ethereum-provider'
+import type { ExternalProvider, JsonRpcProvider, Web3Provider } from '@ethersproject/providers';
+import type WalletConnectProvider from '@walletconnect/ethereum-provider';
 
 function isWeb3Provider(provider: JsonRpcProvider): provider is Web3Provider {
-  return 'provider' in provider
+  return 'provider' in provider;
 }
 
 function isWalletConnectProvider(provider: ExternalProvider): provider is WalletConnectProvider {
-  return (provider as WalletConnectProvider).isWalletConnect
+  return (provider as WalletConnectProvider).isWalletConnect;
 }
 
 export enum WalletType {
@@ -47,29 +47,28 @@ export interface WalletMeta {
 }
 
 function getWalletConnectMeta(provider: WalletConnectProvider): WalletMeta {
-  const metadata = provider.session?.peer.metadata
+  const metadata = provider.session?.peer.metadata;
   return {
     type: WalletType.WALLET_CONNECT,
     agent: metadata ? `${metadata.name} (WalletConnect)` : '(WalletConnect)',
     ...metadata,
-  }
+  };
 }
 
 function getInjectedMeta(provider: ExternalProvider & Record<string, unknown>): WalletMeta {
-  const properties = Object.getOwnPropertyNames(provider)
-  const names =
-    properties
-      .filter((name) => name.match(/^is.*$/) && (provider as Record<string, unknown>)[name] === true)
-      .map((name) => name.slice(2)) ?? []
+  const properties = Object.getOwnPropertyNames(provider);
+  const names = properties
+    .filter((name) => name.match(/^is.*$/) && (provider as Record<string, unknown>)[name] === true)
+    .map((name) => name.slice(2)) ?? [];
 
   // Many wallets spoof MetaMask by setting `isMetaMask` along with their own identifier,
   // so we sort MetaMask last so that these wallets' names come first.
-  names.sort((a, b) => (a === 'MetaMask' ? 1 : b === 'MetaMask' ? -1 : 0))
+  names.sort((a, b) => (a === 'MetaMask' ? 1 : b === 'MetaMask' ? -1 : 0));
 
   // Coinbase Wallet can be connected through an extension or a QR code, with `qrUrl` as the only differentiator,
   // so we capture `qrUrl` in the agent string.
-  if (properties.includes('qrUrl') && provider['qrUrl']) {
-    names.push('qrUrl')
+  if (properties.includes('qrUrl') && provider.qrUrl) {
+    names.push('qrUrl');
   }
 
   return {
@@ -77,15 +76,14 @@ function getInjectedMeta(provider: ExternalProvider & Record<string, unknown>): 
     agent: [...names, '(Injected)'].join(' '),
     name: names[0],
     // TODO(WEB-2914): Populate description, url, and icons for known wallets.
-  }
+  };
 }
 
 export function getWalletMeta(provider: JsonRpcProvider): WalletMeta | undefined {
-  if (!isWeb3Provider(provider)) return undefined
+  if (!isWeb3Provider(provider)) { return undefined; }
 
   if (isWalletConnectProvider(provider.provider)) {
-    return getWalletConnectMeta(provider.provider)
-  } else {
-    return getInjectedMeta(provider.provider)
+    return getWalletConnectMeta(provider.provider);
   }
+  return getInjectedMeta(provider.provider);
 }
