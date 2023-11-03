@@ -1,5 +1,6 @@
-import styled from 'styled-components'
-import { Gap } from 'theme'
+import styled from 'styled-components';
+
+import { Gap } from 'theme';
 
 export const Column = styled.div<{
   gap?: Gap
@@ -8,11 +9,11 @@ export const Column = styled.div<{
   flex-direction: column;
   justify-content: flex-start;
   gap: ${({ gap, theme }) => gap && theme.grids[gap]};
-`
+`;
 export const ColumnCenter = styled(Column)`
   width: 100%;
   align-items: center;
-`
+`;
 
 export const AutoColumn = styled.div<{
   gap?: Gap | string
@@ -24,6 +25,6 @@ export const AutoColumn = styled.div<{
   grid-row-gap: ${({ gap, theme }) => (gap && theme.grids[gap as Gap]) || gap};
   justify-items: ${({ justify }) => justify && justify};
   flex-grow: ${({ grow }) => grow && 1};
-`
+`;
 
-export default Column
+export default Column;

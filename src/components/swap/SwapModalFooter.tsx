@@ -1,44 +1,43 @@
-import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
-import { Percent } from '@uniswap/sdk-core'
-import { TraceEvent } from 'analytics'
-import AnimatedDropdown from 'components/AnimatedDropdown'
-import Column from 'components/Column'
-import SpinningLoader from 'components/Loader/SpinningLoader'
-import { SwapResult } from 'hooks/useSwapCallback'
-import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import ms from 'ms'
-import { ReactNode, useState } from 'react'
-import { AlertTriangle } from 'react-feather'
-import { easings, useSpring } from 'react-spring'
-import { InterfaceTrade, RouterPreference } from 'state/routing/types'
-import { isClassicTrade } from 'state/routing/utils'
-import { useRouterPreference, useUserSlippageTolerance } from 'state/user/hooks'
-import styled, { useTheme } from 'styled-components'
-import { Separator, ThemedText } from 'theme/components'
-import getRoutingDiagramEntries from 'utils/getRoutingDiagramEntries'
-import { formatSwapButtonClickEventProperties } from 'utils/loggingFormatters'
+import { Trans } from '@lingui/macro';
+import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events';
+import { Percent } from '@uniswap/sdk-core';
+import ms from 'ms';
+import { ReactNode, useState } from 'react';
+import { AlertTriangle } from 'react-feather';
+import { easings, useSpring } from 'react-spring';
+import styled, { useTheme } from 'styled-components';
 
-import { ReactComponent as ExpandoIconClosed } from '../../assets/svg/expando-icon-closed.svg'
-import { ReactComponent as ExpandoIconOpened } from '../../assets/svg/expando-icon-opened.svg'
-import { ButtonError, SmallButtonPrimary } from '../Button'
-import Row, { AutoRow, RowBetween, RowFixed } from '../Row'
-import { SwapCallbackError, SwapShowAcceptChanges } from './styled'
-import { SwapLineItemProps, SwapLineItemType } from './SwapLineItem'
-import SwapLineItem from './SwapLineItem'
+import { TraceEvent } from 'analytics';
+import AnimatedDropdown from 'components/AnimatedDropdown';
+import Column from 'components/Column';
+import SpinningLoader from 'components/Loader/SpinningLoader';
+import { SwapResult } from 'hooks/useSwapCallback';
+import useTransactionDeadline from 'hooks/useTransactionDeadline';
+import { InterfaceTrade, RouterPreference } from 'state/routing/types';
+import { isClassicTrade } from 'state/routing/utils';
+import { useRouterPreference, useUserSlippageTolerance } from 'state/user/hooks';
+import { Separator, ThemedSeparator, ThemedText } from 'theme/components';
+import getRoutingDiagramEntries from 'utils/getRoutingDiagramEntries';
+import { formatSwapButtonClickEventProperties } from 'utils/loggingFormatters';
+import { ReactComponent as ExpandoIconClosed } from '../../assets/svg/expando-icon-closed.svg';
+import { ReactComponent as ExpandoIconOpened } from '../../assets/svg/expando-icon-opened.svg';
+import { ButtonError, ButtonPrimary, ButtonSize, SmallButtonPrimary } from '../Button';
+import Row, { AutoRow, RowBetween, RowFixed } from '../Row';
+import { SwapCallbackError, SwapShowAcceptChanges } from './styled';
+import SwapLineItem, { SwapLineItemProps, SwapLineItemType } from './SwapLineItem';
 
 const DetailsContainer = styled(Column)`
   padding-bottom: 8px;
-`
+`;
 
 const StyledAlertTriangle = styled(AlertTriangle)`
   margin-right: 8px;
   min-width: 24px;
-`
+`;
 
 const ConfirmButton = styled(ButtonError)`
   height: 56px;
-`
+`;
 
 const DropdownControllerWrapper = styled.div`
   display: flex;
@@ -48,7 +47,7 @@ const DropdownControllerWrapper = styled.div`
   padding: 0 16px;
   min-width: fit-content;
   white-space: nowrap;
-`
+`;
 
 const DropdownButton = styled.button`
   padding: 0;
@@ -60,25 +59,26 @@ const DropdownButton = styled.button`
   border: none;
   align-items: center;
   cursor: pointer;
-`
+`;
 
 function DropdownController({ open, onClick }: { open: boolean; onClick: () => void }) {
   return (
     <DropdownButton onClick={onClick}>
-      <Separator />
+      <ThemedSeparator />
       <DropdownControllerWrapper>
-        <ThemedText.BodySmall color="neutral2">
-          {open ? <Trans>Show less</Trans> : <Trans>Show more</Trans>}
+        <ThemedText.BodySmall color="neutral1">
+          <RowFixed>
+            {open ? <Trans>Show less</Trans> : <Trans>Show more</Trans>}
+            {open ? <ExpandoIconOpened /> : <ExpandoIconClosed />}
+          </RowFixed>
         </ThemedText.BodySmall>
-        {open ? <ExpandoIconOpened /> : <ExpandoIconClosed />}
       </DropdownControllerWrapper>
-      <Separator />
+      <ThemedSeparator reversed />
     </DropdownButton>
-  )
+  );
 }
 
-export default function SwapModalFooter({
-  trade,
+export default function SwapModalFooter({ trade,
   allowedSlippage,
   swapResult,
   onConfirm,
@@ -88,8 +88,7 @@ export default function SwapModalFooter({
   fiatValueOutput,
   showAcceptChanges,
   onAcceptChanges,
-  isLoading,
-}: {
+  isLoading }: {
   trade: InterfaceTrade
   swapResult?: SwapResult
   allowedSlippage: Percent
@@ -102,14 +101,14 @@ export default function SwapModalFooter({
   onAcceptChanges: () => void
   isLoading: boolean
 }) {
-  const transactionDeadlineSecondsSinceEpoch = useTransactionDeadline()?.toNumber() // in seconds since epoch
-  const isAutoSlippage = useUserSlippageTolerance()[0] === 'auto'
-  const [routerPreference] = useRouterPreference()
-  const routes = isClassicTrade(trade) ? getRoutingDiagramEntries(trade) : undefined
-  const theme = useTheme()
-  const [showMore, setShowMore] = useState(false)
+  const transactionDeadlineSecondsSinceEpoch = useTransactionDeadline()?.toNumber(); // in seconds since epoch
+  const isAutoSlippage = useUserSlippageTolerance()[0] === 'auto';
+  const [routerPreference] = useRouterPreference();
+  const routes = isClassicTrade(trade) ? getRoutingDiagramEntries(trade) : undefined;
+  const theme = useTheme();
+  const [showMore, setShowMore] = useState(false);
 
-  const lineItemProps = { trade, allowedSlippage, syncing: false }
+  const lineItemProps = { trade, allowedSlippage, syncing: false };
 
   return (
     <>
@@ -131,76 +130,60 @@ export default function SwapModalFooter({
                 <Trans>Price updated</Trans>
               </ThemedText.DeprecatedMain>
             </RowFixed>
-            <SmallButtonPrimary onClick={onAcceptChanges}>
+            <ButtonPrimary size={ButtonSize.small} onClick={onAcceptChanges} width={'auto'}>
               <Trans>Accept</Trans>
-            </SmallButtonPrimary>
+            </ButtonPrimary>
           </RowBetween>
         </SwapShowAcceptChanges>
       ) : (
         <AutoRow>
-          <TraceEvent
-            events={[BrowserEvent.onClick]}
-            element={InterfaceElementName.CONFIRM_SWAP_BUTTON}
-            name={SwapEventName.SWAP_SUBMITTED_BUTTON_CLICKED}
-            properties={formatSwapButtonClickEventProperties({
-              trade,
-              swapResult,
-              allowedSlippage,
-              transactionDeadlineSecondsSinceEpoch,
-              isAutoSlippage,
-              isAutoRouterApi: routerPreference === RouterPreference.API,
-              routes,
-              fiatValueInput: fiatValueInput.data,
-              fiatValueOutput: fiatValueOutput.data,
-            })}
+
+          <ConfirmButton
+            data-testid="confirm-swap-button"
+            onClick={onConfirm}
+            disabled={disabledConfirm}
+            $borderRadius="12px"
+            id={InterfaceElementName.CONFIRM_SWAP_BUTTON}
           >
-            <ConfirmButton
-              data-testid="confirm-swap-button"
-              onClick={onConfirm}
-              disabled={disabledConfirm}
-              $borderRadius="12px"
-              id={InterfaceElementName.CONFIRM_SWAP_BUTTON}
-            >
-              {isLoading ? (
-                <ThemedText.HeadlineSmall color="neutral2">
-                  <Row>
-                    <SpinningLoader />
-                    <Trans>Finalizing quote...</Trans>
-                  </Row>
-                </ThemedText.HeadlineSmall>
-              ) : (
-                <ThemedText.HeadlineSmall color="deprecated_accentTextLightPrimary">
-                  <Trans>Confirm swap</Trans>
-                </ThemedText.HeadlineSmall>
-              )}
-            </ConfirmButton>
-          </TraceEvent>
+            {isLoading ? (
+              <ThemedText.HeadlineSmall color="neutral2">
+                <Row>
+                  <SpinningLoader />
+                  <Trans>Finalizing quote...</Trans>
+                </Row>
+              </ThemedText.HeadlineSmall>
+            ) : (
+              <ThemedText.HeadlineSmall color="deprecated_accentTextLightPrimary">
+                <Trans>Confirm swap</Trans>
+              </ThemedText.HeadlineSmall>
+            )}
+          </ConfirmButton>
 
           {swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
         </AutoRow>
       )}
     </>
-  )
+  );
 }
 
 function AnimatedLineItem(props: SwapLineItemProps & { open: boolean; delay: number }) {
-  const { open, delay } = props
+  const { open, delay } = props;
 
   const animatedProps = useSpring({
     animatedOpacity: open ? 1 : 0,
     config: { duration: ms('300ms'), easing: easings.easeOutSine },
     delay,
-  })
+  });
 
-  return <SwapLineItem {...props} {...animatedProps} />
+  return <SwapLineItem {...props} {...animatedProps} />;
 }
 
 function ExpandableLineItems(props: { trade: InterfaceTrade; allowedSlippage: Percent; open: boolean }) {
-  const { open, trade, allowedSlippage } = props
+  const { open, trade, allowedSlippage } = props;
 
-  if (!trade) return null
+  if (!trade) { return null; }
 
-  const lineItemProps = { trade, allowedSlippage, syncing: false, open }
+  const lineItemProps = { trade, allowedSlippage, syncing: false, open };
 
   return (
     <AnimatedDropdown
@@ -220,5 +203,5 @@ function ExpandableLineItems(props: { trade: InterfaceTrade; allowedSlippage: Pe
         <AnimatedLineItem {...lineItemProps} type={SwapLineItemType.MAXIMUM_INPUT} delay={ms('120ms')} />
       </Column>
     </AnimatedDropdown>
-  )
+  );
 }

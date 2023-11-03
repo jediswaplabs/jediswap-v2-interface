@@ -19,7 +19,7 @@ import useNativeCurrency from 'lib/hooks/useNativeCurrency';
 import { getTokenFilter } from 'lib/hooks/useTokenList/filtering';
 import { TokenBalances, tokenComparator, useSortTokensByQuery } from 'lib/hooks/useTokenList/sorting';
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount';
-import { CloseIcon, ThemedText } from 'theme/components';
+import { CloseIcon, ThemedSeparator, ThemedText } from 'theme/components';
 import { UserAddedToken } from 'types/tokens';
 import { useDefaultActiveTokens, useIsUserAddedToken, useSearchInactiveTokenLists, useToken } from '../../hooks/Tokens';
 import { isAddress } from '../../utils';
@@ -35,7 +35,7 @@ const ContentWrapper = styled(Column)`
   overflow: hidden;
   flex: 1 1;
   position: relative;
-  border-radius: 20px;
+  border-radius: 4px;
 `;
 
 interface CurrencySearchProps {
@@ -235,94 +235,88 @@ export function CurrencySearch({ selectedCurrency,
 
   return (
     <ContentWrapper>
-      <Trace
-        name={InterfaceEventName.TOKEN_SELECTOR_OPENED}
-        modal={InterfaceModalName.TOKEN_SELECTOR}
-        shouldLogImpression
-      >
-        <PaddedColumn gap="16px">
-          <RowBetween>
-            <Text fontWeight={535} fontSize={16}>
-              <Trans>Select a token</Trans>
-            </Text>
-            <CloseIcon onClick={onDismiss} />
-          </RowBetween>
-          <Row>
-            <SearchInput
-              type="text"
-              id="token-search-input"
-              data-testid="token-search-input"
-              placeholder={t`Search name or paste address`}
-              autoComplete="off"
-              value={searchQuery}
-              ref={inputRef as RefObject<HTMLInputElement>}
-              onChange={handleInput}
-              onKeyDown={handleEnter}
-            />
-          </Row>
-          {showCommonBases && (
-            <CommonBases
-              chainId={chainId}
-              onSelect={handleCurrencySelect}
-              selectedCurrency={selectedCurrency}
-              searchQuery={searchQuery}
-              isAddressSearch={isAddressSearch}
-            />
-          )}
-        </PaddedColumn>
-        <Separator />
-        {searchToken && !searchTokenIsAdded ? (
-          <Column style={{ padding: '20px 0', height: '100%' }}>
-            <CurrencyRow
-              currency={searchToken}
-              isSelected={Boolean(searchToken && selectedCurrency && selectedCurrency.equals(searchToken))}
-              onSelect={(hasWarning: boolean) => searchToken && handleCurrencySelect(searchToken, hasWarning)}
-              otherSelected={Boolean(searchToken && otherSelectedCurrency && otherSelectedCurrency.equals(searchToken))}
-              showCurrencyAmount={showCurrencyAmount}
-              eventProperties={formatAnalyticsEventProperties(
-                searchToken,
-                0,
-                [searchToken],
-                searchQuery,
-                isAddressSearch,
-              )}
-              balance={
-                tryParseCurrencyAmount(
-                  String(balances[searchToken.isNative ? 'ETH' : searchToken.address?.toLowerCase()]?.balance ?? 0),
-                  searchToken,
-                ) ?? CurrencyAmount.fromRawAmount(searchToken, 0)
-              }
-            />
-          </Column>
-        ) : searchCurrencies?.length > 0 || filteredInactiveTokens?.length > 0 || isLoading ? (
-          <div style={{ flex: '1' }}>
-            <AutoSizer disableWidth>
-              {({ height }) => (
-                <CurrencyList
-                  height={height}
-                  currencies={searchCurrencies}
-                  otherListTokens={filteredInactiveTokens}
-                  onCurrencySelect={handleCurrencySelect}
-                  otherCurrency={otherSelectedCurrency}
-                  selectedCurrency={selectedCurrency}
-                  fixedListRef={fixedList}
-                  showCurrencyAmount={showCurrencyAmount}
-                  isLoading={isLoading}
-                  searchQuery={searchQuery}
-                  isAddressSearch={isAddressSearch}
-                  balances={balances}
-                />
-              )}
-            </AutoSizer>
-          </div>
-        ) : (
-          <Column style={{ padding: '20px', height: '100%' }}>
-            <ThemedText.DeprecatedMain color={theme.neutral3} textAlign="center" mb="20px">
-              <Trans>No results found.</Trans>
-            </ThemedText.DeprecatedMain>
-          </Column>
+      <PaddedColumn gap="16px">
+        <RowBetween>
+          <Text fontWeight={535} fontSize={16}>
+            <Trans>Select a token</Trans>
+          </Text>
+          <CloseIcon onClick={onDismiss} />
+        </RowBetween>
+        <Row>
+          <SearchInput
+            type="text"
+            id="token-search-input"
+            data-testid="token-search-input"
+            placeholder={t`Search name or paste address`}
+            autoComplete="off"
+            value={searchQuery}
+            ref={inputRef as RefObject<HTMLInputElement>}
+            onChange={handleInput}
+            onKeyDown={handleEnter}
+          />
+        </Row>
+        {showCommonBases && (
+          <CommonBases
+            chainId={chainId}
+            onSelect={handleCurrencySelect}
+            selectedCurrency={selectedCurrency}
+            searchQuery={searchQuery}
+            isAddressSearch={isAddressSearch}
+          />
         )}
-      </Trace>
+      </PaddedColumn>
+      <ThemedSeparator />
+      {searchToken && !searchTokenIsAdded ? (
+        <Column style={{ padding: '20px 0', height: '100%' }}>
+          <CurrencyRow
+            currency={searchToken}
+            isSelected={Boolean(searchToken && selectedCurrency && selectedCurrency.equals(searchToken))}
+            onSelect={(hasWarning: boolean) => searchToken && handleCurrencySelect(searchToken, hasWarning)}
+            otherSelected={Boolean(searchToken && otherSelectedCurrency && otherSelectedCurrency.equals(searchToken))}
+            showCurrencyAmount={showCurrencyAmount}
+            eventProperties={formatAnalyticsEventProperties(
+              searchToken,
+              0,
+              [searchToken],
+              searchQuery,
+              isAddressSearch,
+            )}
+            balance={
+              tryParseCurrencyAmount(
+                String(balances[searchToken.isNative ? 'ETH' : searchToken.address?.toLowerCase()]?.balance ?? 0),
+                searchToken,
+              ) ?? CurrencyAmount.fromRawAmount(searchToken, 0)
+            }
+          />
+        </Column>
+      ) : searchCurrencies?.length > 0 || filteredInactiveTokens?.length > 0 || isLoading ? (
+        <div style={{ flex: '1' }}>
+          <AutoSizer disableWidth>
+            {({ height }) => (
+              <CurrencyList
+                height={height}
+                currencies={searchCurrencies}
+                otherListTokens={filteredInactiveTokens}
+                onCurrencySelect={handleCurrencySelect}
+                otherCurrency={otherSelectedCurrency}
+                selectedCurrency={selectedCurrency}
+                fixedListRef={fixedList}
+                showCurrencyAmount={showCurrencyAmount}
+                isLoading={isLoading}
+                searchQuery={searchQuery}
+                isAddressSearch={isAddressSearch}
+                balances={balances}
+              />
+            )}
+          </AutoSizer>
+        </div>
+      ) : (
+        <Column style={{ padding: '20px', height: '100%' }}>
+          <ThemedText.DeprecatedMain color={theme.neutral3} textAlign="center" mb="20px">
+            <Trans>No results found.</Trans>
+          </ThemedText.DeprecatedMain>
+        </Column>
+      )}
     </ContentWrapper>
   );
 }

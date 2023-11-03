@@ -19,7 +19,7 @@ export const Nav = styled.nav`
   }
 `;
 
-export const LogoContainer = styled(Box)`
+export const LogoContainer = styled.div`
   display: flex;
   margin-right: 12px;
   align-items: center;
@@ -27,11 +27,28 @@ export const LogoContainer = styled(Box)`
   img {
     cursor: pointer;
   }
+  img.desktop {
+    display: none;
+  }
+
+  @media screen and (min-width: ${({ theme }) => theme.breakpoint.md}px) {
+    img.mobile {
+      display: none;
+    }
+    img.desktop {
+      display: block;
+    }
+  }
 `;
 
-export const MenuContainer = styled(Box)`
+export const MenuContainer = styled.div`
+  display: none;
   align-items: center;
   justify-content: space-around;
+  
+  @media screen and (min-width: ${({ theme }) => theme.breakpoint.md}px) {
+    display: flex;
+  }
 `;
 
 const baseLinkCss = css`

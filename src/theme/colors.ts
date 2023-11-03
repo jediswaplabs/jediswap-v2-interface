@@ -106,14 +106,15 @@ export const colors = {
 
   // NEW COLORS FOR SPORE - need to define light/dark here cause they are root colors now (different system)
   neutral1_dark: '#FFFFFF',
-  neutral2_dark: '#9B9B9B',
+  neutral2_dark: '#959595',
   neutral3_dark: jediGrey,
 
-  surface1_dark: '#131313',
+  surface1_dark: jediNavyBlue,
   surface2_dark: '#2C2F36',
   surface3_dark: '#40444F',
   surface4_dark: '#C4C4C403',
   surface5_dark: '#ffffff26',
+  surface6_dark: '#323C5C',
 
   accent1_dark: jediBlue,
   accent2_dark: jediPink,
@@ -127,11 +128,12 @@ export const colors = {
   surface3_light: '#22222212',
   surface4_light: '#FFFFFF64',
   surface5_light: '#00000004',
+  surface6_light: '#00000004',
 
   accent1_light: '#FC72FF',
   accent2_light: '#FFEFFF',
   success: '#40B66B',
-  critical: '#FF5F52',
+  critical: '#FF3257',
   scrim: 'rgba(0, 0, 0, 0.60)',
 };
 
@@ -187,6 +189,7 @@ export const darkTheme = {
   surface3: colors.surface3_dark,
   surface4: colors.surface4_dark,
   surface5: colors.surface5_dark,
+  surface6: colors.surface6_dark,
 
   accent1: colors.accent1_dark,
   accent2: colors.accent2_dark,
@@ -209,6 +212,7 @@ export const lightTheme: Theme = {
   surface3: colors.surface3_light,
   surface4: colors.surface4_light,
   surface5: colors.surface5_light,
+  surface6: colors.surface6_light,
 
   accent1: colors.accent1_light,
   accent2: colors.accent2_light,

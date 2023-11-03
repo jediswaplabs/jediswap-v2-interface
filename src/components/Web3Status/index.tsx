@@ -17,7 +17,7 @@ import { Portal } from 'nft/components/common/Portal';
 import { useAppSelector } from 'state/hooks';
 import { flexRowNoWrap } from 'theme/styles';
 import { shortenAddress } from 'utils';
-import { BaseButton, ButtonSecondary } from '../Button';
+import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button';
 import { RowBetween } from '../Row';
 
 const Web3StatusGeneric = styled(ButtonSecondary)`
@@ -76,15 +76,9 @@ const Text = styled.p`
   font-weight: 600;
 `;
 
-const StyledConnectButton = styled(BaseButton)`
-  background: ${({ theme }) => theme.brandedGradient};
-  border: none;
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 16px;
+const StyledConnectButton = styled(ThemeButton)`
   width: 200px;
   line-height: 18px;
-  font-weight: 800;
   border: 2px solid ${({ theme }) => (theme.white)};
   :hover,
   :focus {
@@ -183,7 +177,7 @@ function Web3StatusInner() {
       onKeyPress={(e) => e.key === 'Enter' && handleWalletDropdownClick()}
       onClick={handleWalletDropdownClick}
     >
-      <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet">
+      <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet" size={ButtonSize.small}>
         <Trans>Connect Wallet</Trans>
       </StyledConnectButton>
     </Web3StatusConnectWrapper>

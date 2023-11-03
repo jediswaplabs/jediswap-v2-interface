@@ -60,8 +60,9 @@ const MobileBottomBar = styled.div`
 
 const HeaderWrapper = styled.div<{ transparent?: boolean; bannerIsVisible?: boolean; scrollY: number }>`
   ${flexRowNoWrap};
-  background-color: ${({ theme, transparent }) => !transparent && theme.surface1};
+  background-color: transparent;
   border-bottom: ${({ theme }) => `1px solid ${theme.surface3}`};
+  backdrop-filter: ${({ theme, transparent }) => (!transparent ? 'blur(38px)' : 'none')};
   width: 100%;
   justify-content: space-between;
   position: fixed;

@@ -44,7 +44,7 @@ export const ThemedText = {
     return <TextWrapper fontWeight={400} fontSize={14} color="neutral2" {...props} />;
   },
   LabelMicro(props: TextProps) {
-    return <TextWrapper fontWeight={400} fontSize={12} color="neutral2" {...props} />;
+    return <TextWrapper fontWeight={400} fontSize={12} color="neutral1" {...props} />;
   },
   Caption(props: TextProps) {
     return <TextWrapper fontWeight={400} fontSize={12} lineHeight="16px" color="neutral1" {...props} />;
