@@ -1,4 +1,3 @@
-import { BrowserEvent, InterfaceElementName, SharedEventName } from '@uniswap/analytics-events';
 import { useAtomValue } from 'jotai/utils';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -39,7 +38,7 @@ export default function Tokens({ account }: { account: string }) {
     return <PortfolioSkeleton />;
   }
 
-  if (tokenBalances?.length === 0) {
+  if (!tokenBalances?.length) {
     // TODO: consider launching moonpay here instead of just closing the drawer
     return <EmptyWalletModule type="token" onNavigateClick={toggleWalletDrawer} />;
   }
@@ -60,7 +59,7 @@ export default function Tokens({ account }: { account: string }) {
   );
 }
 
-const TokenBalanceText = styled(ThemedText.BodySecondary)`
+const TokenBalanceText = styled(ThemedText.BodySmall)`
   ${EllipsisStyle}
 `;
 const TokenNameText = styled(ThemedText.SubHeader)`
@@ -92,42 +91,35 @@ function TokenRow({ token, quantity, denominatedValue, tokenProjectMarket }: Tok
     return null;
   }
   return (
-    <TraceEvent
-      events={[BrowserEvent.onClick]}
-      name={SharedEventName.ELEMENT_CLICKED}
-      element={InterfaceElementName.MINI_PORTFOLIO_TOKEN_ROW}
-      properties={{ chain_id: currency.chainId, token_name: token?.name, address: token?.address }}
-    >
-      <PortfolioRow
-        left={<PortfolioLogo chainId={currency.chainId} currencies={[currency]} size="40px" />}
-        title={<TokenNameText>{token?.name}</TokenNameText>}
-        descriptor={(
-          <TokenBalanceText>
-            {formatNumber({
-              input: quantity,
-              type: NumberType.TokenNonTx,
-            })}{' '}
-            {token?.symbol}
-          </TokenBalanceText>
-        )}
-        onClick={navigateToTokenDetails}
-        right={
-          denominatedValue && (
-            <>
-              <ThemedText.SubHeader>
-                {formatNumber({
-                  input: denominatedValue?.value,
-                  type: NumberType.PortfolioBalance,
-                })}
-              </ThemedText.SubHeader>
-              <Row justify="flex-end">
-                <DeltaArrow delta={percentChange} />
-                <ThemedText.BodySecondary>{formatDelta(percentChange)}</ThemedText.BodySecondary>
-              </Row>
-            </>
-          )
-        }
-      />
-    </TraceEvent>
+    <PortfolioRow
+      left={<PortfolioLogo chainId={currency.chainId} currencies={[currency]} size="40px" />}
+      title={<TokenNameText>{token?.name}</TokenNameText>}
+      descriptor={(
+        <TokenBalanceText>
+          {formatNumber({
+            input: quantity,
+            type: NumberType.TokenNonTx,
+          })}{' '}
+          {token?.symbol}
+        </TokenBalanceText>
+      )}
+      onClick={navigateToTokenDetails}
+      right={
+        denominatedValue && (
+          <>
+            <ThemedText.BodySmall>
+              {formatNumber({
+                input: denominatedValue?.value,
+                type: NumberType.PortfolioBalance,
+              })}
+            </ThemedText.BodySmall>
+            <Row justify="flex-end">
+              <DeltaArrow delta={percentChange} />
+              <ThemedText.BodySmall color="neutral2">{formatDelta(percentChange)}</ThemedText.BodySmall>
+            </Row>
+          </>
+        )
+      }
+    />
   );
 }

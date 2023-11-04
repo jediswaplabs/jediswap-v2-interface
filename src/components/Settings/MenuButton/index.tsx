@@ -12,11 +12,9 @@ import { useFormatter } from 'utils/formatNumbers';
 import validateUserSlippageTolerance, { SlippageValidationResult } from 'utils/validateUserSlippageTolerance';
 
 const Icon = styled(Settings)`
+  color: ${({ theme }) => theme.neutral1};
   height: 40px;
   width: 40px;
-  > * {
-    fill: ${({ theme }) => theme.neutral1};
-  }
 `;
 
 const Button = styled.button<{ isActive: boolean }>`

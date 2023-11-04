@@ -28,7 +28,7 @@ export default function SwapHeader({ autoSlippage,
   return (
     <StyledSwapHeader>
       <HeaderButtonContainer>
-        <ThemedText.SubHeader>
+        <ThemedText.SubHeader fontSize={'24px'} fontWeight={700}>
           <Trans>SWAP</Trans>
         </ThemedText.SubHeader>
         <SwapBuyFiatButton />

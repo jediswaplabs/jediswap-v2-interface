@@ -1,10 +1,10 @@
-import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react'
-import { Icon } from 'react-feather'
-import styled, { css, DefaultTheme } from 'styled-components'
-import useResizeObserver from 'use-resize-observer'
+import React, { forwardRef, useCallback, useEffect, useRef, useState } from 'react';
+import { Icon } from 'react-feather';
+import styled, { css, DefaultTheme } from 'styled-components';
+import useResizeObserver from 'use-resize-observer';
 
-import { TRANSITION_DURATIONS } from '../../theme/styles'
-import Row from '../Row'
+import { TRANSITION_DURATIONS } from '../../theme/styles';
+import Row from '../Row';
 
 export const IconHoverText = styled.span`
   color: ${({ theme }) => theme.neutral1};
@@ -16,13 +16,12 @@ export const IconHoverText = styled.span`
   font-size: 12px;
   padding: 5px;
   left: 10px;
-`
+`;
 
-const getWidthTransition = ({ theme }: { theme: DefaultTheme }) =>
-  `width ${theme.transition.timing.inOut} ${theme.transition.duration.fast}`
+const getWidthTransition = ({ theme }: { theme: DefaultTheme }) => `width ${theme.transition.timing.inOut} ${theme.transition.duration.fast}`;
 
 const IconStyles = css<{ hideHorizontal?: boolean }>`
-  background-color: ${({ theme }) => theme.surface1};
+  background: transparent;
   transition: ${getWidthTransition};
   border-radius: 12px;
   display: flex;
@@ -32,34 +31,18 @@ const IconStyles = css<{ hideHorizontal?: boolean }>`
   overflow: hidden;
   height: 32px;
   width: ${({ hideHorizontal }) => (hideHorizontal ? '0px' : '32px')};
-  color: ${({ theme }) => theme.neutral2};
-  :hover {
-    background-color: ${({ theme }) => theme.surface2};
-    transition: ${({
-      theme: {
-        transition: { duration, timing },
-      },
-    }) => `${duration.fast} background-color ${timing.in}, ${getWidthTransition}`};
-
-    ${IconHoverText} {
-      opacity: 1;
-    }
-  }
-  :active {
-    background-color: ${({ theme }) => theme.surface1};
-    transition: background-color ${({ theme }) => theme.transition.duration.fast} linear, ${getWidthTransition};
-  }
-`
+  color: ${({ theme }) => theme.neutral1};
+`;
 
 const IconBlockLink = styled.a`
   ${IconStyles};
-`
+`;
 
 const IconBlockButton = styled.button`
   ${IconStyles};
   border: none;
   outline: none;
-`
+`;
 
 const IconWrapper = styled.span`
   width: 24px;
@@ -68,7 +51,7 @@ const IconWrapper = styled.span`
   display: flex;
   align-items: center;
   justify-content: center;
-`
+`;
 interface BaseProps {
   Icon: Icon
   hideHorizontal?: boolean
@@ -80,14 +63,14 @@ interface IconButtonProps extends React.ComponentPropsWithoutRef<'button'>, Base
 
 type IconBlockProps = React.ComponentPropsWithoutRef<'a' | 'button'>
 
-const IconBlock = forwardRef<HTMLAnchorElement | HTMLDivElement, IconBlockProps>(function IconBlock(props, ref) {
+const IconBlock = forwardRef<HTMLAnchorElement | HTMLDivElement, IconBlockProps>((props, ref) => {
   if ('href' in props) {
-    return <IconBlockLink ref={ref as React.ForwardedRef<HTMLAnchorElement>} {...props} />
+    return <IconBlockLink ref={ref as React.ForwardedRef<HTMLAnchorElement>} {...props} />;
   }
   // ignoring 'button' 'type' conflict between React and styled-components
   // @ts-ignore
-  return <IconBlockButton ref={ref} {...props} />
-})
+  return <IconBlockButton ref={ref} {...props} />;
+});
 
 const IconButton = ({ Icon, ...rest }: IconButtonProps | IconLinkProps) => (
   <IconBlock {...rest}>
@@ -95,7 +78,7 @@ const IconButton = ({ Icon, ...rest }: IconButtonProps | IconLinkProps) => (
       <Icon size={24} />
     </IconWrapper>
   </IconBlock>
-)
+);
 
 type IconWithTextProps = (IconButtonProps | IconLinkProps) & {
   text: string
@@ -111,100 +94,98 @@ const TextWrapper = styled.div`
   overflow: hidden;
   min-width: min-content;
   font-weight: 485;
-`
+`;
 
 const TextHide = styled.div`
   overflow: hidden;
   transition: width ${({ theme }) => theme.transition.timing.inOut} ${({ theme }) => theme.transition.duration.fast},
     max-width ${({ theme }) => theme.transition.timing.inOut} ${({ theme }) => theme.transition.duration.fast};
-`
+`;
 
 /**
  * Allows for hiding and showing some text next to an IconButton
  * Note that for width transitions to animate in CSS we need to always specify the width (no auto)
  * so there's resize observing and measuring going on here.
  */
-export const IconWithConfirmTextButton = ({
-  Icon,
+export const IconWithConfirmTextButton = ({ Icon,
   text,
   onConfirm,
   onShowConfirm,
   onClick,
   dismissOnHoverOut,
   dismissOnHoverDurationMs = TRANSITION_DURATIONS.slow,
-  ...rest
-}: IconWithTextProps) => {
-  const [showText, setShowTextWithoutCallback] = useState(false)
-  const [frame, setFrame] = useState<HTMLElement | null>()
-  const frameObserver = useResizeObserver<HTMLElement>()
-  const hiddenObserver = useResizeObserver<HTMLElement>()
+  ...rest }: IconWithTextProps) => {
+  const [showText, setShowTextWithoutCallback] = useState(false);
+  const [frame, setFrame] = useState<HTMLElement | null>();
+  const frameObserver = useResizeObserver<HTMLElement>();
+  const hiddenObserver = useResizeObserver<HTMLElement>();
 
   const setShowText = useCallback(
     (val: boolean) => {
-      setShowTextWithoutCallback(val)
-      onShowConfirm?.(val)
+      setShowTextWithoutCallback(val);
+      onShowConfirm?.(val);
     },
-    [onShowConfirm]
-  )
+    [onShowConfirm],
+  );
 
   const dimensionsRef = useRef({
     frame: 0,
     innerText: 0,
-  })
+  });
   const dimensions = (() => {
     // once opened, we avoid updating it to prevent constant resize loop
     if (!showText) {
       dimensionsRef.current = {
         frame: frameObserver.width || 0,
         innerText: hiddenObserver.width || 0,
-      }
+      };
     }
-    return dimensionsRef.current
-  })()
+    return dimensionsRef.current;
+  })();
 
   // keyboard action to cancel
   useEffect(() => {
-    if (typeof window === 'undefined') return
-    if (!showText || !frame) return
+    if (typeof window === 'undefined') { return; }
+    if (!showText || !frame) { return; }
 
     const closeAndPrevent = (e: Event) => {
-      setShowText(false)
-      e.preventDefault()
-      e.stopPropagation()
-    }
+      setShowText(false);
+      e.preventDefault();
+      e.stopPropagation();
+    };
 
     const clickHandler = (e: MouseEvent) => {
-      const { target } = e
-      const shouldClose = !(target instanceof HTMLElement) || !frame.contains(target)
+      const { target } = e;
+      const shouldClose = !(target instanceof HTMLElement) || !frame.contains(target);
       if (shouldClose) {
-        closeAndPrevent(e)
+        closeAndPrevent(e);
       }
-    }
+    };
 
     const keyHandler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        closeAndPrevent(e)
+        closeAndPrevent(e);
       }
-    }
+    };
 
-    window.addEventListener('click', clickHandler, { capture: true })
-    window.addEventListener('keydown', keyHandler, { capture: true })
+    window.addEventListener('click', clickHandler, { capture: true });
+    window.addEventListener('keydown', keyHandler, { capture: true });
 
     return () => {
-      window.removeEventListener('click', clickHandler, { capture: true })
-      window.removeEventListener('keydown', keyHandler, { capture: true })
-    }
-  }, [frame, setShowText, showText])
+      window.removeEventListener('click', clickHandler, { capture: true });
+      window.removeEventListener('keydown', keyHandler, { capture: true });
+    };
+  }, [frame, setShowText, showText]);
 
-  const xPad = showText ? 8 : 0
-  const width = showText ? dimensions.frame + dimensions.innerText + xPad : 32
-  const mouseLeaveTimeout = useRef<NodeJS.Timeout>()
+  const xPad = showText ? 8 : 0;
+  const width = showText ? dimensions.frame + dimensions.innerText + xPad : 32;
+  const mouseLeaveTimeout = useRef<NodeJS.Timeout>();
 
   return (
     <IconBlock
       ref={(node) => {
-        frameObserver.ref(node)
-        setFrame(node)
+        frameObserver.ref(node);
+        setFrame(node);
       }}
       {...rest}
       style={{
@@ -216,21 +197,21 @@ export const IconWithConfirmTextButton = ({
       // even manually typing this all out more specifically it still gets mad about any casting for some reason
       onClick={(e: MouseEvent<HTMLAnchorElement>) => {
         if (showText) {
-          onConfirm?.()
+          onConfirm?.();
         } else {
-          onClick?.(e)
-          setShowText(!showText)
+          onClick?.(e);
+          setShowText(!showText);
         }
       }}
       {...(dismissOnHoverOut && {
         onMouseLeave() {
           mouseLeaveTimeout.current = setTimeout(() => {
-            setShowText(false)
-          }, dismissOnHoverDurationMs)
+            setShowText(false);
+          }, dismissOnHoverDurationMs);
         },
         onMouseEnter() {
           if (mouseLeaveTimeout.current) {
-            clearTimeout(mouseLeaveTimeout.current)
+            clearTimeout(mouseLeaveTimeout.current);
           }
         },
       })}
@@ -246,7 +227,7 @@ export const IconWithConfirmTextButton = ({
             maxWidth: showText ? dimensions.innerText : 0,
             width: showText ? dimensions.innerText : 0,
             // this negative transform offsets for the shift it does due to being 0 width
-            transform: showText ? undefined : `translateX(-8px)`,
+            transform: showText ? undefined : 'translateX(-8px)',
             minWidth: showText ? dimensions.innerText : 0,
           }}
         >
@@ -254,7 +235,7 @@ export const IconWithConfirmTextButton = ({
         </TextHide>
       </Row>
     </IconBlock>
-  )
-}
+  );
+};
 
-export default IconButton
+export default IconButton;
