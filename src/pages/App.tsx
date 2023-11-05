@@ -14,7 +14,6 @@ import { useAppSelector } from 'state/hooks';
 import { AppState } from 'state/reducer';
 import { RouterPreference } from 'state/routing/types';
 import { useRouterPreference, useUserOptedOutOfUniswapX } from 'state/user/hooks';
-import { useIsDarkMode } from 'theme/components/ThemeToggle';
 import { flexRowNoWrap } from 'theme/styles';
 import { Z_INDEX } from 'theme/zIndex';
 import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions';

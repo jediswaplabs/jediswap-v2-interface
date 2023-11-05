@@ -2,10 +2,9 @@ import React, { useMemo } from 'react';
 import { createGlobalStyle, css, ThemeProvider as StyledComponentsThemeProvider } from 'styled-components';
 
 import { rootCssString } from 'nft/css/cssStringFromTheme';
-import { useIsDarkMode } from 'theme/components/ThemeToggle';
 import { navDimensions } from '../nft/css/sprinkles.css';
-import { darkTheme, lightTheme } from './colors';
-import { darkDeprecatedTheme, lightDeprecatedTheme } from './deprecatedColors';
+import { darkTheme } from './colors';
+import { darkDeprecatedTheme } from './deprecatedColors';
 
 export const MEDIA_WIDTHS = {
   deprecated_upToExtraSmall: 500,
@@ -16,7 +15,7 @@ export const MEDIA_WIDTHS = {
 
 const MAX_CONTENT_WIDTH = '1200px';
 
-const deprecated_mediaWidthTemplates: { [width in keyof typeof MEDIA_WIDTHS]: typeof css } = Object.keys(
+const deprecatedMediaWidthTemplates: { [width in keyof typeof MEDIA_WIDTHS]: typeof css } = Object.keys(
   MEDIA_WIDTHS,
 ).reduce((acc, size) => {
   acc[size] = (a: any, b: any, c: any) => css`
@@ -72,16 +71,16 @@ const gapValues = {
 };
 export type Gap = keyof typeof gapValues
 
-function getSettings(darkMode: boolean) {
+function getSettings() {
   return {
     grids: gapValues,
     fonts,
 
     // shadows
-    shadow1: darkMode ? '#000' : '#2F80ED',
+    shadow1: '#000',
 
     // media queries
-    deprecated_mediaWidth: deprecated_mediaWidthTemplates,
+    deprecated_mediaWidth: deprecatedMediaWidthTemplates,
 
     navHeight: navDimensions.height,
     navVerticalPad: navDimensions.verticalPad,
@@ -97,18 +96,17 @@ function getSettings(darkMode: boolean) {
 }
 
 // eslint-disable-next-line import/no-unused-modules -- used in styled.d.ts
-export function getTheme(darkMode: boolean) {
+export function getTheme() {
   return {
-    darkMode,
-    ...(darkMode ? darkTheme : lightTheme),
-    ...(darkMode ? darkDeprecatedTheme : lightDeprecatedTheme),
-    ...getSettings(darkMode),
+    darkMode: true,
+    ...(darkTheme),
+    ...(darkDeprecatedTheme),
+    ...getSettings(),
   };
 }
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const darkMode = useIsDarkMode();
-  const themeObject = useMemo(() => getTheme(darkMode), [darkMode]);
+  const themeObject = getTheme();
   return <StyledComponentsThemeProvider theme={themeObject}>{children}</StyledComponentsThemeProvider>;
 }
 
@@ -157,10 +155,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
     background-repeat: no-repeat;
     background-size: cover;
   }
-  // a {
-  //   color: ${({ theme }) => theme.accent1}; 
-  // }
-
+  
   :root {
     ${({ theme }) => rootCssString(theme.darkMode)}
   }

@@ -1,21 +1,18 @@
-import { BrowserEvent, SharedEventName } from '@uniswap/analytics-events'
-import { TraceEvent } from 'analytics'
-import { Link } from 'react-router-dom'
-import styled, { DefaultTheme } from 'styled-components'
-import { BREAKPOINTS } from 'theme'
-import { useIsDarkMode } from 'theme/components/ThemeToggle'
+import { BrowserEvent, SharedEventName } from '@uniswap/analytics-events';
+import { Link } from 'react-router-dom';
+import styled, { DefaultTheme } from 'styled-components';
+
+import { TraceEvent } from 'analytics';
+import { BREAKPOINTS } from 'theme';
 
 export enum CardType {
   Primary = 'Primary',
   Secondary = 'Secondary',
 }
 
-const StyledCard = styled.div<{ $isDarkMode: boolean; $backgroundImgSrc?: string; $type: CardType }>`
+const StyledCard = styled.div<{ $backgroundImgSrc?: string; $type: CardType }>`
   display: flex;
-  background: ${({ $isDarkMode, $backgroundImgSrc, $type, theme }) =>
-    $isDarkMode
-      ? `${theme.surface2} ${$backgroundImgSrc ? ` url(${$backgroundImgSrc})` : ''}`
-      : `${$type === CardType.Primary ? 'white' : theme.surface2} url(${$backgroundImgSrc})`};
+  background: ${({ $backgroundImgSrc, theme }) => `${theme.surface2} ${$backgroundImgSrc ? ` url(${$backgroundImgSrc})` : ''}`};
   background-size: auto 100%;
   background-position: right;
   background-repeat: no-repeat;
@@ -31,22 +28,19 @@ const StyledCard = styled.div<{ $isDarkMode: boolean; $backgroundImgSrc?: string
   border: 1px solid ${({ theme, $type }) => ($type === CardType.Primary ? 'transparent' : theme.surface3)};
   transition: ${({ theme }) => `${theme.transition.duration.medium} ${theme.transition.timing.ease} border`};
 
-  &:hover {
-    border: 1px solid ${({ theme, $isDarkMode }) => ($isDarkMode ? theme.surface3 : theme.neutral3)};
-  }
   @media screen and (min-width: ${BREAKPOINTS.sm}px) {
     height: ${({ $backgroundImgSrc }) => ($backgroundImgSrc ? 360 : 260)}px;
   }
   @media screen and (min-width: ${BREAKPOINTS.xl}px) {
     padding: 32px;
   }
-`
+}`;
 
 const TitleRow = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-`
+`;
 
 const CardTitle = styled.div`
   font-size: 20px;
@@ -57,16 +51,16 @@ const CardTitle = styled.div`
     font-size: 28px;
     line-height: 36px;
   }
-`
+`;
 
 const getCardDescriptionColor = (type: CardType, theme: DefaultTheme) => {
   switch (type) {
     case CardType.Secondary:
-      return theme.neutral2
+      return theme.neutral2;
     default:
-      return theme.neutral1
+      return theme.neutral1;
   }
-}
+};
 
 const CardDescription = styled.div<{ type: CardType }>`
   display: flex;
@@ -82,7 +76,7 @@ const CardDescription = styled.div<{ type: CardType }>`
     line-height: 28px;
     max-width: 480px;
   }
-`
+`;
 
 const CardCTA = styled(CardDescription)`
   color: ${({ theme }) => theme.accent1};
@@ -95,10 +89,9 @@ const CardCTA = styled(CardDescription)`
   &:hover {
     opacity: 0.6;
   }
-`
+`;
 
-const Card = ({
-  type = CardType.Primary,
+const Card = ({ type = CardType.Primary,
   title,
   description,
   cta,
@@ -106,8 +99,7 @@ const Card = ({
   external,
   backgroundImgSrc,
   icon,
-  elementName,
-}: {
+  elementName }: {
   type?: CardType
   title: string
   description: string
@@ -117,31 +109,27 @@ const Card = ({
   backgroundImgSrc?: string
   icon?: React.ReactNode
   elementName?: string
-}) => {
-  const isDarkMode = useIsDarkMode()
-  return (
-    <TraceEvent events={[BrowserEvent.onClick]} name={SharedEventName.ELEMENT_CLICKED} element={elementName}>
-      <StyledCard
-        as={external ? 'a' : Link}
-        to={external ? undefined : to}
-        href={external ? to : undefined}
-        target={external ? '_blank' : undefined}
-        rel={external ? 'noopenener noreferrer' : undefined}
-        $backgroundImgSrc={backgroundImgSrc}
-        $isDarkMode={isDarkMode}
-        $type={type}
-      >
-        <TitleRow>
-          <CardTitle>{title}</CardTitle>
-          {icon}
-        </TitleRow>
-        <CardDescription type={type}>
-          {description}
-          <CardCTA type={type}>{cta}</CardCTA>
-        </CardDescription>
-      </StyledCard>
-    </TraceEvent>
-  )
-}
+}) => (
+  <TraceEvent events={[BrowserEvent.onClick]} name={SharedEventName.ELEMENT_CLICKED} element={elementName}>
+    <StyledCard
+      as={external ? 'a' : Link}
+      to={external ? undefined : to}
+      href={external ? to : undefined}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noopenener noreferrer' : undefined}
+      $backgroundImgSrc={backgroundImgSrc}
+      $type={type}
+    >
+      <TitleRow>
+        <CardTitle>{title}</CardTitle>
+        {icon}
+      </TitleRow>
+      <CardDescription type={type}>
+        {description}
+        <CardCTA type={type}>{cta}</CardCTA>
+      </CardDescription>
+    </StyledCard>
+  </TraceEvent>
+);
 
-export default Card
+export default Card;

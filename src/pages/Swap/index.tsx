@@ -62,7 +62,6 @@ import { maxAmountSpend } from 'utils/maxAmountSpend';
 import { computeRealizedPriceImpact, warningSeverity } from 'utils/prices';
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage';
 import { useScreenSize } from '../../hooks/useScreenSize';
-import { useIsDarkMode } from '../../theme/components/ThemeToggle';
 import { OutputTaxTooltipBody } from './TaxTooltipBody';
 
 export const ArrowContainer = styled.div`
@@ -546,14 +545,9 @@ export function Swap({ className,
   );
 
   const inputCurrency = currencies[Field.INPUT] ?? undefined;
-  const switchChain = useSwitchChain();
-  const switchingChain = useAppSelector((st) => st.wallets.switchingChain);
-  const showOptInSmall = !useScreenSize().navSearchInputVisible;
-  const isDark = useIsDarkMode();
-  const isUniswapXDefaultEnabled = useUniswapXDefaultEnabled();
 
   const swapElement = (
-    <SwapWrapper isDark={isDark} className={className} id="swap-page">
+    <SwapWrapper className={className} id="swap-page">
       <TokenSafetyModal
         isOpen={importTokensNotInDefault.length > 0 && !dismissTokenWarning}
         tokenAddress={importTokensNotInDefault[0]?.address}

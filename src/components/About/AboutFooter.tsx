@@ -1,14 +1,13 @@
-import { BrowserEvent, InterfaceElementName, SharedEventName } from '@uniswap/analytics-events'
-import { TraceEvent } from 'analytics'
-import { useDisableNFTRoutes } from 'hooks/useDisableNFTRoutes'
-import styled from 'styled-components'
-import { BREAKPOINTS } from 'theme'
-import { ExternalLink, StyledRouterLink } from 'theme/components'
-import { useIsDarkMode } from 'theme/components/ThemeToggle'
+import { BrowserEvent, InterfaceElementName, SharedEventName } from '@uniswap/analytics-events';
+import styled from 'styled-components';
 
-import { DiscordIcon, GithubIcon, TwitterIcon } from './Icons'
-import darkUnicornImgSrc from './images/unicornEmbossDark.png'
-import lightUnicornImgSrc from './images/unicornEmbossLight.png'
+import { TraceEvent } from 'analytics';
+import { useDisableNFTRoutes } from 'hooks/useDisableNFTRoutes';
+import { BREAKPOINTS } from 'theme';
+import { ExternalLink, StyledRouterLink } from 'theme/components';
+import { DiscordIcon, GithubIcon, TwitterIcon } from './Icons';
+import darkUnicornImgSrc from './images/unicornEmbossDark.png';
+import lightUnicornImgSrc from './images/unicornEmbossLight.png';
 
 const Footer = styled.div`
   display: flex;
@@ -21,12 +20,12 @@ const Footer = styled.div`
     flex-direction: row;
     justify-content: space-between;
   }
-`
+`;
 
 const LogoSection = styled.div`
   display: flex;
   flex-direction: column;
-`
+`;
 
 const LogoSectionLeft = styled(LogoSection)`
   display: none;
@@ -34,7 +33,7 @@ const LogoSectionLeft = styled(LogoSection)`
   @media screen and (min-width: ${BREAKPOINTS.lg}px) {
     display: flex;
   }
-`
+`;
 
 const LogoSectionBottom = styled(LogoSection)`
   display: flex;
@@ -42,7 +41,7 @@ const LogoSectionBottom = styled(LogoSection)`
   @media screen and (min-width: ${BREAKPOINTS.lg}px) {
     display: none;
   }
-`
+`;
 
 const StyledLogo = styled.img`
   width: 72px;
@@ -52,18 +51,18 @@ const StyledLogo = styled.img`
   @media screen and (min-width: ${BREAKPOINTS.lg}px) {
     display: block;
   }
-`
+`;
 
 const SocialLinks = styled.div`
   display: flex;
   align-items: center;
   gap: 20px;
   margin: 20px 0 0 0;
-`
+`;
 
 const SocialLink = styled.a`
   display: flex;
-`
+`;
 
 const FooterLinks = styled.div`
   display: grid;
@@ -73,7 +72,7 @@ const FooterLinks = styled.div`
     grid-template-columns: 1fr 1fr 1fr 1fr;
     gap: 24px;
   }
-`
+`;
 
 const LinkGroup = styled.div`
   display: flex;
@@ -84,62 +83,59 @@ const LinkGroup = styled.div`
   @media screen and (min-width: ${BREAKPOINTS.xl}px) {
     margin: 0;
   }
-`
+`;
 
 const LinkGroupTitle = styled.span`
   font-size: 16px;
   line-height: 20px;
   font-weight: 535;
-`
+`;
 
 const ExternalTextLink = styled(ExternalLink)`
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => theme.neutral2};
-`
+`;
 
 const TextLink = styled(StyledRouterLink)`
   font-size: 16px;
   line-height: 20px;
   color: ${({ theme }) => theme.neutral2};
-`
+`;
 
 const Copyright = styled.span`
   font-size: 16px;
   line-height: 20px;
   margin: 1rem 0 0 0;
   color: ${({ theme }) => theme.neutral3};
-`
+`;
 
-const LogoSectionContent = () => {
-  const isDarkMode = useIsDarkMode()
-  return (
-    <>
-      <StyledLogo src={isDarkMode ? darkUnicornImgSrc : lightUnicornImgSrc} alt="Uniswap Logo" />
-      <SocialLinks>
-        <SocialLink href="https://discord.gg/FCfyBSbCU5" target="_blank" rel="noopener noreferrer">
-          <DiscordIcon size={32} />
+const LogoSectionContent = () => (
+  <>
+    <StyledLogo src={darkUnicornImgSrc} alt="Uniswap Logo" />
+    <SocialLinks>
+      <SocialLink href="https://discord.gg/FCfyBSbCU5" target="_blank" rel="noopener noreferrer">
+        <DiscordIcon size={32} />
+      </SocialLink>
+      <TraceEvent
+        events={[BrowserEvent.onClick]}
+        name={SharedEventName.ELEMENT_CLICKED}
+        element={InterfaceElementName.TWITTER_LINK}
+      >
+        <SocialLink href="https://twitter.com/uniswap" target="_blank" rel="noopener noreferrer">
+          <TwitterIcon size={32} />
         </SocialLink>
-        <TraceEvent
-          events={[BrowserEvent.onClick]}
-          name={SharedEventName.ELEMENT_CLICKED}
-          element={InterfaceElementName.TWITTER_LINK}
-        >
-          <SocialLink href="https://twitter.com/uniswap" target="_blank" rel="noopener noreferrer">
-            <TwitterIcon size={32} />
-          </SocialLink>
-        </TraceEvent>
-        <SocialLink href="https://github.com/Uniswap" target="_blank" rel="noopener noreferrer">
-          <GithubIcon size={32} />
-        </SocialLink>
-      </SocialLinks>
-      <Copyright>© {new Date().getFullYear()} Uniswap Labs</Copyright>
-    </>
-  )
-}
+      </TraceEvent>
+      <SocialLink href="https://github.com/Uniswap" target="_blank" rel="noopener noreferrer">
+        <GithubIcon size={32} />
+      </SocialLink>
+    </SocialLinks>
+    <Copyright>© {new Date().getFullYear()} Uniswap Labs</Copyright>
+  </>
+);
 
 export const AboutFooter = () => {
-  const shouldDisableNFTRoutes = useDisableNFTRoutes()
+  const shouldDisableNFTRoutes = useDisableNFTRoutes();
   return (
     <Footer>
       <LogoSectionLeft>
@@ -206,5 +202,5 @@ export const AboutFooter = () => {
         <LogoSectionContent />
       </LogoSectionBottom>
     </Footer>
-  )
-}
+  );
+};

@@ -4,7 +4,6 @@ import { AlertTriangle } from 'react-feather';
 import styled, { css } from 'styled-components';
 
 import { Z_INDEX } from 'theme/zIndex';
-import { useIsDarkMode } from '../../theme/components/ThemeToggle';
 import { AutoColumn } from '../Column';
 
 export const PageWrapper = styled.div`
@@ -22,7 +21,7 @@ export const PageWrapper = styled.div`
 `;
 
 // Mostly copied from `AppBody` but it was getting too hard to maintain backwards compatibility.
-const SwapWrapperOuter = styled.main<{ isDark?: boolean }>`
+const SwapWrapperOuter = styled.main`
   position: relative;
   z-index: ${Z_INDEX.default};
   transition: transform 250ms ease;

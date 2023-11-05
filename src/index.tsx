@@ -15,7 +15,6 @@ import { MulticallUpdater } from 'lib/state/multicall';
 import { BlockNumberProvider } from 'lib/hooks/useBlockNumber';
 import { apolloClient } from 'graphql/data/apollo';
 import { FeatureFlagsProvider } from 'featureFlags';
-import { SystemThemeUpdater, ThemeColorMetaUpdater } from 'theme/components/ThemeToggle';
 import Web3Provider from './components/Web3Provider';
 import { LanguageProvider } from './i18n';
 import App from './pages/App';
@@ -38,8 +37,6 @@ function Updaters() {
       </Helmet>
       <RadialGradientByChainUpdater />
       <ListsUpdater />
-      <SystemThemeUpdater />
-      <ThemeColorMetaUpdater />
       <ApplicationUpdater />
       <TransactionUpdater />
       <OrderUpdater />
