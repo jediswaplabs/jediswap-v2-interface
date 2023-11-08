@@ -9,7 +9,8 @@ import { useIsPoolsPage } from 'hooks/useIsPoolsPage';
 import { Row } from 'nft/components/Flex';
 import Logo from 'assets/jedi/logo.png';
 import MobileLogo from 'assets/jedi/squareLogo.png';
-import { Nav, LogoContainer, MobileLogoContainer, MenuContainer, StatusContainer, MenuItem, ActiveMenuItem, ExternalMenuItem } from './styled';
+import { Nav, LogoContainer, NetworkNameContainer, MenuContainer, StatusContainer, MenuItem, ActiveMenuItem, ExternalMenuItem } from './styled';
+import { NetworkName } from './NetworkName';
 
 const MenuItemLink = ({ to, dataTestId, id, isActive, children }) => {
   const Component = isActive ? ActiveMenuItem : MenuItem;
@@ -74,7 +75,10 @@ const Navbar = () => {
       </MenuContainer>
 
       <StatusContainer>
-        <Row gap="12">
+        <Row gap="16">
+          <NetworkNameContainer>
+            <NetworkName />
+          </NetworkNameContainer>
           <Web3Status />
         </Row>
       </StatusContainer>

@@ -108,3 +108,11 @@ export const ActiveMenuItem = styled(BaseMenuItem)`
 export const ExternalMenuItem = styled.a`
   ${baseLinkCss};
 `;
+
+export const NetworkNameContainer = styled.div`
+  display: none;
+
+  @media screen and (min-width: ${({ theme }) => theme.breakpoint.lg}px) {
+    display: flex;
+  }
+`;
