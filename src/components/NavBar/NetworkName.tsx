@@ -9,17 +9,16 @@ const ChainSelectorRow = styled.div`
   width: 162px;
   height: 38px;
   flex-shrink: 0;
-  margin-right: 16px;
 
   border-radius: 8px;
-  background: var(--Jedi-Navy-Blue, #141451);
+  background:  ${({ theme }) => theme.jediNavyBlue};;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
   // text content
-  color: var(--Jedi-White, #FFF);
+  color:  ${({ theme }) => theme.jediWhite};;
   text-align: center;
   font-feature-settings: 'clig' off, 'liga' off;
   font-family: Avenir LT Std;
@@ -31,8 +30,6 @@ const ChainSelectorRow = styled.div`
 
 export const NetworkName = () => {
   const { chainId, account } = useWeb3React();
-
-  const ref = useRef<HTMLDivElement>(null);
 
   const info = getChainInfo(chainId);
 
