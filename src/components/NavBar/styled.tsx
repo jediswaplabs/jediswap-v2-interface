@@ -31,7 +31,7 @@ export const LogoContainer = styled.div`
     display: none;
   }
 
-  @media screen and (min-width: ${({ theme }) => theme.breakpoint.md}px) {
+  @media screen and (min-width: ${({ theme }) => theme.breakpoint.lg}px) {
     img.mobile {
       display: none;
     }
@@ -45,8 +45,10 @@ export const MenuContainer = styled.div`
   display: none;
   align-items: center;
   justify-content: space-around;
+  margin: 0px 12px;
   
   @media screen and (min-width: ${({ theme }) => theme.breakpoint.md}px) {
+    margin: 0px;
     display: flex;
   }
 `;
@@ -80,6 +82,10 @@ export const StatusContainer = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 8px;
+  @media screen and (min-width: ${({ theme }) => theme.breakpoint.lg}px) {
+    gap: 16px;
+  }
 `;
 
 export const MenuItem = styled(BaseMenuItem)``;
