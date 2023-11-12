@@ -167,6 +167,7 @@ const commonTheme = {
   brandedGradient: 'linear-gradient(95.64deg, #29aafd 8.08%, #ff00e9 105.91%)',
   brandedGradientReversed: 'linear-gradient(95.64deg, #ff00e9 8.08%, #29aafd 105.91%)',
   promotionalGradient: 'linear-gradient(95.64deg, #ff00e9 8.08%, #29aafd 105.91%)',
+  bgdGradient: 'linear-gradient(180deg, #03001E 0%, #2C045C 46.35%, #930BD3 100%)',
 
   jediBlue,
   jediPink,
