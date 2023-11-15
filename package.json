@@ -130,7 +130,7 @@
     "jpeg-js": "^0.4.4",
     "lint-staged": "^14.0.0",
     "mini-css-extract-plugin": "^2.7.6",
-    "patch-package": "^7.0.0",
+    "patch-package": "^8.0.0",
     "path-browserify": "^1.0.1",
     "png-ts": "^0.0.3",
     "postinstall-postinstall": "^2.1.0",
