@@ -102,7 +102,7 @@ export function AddRemoveTabs({
           }}
           flex={children ? '1' : undefined}
         >
-          <StyledArrowLeft stroke={theme.neutral2} />
+          <StyledArrowLeft stroke={theme.jediWhite} />
         </StyledLink>
         <AddRemoveTitleText textAlign={children ? 'start' : 'center'}>
           {creating ? (

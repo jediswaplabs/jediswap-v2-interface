@@ -28,7 +28,7 @@ const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${flexColumnNoWrap};
   position: relative;
   border-radius: ${({ hideInput }) => (hideInput ? '16px' : '20px')};
-  background-color: ${({ theme, hideInput }) => (hideInput ? 'transparent' : theme.surface2)};
+  // background-color: ${({ theme, hideInput }) => (hideInput ? 'transparent' : theme.surface2)};
 
   z-index: 1;
   width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
@@ -37,10 +37,13 @@ const InputPanel = styled.div<{ hideInput?: boolean }>`
 `;
 
 const Container = styled.div<{ hideInput: boolean; disabled: boolean }>`
-  border-radius: ${({ hideInput }) => (hideInput ? '16px' : '20px')};
+  border-radius: ${({ hideInput }) => (hideInput ? '8px' : '8px')};
   border: 1px solid ${({ theme }) => theme.surface3};
-  background-color: ${({ theme }) => theme.surface2};
-  width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
+  // background-color: ${({ theme }) => theme.surface2};
+  background-color: rgba(196, 196, 196, 0.01);
+  // background-color: #3e1371;
+  box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.20) inset, 0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.30) inset, 0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.30) inset, 0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.30) inset;
+  width: ${({ hideInput }) => (hideInput ? '90%' : 'initial')};
   ${({ theme, hideInput, disabled }) => !disabled
     && `
     :focus,
@@ -58,7 +61,8 @@ const CurrencySelect = styled(ButtonGray)<{
   pointerEvents?: string
 }>`
   align-items: center;
-  background-color: ${({ selected, theme }) => (selected ? theme.surface1 : theme.accent1)};
+  // background-color: ${({ selected, theme }) => (selected ? theme.surface1 : theme.accent1)};
+  background-color: ${({theme}) => theme.jediNavyBlue};
   opacity: ${({ disabled }) => (!disabled ? 1 : 0.4)};
   box-shadow: ${({ theme }) => theme.deprecated_shallowShadow};
   color: ${({ selected, theme }) => (selected ? theme.neutral1 : theme.white)};
@@ -82,7 +86,7 @@ const InputRow = styled.div<{ selected: boolean }>`
   ${flexRowNoWrap};
   align-items: center;
   justify-content: space-between;
-  padding: ${({ selected }) => (selected ? ' 1rem 1rem 0.75rem 1rem' : '1rem 1rem 1rem 1rem')};
+  padding: ${({ selected }) => (selected ? ' 1rem 1rem 0.75rem 0' : '1rem 1rem 1rem 0')};
 `;
 
 const LabelRow = styled.div`
@@ -130,14 +134,14 @@ const StyledTokenName = styled.span<{ active?: boolean }>`
 
 const StyledBalanceMax = styled.button<{ disabled?: boolean }>`
   background-color: transparent;
-  background-color: ${({ theme }) => theme.accent2};
-  border: none;
-  border-radius: 12px;
-  color: ${({ theme }) => theme.accent1};
+  // background-color: ${({ theme }) => theme.accent2};
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: ${({ theme }) => theme.jediWhite};
   cursor: pointer;
   font-size: 11px;
   font-weight: 535;
-  margin-left: 0.25rem;
+  margin-right: 0.5rem;
   opacity: ${({ disabled }) => (!disabled ? 1 : 0.4)};
   padding: 4px 6px;
   pointer-events: ${({ disabled }) => (!disabled ? 'initial' : 'none')};
@@ -179,7 +183,8 @@ interface CurrencyInputPanelProps {
   disableNonToken?: boolean
   renderBalance?: (amount: CurrencyAmount<Currency>) => ReactNode
   locked?: boolean
-  loading?: boolean
+  loading?: boolean,
+  hideShadow?: boolean,
 }
 
 export default function CurrencyInputPanel({ value,
@@ -200,6 +205,7 @@ export default function CurrencyInputPanel({ value,
   hideInput = false,
   locked = false,
   loading = false,
+  hideShadow = false,
   ...rest }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const { account, chainId } = useWeb3React();
@@ -212,21 +218,15 @@ export default function CurrencyInputPanel({ value,
 
   const chainAllowed = isSupportedChain(chainId);
 
+  const containerStyles = {}
+  if (hideShadow) {
+    containerStyles.boxShadow = 'none'
+  }
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>
       {!locked && (
-        <Container hideInput={hideInput} disabled={!chainAllowed}>
+        <Container hideInput={hideInput} disabled={!chainAllowed} style={containerStyles}>
           <InputRow style={hideInput ? { padding: '0', borderRadius: '8px' } : {}} selected={!onCurrencySelect}>
-            {!hideInput && (
-              <StyledNumericalInput
-                className="token-amount-input"
-                value={value}
-                onUserInput={onUserInput}
-                disabled={!chainAllowed}
-                $loading={loading}
-              />
-            )}
-
             <StyledPrefetchBalancesWrapper shouldFetchOnAccountUpdate={modalOpen} $fullWidth={hideInput}>
               <CurrencySelect
                 disabled={!chainAllowed}
@@ -271,27 +271,24 @@ export default function CurrencyInputPanel({ value,
                 </Aligner>
               </CurrencySelect>
             </StyledPrefetchBalancesWrapper>
+            {!hideInput && (
+              <div>
+                <StyledNumericalInput
+                  className="token-amount-input"
+                  value={value}
+                  onUserInput={onUserInput}
+                  disabled={!chainAllowed}
+                  $loading={loading}
+                  style={{width: 'auto', textAlign: 'right'}}
+                />
+              </div>
+            )}
           </InputRow>
           {Boolean(!hideInput && !hideBalance && currency) && (
             <FiatRow>
               <RowBetween>
-                <LoadingOpacityContainer $loading={loading}>
-                  {fiatValue && <FiatValue fiatValue={fiatValue} />}
-                </LoadingOpacityContainer>
                 {account && (
                   <RowFixed style={{ height: '17px' }}>
-                    <ThemedText.DeprecatedBody
-                      onClick={onMax}
-                      color={theme.neutral3}
-                      fontWeight={535}
-                      fontSize={14}
-                      style={{ display: 'inline', cursor: 'pointer' }}
-                    >
-                      {Boolean(!hideBalance && currency && selectedCurrencyBalance)
-                          && (renderBalance?.(selectedCurrencyBalance as CurrencyAmount<Currency>) || (
-                            <Trans>Balance: {formatCurrencyAmount(selectedCurrencyBalance, 4)}</Trans>
-                          ))}
-                    </ThemedText.DeprecatedBody>
                     {Boolean(showMaxButton && selectedCurrencyBalance) && (
                       <TraceEvent
                         events={[BrowserEvent.onClick]}
@@ -303,8 +300,23 @@ export default function CurrencyInputPanel({ value,
                         </StyledBalanceMax>
                       </TraceEvent>
                     )}
+                    <ThemedText.DeprecatedBody
+                      onClick={onMax}
+                      color={theme.neutral3}
+                      fontWeight={535}
+                      fontSize={14}
+                      style={{ display: 'inline', cursor: 'pointer' }}
+                    >
+                      {Boolean(!hideBalance && currency && selectedCurrencyBalance)
+                          && (renderBalance?.(selectedCurrencyBalance as CurrencyAmount<Currency>) || (
+                            <Trans>Bal: {formatCurrencyAmount(selectedCurrencyBalance, 4)}</Trans>
+                          ))}
+                    </ThemedText.DeprecatedBody>
                   </RowFixed>
                 )}
+              <LoadingOpacityContainer $loading={loading}>
+                {fiatValue && <FiatValue fiatValue={fiatValue} />}
+              </LoadingOpacityContainer>
               </RowBetween>
             </FiatRow>
           )}

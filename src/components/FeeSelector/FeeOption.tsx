@@ -31,7 +31,7 @@ interface FeeOptionProps {
 
 export function FeeOption({ feeAmount, active, poolState, distributions, onClick }: FeeOptionProps) {
   return (
-    <ButtonRadioChecked active={active} onClick={onClick}>
+    <ButtonRadioChecked active={active} onClick={onClick} style={{ border: '1px solid #444', borderRadius: '8px'}}>
       <AutoColumn gap="sm" justify="flex-start">
         <AutoColumn justify="flex-start" gap="6px">
           <ResponsiveText>

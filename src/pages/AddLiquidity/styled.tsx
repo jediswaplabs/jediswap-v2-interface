@@ -13,6 +13,10 @@ export const ScrollablePage = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
+  border-radius: 8px;
+  background: rgba(196, 196, 196, 0.01);
+  box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.20) inset, 0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.30) inset, 0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.30) inset, 0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.30) inset, 0px 5.38841px 8.46749px -3.07909px #FFF inset, 0px 30.02111px 43.10724px -27.7118px rgba(255, 255, 255, 0.50) inset;
+  backdrop-filter: blur(38.48860168457031px);
 
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     margin: 0 auto;

@@ -618,6 +618,7 @@ function AddLiquidity() {
                           currency={currencies[Field.CURRENCY_A] ?? null}
                           id="add-liquidity-input-tokena"
                           showCommonBases
+                          hideShadow
                         />
 
                         <CurrencyInputPanel
@@ -632,6 +633,7 @@ function AddLiquidity() {
                           currency={currencies[Field.CURRENCY_B] ?? null}
                           id="add-liquidity-input-tokenb"
                           showCommonBases
+                          hideShadow
                         />
                       </RowBetween>
 
@@ -689,7 +691,20 @@ function AddLiquidity() {
                         </RowFixed>
                       )}
                     </RowBetween>
-
+                    <LiquidityChartRangeInput
+                          currencyA={baseCurrency ?? undefined}
+                          currencyB={quoteCurrency ?? undefined}
+                          feeAmount={feeAmount}
+                          ticksAtLimit={ticksAtLimit}
+                          price={
+                            price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined
+                          }
+                          priceLower={priceLower}
+                          priceUpper={priceUpper}
+                          onLeftRangeInput={onLeftRangeInput}
+                          onRightRangeInput={onRightRangeInput}
+                          interactive={!hasExistingPosition}
+                        />
                     <RangeSelector
                       priceLower={priceLower}
                       priceUpper={priceUpper}
@@ -756,20 +771,6 @@ function AddLiquidity() {
                             </Trans>
                           </AutoColumn>
                         )}
-                        <LiquidityChartRangeInput
-                          currencyA={baseCurrency ?? undefined}
-                          currencyB={quoteCurrency ?? undefined}
-                          feeAmount={feeAmount}
-                          ticksAtLimit={ticksAtLimit}
-                          price={
-                            price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined
-                          }
-                          priceLower={priceLower}
-                          priceUpper={priceUpper}
-                          onLeftRangeInput={onLeftRangeInput}
-                          onRightRangeInput={onRightRangeInput}
-                          interactive={!hasExistingPosition}
-                        />
                       </>
                     ) : (
                       <AutoColumn gap="md">

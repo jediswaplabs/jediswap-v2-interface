@@ -28,8 +28,7 @@ export const DarkCard = styled(Card)`
 `
 
 export const OutlineCard = styled(Card)`
-  border: 1px solid ${({ theme }) => theme.surface3};
-  background-color: ${({ theme }) => theme.surface2};
+  border: 1px solid ${({ theme }) => theme.jediGreyBorder};
 `
 
 export const YellowCard = styled(Card)`
