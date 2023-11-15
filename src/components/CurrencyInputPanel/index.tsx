@@ -218,10 +218,7 @@ export default function CurrencyInputPanel({ value,
 
   const chainAllowed = isSupportedChain(chainId);
 
-  const containerStyles = {}
-  if (hideShadow) {
-    containerStyles.boxShadow = 'none'
-  }
+  const containerStyles = hideShadow ? {boxShadow: 'none'} : {};
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>
       {!locked && (
