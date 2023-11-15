@@ -174,7 +174,7 @@
     "@opensea/seaport-js": "^1.2.0",
     "@popperjs/core": "^2.4.4",
     "@reach/dialog": "^0.10.3",
-    "@reach/portal": "^0.10.3",
+    "@reach/portal": "^0.18.0",
     "@reduxjs/toolkit": "^1.9.3",
     "@sentry/react": "^7.45.0",
     "@sentry/tracing": "^7.45.0",
