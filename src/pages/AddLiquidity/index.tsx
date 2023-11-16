@@ -28,7 +28,7 @@ import { ThemedText } from 'theme/components';
 import { addressesAreEquivalent } from 'utils/addressesAreEquivalent';
 import { WrongChainError } from 'utils/errors';
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonText } from '../../components/Button';
-import { BlueCard, OutlineCard, YellowCard } from '../../components/Card';
+import { BlueCard, LightCard, OutlineCard, YellowCard } from '../../components/Card';
 import { AutoColumn } from '../../components/Column';
 import CurrencyInputPanel from '../../components/CurrencyInputPanel';
 import FeeSelector from '../../components/FeeSelector';
@@ -797,16 +797,15 @@ function AddLiquidity() {
                             </ThemedText.DeprecatedBody>
                           </BlueCard>
                         )}
-                        <OutlineCard padding="12px">
+                        <LightCard padding="12px">
                           <StyledInput
                             className="start-price-input"
                             value={startPriceTypedValue}
                             onUserInput={onStartPriceInput}
                           />
-                        </OutlineCard>
+                        </LightCard>
                         <RowBetween
                           style={{
-                            backgroundColor: theme.surface1,
                             padding: '12px',
                             borderRadius: '12px',
                           }}

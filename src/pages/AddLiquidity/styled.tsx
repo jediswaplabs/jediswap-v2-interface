@@ -37,7 +37,6 @@ export const DynamicSection = styled(AutoColumn)<{ disabled?: boolean }>`
 `;
 
 export const StyledInput = styled(Input)`
-  background-color: ${({ theme }) => theme.surface1};
   text-align: left;
   font-size: 18px;
   width: 100%;

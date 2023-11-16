@@ -68,7 +68,7 @@ export const ThemedText = {
     return <TextWrapper fontWeight={400} fontSize="8px" lineHeight="12px" {...props} />;
   },
   DeprecatedMain(props: TextProps) {
-    return <TextWrapper fontWeight={400} color="neutral2" {...props} />;
+    return <TextWrapper fontWeight={400} color="white" {...props} />;
   },
   DeprecatedLink(props: TextProps) {
     return <TextWrapper fontWeight={400} color="accent1" {...props} />;
