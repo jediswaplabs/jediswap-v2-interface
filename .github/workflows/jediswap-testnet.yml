@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: testnet
+      url: https://testnet.e2.jediswap.xyz/
 
     steps:
       - name: Checkout
@@ -23,7 +24,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Build Project
-        run: yarn testnet-build
+        run: yarn build
         env:
           CI: false
           RELEASE_TYPE: 'TESTNET'
@@ -31,15 +32,15 @@ jobs:
       - name: Configure AWS
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets[format('AWS_ACCESS_KEY_ID_{0}', 'TESTNET')] }}
-          aws-secret-access-key: ${{ secrets[format('AWS_SECRET_ACCESS_KEY_{0}', 'TESTNET')] }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
       - name: Deploy app build to S3 bucket
-        run: aws s3 sync ./dist/ s3://$BUCKET_NAME
+        run: aws s3 sync ./build/ s3://$BUCKET_NAME
         env:
-          BUCKET_NAME: ${{ secrets[format('AWS_S3_BUCKET_NAME_{0}', 'TESTNET')] }}
+          BUCKET_NAME: ${{ secrets.AWS_S3_BUCKET_NAME }}
 
       - name: Run Cache Invalidation
         run: aws cloudfront create-invalidation --distribution-id $CDN_DISTRIBUTION_ID --paths /\*
         env:
-          CDN_DISTRIBUTION_ID: ${{ secrets[format('AWS_CDN_DISTRIBUTION_ID_{0}', 'TESTNET')] }}
+          CDN_DISTRIBUTION_ID: ${{ secrets.AWS_CDN_DISTRIBUTION_ID }}
