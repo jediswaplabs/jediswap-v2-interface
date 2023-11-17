@@ -152,7 +152,7 @@ export default function FeeSelector({
               {!feeAmount ? (
                 <>
                   <ThemedText.DeprecatedLabel>
-                    <Trans>Fee tier</Trans>
+                    <Trans>Select Fee tier</Trans>
                   </ThemedText.DeprecatedLabel>
                   <ThemedText.DeprecatedMain fontWeight={485} fontSize="12px" textAlign="left">
                     <Trans>The % you will earn in fees.</Trans>
@@ -163,7 +163,7 @@ export default function FeeSelector({
                   <ThemedText.DeprecatedLabel className="selected-fee-label">
                     <Trans>{FEE_AMOUNT_DETAIL[feeAmount].label}% fee tier</Trans>
                   </ThemedText.DeprecatedLabel>
-                  <Box style={{ width: 'fit-content', marginTop: '8px' }} className="selected-fee-percentage">
+                  <Box style={{ width: 'fit-content', marginTop: '8px', backgroundColor: '#444', borderRadius: '4px' }} className="selected-fee-percentage">
                     {distributions && (
                       <FeeTierPercentageBadge
                         distributions={distributions}

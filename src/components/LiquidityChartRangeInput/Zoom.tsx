@@ -7,7 +7,7 @@ import styled from 'styled-components'
 import { ZoomLevels } from './types'
 
 const Wrapper = styled.div<{ count: number }>`
-  display: grid;
+  display: none;
   grid-template-columns: repeat(${({ count }) => count.toString()}, 1fr);
   grid-gap: 6px;
 

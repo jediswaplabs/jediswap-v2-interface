@@ -28,7 +28,7 @@ import { ThemedText } from 'theme/components';
 import { addressesAreEquivalent } from 'utils/addressesAreEquivalent';
 import { WrongChainError } from 'utils/errors';
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonText } from '../../components/Button';
-import { BlueCard, OutlineCard, YellowCard } from '../../components/Card';
+import { BlueCard, LightCard, OutlineCard, YellowCard } from '../../components/Card';
 import { AutoColumn } from '../../components/Column';
 import CurrencyInputPanel from '../../components/CurrencyInputPanel';
 import FeeSelector from '../../components/FeeSelector';
@@ -618,6 +618,7 @@ function AddLiquidity() {
                           currency={currencies[Field.CURRENCY_A] ?? null}
                           id="add-liquidity-input-tokena"
                           showCommonBases
+                          hideShadow
                         />
 
                         <CurrencyInputPanel
@@ -632,6 +633,7 @@ function AddLiquidity() {
                           currency={currencies[Field.CURRENCY_B] ?? null}
                           id="add-liquidity-input-tokenb"
                           showCommonBases
+                          hideShadow
                         />
                       </RowBetween>
 
@@ -689,7 +691,20 @@ function AddLiquidity() {
                         </RowFixed>
                       )}
                     </RowBetween>
-
+                    <LiquidityChartRangeInput
+                          currencyA={baseCurrency ?? undefined}
+                          currencyB={quoteCurrency ?? undefined}
+                          feeAmount={feeAmount}
+                          ticksAtLimit={ticksAtLimit}
+                          price={
+                            price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined
+                          }
+                          priceLower={priceLower}
+                          priceUpper={priceUpper}
+                          onLeftRangeInput={onLeftRangeInput}
+                          onRightRangeInput={onRightRangeInput}
+                          interactive={!hasExistingPosition}
+                        />
                     <RangeSelector
                       priceLower={priceLower}
                       priceUpper={priceUpper}
@@ -756,20 +771,6 @@ function AddLiquidity() {
                             </Trans>
                           </AutoColumn>
                         )}
-                        <LiquidityChartRangeInput
-                          currencyA={baseCurrency ?? undefined}
-                          currencyB={quoteCurrency ?? undefined}
-                          feeAmount={feeAmount}
-                          ticksAtLimit={ticksAtLimit}
-                          price={
-                            price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined
-                          }
-                          priceLower={priceLower}
-                          priceUpper={priceUpper}
-                          onLeftRangeInput={onLeftRangeInput}
-                          onRightRangeInput={onRightRangeInput}
-                          interactive={!hasExistingPosition}
-                        />
                       </>
                     ) : (
                       <AutoColumn gap="md">
@@ -796,16 +797,15 @@ function AddLiquidity() {
                             </ThemedText.DeprecatedBody>
                           </BlueCard>
                         )}
-                        <OutlineCard padding="12px">
+                        <LightCard padding="12px">
                           <StyledInput
                             className="start-price-input"
                             value={startPriceTypedValue}
                             onUserInput={onStartPriceInput}
                           />
-                        </OutlineCard>
+                        </LightCard>
                         <RowBetween
                           style={{
-                            backgroundColor: theme.surface1,
                             padding: '12px',
                             borderRadius: '12px',
                           }}

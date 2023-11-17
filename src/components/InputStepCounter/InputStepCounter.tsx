@@ -31,6 +31,8 @@ const InputRow = styled.div`
 const SmallButton = styled(ButtonGray)`
   border-radius: 8px;
   padding: 4px;
+  background-color: transparent;
+  border: 1px solid #444;
 `
 
 const FocusedOutlineCard = styled(OutlineCard)<{ active?: boolean; pulsing?: boolean }>`
