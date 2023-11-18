@@ -59,19 +59,19 @@ export default function Popups() {
     <>
       <FixedPopupColumn gap="20px" drawerOpen={isAccountDrawerOpen} data-testid="popups">
         <ClaimPopup />
-        {activePopups.map((item) => (
+        {/* {activePopups.map((item) => (
           <PopupItem key={item.key} content={item.content} popKey={item.key} removeAfterMs={item.removeAfterMs} />
-        ))}
+        ))} */}
       </FixedPopupColumn>
       {activePopups?.length > 0 && (
         <MobilePopupWrapper data-testid="popups">
           <MobilePopupInner>
-            {activePopups // reverse so new items up front
+            {/* {activePopups // reverse so new items up front
               .slice(0)
               .reverse()
               .map((item) => (
                 <PopupItem key={item.key} content={item.content} popKey={item.key} removeAfterMs={item.removeAfterMs} />
-              ))}
+              ))} */}
           </MobilePopupInner>
         </MobilePopupWrapper>
       )}

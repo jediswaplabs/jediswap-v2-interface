@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 
 import { useRemovePopup } from '../../state/application/hooks'
 import { PopupContent, PopupType } from '../../state/application/reducer'
-import { FailedNetworkSwitchPopup, TransactionPopupContent, UniswapXOrderPopupContent } from './PopupContent'
+// import { FailedNetworkSwitchPopup, TransactionPopupContent, UniswapXOrderPopupContent } from './PopupContent'
 
 export default function PopupItem({
   removeAfterMs,
@@ -31,15 +31,17 @@ export default function PopupItem({
 
   const { chainId } = useWeb3React()
 
-  switch (content.type) {
-    case PopupType.Transaction: {
-      return chainId ? <TransactionPopupContent hash={content.hash} chainId={chainId} onClose={onClose} /> : null
-    }
-    case PopupType.Order: {
-      return <UniswapXOrderPopupContent orderHash={content.orderHash} onClose={onClose} />
-    }
-    case PopupType.FailedSwitchNetwork: {
-      return <FailedNetworkSwitchPopup chainId={content.failedSwitchNetwork} onClose={onClose} />
-    }
+  switch (
+    content.type
+    // case PopupType.Transaction: {
+    //   return chainId ? <TransactionPopupContent hash={content.hash} chainId={chainId} onClose={onClose} /> : null
+    // }
+    // case PopupType.Order: {
+    //   return <UniswapXOrderPopupContent orderHash={content.orderHash} onClose={onClose} />
+    // }
+    // case PopupType.FailedSwitchNetwork: {
+    //   return <FailedNetworkSwitchPopup chainId={content.failedSwitchNetwork} onClose={onClose} />
+    // }
+  ) {
   }
 }

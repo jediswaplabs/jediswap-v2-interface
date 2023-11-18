@@ -6,7 +6,7 @@ import SparklineChart from 'components/Charts/SparklineChart'
 import { ArrowChangeDown } from 'components/Icons/ArrowChangeDown'
 import { ArrowChangeUp } from 'components/Icons/ArrowChangeUp'
 import { Info } from 'components/Icons/Info'
-import QueryTokenLogo from 'components/Logo/QueryTokenLogo'
+// import QueryTokenLogo from 'components/Logo/QueryTokenLogo'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { useInfoExplorePageEnabled } from 'featureFlags/flags/infoExplore'
 import { SparklineMap, TopToken } from 'graphql/data/TopTokens'
@@ -483,7 +483,7 @@ export const LoadedRow = forwardRef((props: LoadedRowProps, ref: ForwardedRef<HT
           listNumber={sortRank}
           tokenInfo={
             <ClickableName>
-              <QueryTokenLogo token={token} size="32px" />
+              {/* <QueryTokenLogo token={token} size="32px" /> */}
               <TokenInfoCell>
                 <TokenName data-cy="token-name">{token.name}</TokenName>
                 <TokenSymbol>{token.symbol}</TokenSymbol>
