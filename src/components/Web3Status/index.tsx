@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react'
 import styled from 'styled-components'
 
 import PortfolioDrawer, { useAccountDrawer } from 'components/AccountDrawer'
-import { usePendingActivity } from 'components/AccountDrawer/MiniPortfolio/Activity/hooks'
+// import { usePendingActivity } from 'components/AccountDrawer/MiniPortfolio/Activity/hooks'
 import Loader from 'components/Icons/LoadingSpinner'
 import StatusIcon, { IconWrapper } from 'components/Identicon/StatusIcon'
 import PrefetchBalancesWrapper from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
@@ -108,7 +108,7 @@ function Web3StatusInner() {
     toggleAccountDrawer()
   }, [toggleAccountDrawer])
 
-  const { hasPendingActivity, pendingActivityCount } = usePendingActivity()
+  // const { hasPendingActivity, pendingActivityCount } = usePendingActivity()
 
   // Display a loading state while initializing the connection, based on the last session's persisted connection.
   // The connection will go through three states:
@@ -155,30 +155,7 @@ function Web3StatusInner() {
   if (address) {
     const addressShort = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : null
 
-    return (
-      <Web3StatusConnected
-        disabled={Boolean(switchingChain)}
-        data-testid="web3-status-connected"
-        onClick={handleWalletDropdownClick}
-        pending={hasPendingActivity}
-      >
-        {!hasPendingActivity && connection && (
-          <StatusIcon account={address} size={24} connection={connection} showMiniIcons={false} />
-        )}
-        {hasPendingActivity ? (
-          <RowBetween>
-            <Text>
-              <Trans>{pendingActivityCount} Pending</Trans>
-            </Text>{' '}
-            <Loader stroke="white" />
-          </RowBetween>
-        ) : (
-          <AddressAndChevronContainer>
-            <Text>{ENSName ?? addressShort}</Text>
-          </AddressAndChevronContainer>
-        )}
-      </Web3StatusConnected>
-    )
+    return <></>
   }
   return (
     <Web3StatusConnectWrapper

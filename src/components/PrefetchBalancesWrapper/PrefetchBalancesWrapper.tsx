@@ -5,14 +5,11 @@ import { PropsWithChildren, useCallback, useEffect } from 'react'
 import { usePortfolioBalancesLazyQuery, usePortfolioBalancesQuery } from 'graphql/data/types-and-hooks'
 import { GQL_MAINNET_CHAINS } from 'graphql/data/util'
 import usePrevious from 'hooks/usePrevious'
-import { usePendingActivity } from '../AccountDrawer/MiniPortfolio/Activity/hooks'
+// import { usePendingActivity } from '../AccountDrawer/MiniPortfolio/Activity/hooks'
 
 /** Returns true if the number of pending activities has decreased */
 function useHasUpdatedTx() {
-  const { pendingActivityCount } = usePendingActivity()
-  const prevPendingActivityCount = usePrevious(pendingActivityCount)
-
-  return !!prevPendingActivityCount && pendingActivityCount < prevPendingActivityCount
+  return false
 }
 
 // TODO(WEB-3004) - Add useCachedPortfolioBalanceUsd to simplify usage of useCachedPortfolioBalancesQuery
