@@ -1,5 +1,6 @@
 import { Trans } from '@lingui/macro'
 import styled from 'styled-components'
+
 import { ExternalLink, ThemedText } from 'theme/components'
 
 const StyledLink = styled(ExternalLink)`
@@ -27,7 +28,7 @@ export default function PrivacyPolicyNotice() {
   return (
     <div>
       <Notice>New to Ethereum?</Notice>
-      <StyledLink href="https://uniswap.org/terms-of-service/">
+      <StyledLink href="https://ethereum.org/en/wallets/">
         <WalletInfo>Learn more about wallets</WalletInfo>
       </StyledLink>
     </div>
