@@ -6,6 +6,7 @@ const jediWhite = '#fff'
 const jediGrey = '#959595'
 const jediNavyBlue = '#141451'
 const signalGreen = '#21E70F'
+const jediGreyBorder = '#444'
 
 export const colors = {
   white: '#FFFFFF',
@@ -125,7 +126,7 @@ export const colors = {
   accent1_dark: jediBlue,
   accent2_dark: jediPink,
 
-  neutral1_light: '#222222',
+  neutral1_light: jediWhite,
   neutral2_light: '#7D7D7D',
   neutral3_light: '#CECECE',
 
@@ -136,7 +137,7 @@ export const colors = {
   surface5_light: '#00000004',
   surface6_light: '#00000004',
 
-  accent1_light: '#FC72FF',
+  accent1_light: jediBlue,
   accent2_light: '#FFEFFF',
   success: '#40B66B',
   critical: '#FF3257',
@@ -182,6 +183,7 @@ const commonTheme = {
   jediGrey,
   jediNavyBlue,
   signalGreen,
+  jediGreyBorder,
 }
 
 export const darkTheme = {
