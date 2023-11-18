@@ -1,14 +1,18 @@
 // Based mostly on https://github.com/Uniswap/interface/blob/main/src/theme/index.tsx
 
-const jediBlue = '#50D5FF';
-const jediPink = '#FF00E9';
-const jediWhite = '#fff';
-const jediGrey = '#959595';
-const jediNavyBlue = '#141451';
+const jediBlue = '#50D5FF'
+const jediPink = '#FF00E9'
+const jediWhite = '#fff'
+const jediGrey = '#959595'
+const jediNavyBlue = '#141451'
+const signalGreen = '#21E70F'
 
 export const colors = {
   white: '#FFFFFF',
   black: '#000000',
+
+  greyLight: '#F2F2F2',
+
   gray50: '#F5F6FC',
   gray100: '#E8ECFB',
   gray150: '#D2D9EE',
@@ -65,6 +69,8 @@ export const colors = {
   gold200: '#EEB317',
   gold400: '#B17900',
   goldVibrant: '#FEB239',
+
+  green1: signalGreen,
   green50: '#E3F3E6',
   green100: '#BFEECA',
   green200: '#76D191',
@@ -135,7 +141,7 @@ export const colors = {
   success: '#40B66B',
   critical: '#FF3257',
   scrim: 'rgba(0, 0, 0, 0.60)',
-};
+}
 
 type Theme = typeof darkTheme
 
@@ -163,6 +169,7 @@ const commonTheme = {
   chain_84531: colors.networkBase,
   chain_56_background: colors.networkBsc,
   promotional: colors.magenta300,
+  notice: colors.greyLight,
 
   brandedGradient: 'linear-gradient(95.64deg, #29aafd 8.08%, #ff00e9 105.91%)',
   brandedGradientReversed: 'linear-gradient(95.64deg, #ff00e9 8.08%, #29aafd 105.91%)',
@@ -174,7 +181,8 @@ const commonTheme = {
   jediWhite,
   jediGrey,
   jediNavyBlue,
-};
+  signalGreen,
+}
 
 export const darkTheme = {
   ...commonTheme,
@@ -197,4 +205,4 @@ export const darkTheme = {
   success: colors.success,
   critical: colors.critical,
   scrim: colors.scrim,
-};
+}
