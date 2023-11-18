@@ -39,6 +39,7 @@ const OptionCardClickable = styled(OptionCard as any)<{ clickable?: boolean }>`
   border-radius: 8px;
   &:hover {
     cursor: pointer;
+    border: ${(theme) => `1px solid ${theme.theme.jediWhite}`};
 `
 
 const GreenCircle = styled.div`
