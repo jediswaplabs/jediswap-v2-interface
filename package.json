@@ -165,6 +165,8 @@
     "@graphql-codegen/typescript-operations": "^3.0.2",
     "@graphql-codegen/typescript-react-apollo": "^3.3.7",
     "@graphql-codegen/typescript-resolvers": "^3.2.1",
+    "@jediswap/sdk": "^2.3.5",
+    "@jediswap/token-lists": "^1.0.0-beta.2",
     "@juggle/resize-observer": "^3.4.0",
     "@lingui/core": "^4.3.0",
     "@lingui/macro": "^4.3.0",

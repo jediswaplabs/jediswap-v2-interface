@@ -39,6 +39,8 @@ export function createDefaultStore() {
 
 const store = createDefaultStore()
 export const persistor = persistStore(store)
+export type AppState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch
 
 setupListeners(store.dispatch)
 

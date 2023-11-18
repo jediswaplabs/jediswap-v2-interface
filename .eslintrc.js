@@ -6,7 +6,13 @@ module.exports = {
     },
     // project: "./tsconfig.json"
   },
-  extends: ['airbnb', 'plugin:@typescript-eslint/recommended', 'plugin:import/typescript', 'plugin:react/recommended', 'plugin:react-hooks/recommended'],
+  extends: [
+    'airbnb',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:import/typescript',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+  ],
   plugins: ['react', 'react-hooks'],
   settings: {
     'import/resolver': {
@@ -17,21 +23,25 @@ module.exports = {
     },
   },
   globals: {
-    document: true, window: true, Fragment: true,
+    document: true,
+    window: true,
+    Fragment: true,
   },
-  overrides: [{
-    files: ['**/*.test.js', '**/*.test.jsx', '**/*.stories.jsx'],
-    env: {
-      jest: true,
+  overrides: [
+    {
+      files: ['**/*.test.js', '**/*.test.jsx', '**/*.stories.jsx'],
+      env: {
+        jest: true,
+      },
+      plugins: ['jest'],
+      rules: {
+        'no-console': 0,
+        'jest/no-standalone-expect': 0,
+        'import/no-extraneous-dependencies': 0,
+        'import/no-default-export': 0,
+      },
     },
-    plugins: ['jest'],
-    rules: {
-      'no-console': 0,
-      'jest/no-standalone-expect': 0,
-      'import/no-extraneous-dependencies': 0,
-      'import/no-default-export': 0,
-    },
-  }],
+  ],
   rules: {
     'arrow-parens': ['error', 'always'],
     'consistent-return': 'off',
@@ -43,10 +53,16 @@ module.exports = {
     'import/no-default-export': 'off',
     'import/no-extraneous-dependencies': 'off',
     'import/no-named-as-default': 2,
-    'import/order': ['error', {
-      'newlines-between': 'always',
-      groups: [['builtin', 'external'], ['internal', 'parent', 'sibling', 'index']],
-    }],
+    'import/order': [
+      'error',
+      {
+        'newlines-between': 'always',
+        groups: [
+          ['builtin', 'external'],
+          ['internal', 'parent', 'sibling', 'index'],
+        ],
+      },
+    ],
     'import/prefer-default-export': 'off',
     'jest/expect-expect': 'off',
     'jest/no-disabled-tests': 'off',
@@ -100,23 +116,29 @@ module.exports = {
     'no-restricted-properties': 'off',
     'no-restricted-syntax': 'off',
     'no-promise-executor-return': 'off',
-    'no-unused-vars': ['error', {
-      varsIgnorePattern: 'Fragment', ignoreRestSiblings: true,
-    }],
+    'no-unused-vars': 'off',
     '@typescript-eslint/no-unused-vars': 'error',
     'no-use-before-define': 'off',
-    'object-curly-newline': ['error', {
-      ObjectExpression: { consistent: true },
-      ObjectPattern: 'never',
-      ImportDeclaration: 'never',
-      ExportDeclaration: {
-        multiline: true, minProperties: 3,
+    'object-curly-newline': [
+      'error',
+      {
+        ObjectExpression: { consistent: true },
+        ObjectPattern: 'never',
+        ImportDeclaration: 'never',
+        ExportDeclaration: {
+          multiline: true,
+          minProperties: 3,
+        },
       },
-    }],
-    'object-curly-spacing': ['error', 'always', {
-
-      arraysInObjects: true, objectsInObjects: true,
-    }],
+    ],
+    'object-curly-spacing': [
+      'error',
+      'always',
+      {
+        arraysInObjects: true,
+        objectsInObjects: true,
+      },
+    ],
     'react-hooks/exhaustive-deps': 0, // Checks effect dependencies
     'react-hooks/rules-of-hooks': 'error',
     'react/button-has-type': 'off',
@@ -146,4 +168,4 @@ module.exports = {
     quotes: ['error', 'single'],
     semi: ['error', 'always'],
   },
-};
+}

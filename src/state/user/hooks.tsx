@@ -1,5 +1,4 @@
-import { Percent, Token, V2_FACTORY_ADDRESSES } from '@uniswap/sdk-core'
-import { computePairAddress, Pair } from '@uniswap/v2-sdk'
+import { Percent, Token, Pair, ChainId } from '@jediswap/sdk'
 import { useWeb3React } from '@web3-react/core'
 import { L2_CHAIN_IDS } from 'constants/chains'
 import { SupportedLocale } from 'constants/locales'
@@ -230,26 +229,26 @@ export function useUserOptedOutOfUniswapX(): boolean {
  * @param tokenA one of the two tokens
  * @param tokenB the other token
  */
-export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
-  if (tokenA.chainId !== tokenB.chainId) throw new Error('Not matching chain IDs')
-  if (tokenA.equals(tokenB)) throw new Error('Tokens cannot be equal')
-  if (!V2_FACTORY_ADDRESSES[tokenA.chainId]) throw new Error('No V2 factory address on this chain')
+// export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
+//   if (tokenA.chainId !== tokenB.chainId) throw new Error('Not matching chain IDs')
+//   if (tokenA.equals(tokenB)) throw new Error('Tokens cannot be equal')
+//   if (!V2_FACTORY_ADDRESSES[tokenA.chainId]) throw new Error('No V2 factory address on this chain')
 
-  return new Token(
-    tokenA.chainId,
-    computePairAddress({ factoryAddress: V2_FACTORY_ADDRESSES[tokenA.chainId], tokenA, tokenB }),
-    18,
-    'UNI-V2',
-    'Uniswap V2'
-  )
-}
+//   return new Token(
+//     tokenA.chainId,
+//     computePairAddress({ factoryAddress: V2_FACTORY_ADDRESSES[tokenA.chainId], tokenA, tokenB }),
+//     18,
+//     'UNI-V2',
+//     'Uniswap V2'
+//   )
+// }
 
 /**
  * Returns all the pairs of tokens that are tracked by the user for the current chain ID.
  */
 export function useTrackedTokenPairs(): [Token, Token][] {
-  const { chainId } = useWeb3React()
-  const tokens = useDefaultActiveTokens(chainId)
+  const chainId = ''
+  const tokens = useDefaultActiveTokens(chainId as ChainId)
 
   // pinned pairs
   const pinnedPairs = useMemo(() => (chainId ? PINNED_PAIRS[chainId] ?? [] : []), [chainId])

@@ -1,3 +1,24 @@
+import { isStagingEnvironment, isTestnetEnvironment } from '../connectors'
+
+const getDefaultTokensListUrl = () => {
+  const getUrl = (env = '', name = 'jediswap-default.tokenlist.json') =>
+    `https://static.${env ? `${env}.` : ''}jediswap.xyz/tokens-list/${name}`
+
+  if (isStagingEnvironment()) {
+    return getUrl('staging')
+  }
+
+  if (isTestnetEnvironment()) {
+    return getUrl('testnet')
+  }
+
+  return getUrl()
+}
+
+export const DEFAULT_TOKEN_LIST_URL = getDefaultTokensListUrl()
+
+export const DEFAULT_LIST_OF_LISTS: string[] = [DEFAULT_TOKEN_LIST_URL]
+
 export const UNI_LIST = 'https://cloudflare-ipfs.com/ipns/tokens.uniswap.org'
 export const UNI_EXTENDED_LIST = 'https://cloudflare-ipfs.com/ipns/extendedtokens.uniswap.org'
 const UNI_UNSUPPORTED_LIST = 'https://cloudflare-ipfs.com/ipns/unsupportedtokens.uniswap.org'
@@ -55,5 +76,3 @@ export const DEFAULT_INACTIVE_LIST_URLS: string[] = [
   BASE_LIST,
   ...UNSUPPORTED_LIST_URLS,
 ]
-
-export const DEFAULT_LIST_OF_LISTS: string[] = [...DEFAULT_ACTIVE_LIST_URLS, ...DEFAULT_INACTIVE_LIST_URLS]

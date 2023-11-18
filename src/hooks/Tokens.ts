@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token } from '@uniswap/sdk-core'
+import { ChainId, Currency, ETHER, Token } from '@jediswap/sdk'
 import { useWeb3React } from '@web3-react/core'
 import { getChainInfo } from 'constants/chainInfo'
 import { DEFAULT_INACTIVE_LIST_URLS, DEFAULT_LIST_OF_LISTS } from 'constants/lists'
@@ -64,7 +64,7 @@ export function useAllTokensMultichain(): ChainTokenMap {
 }
 
 /** Returns all tokens from the default list + user added tokens */
-export function useDefaultActiveTokens(chainId: Maybe<ChainId>): { [address: string]: Token } {
+export function useDefaultActiveTokens(chainId: ChainId): { [address: string]: Token } {
   const defaultListTokens = useCombinedActiveList()
   const tokensFromMap = useTokensFromMap(defaultListTokens, chainId)
   const userAddedTokens = useUserAddedTokens()
@@ -98,100 +98,101 @@ export function useUnsupportedTokens(): { [address: string]: Token } {
   const { chainId } = useWeb3React()
   const listsByUrl = useAllLists()
   const unsupportedTokensMap = useUnsupportedTokenList()
-  const unsupportedTokens = useTokensFromMap(unsupportedTokensMap, chainId)
+  // const unsupportedTokens = useTokensFromMap(unsupportedTokensMap, chainId)
 
-  // checks the default L2 lists to see if `bridgeInfo` has an L1 address value that is unsupported
-  const l2InferredBlockedTokens: typeof unsupportedTokens = useMemo(() => {
-    if (!chainId || !isL2ChainId(chainId)) {
-      return {}
-    }
+  // // checks the default L2 lists to see if `bridgeInfo` has an L1 address value that is unsupported
+  // const l2InferredBlockedTokens: typeof unsupportedTokens = useMemo(() => {
+  //   if (!chainId || !isL2ChainId(chainId)) {
+  //     return {}
+  //   }
 
-    if (!listsByUrl) {
-      return {}
-    }
+  //   if (!listsByUrl) {
+  //     return {}
+  //   }
 
-    const listUrl = getChainInfo(chainId).defaultListUrl
+  //   const listUrl = getChainInfo(chainId).defaultListUrl
 
-    const list = listsByUrl[listUrl]?.current
-    if (!list) {
-      return {}
-    }
+  //   const list = listsByUrl[listUrl]?.current
+  //   if (!list) {
+  //     return {}
+  //   }
 
-    const unsupportedSet = new Set(Object.keys(unsupportedTokens))
+  //   const unsupportedSet = new Set(Object.keys(unsupportedTokens))
 
-    return list.tokens.reduce((acc, tokenInfo) => {
-      const bridgeInfo = tokenInfo.extensions?.bridgeInfo as unknown as BridgeInfo
-      if (
-        bridgeInfo &&
-        bridgeInfo[ChainId.MAINNET] &&
-        bridgeInfo[ChainId.MAINNET].tokenAddress &&
-        unsupportedSet.has(bridgeInfo[ChainId.MAINNET].tokenAddress)
-      ) {
-        const address = bridgeInfo[ChainId.MAINNET].tokenAddress
-        // don't rely on decimals--it's possible that a token could be bridged w/ different decimals on the L2
-        return { ...acc, [address]: new Token(ChainId.MAINNET, address, tokenInfo.decimals) }
-      }
-      return acc
-    }, {})
-  }, [chainId, listsByUrl, unsupportedTokens])
+  //   return list.tokens.reduce((acc, tokenInfo) => {
+  //     const bridgeInfo = tokenInfo.extensions?.bridgeInfo as unknown as BridgeInfo
+  //     if (
+  //       bridgeInfo &&
+  //       bridgeInfo[ChainId.MAINNET] &&
+  //       bridgeInfo[ChainId.MAINNET].tokenAddress &&
+  //       unsupportedSet.has(bridgeInfo[ChainId.MAINNET].tokenAddress)
+  //     ) {
+  //       const address = bridgeInfo[ChainId.MAINNET].tokenAddress
+  //       // don't rely on decimals--it's possible that a token could be bridged w/ different decimals on the L2
+  //       return { ...acc, [address]: new Token(ChainId.MAINNET, address, tokenInfo.decimals) }
+  //     }
+  //     return acc
+  //   }, {})
+  // }, [chainId, listsByUrl, unsupportedTokens])
 
-  return { ...unsupportedTokens, ...l2InferredBlockedTokens }
+  return {}
 }
 
 export function useSearchInactiveTokenLists(search: string | undefined, minResults = 10): WrappedTokenInfo[] {
   const lists = useAllLists()
   const inactiveUrls = DEFAULT_INACTIVE_LIST_URLS
   const { chainId } = useWeb3React()
-  const activeTokens = useDefaultActiveTokens(chainId)
-  return useMemo(() => {
-    if (!search || search.trim().length === 0) return []
-    const tokenFilter = getTokenFilter(search)
-    const result: WrappedTokenInfo[] = []
-    const addressSet: { [address: string]: true } = {}
-    for (const url of inactiveUrls) {
-      const list = lists[url]?.current
-      if (!list) continue
-      for (const tokenInfo of list.tokens) {
-        if (tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
-          try {
-            const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, list)
-            if (!(wrapped.address in activeTokens) && !addressSet[wrapped.address]) {
-              addressSet[wrapped.address] = true
-              result.push(wrapped)
-              if (result.length >= minResults) return result
-            }
-          } catch {
-            continue
-          }
-        }
-      }
-    }
-    return result
-  }, [activeTokens, chainId, inactiveUrls, lists, minResults, search])
+  // const activeTokens = useDefaultActiveTokens(chainId)
+  // return useMemo(() => {
+  //   if (!search || search.trim().length === 0) return []
+  //   const tokenFilter = getTokenFilter(search)
+  //   const result: WrappedTokenInfo[] = []
+  //   const addressSet: { [address: string]: true } = {}
+  //   for (const url of inactiveUrls) {
+  //     const list = lists[url]?.current
+  //     if (!list) continue
+  //     for (const tokenInfo of list.tokens) {
+  //       if (tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
+  //         try {
+  //           const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, list)
+  //           if (!(wrapped.address in activeTokens) && !addressSet[wrapped.address]) {
+  //             addressSet[wrapped.address] = true
+  //             result.push(wrapped)
+  //             if (result.length >= minResults) return result
+  //           }
+  //         } catch {
+  //           continue
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return result
+  // }, [activeTokens, chainId, inactiveUrls, lists, minResults, search])
+  return []
 }
 
 // Check if currency is included in custom list from user storage
 export function useIsUserAddedToken(currency: Currency | undefined | null): boolean {
-  const userAddedTokens = useUserAddedTokens()
+  // const userAddedTokens = useUserAddedTokens()
 
-  if (!currency) {
-    return false
-  }
+  // if (!currency) {
+  //   return false
+  // }
 
-  return !!userAddedTokens.find((token) => currency.equals(token))
+  // return !!userAddedTokens.find((token) => currency.equals(token))
+  return false
 }
 
 // undefined if invalid or does not exist
 // null if loading or null was passed
 // otherwise returns the token
 export function useToken(tokenAddress?: string | null): Token | null | undefined {
-  const { chainId } = useWeb3React()
-  const tokens = useDefaultActiveTokens(chainId)
-  return useTokenFromMapOrNetwork(tokens, tokenAddress)
+  return null
 }
 
-export function useCurrency(currencyId: Maybe<string>, chainId?: ChainId): Currency | undefined {
-  const { chainId: connectedChainId } = useWeb3React()
-  const tokens = useDefaultActiveTokens(chainId ?? connectedChainId)
-  return useCurrencyFromMap(tokens, chainId ?? connectedChainId, currencyId)
+export function useCurrency(currencyId: string | undefined): Currency | null | undefined {
+  const isETH = currencyId?.toUpperCase() === 'ETH'
+  // const isTOKEN1 = currencyId === TOKEN1.address
+  const token = useToken(isETH ? undefined : currencyId)
+  return isETH ? ETHER : token
 }

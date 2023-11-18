@@ -1,4 +1,4 @@
-import { getVersionUpgrade, VersionUpgrade } from '@uniswap/token-lists'
+import { getVersionUpgrade, VersionUpgrade } from '@jediswap/token-lists'
 import { useWeb3React } from '@web3-react/core'
 import { DEFAULT_LIST_OF_LISTS, UNSUPPORTED_LIST_URLS } from 'constants/lists'
 import TokenSafetyLookupTable from 'constants/tokenSafetyLookup'
@@ -21,7 +21,9 @@ export default function Updater(): null {
 
   // get all loaded lists, and the active urls
   const lists = useAllLists()
+  console.log('🚀 ~ file: updater.ts:24 ~ Updater ~ lists:', lists)
   const listsState = useAppSelector((state) => state.lists)
+  console.log('🚀 ~ file: updater.ts:26 ~ Updater ~ listsState:', listsState)
   const rehydrated = useStateRehydrated()
 
   useEffect(() => {

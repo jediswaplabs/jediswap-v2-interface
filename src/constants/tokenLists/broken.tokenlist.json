@@ -15,7 +15,7 @@
       "address": "0x4bf5dc91E2555449293D7824028Eb8Fe5879B689",
       "symbol": "UniH",
       "decimals": 18,
-      "chainId": 1,
+      "chainId": "0x534e5f4d41494e",
       "logoURI": ""
     }
   ]

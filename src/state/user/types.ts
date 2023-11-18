@@ -1,5 +1,7 @@
+import { ChainId } from '@jediswap/sdk'
+
 export interface SerializedToken {
-  chainId: number
+  chainId: ChainId
   address: string
   decimals: number
   symbol?: string

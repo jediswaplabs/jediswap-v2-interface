@@ -1,9 +1,9 @@
-import { TokenInfo, TokenList } from '@uniswap/token-lists'
+import { TokenInfo, TokenList } from '@jediswap/token-lists'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 type TokenMap = Readonly<{ [tokenAddress: string]: { token: WrappedTokenInfo; list?: TokenList } }>
 // TODO(WEB-2347): replace usage of the misnomered TokenAddressMap w/ ChainTokenMap from src/hooks/Tokens.ts
-export type TokenAddressMap = Readonly<{ [chainId: number]: TokenMap }>
+export type TokenAddressMap = Readonly<{ [chainId: string]: TokenMap }>
 
 type Mutable<T> = {
   -readonly [P in keyof T]: Mutable<T[P]>
@@ -18,15 +18,15 @@ export function tokensToChainTokenMap(tokens: TokenList | TokenInfo[]): TokenAdd
   const [list, infos] = Array.isArray(tokens) ? [undefined, tokens] : [tokens, tokens.tokens]
   const map = infos.reduce<Mutable<TokenAddressMap>>((map, info) => {
     try {
-      const token = new WrappedTokenInfo(info, list)
-      if (map[token.chainId]?.[token.address] !== undefined) {
-        console.warn(`Duplicate token skipped: ${token.address}`)
-        return map
-      }
-      if (!map[token.chainId]) {
-        map[token.chainId] = {}
-      }
-      map[token.chainId][token.address] = { token, list }
+      // const token = new WrappedTokenInfo(info, list)
+      // if (map[token.chainId]?.[token.address] !== undefined) {
+      //   console.warn(`Duplicate token skipped: ${token.address}`)
+      //   return map
+      // }
+      // if (!map[token.chainId]) {
+      //   map[token.chainId] = {}
+      // }
+      // map[token.chainId][token.address] = { token, list }
       return map
     } catch {
       return map
