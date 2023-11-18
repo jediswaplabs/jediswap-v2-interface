@@ -4,6 +4,7 @@ import useTokenLogoSource from 'hooks/useAssetLogoSource'
 import { darken, lighten, rgb } from 'polished'
 import { useEffect, useState } from 'react'
 import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { WrappedTokenInfoV2 } from 'state/lists/wrappedTokenInfoV2'
 import { useTheme } from 'styled-components'
 import { getColor } from 'utils/getColor'
 import { hex } from 'wcag-contrast'
@@ -35,7 +36,7 @@ function URIForEthToken(address: string) {
  * @returns {Promise< | null>} A promise that resolves to a color string or null if color cannot be determined.
  */
 async function getColorFromToken(token: Token, primarySrc?: string): Promise<string | null> {
-  const wrappedToken = token as WrappedTokenInfo
+  const wrappedToken = token as WrappedTokenInfoV2
   let color: string | null = null
 
   try {

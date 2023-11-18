@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { ThemedText } from 'theme/components'
 
 import { RowBetween, RowFixed } from '../Row'
-import SettingsTab from '../Settings'
+// import SettingsTab from '../Settings'
 import SwapBuyFiatButton from './SwapBuyFiatButton'
 
 const StyledSwapHeader = styled(RowBetween)`
@@ -35,9 +35,7 @@ export default function SwapHeader({
         </ThemedText.SubHeader>
         <SwapBuyFiatButton />
       </HeaderButtonContainer>
-      <RowFixed>
-        <SettingsTab autoSlippage={autoSlippage} chainId={chainId} trade={trade} />
-      </RowFixed>
+      <RowFixed>{/* <SettingsTab autoSlippage={autoSlippage} chainId={chainId} trade={trade} /> */}</RowFixed>
     </StyledSwapHeader>
   )
 }

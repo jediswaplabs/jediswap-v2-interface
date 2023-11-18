@@ -98,7 +98,7 @@ export type SwapInfo = {
 }
 
 // from the current swap inputs, compute the best trade and return it.
-export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefined): SwapInfo {
+export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefined) {
   const { account } = useWeb3React()
 
   const {
@@ -109,136 +109,138 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     recipient,
   } = state
 
-  const inputCurrency = useCurrency(inputCurrencyId, chainId)
-  const outputCurrency = useCurrency(outputCurrencyId, chainId)
+  // const inputCurrency = useCurrency(inputCurrencyId, chainId)
+  // const outputCurrency = useCurrency(outputCurrencyId, chainId)
 
   const fotAdjustmentsEnabled = useFotAdjustmentsEnabled()
-  const { inputTax, outputTax } = useSwapTaxes(
-    inputCurrency?.isToken && fotAdjustmentsEnabled ? inputCurrency.address : undefined,
-    outputCurrency?.isToken && fotAdjustmentsEnabled ? outputCurrency.address : undefined
-  )
+  // const { inputTax, outputTax } = useSwapTaxes(
+  //   inputCurrency?.isToken && fotAdjustmentsEnabled ? inputCurrency.address : undefined,
+  //   outputCurrency?.isToken && fotAdjustmentsEnabled ? outputCurrency.address : undefined
+  // )
 
   const recipientLookup = useENS(recipient ?? undefined)
   const to: string | null = (recipient === null ? account : recipientLookup.address) ?? null
 
-  const relevantTokenBalances = useCurrencyBalances(
-    account ?? undefined,
-    useMemo(() => [inputCurrency ?? undefined, outputCurrency ?? undefined], [inputCurrency, outputCurrency])
-  )
+  // const relevantTokenBalances = useCurrencyBalances(
+  //   account ?? undefined,
+  //   useMemo(() => [inputCurrency ?? undefined, outputCurrency ?? undefined], [inputCurrency, outputCurrency])
+  // )
 
-  const isExactIn: boolean = independentField === Field.INPUT
-  const parsedAmount = useMemo(
-    () => tryParseCurrencyAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined),
-    [inputCurrency, isExactIn, outputCurrency, typedValue]
-  )
+  // const isExactIn: boolean = independentField === Field.INPUT
+  // const parsedAmount = useMemo(
+  //   () => tryParseCurrencyAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined),
+  //   [inputCurrency, isExactIn, outputCurrency, typedValue]
+  // )
 
-  const trade = useDebouncedTrade(
-    isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
-    parsedAmount,
-    (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
-    undefined,
-    account,
-    inputTax,
-    outputTax
-  )
+  // const trade = useDebouncedTrade(
+  //   isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
+  //   parsedAmount,
+  //   (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
+  //   undefined,
+  //   account,
+  //   inputTax,
+  //   outputTax
+  // )
 
-  const { data: outputFeeFiatValue } = useUSDPrice(
-    isSubmittableTrade(trade.trade) && trade.trade.swapFee
-      ? CurrencyAmount.fromRawAmount(trade.trade.outputAmount.currency, trade.trade.swapFee.amount)
-      : undefined,
-    trade.trade?.outputAmount.currency
-  )
+  // const { data: outputFeeFiatValue } = useUSDPrice(
+  //   isSubmittableTrade(trade.trade) && trade.trade.swapFee
+  //     ? CurrencyAmount.fromRawAmount(trade.trade.outputAmount.currency, trade.trade.swapFee.amount)
+  //     : undefined,
+  //   trade.trade?.outputAmount.currency
+  // )
 
-  const currencyBalances = useMemo(
-    () => ({
-      [Field.INPUT]: relevantTokenBalances[0],
-      [Field.OUTPUT]: relevantTokenBalances[1],
-    }),
-    [relevantTokenBalances]
-  )
+  // const currencyBalances = useMemo(
+  //   () => ({
+  //     [Field.INPUT]: relevantTokenBalances[0],
+  //     [Field.OUTPUT]: relevantTokenBalances[1],
+  //   }),
+  //   [relevantTokenBalances]
+  // )
 
-  const currencies: { [field in Field]?: Currency } = useMemo(
-    () => ({
-      [Field.INPUT]: inputCurrency,
-      [Field.OUTPUT]: outputCurrency,
-    }),
-    [inputCurrency, outputCurrency]
-  )
+  // const currencies: { [field in Field]?: Currency } = useMemo(
+  //   () => ({
+  //     [Field.INPUT]: inputCurrency,
+  //     [Field.OUTPUT]: outputCurrency,
+  //   }),
+  //   [inputCurrency, outputCurrency]
+  // )
 
   // allowed slippage for classic trades is either auto slippage, or custom user defined slippage if auto slippage disabled
-  const classicAutoSlippage = useAutoSlippageTolerance(isClassicTrade(trade.trade) ? trade.trade : undefined)
+  // const classicAutoSlippage = useAutoSlippageTolerance(isClassicTrade(trade.trade) ? trade.trade : undefined)
 
-  // slippage for uniswapx trades is defined by the quote response
-  const uniswapXAutoSlippage = isUniswapXTrade(trade.trade) ? trade.trade.slippageTolerance : undefined
+  // // slippage for uniswapx trades is defined by the quote response
+  // const uniswapXAutoSlippage = isUniswapXTrade(trade.trade) ? trade.trade.slippageTolerance : undefined
 
-  // Uniswap interface recommended slippage amount
-  const autoSlippage = uniswapXAutoSlippage ?? classicAutoSlippage
-  const classicAllowedSlippage = useUserSlippageToleranceWithDefault(autoSlippage)
+  // // Uniswap interface recommended slippage amount
+  // const autoSlippage = uniswapXAutoSlippage ?? classicAutoSlippage
+  // const classicAllowedSlippage = useUserSlippageToleranceWithDefault(autoSlippage)
 
-  // slippage amount used to submit the trade
-  const allowedSlippage = uniswapXAutoSlippage ?? classicAllowedSlippage
+  // // slippage amount used to submit the trade
+  // const allowedSlippage = uniswapXAutoSlippage ?? classicAllowedSlippage
 
-  const connectionReady = useConnectionReady()
-  const inputError = useMemo(() => {
-    let inputError: ReactNode | undefined
+  // const connectionReady = useConnectionReady()
+  // const inputError = useMemo(() => {
+  //   let inputError: ReactNode | undefined
 
-    if (!account) {
-      inputError = connectionReady ? <Trans>Connect wallet</Trans> : <Trans>Connecting wallet...</Trans>
-    }
+  //   if (!account) {
+  //     inputError = connectionReady ? <Trans>Connect wallet</Trans> : <Trans>Connecting wallet...</Trans>
+  //   }
 
-    if (!currencies[Field.INPUT] || !currencies[Field.OUTPUT]) {
-      inputError = inputError ?? <Trans>Select a token</Trans>
-    }
+  //   if (!currencies[Field.INPUT] || !currencies[Field.OUTPUT]) {
+  //     inputError = inputError ?? <Trans>Select a token</Trans>
+  //   }
 
-    if (!parsedAmount) {
-      inputError = inputError ?? <Trans>Enter an amount</Trans>
-    }
+  //   if (!parsedAmount) {
+  //     inputError = inputError ?? <Trans>Enter an amount</Trans>
+  //   }
 
-    const formattedTo = isAddress(to)
-    if (!to || !formattedTo) {
-      inputError = inputError ?? <Trans>Enter a recipient</Trans>
-    } else {
-      if (BAD_RECIPIENT_ADDRESSES[formattedTo]) {
-        inputError = inputError ?? <Trans>Invalid recipient</Trans>
-      }
-    }
+  //   const formattedTo = isAddress(to)
+  //   if (!to || !formattedTo) {
+  //     inputError = inputError ?? <Trans>Enter a recipient</Trans>
+  //   } else {
+  //     if (BAD_RECIPIENT_ADDRESSES[formattedTo]) {
+  //       inputError = inputError ?? <Trans>Invalid recipient</Trans>
+  //     }
+  //   }
 
-    // compare input balance to max input based on version
-    const [balanceIn, maxAmountIn] = [currencyBalances[Field.INPUT], trade?.trade?.maximumAmountIn(allowedSlippage)]
+  //   // compare input balance to max input based on version
+  //   const [balanceIn, maxAmountIn] = [currencyBalances[Field.INPUT], trade?.trade?.maximumAmountIn(allowedSlippage)]
 
-    if (balanceIn && maxAmountIn && balanceIn.lessThan(maxAmountIn)) {
-      inputError = <Trans>Insufficient {balanceIn.currency.symbol} balance</Trans>
-    }
+  //   if (balanceIn && maxAmountIn && balanceIn.lessThan(maxAmountIn)) {
+  //     inputError = <Trans>Insufficient {balanceIn.currency.symbol} balance</Trans>
+  //   }
 
-    return inputError
-  }, [account, currencies, parsedAmount, to, currencyBalances, trade?.trade, allowedSlippage, connectionReady])
+  //   return inputError
+  // }, [account, currencies, parsedAmount, to, currencyBalances, trade?.trade, allowedSlippage, connectionReady])
 
-  return useMemo(
-    () => ({
-      currencies,
-      currencyBalances,
-      parsedAmount,
-      inputError,
-      trade,
-      autoSlippage,
-      allowedSlippage,
-      inputTax,
-      outputTax,
-      outputFeeFiatValue,
-    }),
-    [
-      allowedSlippage,
-      autoSlippage,
-      currencies,
-      currencyBalances,
-      inputError,
-      inputTax,
-      outputFeeFiatValue,
-      outputTax,
-      parsedAmount,
-      trade,
-    ]
-  )
+  // return useMemo(
+  //   () => ({
+  //     currencies,
+  //     currencyBalances,
+  //     parsedAmount,
+  //     inputError,
+  //     trade,
+  //     autoSlippage,
+  //     allowedSlippage,
+  //     inputTax,
+  //     outputTax,
+  //     outputFeeFiatValue,
+  //   }),
+  //   [
+  //     allowedSlippage,
+  //     autoSlippage,
+  //     currencies,
+  //     currencyBalances,
+  //     inputError,
+  //     inputTax,
+  //     outputFeeFiatValue,
+  //     outputTax,
+  //     parsedAmount,
+  //     trade,
+  //   ]
+  // )
+
+  return useMemo(() => ({}), [])
 }
 
 function parseCurrencyFromURLParameter(urlParam: ParsedQs[string]): string {

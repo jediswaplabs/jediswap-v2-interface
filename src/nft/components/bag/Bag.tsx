@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { NFTEventName } from '@uniswap/analytics-events'
 import { sendAnalyticsEvent } from 'analytics'
 import { useIsNftDetailsPage, useIsNftPage, useIsNftProfilePage } from 'hooks/useIsNftPage'
-import { BagFooter } from 'nft/components/bag/BagFooter'
+// import { BagFooter } from 'nft/components/bag/BagFooter'
 import { Box } from 'nft/components/Box'
 import { Portal } from 'nft/components/common/Portal'
 import { Column } from 'nft/components/Flex'
@@ -162,9 +162,9 @@ const Bag = () => {
         <Column ref={scrollRef} className={styles.assetsContainer} onScroll={scrollHandler} gap="12">
           {isProfilePage ? <ProfileBagContent /> : <BagContent />}
         </Column>
-        {hasAssetsToShow && !isProfilePage && (
+        {/*  {hasAssetsToShow && !isProfilePage && (
           <BagFooter setModalIsOpen={setModalIsOpen} eventProperties={eventProperties} />
-        )}
+        )} */}
         {isSellingAssets && isProfilePage && (
           <ContinueButton
             onClick={() => {

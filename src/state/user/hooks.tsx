@@ -92,7 +92,7 @@ export function useUserSlippageTolerance(): [
     () =>
       userSlippageToleranceRaw === SlippageTolerance.Auto
         ? SlippageTolerance.Auto
-        : new Percent(userSlippageToleranceRaw, 10_000),
+        : new Percent(BigInt(userSlippageToleranceRaw), BigInt(10_000)),
     [userSlippageToleranceRaw]
   )
 
@@ -101,10 +101,7 @@ export function useUserSlippageTolerance(): [
     (userSlippageTolerance: Percent | SlippageTolerance.Auto) => {
       let value: SlippageTolerance.Auto | number
       try {
-        value =
-          userSlippageTolerance === SlippageTolerance.Auto
-            ? SlippageTolerance.Auto
-            : JSBI.toNumber(userSlippageTolerance.multiply(10_000).quotient)
+        value = SlippageTolerance.Auto
       } catch (error) {
         value = SlippageTolerance.Auto
       }
@@ -291,10 +288,7 @@ export function useTrackedTokenPairs(): [Token, Token][] {
     })
   }, [savedSerializedPairs, chainId])
 
-  const combinedList = useMemo(
-    () => userPairs.concat(generatedPairs).concat(pinnedPairs),
-    [generatedPairs, pinnedPairs, userPairs]
-  )
+  const combinedList = useMemo(() => userPairs.concat(generatedPairs), [generatedPairs, pinnedPairs, userPairs])
 
   return useMemo(() => {
     // dedupes pairs of tokens in the combined list

@@ -178,29 +178,29 @@ export default function PositionListItem({
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
 
-  const currency0 = token0 ? unwrappedToken(token0) : undefined
-  const currency1 = token1 ? unwrappedToken(token1) : undefined
+  // const currency0 = token0 ? unwrappedToken(token0) : undefined
+  // const currency1 = token1 ? unwrappedToken(token1) : undefined
 
   // construct Position from details returned
-  const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount)
+  // const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount)
 
-  const position = useMemo(() => {
-    if (pool) {
-      return new Position({ pool, liquidity: liquidity.toString(), tickLower, tickUpper })
-    }
-    return undefined
-  }, [liquidity, pool, tickLower, tickUpper])
+  // const position = useMemo(() => {
+  //   if (pool) {
+  //     return new Position({ pool, liquidity: liquidity.toString(), tickLower, tickUpper })
+  //   }
+  //   return undefined
+  // }, [liquidity, pool, tickLower, tickUpper])
 
   const tickAtLimit = useIsTickAtLimit(feeAmount, tickLower, tickUpper)
 
   // prices
-  const { priceLower, priceUpper, quote, base } = getPriceOrderingFromPositionForUI(position)
+  // const { priceLower, priceUpper, quote, base } = getPriceOrderingFromPositionForUI(position)
 
-  const currencyQuote = quote && unwrappedToken(quote)
-  const currencyBase = base && unwrappedToken(base)
+  // const currencyQuote = quote && unwrappedToken(quote)
+  // const currencyBase = base && unwrappedToken(base)
 
   // check if price is within range
-  const outOfRange: boolean = pool ? pool.tickCurrent < tickLower || pool.tickCurrent >= tickUpper : false
+  // const outOfRange: boolean = pool ? pool.tickCurrent < tickLower || pool.tickCurrent >= tickUpper : false
 
   const positionSummaryLink = '/pools/' + tokenId
 
@@ -208,7 +208,7 @@ export default function PositionListItem({
 
   return (
     <LinkRow to={positionSummaryLink}>
-      <RowBetween>
+      {/* <RowBetween>
         <PrimaryPositionIdData>
           <DoubleCurrencyLogo currency0={currencyBase} currency1={currencyQuote} size={18} margin />
           <ThemedText.SubHeader>
@@ -220,9 +220,9 @@ export default function PositionListItem({
           </FeeTierText>
         </PrimaryPositionIdData>
         <RangeBadge removed={removed} inRange={!outOfRange} />
-      </RowBetween>
+      </RowBetween> */}
 
-      {priceLower && priceUpper ? (
+      {/*  {priceLower && priceUpper ? (
         <RangeLineItem>
           <RangeText>
             <ExtentsText>
@@ -264,7 +264,7 @@ export default function PositionListItem({
         </RangeLineItem>
       ) : (
         <Loader />
-      )}
+      )} */}
     </LinkRow>
   )
 }

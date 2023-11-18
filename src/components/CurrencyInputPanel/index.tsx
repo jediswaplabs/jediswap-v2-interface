@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
-import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
+import { Currency, CurrencyAmount } from '@jediswap/sdk'
 import { Pair } from '@uniswap/v2-sdk'
 import { useWeb3React } from '@web3-react/core'
 import { TraceEvent } from 'analytics'
@@ -182,7 +182,7 @@ interface CurrencyInputPanelProps {
   showCommonBases?: boolean
   showCurrencyAmount?: boolean
   disableNonToken?: boolean
-  renderBalance?: (amount: CurrencyAmount<Currency>) => ReactNode
+  renderBalance?: (amount: CurrencyAmount) => ReactNode
   locked?: boolean
   loading?: boolean
 }
@@ -210,7 +210,7 @@ export default function CurrencyInputPanel({
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { account, chainId } = useWeb3React()
-  const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+  const selectedCurrencyBalance = {}
   const theme = useTheme()
 
   const handleDismissSearch = useCallback(() => {
@@ -295,10 +295,10 @@ export default function CurrencyInputPanel({
                         fontSize={14}
                         style={{ display: 'inline', cursor: 'pointer' }}
                       >
-                        {Boolean(!hideBalance && currency && selectedCurrencyBalance) &&
+                        {/* {Boolean(!hideBalance && currency && selectedCurrencyBalance) &&
                           (renderBalance?.(selectedCurrencyBalance as CurrencyAmount<Currency>) || (
                             <Trans>Balance: {formatCurrencyAmount(selectedCurrencyBalance, 4)}</Trans>
-                          ))}
+                          ))} */}
                       </ThemedText.DeprecatedBody>
                       {Boolean(showMaxButton && selectedCurrencyBalance) && (
                         <TraceEvent

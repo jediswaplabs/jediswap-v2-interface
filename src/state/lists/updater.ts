@@ -1,7 +1,7 @@
 import { getVersionUpgrade, VersionUpgrade } from '@jediswap/token-lists'
 import { useWeb3React } from '@web3-react/core'
 import { DEFAULT_LIST_OF_LISTS, UNSUPPORTED_LIST_URLS } from 'constants/lists'
-import TokenSafetyLookupTable from 'constants/tokenSafetyLookup'
+// import TokenSafetyLookupTable from 'constants/tokenSafetyLookup'
 import { useStateRehydrated } from 'hooks/useStateRehydrated'
 import useInterval from 'lib/hooks/useInterval'
 import ms from 'ms'
@@ -26,9 +26,9 @@ export default function Updater(): null {
   console.log('🚀 ~ file: updater.ts:26 ~ Updater ~ listsState:', listsState)
   const rehydrated = useStateRehydrated()
 
-  useEffect(() => {
-    if (rehydrated) TokenSafetyLookupTable.update(listsState)
-  }, [listsState, rehydrated])
+  // useEffect(() => {
+  //   if (rehydrated) TokenSafetyLookupTable.update(listsState)
+  // }, [listsState, rehydrated])
 
   const fetchList = useFetchListCallback()
   const fetchAllListsCallback = useCallback(() => {

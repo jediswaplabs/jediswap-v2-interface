@@ -36,7 +36,8 @@ export function useDerivedV3BurnInfo(
   const token0 = useToken(position?.token0)
   const token1 = useToken(position?.token1)
 
-  const [, pool] = usePool(token0 ?? undefined, token1 ?? undefined, position?.fee)
+  // const [, pool] = usePool(token0 ?? undefined, token1 ?? undefined, position?.fee)
+  const pool = undefined
 
   const positionSDK = useMemo(
     () =>
@@ -60,20 +61,12 @@ export function useDerivedV3BurnInfo(
     ? liquidityPercentage.multiply(positionSDK.amount1.quotient).quotient
     : undefined
 
-  const liquidityValue0 =
-    token0 && discountedAmount0
-      ? CurrencyAmount.fromRawAmount(asWETH ? token0 : unwrappedToken(token0), discountedAmount0)
-      : undefined
-  const liquidityValue1 =
-    token1 && discountedAmount1
-      ? CurrencyAmount.fromRawAmount(asWETH ? token1 : unwrappedToken(token1), discountedAmount1)
-      : undefined
+  const liquidityValue0 = undefined
+  const liquidityValue1 = undefined
 
   const [feeValue0, feeValue1] = useV3PositionFees(pool ?? undefined, position?.tokenId, asWETH)
 
-  const outOfRange =
-    pool && position ? pool.tickCurrent < position.tickLower || pool.tickCurrent > position.tickUpper : false
-
+  const outOfRange = false
   let error: ReactNode | undefined
   if (!account) {
     error = <Trans>Connect wallet</Trans>

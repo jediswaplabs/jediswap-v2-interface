@@ -33,7 +33,7 @@ export function useBagTotalUsdPrice(): string | undefined {
   const defaultCurrency = useCurrency('ETH')
 
   const parsedOutputAmount = useMemo(() => {
-    return tryParseCurrencyAmount(formatEther(totalEthPrice.toString()), defaultCurrency ?? undefined)
+    return tryParseCurrencyAmount(formatEther(totalEthPrice.toString()), undefined)
   }, [defaultCurrency, totalEthPrice])
 
   const usdcValue = useStablecoinValue(parsedOutputAmount)

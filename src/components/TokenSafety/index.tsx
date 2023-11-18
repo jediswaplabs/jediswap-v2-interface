@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { Token } from '@uniswap/sdk-core'
+import { Token } from '@jediswap/sdk'
 import { ButtonPrimary } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import CurrencyLogo from 'components/Logo/CurrencyLogo'
@@ -174,7 +174,8 @@ function ExternalLinkIcon() {
 
 function ExplorerView({ token }: { token: Token }) {
   if (token) {
-    const explorerLink = getExplorerLink(token?.chainId, token?.address, ExplorerDataType.TOKEN)
+    // const explorerLink = getExplorerLink(token?.chainId, token?.address, ExplorerDataType.TOKEN)
+    const explorerLink = ''
     return (
       <ExplorerContainer>
         <ExplorerLinkWrapper onClick={() => window.open(explorerLink, '_blank')}>
@@ -220,8 +221,8 @@ export default function TokenSafety({
   const token2Warning = secondTokenAddress ? checkWarning(secondTokenAddress) : null
   const token2 = useToken(secondTokenAddress)
 
-  const token1Unsupported = !token1Warning?.canProceed
-  const token2Unsupported = !token2Warning?.canProceed
+  const token1Unsupported = false
+  const token2Unsupported = false
 
   // Logic for only showing the 'unsupported' warning if one is supported and other isn't
   if (token1 && token1Warning && (token1Unsupported || !(token2Warning && token2Unsupported))) {
@@ -252,7 +253,7 @@ export default function TokenSafety({
     onContinue()
   }
 
-  const { heading, description } = getWarningCopy(displayWarning, plural)
+  // const { heading, description } = getWarningCopy(displayWarning, plural)
   const learnMoreUrl = (
     <StyledExternalLink href={TOKEN_SAFETY_ARTICLE}>
       <Trans>Learn more</Trans>
@@ -271,9 +272,7 @@ export default function TokenSafety({
           </ShortColumn>
         )}
         <ShortColumn>
-          <InfoText>
-            {heading} {description} {learnMoreUrl}
-          </InfoText>
+          <InfoText>{/* {heading} {description} {learnMoreUrl} */}</InfoText>
         </ShortColumn>
         <LinkColumn>{urls}</LinkColumn>
         <Buttons
@@ -292,9 +291,7 @@ export default function TokenSafety({
           <SafetyLabel warning={NotFoundWarning} />
         </ShortColumn>
         <ShortColumn>
-          <InfoText>
-            {heading} {description} {learnMoreUrl}
-          </InfoText>
+          <InfoText>{/* {heading} {description} {learnMoreUrl} */}</InfoText>
         </ShortColumn>
         <Buttons warning={NotFoundWarning} onCancel={onCancel} showCancel={true} />
       </Container>

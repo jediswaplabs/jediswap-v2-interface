@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
-import { Currency, CurrencyAmount, Percent } from '@uniswap/sdk-core'
+import { Currency, CurrencyAmount, Percent } from '@jediswap/sdk'
 import { Pair } from '@uniswap/v2-sdk'
 import { useWeb3React } from '@web3-react/core'
 import { TraceEvent } from 'analytics'
@@ -233,7 +233,7 @@ interface SwapCurrencyInputPanelProps {
   showCommonBases?: boolean
   showCurrencyAmount?: boolean
   disableNonToken?: boolean
-  renderBalance?: (amount: CurrencyAmount<Currency>) => ReactNode
+  renderBalance?: (amount: CurrencyAmount) => ReactNode
   locked?: boolean
   loading?: boolean
   disabled?: boolean
@@ -275,7 +275,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
   ) => {
     const [modalOpen, setModalOpen] = useState(false)
     const { account, chainId } = useWeb3React()
-    const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+    const selectedCurrencyBalance = {}
     const theme = useTheme()
     const { formatCurrencyAmount } = useFormatter()
 
@@ -382,7 +382,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
             <FiatRow>
               <RowBetween>
                 <LoadingOpacityContainer $loading={loading}>
-                  {fiatValue && <FiatValue fiatValue={fiatValue} priceImpact={priceImpact} />}
+                  {/* {fiatValue && <FiatValue fiatValue={fiatValue} priceImpact={priceImpact} />} */}
                 </LoadingOpacityContainer>
                 {account ? (
                   <RowFixed style={{ height: '16px' }}>
@@ -393,7 +393,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
                       fontSize={14}
                       style={{ display: 'inline' }}
                     >
-                      {!hideBalance && currency && selectedCurrencyBalance ? (
+                      {/*   {!hideBalance && currency && selectedCurrencyBalance ? (
                         renderBalance ? (
                           renderBalance(selectedCurrencyBalance)
                         ) : (
@@ -405,7 +405,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
                             })}
                           </Trans>
                         )
-                      ) : null}
+                      ) : null} */}
                     </ThemedText.DeprecatedBody>
                     {showMaxButton && selectedCurrencyBalance ? (
                       <TraceEvent

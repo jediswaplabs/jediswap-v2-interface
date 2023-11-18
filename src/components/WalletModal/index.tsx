@@ -1,5 +1,5 @@
 import { useWeb3React } from '@web3-react/core'
-import IconButton from 'components/AccountDrawer/IconButton'
+// import IconButton from 'components/AccountDrawer/IconButton'
 import { AutoColumn } from 'components/Column'
 import { Settings } from 'components/Icons/Settings'
 import { AutoRow } from 'components/Row'
@@ -61,7 +61,7 @@ export default function WalletModal({ openSettings }: { openSettings: () => void
     <Wrapper data-testid="wallet-modal">
       <AutoRow justify="space-between" width="100%" marginBottom="16px">
         <ThemedText.SubHeader>Connect a wallet</ThemedText.SubHeader>
-        <IconButton Icon={Settings} onClick={openSettings} data-testid="wallet-settings" />
+        {/* <IconButton Icon={Settings} onClick={openSettings} data-testid="wallet-settings" /> */}
       </AutoRow>
       {activationState.status === ActivationStatus.ERROR ? (
         <ConnectionErrorView />

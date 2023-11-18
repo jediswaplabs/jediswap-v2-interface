@@ -66,7 +66,7 @@ export default function useAssetLogoSource(
   isNative?: boolean,
   backupImg?: string | null
 ): [string | undefined, () => void] {
-  const hideLogo = Boolean(address && checkWarning(address, chainId)?.level === WARNING_LEVEL.BLOCKED)
+  const hideLogo = false
   const [current, setCurrent] = useState<string | undefined>(
     hideLogo ? undefined : getInitialUrl(address, chainId, isNative, backupImg)
   )

@@ -140,7 +140,7 @@ export default function TokenDetails({
   const { token: detailedToken, didFetchFromChain } = useRelevantToken(address, pageChainId, tokenQueryData)
 
   const tokenWarning = address ? checkWarning(address) : null
-  const isBlockedToken = tokenWarning?.canProceed === false
+  const isBlockedToken = false
   const navigate = useNavigate()
 
   const isInfoExplorePageEnabled = useInfoExplorePageEnabled()
@@ -163,11 +163,11 @@ export default function TokenDetails({
             })
           )
         )
-      } else if (didFetchFromChain || detailedToken?.isNative) {
+      } else if (didFetchFromChain) {
         startTokenTransition(() => navigate(getTokenDetailsURL({ address, chain: update, isInfoExplorePageEnabled })))
       }
     },
-    [address, crossChainMap, didFetchFromChain, detailedToken?.isNative, navigate, isInfoExplorePageEnabled]
+    [address, crossChainMap, didFetchFromChain, navigate, isInfoExplorePageEnabled]
   )
   useOnGlobalChainSwitch(navigateToTokenForChain)
 
@@ -231,15 +231,13 @@ export default function TokenDetails({
             </BreadcrumbNavLink>
             <TokenInfoContainer data-testid="token-info-container">
               <TokenNameCell>
-                <PortfolioLogo currencies={[detailedToken]} chainId={detailedToken.chainId} size="32px" />
+                {/* <PortfolioLogo currencies={[detailedToken]} chainId={detailedToken.chainId} size="32px" /> */}
                 <TokenTitle>
                   {detailedToken.name ?? <Trans>Name not found</Trans>}
                   <TokenSymbol>{detailedToken.symbol ?? <Trans>Symbol not found</Trans>}</TokenSymbol>
                 </TokenTitle>
               </TokenNameCell>
-              <TokenActions>
-                <ShareButton currency={detailedToken} />
-              </TokenActions>
+              <TokenActions>{/* <ShareButton currency={detailedToken} /> */}</TokenActions>
             </TokenInfoContainer>
             <ChartSection tokenPriceQuery={tokenPriceQuery} onChangeTimePeriod={onChangeTimePeriod} />
 
@@ -259,7 +257,7 @@ export default function TokenDetails({
               homepageUrl={tokenQueryData?.project?.homepageUrl}
               twitterName={tokenQueryData?.project?.twitterName}
             />
-            {!detailedToken.isNative && <AddressSection address={address} />}
+            {/* {!detailedToken.isNative && <AddressSection address={address} />} */}
           </LeftPanel>
         ) : (
           <TokenDetailsSkeleton />
@@ -276,9 +274,9 @@ export default function TokenDetails({
             />
           </div>
           {tokenWarning && <TokenSafetyMessage tokenAddress={address} warning={tokenWarning} />}
-          {!isInfoTDPEnabled && detailedToken && <BalanceSummary token={detailedToken} />}
+          {/* {!isInfoTDPEnabled && detailedToken && <BalanceSummary token={detailedToken} />} */}
         </RightPanel>
-        {!isInfoTDPEnabled && detailedToken && <MobileBalanceSummaryFooter token={detailedToken} />}
+        {/* {!isInfoTDPEnabled && detailedToken && <MobileBalanceSummaryFooter token={detailedToken} />} */}
 
         <TokenSafetyModal
           isOpen={openTokenSafetyModal || !!continueSwap}

@@ -1,9 +1,10 @@
-import gql from 'graphql-tag';
+import gql from 'graphql-tag'
 
-import { DEFAULT_ERC20_DECIMALS } from 'constants/tokens';
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo';
-import { TokenQuery } from './types-and-hooks';
-import { supportedChainIdFromGQLChain } from './util';
+import { DEFAULT_ERC20_DECIMALS } from 'constants/tokens'
+import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { TokenQuery } from './types-and-hooks'
+import { supportedChainIdFromGQLChain } from './util'
+import { WrappedTokenInfoV2 } from 'state/lists/wrappedTokenInfoV2'
 
 // The difference between Token and TokenProject:
 // Token: an on-chain entity referring to a contract (e.g. uni token on ethereum 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984)
@@ -61,7 +62,7 @@ gql`
       }
     }
   }
-`;
+`
 
 gql`
   query TokenProject($chain: Chain!, $address: String = null) {
@@ -87,16 +88,16 @@ gql`
       }
     }
   }
-`;
+`
 
-export type { Chain, TokenQuery } from './types-and-hooks';
+export type { Chain, TokenQuery } from './types-and-hooks'
 
 export type TokenQueryData = TokenQuery['token']
 
 // TODO: Return a QueryToken from useTokenQuery instead of TokenQueryData to make it more usable in Currency-centric interfaces.
-export class QueryToken extends WrappedTokenInfo {
+export class QueryToken extends WrappedTokenInfoV2 {
   constructor(address: string, data: NonNullable<TokenQueryData>, logoSrc?: string) {
-    const chainId = supportedChainIdFromGQLChain(data.chain);
+    const chainId = supportedChainIdFromGQLChain(data.chain)
     if (chainId) {
       super({
         chainId,
@@ -105,7 +106,7 @@ export class QueryToken extends WrappedTokenInfo {
         symbol: data.symbol ?? '',
         name: data.name ?? '',
         logoURI: logoSrc ?? data.project?.logoUrl ?? undefined,
-      });
+      })
     }
   }
 }

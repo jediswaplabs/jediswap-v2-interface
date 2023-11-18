@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Percent } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
-import SettingsTab from 'components/Settings'
+// import SettingsTab from 'components/Settings'
 import { ReactNode } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { Link, useLocation } from 'react-router-dom'
@@ -114,7 +114,7 @@ export function AddRemoveTabs({
           )}
         </AddRemoveTitleText>
         {children && <Box style={{ marginRight: '.5rem' }}>{children}</Box>}
-        <SettingsTab autoSlippage={autoSlippage} chainId={chainId} hideRoutingSettings />
+        {/* <SettingsTab autoSlippage={autoSlippage} chainId={chainId} hideRoutingSettings /> */}
       </RowBetween>
     </Tabs>
   )

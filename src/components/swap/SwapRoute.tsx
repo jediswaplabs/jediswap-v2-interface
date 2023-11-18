@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import Column from 'components/Column'
-import RoutingDiagram from 'components/RoutingDiagram/RoutingDiagram'
+// import RoutingDiagram from 'components/RoutingDiagram/RoutingDiagram'
 import { RowBetween } from 'components/Row'
 import { SUPPORTED_GAS_ESTIMATE_CHAIN_IDS } from 'constants/chains'
 import useAutoRouterSupported from 'hooks/useAutoRouterSupported'
@@ -67,7 +67,7 @@ export function SwapRoute({ trade }: { trade: ClassicTrade }) {
 
   return useAutoRouterSupported() ? (
     <Column gap="md">
-      <RoutingDiagram routes={routes} currencyIn={inputAmount.currency} currencyOut={outputAmount.currency} />
+      {/* <RoutingDiagram routes={routes} currencyIn={inputAmount.currency} currencyOut={outputAmount.currency} /> */}
       <ThemedText.Caption color="neutral2">
         {Boolean(gasPrice) && <Trans>Best price route costs ~{gasPrice} in gas. </Trans>}
         {Boolean(gasPrice) && ' '}
@@ -78,6 +78,7 @@ export function SwapRoute({ trade }: { trade: ClassicTrade }) {
       </ThemedText.Caption>
     </Column>
   ) : (
-    <RoutingDiagram routes={routes} currencyIn={inputAmount.currency} currencyOut={outputAmount.currency} />
+    // <RoutingDiagram routes={routes} currencyIn={inputAmount.currency} currencyOut={outputAmount.currency} />
+    <></>
   )
 }

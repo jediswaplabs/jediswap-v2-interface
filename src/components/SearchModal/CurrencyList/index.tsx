@@ -1,31 +1,32 @@
-import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events';
-import { Currency, CurrencyAmount, Token } from '@uniswap/sdk-core';
-import { useWeb3React } from '@web3-react/core';
-import { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react';
-import { Check } from 'react-feather';
-import { FixedSizeList } from 'react-window';
-import { Text } from 'rebass';
-import styled from 'styled-components';
+import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
+import { Currency, CurrencyAmount, Token } from '@jediswap/sdk'
+import { useWeb3React } from '@web3-react/core'
+import { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
+import { Check } from 'react-feather'
+import { FixedSizeList } from 'react-window'
+import { Text } from 'rebass'
+import styled from 'styled-components'
 
-import { TraceEvent } from 'analytics';
-import Loader from 'components/Icons/LoadingSpinner';
-import { useCachedPortfolioBalancesQuery } from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper';
-import TokenSafetyIcon from 'components/TokenSafety/TokenSafetyIcon';
-import { checkWarning } from 'constants/tokenSafety';
-import { TokenBalances } from 'lib/hooks/useTokenList/sorting';
-import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount';
-import { ThemedText } from 'theme/components';
-import { useIsUserAddedToken } from '../../../hooks/Tokens';
-import { WrappedTokenInfo } from '../../../state/lists/wrappedTokenInfo';
-import Column, { AutoColumn } from '../../Column';
-import CurrencyLogo from '../../Logo/CurrencyLogo';
-import Row, { RowFixed } from '../../Row';
-import { MouseoverTooltip } from '../../Tooltip';
-import { LoadingRows, MenuItem } from '../styled';
-import { scrollbarStyle } from './index.css';
+import { TraceEvent } from 'analytics'
+import Loader from 'components/Icons/LoadingSpinner'
+import { useCachedPortfolioBalancesQuery } from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
+import TokenSafetyIcon from 'components/TokenSafety/TokenSafetyIcon'
+import { checkWarning } from 'constants/tokenSafety'
+import { TokenBalances } from 'lib/hooks/useTokenList/sorting'
+import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
+import { ThemedText } from 'theme/components'
+import { useIsUserAddedToken } from '../../../hooks/Tokens'
+import { WrappedTokenInfo } from '../../../state/lists/wrappedTokenInfo'
+import Column, { AutoColumn } from '../../Column'
+import CurrencyLogo from '../../Logo/CurrencyLogo'
+import Row, { RowFixed } from '../../Row'
+import { MouseoverTooltip } from '../../Tooltip'
+import { LoadingRows, MenuItem } from '../styled'
+import { scrollbarStyle } from './index.css'
 
 function currencyKey(currency: Currency): string {
-  return currency.isToken ? currency.address : 'ETHER';
+  // return currency.isToken ? currency.address : 'ETHER';
+  return 'ETHER'
 }
 
 const CheckIcon = styled(Check)`
@@ -33,20 +34,20 @@ const CheckIcon = styled(Check)`
   width: 20px;
   margin-left: 4px;
   color: ${({ theme }) => theme.accent1};
-`;
+`
 
 const StyledBalanceText = styled(Text)`
   white-space: nowrap;
   overflow: hidden;
   max-width: 5rem;
   text-overflow: ellipsis;
-`;
+`
 
 const CurrencyName = styled(Text)`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-`;
+`
 
 const Tag = styled.div`
   background-color: ${({ theme }) => theme.surface2};
@@ -60,30 +61,32 @@ const Tag = styled.div`
   white-space: nowrap;
   justify-self: flex-end;
   margin-right: 4px;
-`;
+`
 
 const WarningContainer = styled.div`
   margin-left: 0.3em;
-`;
+`
 
-function Balance({ balance }: { balance: CurrencyAmount<Currency> }) {
-  return <StyledBalanceText title={balance.toExact()}>{balance.toSignificant(4)}</StyledBalanceText>;
+function Balance({ balance }: { balance: CurrencyAmount }) {
+  return <StyledBalanceText title={balance.toExact()}>{balance.toSignificant(4)}</StyledBalanceText>
 }
 
 const TagContainer = styled.div`
   display: flex;
   justify-content: flex-end;
-`;
+`
 
 function TokenTags({ currency }: { currency: Currency }) {
   if (!(currency instanceof WrappedTokenInfo)) {
-    return null;
+    return null
   }
 
-  const { tags } = currency;
-  if (!tags || tags.length === 0) { return <span />; }
+  const { tags } = currency
+  if (!tags || tags.length === 0) {
+    return <span />
+  }
 
-  const tag = tags[0];
+  const tag = tags[0]
 
   return (
     <TagContainer>
@@ -101,34 +104,37 @@ function TokenTags({ currency }: { currency: Currency }) {
         </MouseoverTooltip>
       ) : null}
     </TagContainer>
-  );
+  )
 }
 
-export function CurrencyRow({ currency,
+export function CurrencyRow({
+  currency,
   onSelect,
   isSelected,
   otherSelected,
   style,
   showCurrencyAmount,
   eventProperties,
-  balance }: {
+  balance,
+}: {
   currency: Currency
   onSelect: (hasWarning: boolean) => void
   isSelected: boolean
   otherSelected: boolean
   style?: CSSProperties
   showCurrencyAmount?: boolean
-  eventProperties: Record<string, unknown>
-  balance?: CurrencyAmount<Currency>
+  eventProperties?: Record<string, unknown>
+  balance?: CurrencyAmount
 }) {
-  const { account } = useWeb3React();
-  const key = currencyKey(currency);
-  const customAdded = useIsUserAddedToken(currency);
-  const warning = currency.isNative ? null : checkWarning(currency.address);
-  const isBlockedToken = !!warning && !warning.canProceed;
-  const blockedTokenOpacity = '0.6';
-  const { data } = useCachedPortfolioBalancesQuery({ account });
-  const portfolioBalanceUsd = data?.portfolios?.[0].tokensTotalDenominatedValue?.value;
+  const { account } = useWeb3React()
+  const key = currencyKey(currency)
+  const customAdded = useIsUserAddedToken(currency)
+  // const warning = currency.isNative ? null : checkWarning(currency.address);
+  const warning = false
+  const isBlockedToken = false
+  const blockedTokenOpacity = '0.6'
+  const { data } = useCachedPortfolioBalancesQuery({ account })
+  const portfolioBalanceUsd = data?.portfolios?.[0].tokensTotalDenominatedValue?.value
 
   // only show add or remove buttons if not on selected list
   return (
@@ -158,9 +164,7 @@ export function CurrencyRow({ currency,
         <AutoColumn style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}>
           <Row>
             <CurrencyName title={currency.name}>{currency.name}</CurrencyName>
-            <WarningContainer>
-              <TokenSafetyIcon warning={warning} />
-            </WarningContainer>
+            <WarningContainer>{/* <TokenSafetyIcon warning={warning} /> */}</WarningContainer>
           </Row>
           <ThemedText.LabelMicro ml="0px">{currency.symbol}</ThemedText.LabelMicro>
         </AutoColumn>
@@ -183,7 +187,7 @@ export function CurrencyRow({ currency,
         )}
       </MenuItem>
     </TraceEvent>
-  );
+  )
 }
 
 interface TokenRowProps {
@@ -197,7 +201,7 @@ export const formatAnalyticsEventProperties = (
   index: number,
   data: any[],
   searchQuery: string,
-  isAddressSearch: string | false,
+  isAddressSearch: string | false
 ) => ({
   token_symbol: token?.symbol,
   token_address: token?.address,
@@ -209,7 +213,7 @@ export const formatAnalyticsEventProperties = (
   ...(isAddressSearch === false
     ? { search_token_symbol_input: searchQuery }
     : { search_token_address_input: isAddressSearch }),
-});
+})
 
 const LoadingRow = () => (
   <LoadingRows data-testid="loading-rows">
@@ -217,9 +221,10 @@ const LoadingRow = () => (
     <div />
     <div />
   </LoadingRows>
-);
+)
 
-export default function CurrencyList({ height,
+export default function CurrencyList({
+  height,
   currencies,
   otherListTokens,
   selectedCurrency,
@@ -230,7 +235,8 @@ export default function CurrencyList({ height,
   isLoading,
   searchQuery,
   isAddressSearch,
-  balances }: {
+  balances,
+}: {
   height: number
   currencies: Currency[]
   otherListTokens?: WrappedTokenInfo[]
@@ -246,45 +252,45 @@ export default function CurrencyList({ height,
 }) {
   const itemData: Currency[] = useMemo(() => {
     if (otherListTokens && otherListTokens?.length > 0) {
-      return [...currencies, ...otherListTokens];
+      return [...currencies, ...otherListTokens]
     }
-    return currencies;
-  }, [currencies, otherListTokens]);
+    return currencies
+  }, [currencies, otherListTokens])
 
   const Row = useCallback(
     ({ data, index, style }: TokenRowProps) => {
-      const row: Currency = data[index];
+      const row: Currency = data[index]
 
-      const currency = row;
+      const currency = row
 
-      const balance = tryParseCurrencyAmount(
-        String(balances[currency.isNative ? 'ETH' : currency.address?.toLowerCase()]?.balance ?? 0),
-        currency,
-      ) ?? CurrencyAmount.fromRawAmount(currency, 0);
+      // const balance = tryParseCurrencyAmount(
+      //   String(balances[currency.isNative ? 'ETH' : currency.address?.toLowerCase()]?.balance ?? 0),
+      //   currency,
+      // ) ?? CurrencyAmount.fromRawAmount(currency, 0);
 
-      const isSelected = Boolean(currency && selectedCurrency && selectedCurrency.equals(currency));
-      const otherSelected = Boolean(currency && otherCurrency && otherCurrency.equals(currency));
-      const handleSelect = (hasWarning: boolean) => currency && onCurrencySelect(currency, hasWarning);
+      // const isSelected = Boolean(currency && selectedCurrency && selectedCurrency.equals(currency));
+      // const otherSelected = Boolean(currency && otherCurrency && otherCurrency.equals(currency));
+      const handleSelect = (hasWarning: boolean) => currency && onCurrencySelect(currency, hasWarning)
 
-      const token = currency?.wrapped;
+      // const token = currency?.wrapped;
 
       if (isLoading) {
-        return LoadingRow();
-      } if (currency) {
+        return LoadingRow()
+      }
+      if (currency) {
         return (
           <CurrencyRow
             style={style}
             currency={currency}
-            isSelected={isSelected}
+            isSelected={true}
             onSelect={handleSelect}
-            otherSelected={otherSelected}
+            otherSelected={false}
             showCurrencyAmount={showCurrencyAmount}
-            eventProperties={formatAnalyticsEventProperties(token, index, data, searchQuery, isAddressSearch)}
-            balance={balance}
+            // balance={balance}
           />
-        );
+        )
       }
-      return null;
+      return null
     },
     [
       selectedCurrency,
@@ -295,13 +301,13 @@ export default function CurrencyList({ height,
       searchQuery,
       isAddressSearch,
       balances,
-    ],
-  );
+    ]
+  )
 
   const itemKey = useCallback((index: number, data: typeof itemData) => {
-    const currency = data[index];
-    return currencyKey(currency);
-  }, []);
+    const currency = data[index]
+    return currencyKey(currency)
+  }, [])
 
   return (
     <div data-testid="currency-list-wrapper">
@@ -332,5 +338,5 @@ export default function CurrencyList({ height,
         </FixedSizeList>
       )}
     </div>
-  );
+  )
 }
