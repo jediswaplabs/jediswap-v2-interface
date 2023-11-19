@@ -121,6 +121,14 @@ const PoolsHeading = styled.div`
   font-size: 24px;
   font-weight: 750;
 `
+const PositionsText = styled.div`
+  color: ${({ theme }) => theme.jediWhite};
+  font-family: DM Sans;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 100%; /* 20px */
+`
 const ButtonRow = styled(RowFixed)`
   & > *:not(:last-child) {
     margin-left: 8px;
@@ -197,10 +205,12 @@ const InboxIcon = styled(Inbox)`
 `
 
 const ResponsiveButtonPrimary = styled(ButtonPrimary)`
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 16px;
   padding: 6px 8px;
-  width: fit-content;
+  width: 175px;
+  margin-left: auto;
+  height: 38px;
   @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     flex: 1 1 auto;
     width: 50%;
@@ -342,7 +352,7 @@ export default function Pool() {
               <ThemedText.LargeHeader>
                 <PoolsHeading>Pools</PoolsHeading>
               </ThemedText.LargeHeader>
-              <ButtonRow>
+              {/* <ButtonRow>
                 {networkSupportsV2 && (
                   <PoolMenu
                     menuItems={menuItems}
@@ -360,9 +370,9 @@ export default function Pool() {
                 <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
                   + <Trans>New position</Trans>
                 </ResponsiveButtonPrimary>
-              </ButtonRow>
+              </ButtonRow> */}
             </TitleRow>
-            <Row>
+            <Row style={{ marginTop: '20px', marginBottom: '20px' }}>
               <AutoColumn>
                 <PoolsCard>
                   <PoolsCardHeader>Total Liquidity</PoolsCardHeader>
@@ -390,6 +400,13 @@ export default function Pool() {
                   </PoolsCardDetails>
                 </PoolsCard>
               </AutoColumn>
+            </Row>
+
+            <Row>
+              <PositionsText>My Positions</PositionsText>
+              <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
+                + <Trans>New position</Trans>
+              </ResponsiveButtonPrimary>
             </Row>
 
             <MainContentWrapper>
