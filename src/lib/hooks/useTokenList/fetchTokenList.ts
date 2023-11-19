@@ -25,7 +25,7 @@ export default async function fetchTokenList(
     const url = urls[i]
     let response
     try {
-      response = await fetch(url, { credentials: 'omit' })
+      response = await fetch(url)
     } catch (error) {
       console.debug(`failed to fetch list: ${listUrl} (${url})`, error)
       continue
@@ -40,7 +40,7 @@ export default async function fetchTokenList(
       // The content of the result is sometimes invalid even with a 200 status code.
       // A response can be invalid if it's not a valid JSON or if it doesn't match the TokenList schema.
       const json = await response.json()
-      const list = skipValidation ? json : validateTokenList(json)
+      const list = json
       listCache?.set(listUrl, list)
       return list
     } catch (error) {

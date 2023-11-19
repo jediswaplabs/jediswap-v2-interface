@@ -21,9 +21,7 @@ export default function Updater(): null {
 
   // get all loaded lists, and the active urls
   const lists = useAllLists()
-  console.log('🚀 ~ file: updater.ts:24 ~ Updater ~ lists:', lists)
   const listsState = useAppSelector((state) => state.lists)
-  console.log('🚀 ~ file: updater.ts:26 ~ Updater ~ listsState:', listsState)
   const rehydrated = useStateRehydrated()
 
   // useEffect(() => {
