@@ -1,54 +1,56 @@
-import { Trans } from '@lingui/macro';
-import { ReactNode } from 'react';
-import { ChevronRight } from 'react-feather';
-import styled from 'styled-components';
+import { Trans } from '@lingui/macro'
+import { ReactNode } from 'react'
+import { ChevronRight } from 'react-feather'
+import styled from 'styled-components'
 
-import Column from 'components/Column';
-import Row from 'components/Row';
-import { LOCALE_LABEL } from 'constants/locales';
-import { useCurrencyConversionFlagEnabled } from 'featureFlags/flags/currencyConversion';
-import { useActiveLocalCurrency } from 'hooks/useActiveLocalCurrency';
-import { useActiveLocale } from 'hooks/useActiveLocale';
-import { ClickableStyle, ThemedText } from 'theme/components';
-import { GitVersionRow } from './GitVersionRow';
-import { LanguageMenuItems } from './LanguageMenu';
-import { SlideOutMenu } from './SlideOutMenu';
-import { SmallBalanceToggle } from './SmallBalanceToggle';
+import Column from 'components/Column'
+import Row from 'components/Row'
+import { LOCALE_LABEL } from 'constants/locales'
+import { useCurrencyConversionFlagEnabled } from 'featureFlags/flags/currencyConversion'
+import { useActiveLocalCurrency } from 'hooks/useActiveLocalCurrency'
+import { useActiveLocale } from 'hooks/useActiveLocale'
+import { ClickableStyle, ThemedText } from 'theme/components'
+import { GitVersionRow } from './GitVersionRow'
+import { LanguageMenuItems } from './LanguageMenu'
+import { SlideOutMenu } from './SlideOutMenu'
+import { SmallBalanceToggle } from './SmallBalanceToggle'
 
 const Container = styled(Column)`
   height: 100%;
   justify-content: space-between;
-`;
+`
 
 const SectionTitle = styled(ThemedText.SubHeader)`
   color: ${({ theme }) => theme.neutral2};
   padding-bottom: 24px;
-`;
+`
 
 const ToggleWrapper = styled.div<{ currencyConversionEnabled?: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 16px;
   margin-bottom: ${({ currencyConversionEnabled }) => (currencyConversionEnabled ? '10px' : '24px')};
-`;
+`
 
 const SettingsButtonWrapper = styled(Row)`
   ${ClickableStyle};
   padding: 16px 0px;
-`;
+`
 
 const StyledChevron = styled(ChevronRight)`
   color: ${({ theme }) => theme.neutral2};
-`;
+`
 
 const LanguageLabel = styled(Row)`
   white-space: nowrap;
-`;
+`
 
-const SettingsButton = ({ title,
+const SettingsButton = ({
+  title,
   currentState,
   onClick,
-  testId }: {
+  testId,
+}: {
   title: ReactNode
   currentState: ReactNode
   onClick: () => void
@@ -61,29 +63,31 @@ const SettingsButton = ({ title,
       <StyledChevron size={20} />
     </LanguageLabel>
   </SettingsButtonWrapper>
-);
+)
 
-export default function SettingsMenu({ onClose,
+export default function SettingsMenu({
+  onClose,
   openLanguageSettings,
-  openLocalCurrencySettings }: {
+  openLocalCurrencySettings,
+}: {
   onClose: () => void
   openLanguageSettings: () => void
   openLocalCurrencySettings: () => void
 }) {
-  const currencyConversionEnabled = useCurrencyConversionFlagEnabled();
-  const activeLocale = useActiveLocale();
-  const activeLocalCurrency = useActiveLocalCurrency();
+  const currencyConversionEnabled = useCurrencyConversionFlagEnabled()
+  const activeLocale = useActiveLocale()
+  const activeLocalCurrency = useActiveLocalCurrency()
 
   return (
     <SlideOutMenu title={<Trans>Settings</Trans>} onClose={onClose}>
       <Container>
         <div>
-          <SectionTitle data-testid="wallet-header">
+          {/* <SectionTitle data-testid="wallet-header">
             <Trans>Preferences</Trans>
-          </SectionTitle>
-          <ToggleWrapper currencyConversionEnabled={currencyConversionEnabled}>
+          </SectionTitle> */}
+          {/* <ToggleWrapper currencyConversionEnabled={currencyConversionEnabled}>
             <SmallBalanceToggle />
-          </ToggleWrapper>
+          </ToggleWrapper> */}
           {!currencyConversionEnabled && (
             <>
               <SectionTitle data-testid="wallet-header">
@@ -113,5 +117,5 @@ export default function SettingsMenu({ onClose,
         <GitVersionRow />
       </Container>
     </SlideOutMenu>
-  );
+  )
 }

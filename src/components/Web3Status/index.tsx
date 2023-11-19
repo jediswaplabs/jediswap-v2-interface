@@ -1,24 +1,24 @@
-import { Trans } from '@lingui/macro';
-import { useWeb3React } from '@web3-react/core';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
-import styled from 'styled-components';
+import { Trans } from '@lingui/macro'
+import { useWeb3React } from '@web3-react/core'
+import { useCallback, useEffect, useMemo, useRef } from 'react'
+import styled from 'styled-components'
 
-import PortfolioDrawer, { useAccountDrawer } from 'components/AccountDrawer';
-import { usePendingActivity } from 'components/AccountDrawer/MiniPortfolio/Activity/hooks';
-import Loader from 'components/Icons/LoadingSpinner';
-import StatusIcon, { IconWrapper } from 'components/Identicon/StatusIcon';
-import PrefetchBalancesWrapper from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper';
-import { getConnection } from 'connection';
-import { useConnectionReady } from 'connection/eagerlyConnect';
-import { ConnectionMeta, getPersistedConnectionMeta, setPersistedConnectionMeta } from 'connection/meta';
-import useENSName from 'hooks/useENSName';
-import useLast from 'hooks/useLast';
-import { Portal } from 'nft/components/common/Portal';
-import { useAppSelector } from 'state/hooks';
-import { flexRowNoWrap } from 'theme/styles';
-import { shortenAddress } from 'utils';
-import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button';
-import { RowBetween } from '../Row';
+import PortfolioDrawer, { useAccountDrawer } from 'components/AccountDrawer'
+import { usePendingActivity } from 'components/AccountDrawer/MiniPortfolio/Activity/hooks'
+import Loader from 'components/Icons/LoadingSpinner'
+import StatusIcon, { IconWrapper } from 'components/Identicon/StatusIcon'
+import PrefetchBalancesWrapper from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
+import { getConnection } from 'connection'
+import { useConnectionReady } from 'connection/eagerlyConnect'
+import { ConnectionMeta, getPersistedConnectionMeta, setPersistedConnectionMeta } from 'connection/meta'
+import useENSName from 'hooks/useENSName'
+import useLast from 'hooks/useLast'
+import { Portal } from 'nft/components/common/Portal'
+import { useAppSelector } from 'state/hooks'
+import { flexRowNoWrap } from 'theme/styles'
+import { shortenAddress } from 'utils'
+import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
+import { RowBetween } from '../Row'
 
 const Web3StatusGeneric = styled(ButtonSecondary)`
   ${flexRowNoWrap};
@@ -30,78 +30,76 @@ const Web3StatusGeneric = styled(ButtonSecondary)`
   height: 38px;
   font-size: 16px;
   font-weight: 600;
-  
+
   :focus {
     outline: none;
   }
-`;
+`
 
-const Web3StatusConnectWrapper = styled.div`
-`;
+const Web3StatusConnectWrapper = styled.div``
 
 const Web3StatusConnected = styled(Web3StatusGeneric)<{
   pending?: boolean
   isClaimAvailable?: boolean
 }>`
-  background-color: ${({ theme }) => (theme.surface5)};
-  border: 2px solid ${({ theme }) => (theme.white)};
-  color: ${({ theme }) => (theme.white)};
+  background-color: ${({ theme }) => theme.surface5};
+  border: 2px solid ${({ theme }) => theme.white};
+  color: ${({ theme }) => theme.white};
   padding: 10px 24px;
-  
+
   :hover,
   :focus {
     border: 2px solid ${({ theme }) => theme.white};
   }
-`;
+`
 
 const Web3StatusConnecting = styled(Web3StatusConnected)`
   &:disabled {
     opacity: 1;
   }
-`;
+`
 
 const AddressAndChevronContainer = styled.div<{ loading?: boolean }>`
   display: flex;
   opacity: ${({ loading, theme }) => loading && theme.opacity.disabled};
-`;
+`
 
 const Text = styled.p`
   flex: 1 1 auto;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin:0;
+  margin: 0;
   font-size: 16px;
   width: fit-content;
   font-weight: 600;
-`;
+`
 
 const StyledConnectButton = styled(ThemeButton)`
   width: 200px;
   line-height: 18px;
-  border: 2px solid ${({ theme }) => (theme.white)};
   :hover,
   :focus {
     background: ${({ theme }) => theme.brandedGradientReversed};
   }
-`;
+`
 
 function Web3StatusInner() {
-  const switchingChain = useAppSelector((state) => state.wallets.switchingChain);
-  const ignoreWhileSwitchingChain = useCallback(() => !switchingChain, [switchingChain]);
-  const connectionReady = useConnectionReady();
-  const activeWeb3 = useWeb3React();
-  const lastWeb3 = useLast(useWeb3React(), ignoreWhileSwitchingChain);
-  const { account, connector } = useMemo(() => (activeWeb3.account ? activeWeb3 : lastWeb3), [activeWeb3, lastWeb3]);
-  const { ENSName, loading: ENSLoading } = useENSName(account);
-  const connection = getConnection(connector);
+  const switchingChain = useAppSelector((state) => state.wallets.switchingChain)
+  const ignoreWhileSwitchingChain = useCallback(() => !switchingChain, [switchingChain])
+  const connectionReady = useConnectionReady()
+  const activeWeb3 = useWeb3React()
+  const lastWeb3 = useLast(useWeb3React(), ignoreWhileSwitchingChain)
+  const { account, connector } = useMemo(() => (activeWeb3.account ? activeWeb3 : lastWeb3), [activeWeb3, lastWeb3])
+  const { ENSName, loading: ENSLoading } = useENSName(account)
+  const connection = getConnection(connector)
 
-  const [, toggleAccountDrawer] = useAccountDrawer();
+  const [, toggleAccountDrawer] = useAccountDrawer()
   const handleWalletDropdownClick = useCallback(() => {
-    toggleAccountDrawer();
-  }, [toggleAccountDrawer]);
+    toggleAccountDrawer()
+  }, [toggleAccountDrawer])
 
-  const { hasPendingActivity, pendingActivityCount } = usePendingActivity();
+  const { hasPendingActivity, pendingActivityCount } = usePendingActivity()
 
   // Display a loading state while initializing the connection, based on the last session's persisted connection.
   // The connection will go through three states:
@@ -109,17 +107,17 @@ function Web3StatusInner() {
   // - initializing:  account is available, but ENS (if preset on the persisted initialMeta) is still loading
   // - initialized:   account and ENS are available
   // Subsequent connections are always considered initialized, and will not display startup/initializing states.
-  const initialConnection = useRef(getPersistedConnectionMeta());
+  const initialConnection = useRef(getPersistedConnectionMeta())
   const isConnectionInitializing = Boolean(
-    initialConnection.current?.address === account && initialConnection.current?.ENSName && ENSLoading,
-  );
-  const isConnectionInitialized = connectionReady && !isConnectionInitializing;
+    initialConnection.current?.address === account && initialConnection.current?.ENSName && ENSLoading
+  )
+  const isConnectionInitialized = connectionReady && !isConnectionInitializing
   // Clear the initial connection once initialized so it does not interfere with subsequent connections.
   useEffect(() => {
     if (isConnectionInitialized) {
-      initialConnection.current = undefined;
+      initialConnection.current = undefined
     }
-  }, [isConnectionInitialized]);
+  }, [isConnectionInitialized])
   // Persist the connection if it changes, so it can be used to initialize the next session's connection.
   useEffect(() => {
     if (account || ENSName) {
@@ -127,10 +125,10 @@ function Web3StatusInner() {
         type: connection.type,
         address: account,
         ENSName: ENSName ?? undefined,
-      };
-      setPersistedConnectionMeta(meta);
+      }
+      setPersistedConnectionMeta(meta)
     }
-  }, [ENSName, account, connection.type]);
+  }, [ENSName, account, connection.type])
 
   if (!isConnectionInitialized) {
     return (
@@ -142,7 +140,7 @@ function Web3StatusInner() {
           <Text>{initialConnection.current?.ENSName ?? shortenAddress(initialConnection.current?.address)}</Text>
         </AddressAndChevronContainer>
       </Web3StatusConnecting>
-    );
+    )
   }
 
   if (account) {
@@ -169,7 +167,7 @@ function Web3StatusInner() {
           </AddressAndChevronContainer>
         )}
       </Web3StatusConnected>
-    );
+    )
   }
   return (
     <Web3StatusConnectWrapper
@@ -181,11 +179,11 @@ function Web3StatusInner() {
         <Trans>Connect Wallet</Trans>
       </StyledConnectButton>
     </Web3StatusConnectWrapper>
-  );
+  )
 }
 
 export default function Web3Status() {
-  const [isDrawerOpen] = useAccountDrawer();
+  const [isDrawerOpen] = useAccountDrawer()
   return (
     <PrefetchBalancesWrapper shouldFetchOnAccountUpdate={isDrawerOpen}>
       <Web3StatusInner />
@@ -193,5 +191,5 @@ export default function Web3Status() {
         <PortfolioDrawer />
       </Portal>
     </PrefetchBalancesWrapper>
-  );
+  )
 }
