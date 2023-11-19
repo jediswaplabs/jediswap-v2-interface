@@ -7,6 +7,7 @@ const jediGrey = '#959595'
 const jediNavyBlue = '#141451'
 const signalGreen = '#21E70F'
 const jediGreyBorder = '#444'
+const signalRed = '#FC4D4D'
 
 export const colors = {
   white: '#FFFFFF',
@@ -184,6 +185,7 @@ const commonTheme = {
   jediNavyBlue,
   signalGreen,
   jediGreyBorder,
+  signalRed,
 }
 
 export const darkTheme = {
