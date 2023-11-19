@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfacePageName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { AlertTriangle, BookOpen, ChevronDown, ChevronsRight, Inbox, Layers } from 'react-feather'
 import { Link } from 'react-router-dom'
 import styled, { css, useTheme } from 'styled-components'
@@ -24,6 +24,7 @@ import { HideSmall, ThemedText } from 'theme/components'
 import CTACards from './CTACards'
 import { LoadingRows } from './styled'
 import WalletIcon from '../../assets/wallets/Wallet.png'
+import NoPositionsIcon from '../../assets/images/noPosition.png'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 68px 8px 0px;
@@ -112,6 +113,21 @@ const PoolsCardPercentNegative = styled.div`
   font-style: normal;
   font-weight: 500;
   line-height: 100%;
+`
+
+const NoPositions = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: auto;
+  min-height: 25vh;
+  height: 240px;
+`
+
+const NewPositionText = styled.div`
+  margin-top: 12px;
+  margin-bottom: 20px;
 `
 
 const PoolsHeading = styled.div`
@@ -280,6 +296,7 @@ function WrongNetworkCard() {
 
 export default function Pool() {
   const { account, chainId } = useWeb3React()
+  const [isWalletConnected, setIsWalletConnected] = useState(true)
   const networkSupportsV2 = useNetworkSupportsV2()
   const toggleWalletDrawer = useToggleAccountDrawer()
 
@@ -409,14 +426,26 @@ export default function Pool() {
             </Row>
 
             <MainContentWrapper>
-              {positionsLoading ? (
-                <PositionsLoadingPlaceholder />
-              ) : filteredPositions && closedPositions && filteredPositions.length > 0 ? (
-                <PositionList
-                  positions={filteredPositions}
-                  setUserHideClosedPositions={setUserHideClosedPositions}
-                  userHideClosedPositions={userHideClosedPositions}
-                />
+              {isWalletConnected ? (
+                !filteredPositions.length ? (
+                  <NoPositions>
+                    <IconWrapper>
+                      <img src={NoPositionsIcon} alt={'Icon'} />
+                    </IconWrapper>
+                    <NewPositionText>
+                      <Trans>Open a new position</Trans>
+                    </NewPositionText>
+                    <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
+                      + <Trans>New position</Trans>
+                    </ResponsiveButtonPrimary>
+                  </NoPositions>
+                ) : (
+                  <PositionList
+                    positions={filteredPositions}
+                    setUserHideClosedPositions={setUserHideClosedPositions}
+                    userHideClosedPositions={userHideClosedPositions}
+                  />
+                )
               ) : (
                 <ErrorContainer>
                   <ThemedText.BodyPrimary color={theme.neutral3} textAlign="center">
@@ -453,9 +482,7 @@ export default function Pool() {
                 </ErrorContainer>
               )}
             </MainContentWrapper>
-            <HideSmall>
-              <CTACards />
-            </HideSmall>
+            <HideSmall>{filteredPositions.length ? null : <CTACards />}</HideSmall>
           </AutoColumn>
         </AutoColumn>
       </PageWrapper>
