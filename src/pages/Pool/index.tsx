@@ -218,10 +218,9 @@ const ResponsiveButtonPrimary = styled(ButtonPrimary)`
 `
 
 const MainContentWrapper = styled.main`
-  background-color: ${({ theme }) => theme.surface1};
-  border: 1px solid ${({ theme }) => theme.surface3};
+  background-color: ${({ theme }) => theme.jediNavyBlue};
   padding: 0;
-  border-radius: 16px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
