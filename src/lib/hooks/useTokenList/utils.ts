@@ -1,5 +1,5 @@
 import { TokenInfo, TokenList } from '@jediswap/token-lists'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
+import { WrappedTokenInfo } from 'state/lists/hooks'
 
 type TokenMap = Readonly<{ [tokenAddress: string]: { token: WrappedTokenInfo; list?: TokenList } }>
 // TODO(WEB-2347): replace usage of the misnomered TokenAddressMap w/ ChainTokenMap from src/hooks/Tokens.ts

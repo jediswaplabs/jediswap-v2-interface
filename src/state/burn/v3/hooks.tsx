@@ -64,7 +64,7 @@ export function useDerivedV3BurnInfo(
   const liquidityValue0 = undefined
   const liquidityValue1 = undefined
 
-  const [feeValue0, feeValue1] = useV3PositionFees(pool ?? undefined, position?.tokenId, asWETH)
+  const [feeValue0, feeValue1] = [undefined, undefined]
 
   const outOfRange = false
   let error: ReactNode | undefined

@@ -194,22 +194,22 @@ export default function Pool() {
   const theme = useTheme()
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
 
-  const { positions, loading: positionsLoading } = useV3Positions(account)
+  // const { positions, loading: positionsLoading } = useV3Positions(account)
 
-  const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
-    (acc, p) => {
-      acc[p.liquidity?.isZero() ? 1 : 0].push(p)
-      return acc
-    },
-    [[], []]
-  ) ?? [[], []]
+  // const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
+  //   (acc, p) => {
+  //     acc[p.liquidity?.isZero() ? 1 : 0].push(p)
+  //     return acc
+  //   },
+  //   [[], []]
+  // ) ?? [[], []]
 
-  const userSelectedPositionSet = useMemo(
-    () => [...openPositions, ...(userHideClosedPositions ? [] : closedPositions)],
-    [closedPositions, openPositions, userHideClosedPositions]
-  )
+  // const userSelectedPositionSet = useMemo(
+  //   () => [...openPositions, ...(userHideClosedPositions ? [] : closedPositions)],
+  //   [closedPositions, openPositions, userHideClosedPositions]
+  // )
 
-  const filteredPositions = [...userSelectedPositionSet]
+  const filteredPositions = [...[]]
 
   if (!isSupportedChain(chainId)) {
     return <WrongNetworkCard />
@@ -280,7 +280,7 @@ export default function Pool() {
               </ButtonRow>
             </TitleRow>
 
-            <MainContentWrapper>
+            {/* <MainContentWrapper>
               {positionsLoading ? (
                 <PositionsLoadingPlaceholder />
               ) : filteredPositions && closedPositions && filteredPositions.length > 0 ? (
@@ -322,7 +322,7 @@ export default function Pool() {
                   )}
                 </ErrorContainer>
               )}
-            </MainContentWrapper>
+            </MainContentWrapper> */}
             <HideSmall>
               <CTACards />
             </HideSmall>

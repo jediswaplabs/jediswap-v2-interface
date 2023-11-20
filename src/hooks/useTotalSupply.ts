@@ -9,10 +9,11 @@ import { useTokenContract } from './useContract'
 export function useTotalSupply(token?: Currency): CurrencyAmount<Token> | undefined {
   const contract = useTokenContract(token?.isToken ? token.address : undefined, false)
 
-  const totalSupplyStr: string | undefined = useSingleCallResult(contract, 'totalSupply')?.result?.[0]?.toString()
+  // const totalSupplyStr: string | undefined = useSingleCallResult(contract, 'totalSupply')?.result?.[0]?.toString()
 
-  return useMemo(
-    () => (token?.isToken && totalSupplyStr ? CurrencyAmount.fromRawAmount(token, totalSupplyStr) : undefined),
-    [token, totalSupplyStr]
-  )
+  // return useMemo(
+  //   () => (token?.isToken && totalSupplyStr ? CurrencyAmount.fromRawAmount(token, totalSupplyStr) : undefined),
+  //   [token, totalSupplyStr]
+  // )
+  return undefined
 }

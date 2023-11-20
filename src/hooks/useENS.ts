@@ -13,5 +13,5 @@ export default function useENS(nameOrAddress?: string | null) {
   const reverseLookup = useENSName(validated ? validated : undefined)
   const lookup = useENSAddress(nameOrAddress)
 
-  return {}
+  return { address: '', loading: false, name: '' }
 }

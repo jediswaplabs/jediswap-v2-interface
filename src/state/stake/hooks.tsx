@@ -3,7 +3,7 @@ import StakingRewardsJSON from '@uniswap/liquidity-staker/build/StakingRewards.j
 import { ChainId, CurrencyAmount, Token } from '@uniswap/sdk-core'
 import { Pair } from '@uniswap/v2-sdk'
 import { useWeb3React } from '@web3-react/core'
-import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
+// import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import JSBI from 'jsbi'
 import { NEVER_RELOAD, useMultipleContractSingleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
@@ -73,7 +73,7 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
   const { chainId, account } = useWeb3React()
 
   // detect if staking is ended
-  const currentBlockTimestamp = useCurrentBlockTimestamp()
+  // const currentBlockTimestamp = useCurrentBlockTimestamp()
 
   const info = useMemo(
     () =>
@@ -191,8 +191,7 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
         const periodFinishMs = periodFinishSeconds * 1000
 
         // compare period end timestamp vs current block timestamp (in seconds)
-        const active =
-          periodFinishSeconds && currentBlockTimestamp ? periodFinishSeconds > currentBlockTimestamp.toNumber() : true
+        const active = true
 
         memo.push({
           stakingRewardAddress: rewardsAddress,
@@ -212,7 +211,7 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
   }, [
     balances,
     chainId,
-    currentBlockTimestamp,
+    // currentBlockTimestamp,
     earnedAmounts,
     info,
     periodFinishes,

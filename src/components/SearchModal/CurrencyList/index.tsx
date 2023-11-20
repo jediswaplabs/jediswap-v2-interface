@@ -16,13 +16,13 @@ import { TokenBalances } from 'lib/hooks/useTokenList/sorting'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { ThemedText } from 'theme/components'
 import { useIsUserAddedToken } from '../../../hooks/Tokens'
-import { WrappedTokenInfo } from '../../../state/lists/wrappedTokenInfo'
 import Column, { AutoColumn } from '../../Column'
 import CurrencyLogo from '../../Logo/CurrencyLogo'
 import Row, { RowFixed } from '../../Row'
 import { MouseoverTooltip } from '../../Tooltip'
 import { LoadingRows, MenuItem } from '../styled'
 import { scrollbarStyle } from './index.css'
+import { WrappedTokenInfo } from 'state/lists/hooks'
 
 function currencyKey(currency: Currency): string {
   // return currency.isToken ? currency.address : 'ETHER';

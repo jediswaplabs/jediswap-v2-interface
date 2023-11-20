@@ -41,7 +41,7 @@ import { getChainInfo } from 'constants/chainInfo'
 import { asSupportedChain, isSupportedChain } from 'constants/chains'
 import { getSwapCurrencyId, TOKEN_SHORTHANDS } from 'constants/tokens'
 import { useUniswapXDefaultEnabled } from 'featureFlags/flags/uniswapXDefault'
-import { useCurrency, useDefaultActiveTokens } from 'hooks/Tokens'
+// import { useCurrency, useDefaultActiveTokens } from 'hooks/Tokens'
 import { useIsSwapUnsupported } from 'hooks/useIsSwapUnsupported'
 import { useMaxAmountIn } from 'hooks/useMaxAmountIn'
 import usePermit2Allowance, { AllowanceState } from 'hooks/usePermit2Allowance'
@@ -49,7 +49,7 @@ import usePrevious from 'hooks/usePrevious'
 import { SwapResult, useSwapCallback } from 'hooks/useSwapCallback'
 import { useSwitchChain } from 'hooks/useSwitchChain'
 import { useUSDPrice } from 'hooks/useUSDPrice'
-import useWrapCallback, { WrapErrorText, WrapType } from 'hooks/useWrapCallback'
+// import useWrapCallback, { WrapErrorText, WrapType } from 'hooks/useWrapCallback'
 import { formatSwapQuoteReceivedEventProperties } from 'lib/utils/analytics'
 import { useAppSelector } from 'state/hooks'
 import { InterfaceTrade, TradeState } from 'state/routing/types'
@@ -193,32 +193,32 @@ export function Swap({
   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
   disableTokenInputs?: boolean
 }) {
-  const connectionReady = useConnectionReady()
-  const { account, chainId: connectedChainId, connector } = useWeb3React()
-  const trace = useTrace()
+  // const connectionReady = useConnectionReady()
+  // const { account, chainId: connectedChainId, connector } = useWeb3React()
+  // const trace = useTrace()
 
-  // token warning stuff
-  // const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId);
-  // const prefilledOutputCurrency = useCurrency(initialOutputCurrencyId, chainId);
+  // // token warning stuff
+  // // const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId);
+  // // const prefilledOutputCurrency = useCurrency(initialOutputCurrencyId, chainId);
 
-  const [loadedInputCurrency, setLoadedInputCurrency] = useState({})
-  const [loadedOutputCurrency, setLoadedOutputCurrency] = useState({})
+  // const [loadedInputCurrency, setLoadedInputCurrency] = useState({})
+  // const [loadedOutputCurrency, setLoadedOutputCurrency] = useState({})
 
-  // useEffect(() => {
-  //   setLoadedInputCurrency(prefilledInputCurrency);
-  //   setLoadedOutputCurrency(prefilledOutputCurrency);
-  // }, [prefilledInputCurrency, prefilledOutputCurrency]);
+  // // useEffect(() => {
+  // //   setLoadedInputCurrency(prefilledInputCurrency);
+  // //   setLoadedOutputCurrency(prefilledOutputCurrency);
+  // // }, [prefilledInputCurrency, prefilledOutputCurrency]);
 
-  const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
-  const [showPriceImpactModal, setShowPriceImpactModal] = useState<boolean>(false)
+  // const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
+  // const [showPriceImpactModal, setShowPriceImpactModal] = useState<boolean>(false)
 
-  // const urlLoadedTokens: Token[] = useMemo(
-  //   () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c?.isToken ?? false) ?? [],
-  //   [loadedInputCurrency, loadedOutputCurrency],
-  // );
-  const handleConfirmTokenWarning = useCallback(() => {
-    setDismissTokenWarning(true)
-  }, [])
+  // // const urlLoadedTokens: Token[] = useMemo(
+  // //   () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c?.isToken ?? false) ?? [],
+  // //   [loadedInputCurrency, loadedOutputCurrency],
+  // // );
+  // const handleConfirmTokenWarning = useCallback(() => {
+  //   setDismissTokenWarning(true)
+  // }, [])
 
   // dismiss warning if all imported tokens are in active lists
   // const defaultTokens = useDefaultActiveTokens(chainId);
@@ -241,51 +241,51 @@ export function Swap({
   const theme = useTheme()
 
   // toggle wallet when disconnected
-  const toggleWalletDrawer = useToggleAccountDrawer()
+  // const toggleWalletDrawer = useToggleAccountDrawer()
 
-  // swap state
-  const prefilledState = useMemo(
-    () => ({
-      [Field.INPUT]: { currencyId: initialInputCurrencyId },
-      [Field.OUTPUT]: { currencyId: initialOutputCurrencyId },
-    }),
-    [initialInputCurrencyId, initialOutputCurrencyId]
-  )
-  const [state, dispatch] = useReducer(swapReducer, { ...initialSwapState, ...prefilledState })
-  const { typedValue, recipient, independentField } = state
+  // // swap state
+  // const prefilledState = useMemo(
+  //   () => ({
+  //     [Field.INPUT]: { currencyId: initialInputCurrencyId },
+  //     [Field.OUTPUT]: { currencyId: initialOutputCurrencyId },
+  //   }),
+  //   [initialInputCurrencyId, initialOutputCurrencyId]
+  // )
+  // const [state, dispatch] = useReducer(swapReducer, { ...initialSwapState, ...prefilledState })
+  // const { typedValue, recipient, independentField } = state
 
-  const previousConnectedChainId = usePrevious(connectedChainId)
-  const previousPrefilledState = usePrevious(prefilledState)
-  useEffect(() => {
-    const combinedInitialState = { ...initialSwapState, ...prefilledState }
-    const chainChanged = previousConnectedChainId && previousConnectedChainId !== connectedChainId
-    const prefilledInputChanged =
-      previousPrefilledState &&
-      previousPrefilledState?.[Field.INPUT]?.currencyId !== prefilledState?.[Field.INPUT]?.currencyId
-    const prefilledOutputChanged =
-      previousPrefilledState &&
-      previousPrefilledState?.[Field.OUTPUT]?.currencyId !== prefilledState?.[Field.OUTPUT]?.currencyId
-    if (chainChanged || prefilledInputChanged || prefilledOutputChanged) {
-      dispatch(
-        replaceSwapState({
-          ...initialSwapState,
-          ...prefilledState,
-          field: combinedInitialState.independentField ?? Field.INPUT,
-          inputCurrencyId: combinedInitialState.INPUT.currencyId ?? undefined,
-          outputCurrencyId: combinedInitialState.OUTPUT.currencyId ?? undefined,
-        })
-      )
-      // reset local state
-      // setSwapState({
-      //   tradeToConfirm: undefined,
-      //   swapError: undefined,
-      //   showConfirm: false,
-      //   swapResult: undefined,
-      // })
-    }
-  }, [connectedChainId, prefilledState, previousConnectedChainId, previousPrefilledState])
+  // const previousConnectedChainId = usePrevious(connectedChainId)
+  // const previousPrefilledState = usePrevious(prefilledState)
+  // useEffect(() => {
+  //   const combinedInitialState = { ...initialSwapState, ...prefilledState }
+  //   const chainChanged = previousConnectedChainId && previousConnectedChainId !== connectedChainId
+  //   const prefilledInputChanged =
+  //     previousPrefilledState &&
+  //     previousPrefilledState?.[Field.INPUT]?.currencyId !== prefilledState?.[Field.INPUT]?.currencyId
+  //   const prefilledOutputChanged =
+  //     previousPrefilledState &&
+  //     previousPrefilledState?.[Field.OUTPUT]?.currencyId !== prefilledState?.[Field.OUTPUT]?.currencyId
+  //   if (chainChanged || prefilledInputChanged || prefilledOutputChanged) {
+  //     dispatch(
+  //       replaceSwapState({
+  //         ...initialSwapState,
+  //         ...prefilledState,
+  //         field: combinedInitialState.independentField ?? Field.INPUT,
+  //         inputCurrencyId: combinedInitialState.INPUT.currencyId ?? undefined,
+  //         outputCurrencyId: combinedInitialState.OUTPUT.currencyId ?? undefined,
+  //       })
+  //     )
+  //     // reset local state
+  //     // setSwapState({
+  //     //   tradeToConfirm: undefined,
+  //     //   swapError: undefined,
+  //     //   showConfirm: false,
+  //     //   swapResult: undefined,
+  //     // })
+  //   }
+  // }, [connectedChainId, prefilledState, previousConnectedChainId, previousPrefilledState])
 
-  const swapInfo = useDerivedSwapInfo(state, chainId)
+  // const swapInfo = useDerivedSwapInfo(state, chainId)
   // const {
   //   trade: { state: tradeState, trade, swapQuoteLatency },
   //   allowedSlippage,

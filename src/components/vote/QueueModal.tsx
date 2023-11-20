@@ -61,14 +61,14 @@ export default function QueueModal({ isOpen, onDismiss, proposalId }: QueueModal
   async function onQueue() {
     setAttempting(true)
 
-    // if callback not returned properly ignore
-    if (!queueCallback) return
+    // // if callback not returned properly ignore
+    // if (!queueCallback) return
 
-    // try delegation and store hash
-    const hash = await queueCallback(proposalId)?.catch((error) => {
-      setAttempting(false)
-      console.log(error)
-    })
+    // // try delegation and store hash
+    // const hash = await queueCallback(proposalId)?.catch((error) => {
+    //   setAttempting(false)
+    //   console.log(error)
+    // })
 
     if (hash) {
       setHash(hash)

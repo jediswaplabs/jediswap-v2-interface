@@ -317,8 +317,8 @@ export function TransactionSummary({ info }: { info: TransactionInfo }) {
     case TransactionType.ADD_LIQUIDITY_V2_POOL:
       return <AddLiquidityV2PoolSummary info={info} />
 
-    // case TransactionType.CLAIM:
-    //   return <ClaimSummary info={info} />
+    case TransactionType.CLAIM:
+      return <></>
 
     case TransactionType.DEPOSIT_LIQUIDITY_STAKING:
       return <DepositLiquidityStakingSummary />
@@ -335,8 +335,8 @@ export function TransactionSummary({ info }: { info: TransactionInfo }) {
     case TransactionType.VOTE:
       return <VoteSummary info={info} />
 
-    // case TransactionType.DELEGATE:
-    //   return <DelegateSummary info={info} />
+    case TransactionType.DELEGATE:
+      return <></>
 
     case TransactionType.WRAP:
       return <WrapSummary info={info} />

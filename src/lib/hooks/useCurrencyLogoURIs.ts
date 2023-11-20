@@ -85,18 +85,18 @@ export default function useCurrencyLogoURIs(
 ): string[] {
   const locations = useHttpLocations(currency?.logoURI)
   return useMemo(() => {
-    const logoURIs = [...locations]
-    if (currency) {
-      if (currency.isNative || currency.address === NATIVE_CHAIN_ID) {
-        logoURIs.push(getNativeLogoURI(currency.chainId))
-      } else if (currency.isToken || currency.address) {
-        const checksummedAddress = isAddress(currency.address)
-        const logoURI = checksummedAddress && getTokenLogoURI(checksummedAddress, currency.chainId)
-        if (logoURI) {
-          logoURIs.push(logoURI)
-        }
-      }
-    }
+    const logoURIs = [...[]]
+    // if (currency) {
+    //   if (currency.isNative || currency.address === NATIVE_CHAIN_ID) {
+    //     logoURIs.push(getNativeLogoURI(currency.chainId))
+    //   } else if (currency.isToken || currency.address) {
+    //     const checksummedAddress = isAddress(currency.address)
+    //     const logoURI = checksummedAddress && getTokenLogoURI(checksummedAddress, currency.chainId)
+    //     if (logoURI) {
+    //       logoURIs.push(logoURI)
+    //     }
+    //   }
+    // }
     return logoURIs
   }, [currency, locations])
 }

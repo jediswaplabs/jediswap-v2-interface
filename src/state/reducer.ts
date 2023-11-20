@@ -9,9 +9,9 @@ import burn from './burn/reducer'
 import burnV3 from './burn/v3/reducer'
 import lists from './lists/reducer'
 import logs from './logs/slice'
-import { customCreateMigrate, migrations } from './migrations'
+// import { customCreateMigrate, migrations } from './migrations'
 import mint from './mint/reducer'
-import mintV3 from './mint/v3/reducer'
+import mintV3 from './mint/reducer'
 import { quickRouteApi } from './routing/quickRouteSlice'
 import { routingApi } from './routing/slice'
 import signatures from './signatures/reducer'
@@ -48,7 +48,7 @@ const persistConfig: PersistConfig<AppState> = {
   storage: localForage.createInstance({
     name: 'redux',
   }),
-  migrate: customCreateMigrate(migrations, { debug: false }),
+  // migrate: customCreateMigrate(migrations, { debug: false }),
   whitelist: Object.keys(persistedReducers),
   throttle: 1000, // ms
   serialize: false,

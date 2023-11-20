@@ -9,7 +9,7 @@ import { saturate } from 'polished'
 import { ReactNode, useCallback, useMemo } from 'react'
 import { BarChart2, CloudOff, Inbox } from 'react-feather'
 import { batch } from 'react-redux'
-import { Bound } from 'state/mint/v3/actions'
+import { Bound } from 'state/mint/actions'
 import styled, { useTheme } from 'styled-components'
 import { ThemedText } from 'theme/components'
 

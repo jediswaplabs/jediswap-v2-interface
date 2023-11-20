@@ -25,7 +25,7 @@ import { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import Slider from 'components/Slider'
 import Toggle from 'components/Toggle'
 import { isSupportedChain } from 'constants/chains'
-import { useV3NFTPositionManagerContract } from 'hooks/useContract'
+// import { useV3NFTPositionManagerContract } from 'hooks/useContract'
 import useDebouncedChangeHandler from 'hooks/useDebouncedChangeHandler'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useV3PositionFromTokenId } from 'hooks/useV3Positions'
@@ -48,246 +48,247 @@ const DEFAULT_REMOVE_V3_LIQUIDITY_SLIPPAGE_TOLERANCE = new Percent(5, 100)
 
 // redirect invalid tokenIds
 export default function RemoveLiquidityV3() {
-  const { chainId } = useWeb3React()
-  const { tokenId } = useParams<{ tokenId: string }>()
-  const location = useLocation()
-  const parsedTokenId = useMemo(() => {
-    try {
-      return BigNumber.from(tokenId)
-    } catch {
-      return null
-    }
-  }, [tokenId])
+  //   const { chainId } = useWeb3React()
+  //   const { tokenId } = useParams<{ tokenId: string }>()
+  //   const location = useLocation()
+  //   const parsedTokenId = useMemo(() => {
+  //     try {
+  //       return BigNumber.from(tokenId)
+  //     } catch {
+  //       return null
+  //     }
+  //   }, [tokenId])
 
-  const { position, loading } = useV3PositionFromTokenId(parsedTokenId ?? undefined)
-  if (parsedTokenId === null || parsedTokenId.eq(0)) {
-    return <Navigate to={{ ...location, pathname: '/pools' }} replace />
-  }
-  if (isSupportedChain(chainId) && (loading || position)) {
-    return <Remove tokenId={parsedTokenId} />
-  }
-  return <PositionPageUnsupportedContent />
-}
-function Remove({ tokenId }: { tokenId: BigNumber }) {
-  const { position } = useV3PositionFromTokenId(tokenId)
-  const theme = useTheme()
-  const { account, chainId, provider } = useWeb3React()
-  const trace = useTrace()
+  //   const { position, loading } = useV3PositionFromTokenId(parsedTokenId ?? undefined)
+  //   if (parsedTokenId === null || parsedTokenId.eq(0)) {
+  //     return <Navigate to={{ ...location, pathname: '/pools' }} replace />
+  //   }
+  //   if (isSupportedChain(chainId) && (loading || position)) {
+  //     return <Remove tokenId={parsedTokenId} />
+  //   }
+  //   return <PositionPageUnsupportedContent />
+  // }
+  // function Remove({ tokenId }: { tokenId: BigNumber }) {
+  //   const { position } = useV3PositionFromTokenId(tokenId)
+  //   const theme = useTheme()
+  //   const { account, chainId, provider } = useWeb3React()
+  //   const trace = useTrace()
 
-  // flag for receiving WETH
-  const [receiveWETH, setReceiveWETH] = useState(false)
-  const nativeCurrency = useNativeCurrency(chainId)
-  const nativeWrappedSymbol = nativeCurrency.wrapped.symbol
+  //   // flag for receiving WETH
+  //   const [receiveWETH, setReceiveWETH] = useState(false)
+  //   const nativeCurrency = useNativeCurrency(chainId)
+  //   const nativeWrappedSymbol = nativeCurrency.wrapped.symbol
 
-  // burn state
-  const { percent } = useBurnV3State()
-  const {
-    position: positionSDK,
-    liquidityPercentage,
-    liquidityValue0,
-    liquidityValue1,
-    feeValue0,
-    feeValue1,
-    outOfRange,
-    error,
-  } = useDerivedV3BurnInfo(position, receiveWETH)
-  const { onPercentSelect } = useBurnV3ActionHandlers()
+  //   // burn state
+  //   const { percent } = useBurnV3State()
+  //   const {
+  //     position: positionSDK,
+  //     liquidityPercentage,
+  //     liquidityValue0,
+  //     liquidityValue1,
+  //     feeValue0,
+  //     feeValue1,
+  //     outOfRange,
+  //     error,
+  //   } = useDerivedV3BurnInfo(position, receiveWETH)
+  //   const { onPercentSelect } = useBurnV3ActionHandlers()
 
-  const removed = position?.liquidity?.eq(0)
+  //   const removed = position?.liquidity?.eq(0)
 
-  // boilerplate for the slider
-  const [percentForSlider, onPercentSelectForSlider] = useDebouncedChangeHandler(percent, onPercentSelect)
+  //   // boilerplate for the slider
+  //   const [percentForSlider, onPercentSelectForSlider] = useDebouncedChangeHandler(percent, onPercentSelect)
 
-  const deadline = useTransactionDeadline() // custom from users settings
-  // const allowedSlippage = useUserSlippageToleranceWithDefault(DEFAULT_REMOVE_V3_LIQUIDITY_SLIPPAGE_TOLERANCE); // custom from users
-  const allowedSlippage = new Percent(2) // custom from users
+  //   const deadline = useTransactionDeadline() // custom from users settings
+  //   // const allowedSlippage = useUserSlippageToleranceWithDefault(DEFAULT_REMOVE_V3_LIQUIDITY_SLIPPAGE_TOLERANCE); // custom from users
+  //   const allowedSlippage = new Percent(2) // custom from users
 
-  const [showConfirm, setShowConfirm] = useState(false)
-  const [attemptingTxn, setAttemptingTxn] = useState(false)
-  const [txnHash, setTxnHash] = useState<string | undefined>()
-  const addTransaction = useTransactionAdder()
-  const positionManager = useV3NFTPositionManagerContract()
-  const burn = useCallback(async () => {
-    setAttemptingTxn(true)
-    if (
-      !positionManager ||
-      !liquidityValue0 ||
-      !liquidityValue1 ||
-      !deadline ||
-      !account ||
-      !chainId ||
-      !positionSDK ||
-      !liquidityPercentage ||
-      !provider
-    ) {
-      return
-    }
+  //   const [showConfirm, setShowConfirm] = useState(false)
+  //   const [attemptingTxn, setAttemptingTxn] = useState(false)
+  //   const [txnHash, setTxnHash] = useState<string | undefined>()
+  //   const addTransaction = useTransactionAdder()
+  //   const positionManager = useV3NFTPositionManagerContract()
+  //   const burn = useCallback(async () => {
+  //     setAttemptingTxn(true)
+  //     if (
+  //       !positionManager ||
+  //       !liquidityValue0 ||
+  //       !liquidityValue1 ||
+  //       !deadline ||
+  //       !account ||
+  //       !chainId ||
+  //       !positionSDK ||
+  //       !liquidityPercentage ||
+  //       !provider
+  //     ) {
+  //       return
+  //     }
 
-    // we fall back to expecting 0 fees in case the fetch fails, which is safe in the
-    // vast majority of cases
-    const { calldata, value } = NonfungiblePositionManager.removeCallParameters(positionSDK, {
-      tokenId: tokenId.toString(),
-      liquidityPercentage,
-      slippageTolerance: allowedSlippage,
-      deadline: deadline.toString(),
-      collectOptions: {
-        expectedCurrencyOwed0: feeValue0 ?? CurrencyAmount.fromRawAmount(liquidityValue0.currency, 0),
-        expectedCurrencyOwed1: feeValue1 ?? CurrencyAmount.fromRawAmount(liquidityValue1.currency, 0),
-        recipient: account,
-      },
-    })
+  //     // we fall back to expecting 0 fees in case the fetch fails, which is safe in the
+  //     // vast majority of cases
+  //     const { calldata, value } = NonfungiblePositionManager.removeCallParameters(positionSDK, {
+  //       tokenId: tokenId.toString(),
+  //       liquidityPercentage,
+  //       slippageTolerance: allowedSlippage,
+  //       deadline: deadline.toString(),
+  //       collectOptions: {
+  //         expectedCurrencyOwed0: feeValue0 ?? CurrencyAmount.fromRawAmount(liquidityValue0.currency, 0),
+  //         expectedCurrencyOwed1: feeValue1 ?? CurrencyAmount.fromRawAmount(liquidityValue1.currency, 0),
+  //         recipient: account,
+  //       },
+  //     })
 
-    const txn = {
-      to: positionManager.address,
-      data: calldata,
-      value,
-    }
+  //     const txn = {
+  //       to: positionManager.address,
+  //       data: calldata,
+  //       value,
+  //     }
 
-    const connectedChainId = await provider.getSigner().getChainId()
-    if (chainId !== connectedChainId) {
-      throw new WrongChainError()
-    }
+  //     const connectedChainId = await provider.getSigner().getChainId()
+  //     if (chainId !== connectedChainId) {
+  //       throw new WrongChainError()
+  //     }
 
-    provider
-      .getSigner()
-      .estimateGas(txn)
-      .then((estimate) => {
-        const newTxn = {
-          ...txn,
-          gasLimit: calculateGasMargin(estimate),
-        }
+  //     provider
+  //       .getSigner()
+  //       .estimateGas(txn)
+  //       .then((estimate) => {
+  //         const newTxn = {
+  //           ...txn,
+  //           gasLimit: calculateGasMargin(estimate),
+  //         }
 
-        return provider
-          .getSigner()
-          .sendTransaction(newTxn)
-          .then((response: TransactionResponse) => {
-            sendAnalyticsEvent(LiquidityEventName.REMOVE_LIQUIDITY_SUBMITTED, {
-              source: LiquiditySource.V3,
-              label: [liquidityValue0.currency.symbol, liquidityValue1.currency.symbol].join('/'),
-              ...trace,
-            })
-            setTxnHash(response.hash)
-            setAttemptingTxn(false)
-            addTransaction(response, {
-              type: TransactionType.REMOVE_LIQUIDITY_V3,
-              baseCurrencyId: currencyId(liquidityValue0.currency),
-              quoteCurrencyId: currencyId(liquidityValue1.currency),
-              expectedAmountBaseRaw: liquidityValue0.quotient.toString(),
-              expectedAmountQuoteRaw: liquidityValue1.quotient.toString(),
-            })
-          })
-      })
-      .catch((error) => {
-        setAttemptingTxn(false)
-        console.error(error)
-      })
-  }, [
-    positionManager,
-    liquidityValue0,
-    liquidityValue1,
-    deadline,
-    account,
-    chainId,
-    positionSDK,
-    liquidityPercentage,
-    provider,
-    tokenId,
-    allowedSlippage,
-    feeValue0,
-    feeValue1,
-    trace,
-    addTransaction,
-  ])
+  //         return provider
+  //           .getSigner()
+  //           .sendTransaction(newTxn)
+  //           .then((response: TransactionResponse) => {
+  //             sendAnalyticsEvent(LiquidityEventName.REMOVE_LIQUIDITY_SUBMITTED, {
+  //               source: LiquiditySource.V3,
+  //               label: [liquidityValue0.currency.symbol, liquidityValue1.currency.symbol].join('/'),
+  //               ...trace,
+  //             })
+  //             setTxnHash(response.hash)
+  //             setAttemptingTxn(false)
+  //             addTransaction(response, {
+  //               type: TransactionType.REMOVE_LIQUIDITY_V3,
+  //               baseCurrencyId: currencyId(liquidityValue0.currency),
+  //               quoteCurrencyId: currencyId(liquidityValue1.currency),
+  //               expectedAmountBaseRaw: liquidityValue0.quotient.toString(),
+  //               expectedAmountQuoteRaw: liquidityValue1.quotient.toString(),
+  //             })
+  //           })
+  //       })
+  //       .catch((error) => {
+  //         setAttemptingTxn(false)
+  //         console.error(error)
+  //       })
+  //   }, [
+  //     positionManager,
+  //     liquidityValue0,
+  //     liquidityValue1,
+  //     deadline,
+  //     account,
+  //     chainId,
+  //     positionSDK,
+  //     liquidityPercentage,
+  //     provider,
+  //     tokenId,
+  //     allowedSlippage,
+  //     feeValue0,
+  //     feeValue1,
+  //     trace,
+  //     addTransaction,
+  //   ])
 
-  const handleDismissConfirmation = useCallback(() => {
-    setShowConfirm(false)
-    // if there was a tx hash, we want to clear the input
-    if (txnHash) {
-      onPercentSelectForSlider(0)
-    }
-    setAttemptingTxn(false)
-    setTxnHash('')
-  }, [onPercentSelectForSlider, txnHash])
+  //   const handleDismissConfirmation = useCallback(() => {
+  //     setShowConfirm(false)
+  //     // if there was a tx hash, we want to clear the input
+  //     if (txnHash) {
+  //       onPercentSelectForSlider(0)
+  //     }
+  //     setAttemptingTxn(false)
+  //     setTxnHash('')
+  //   }, [onPercentSelectForSlider, txnHash])
 
-  const pendingText = (
-    <Trans>
-      Removing {liquidityValue0?.toSignificant(6)} {liquidityValue0?.currency?.symbol} and{' '}
-      {liquidityValue1?.toSignificant(6)} {liquidityValue1?.currency?.symbol}
-    </Trans>
-  )
+  //   const pendingText = (
+  //     <Trans>
+  //       Removing {liquidityValue0?.toSignificant(6)} {liquidityValue0?.currency?.symbol} and{' '}
+  //       {liquidityValue1?.toSignificant(6)} {liquidityValue1?.currency?.symbol}
+  //     </Trans>
+  //   )
 
-  function modalHeader() {
-    return (
-      <AutoColumn gap="sm" style={{ padding: '16px' }}>
-        <RowBetween align="flex-end">
-          <Text fontSize={16} fontWeight={535}>
-            <Trans>Pooled {liquidityValue0?.currency?.symbol}:</Trans>
-          </Text>
-          <RowFixed>
-            <Text fontSize={16} fontWeight={535} marginLeft="6px">
-              {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
-            </Text>
-            <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={liquidityValue0?.currency} />
-          </RowFixed>
-        </RowBetween>
-        <RowBetween align="flex-end">
-          <Text fontSize={16} fontWeight={535}>
-            <Trans>Pooled {liquidityValue1?.currency?.symbol}:</Trans>
-          </Text>
-          <RowFixed>
-            <Text fontSize={16} fontWeight={535} marginLeft="6px">
-              {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
-            </Text>
-            <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={liquidityValue1?.currency} />
-          </RowFixed>
-        </RowBetween>
-        {feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) ? (
-          <>
-            <ThemedText.DeprecatedItalic fontSize={12} color={theme.neutral2} textAlign="left" padding="8px 0 0 0">
-              <Trans>You will also collect fees earned from this position.</Trans>
-            </ThemedText.DeprecatedItalic>
-            <RowBetween>
-              <Text fontSize={16} fontWeight={535}>
-                <Trans>{feeValue0?.currency?.symbol} Fees Earned:</Trans>
-              </Text>
-              <RowFixed>
-                <Text fontSize={16} fontWeight={535} marginLeft="6px">
-                  {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />}
-                </Text>
-                <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={feeValue0?.currency} />
-              </RowFixed>
-            </RowBetween>
-            <RowBetween>
-              <Text fontSize={16} fontWeight={535}>
-                <Trans>{feeValue1?.currency?.symbol} Fees Earned:</Trans>
-              </Text>
-              <RowFixed>
-                <Text fontSize={16} fontWeight={535} marginLeft="6px">
-                  {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />}
-                </Text>
-                <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={feeValue1?.currency} />
-              </RowFixed>
-            </RowBetween>
-          </>
-        ) : null}
-        <ButtonPrimary mt="16px" onClick={burn}>
-          <Trans>Remove</Trans>
-        </ButtonPrimary>
-      </AutoColumn>
-    )
-  }
+  //   function modalHeader() {
+  //     return (
+  //       <AutoColumn gap="sm" style={{ padding: '16px' }}>
+  //         <RowBetween align="flex-end">
+  //           <Text fontSize={16} fontWeight={535}>
+  //             <Trans>Pooled {liquidityValue0?.currency?.symbol}:</Trans>
+  //           </Text>
+  //           <RowFixed>
+  //             <Text fontSize={16} fontWeight={535} marginLeft="6px">
+  //               {liquidityValue0 && <FormattedCurrencyAmount currencyAmount={liquidityValue0} />}
+  //             </Text>
+  //             <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={liquidityValue0?.currency} />
+  //           </RowFixed>
+  //         </RowBetween>
+  //         <RowBetween align="flex-end">
+  //           <Text fontSize={16} fontWeight={535}>
+  //             <Trans>Pooled {liquidityValue1?.currency?.symbol}:</Trans>
+  //           </Text>
+  //           <RowFixed>
+  //             <Text fontSize={16} fontWeight={535} marginLeft="6px">
+  //               {liquidityValue1 && <FormattedCurrencyAmount currencyAmount={liquidityValue1} />}
+  //             </Text>
+  //             <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={liquidityValue1?.currency} />
+  //           </RowFixed>
+  //         </RowBetween>
+  //         {feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) ? (
+  //           <>
+  //             <ThemedText.DeprecatedItalic fontSize={12} color={theme.neutral2} textAlign="left" padding="8px 0 0 0">
+  //               <Trans>You will also collect fees earned from this position.</Trans>
+  //             </ThemedText.DeprecatedItalic>
+  //             <RowBetween>
+  //               <Text fontSize={16} fontWeight={535}>
+  //                 <Trans>{feeValue0?.currency?.symbol} Fees Earned:</Trans>
+  //               </Text>
+  //               <RowFixed>
+  //                 <Text fontSize={16} fontWeight={535} marginLeft="6px">
+  //                   {feeValue0 && <FormattedCurrencyAmount currencyAmount={feeValue0} />}
+  //                 </Text>
+  //                 <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={feeValue0?.currency} />
+  //               </RowFixed>
+  //             </RowBetween>
+  //             <RowBetween>
+  //               <Text fontSize={16} fontWeight={535}>
+  //                 <Trans>{feeValue1?.currency?.symbol} Fees Earned:</Trans>
+  //               </Text>
+  //               <RowFixed>
+  //                 <Text fontSize={16} fontWeight={535} marginLeft="6px">
+  //                   {feeValue1 && <FormattedCurrencyAmount currencyAmount={feeValue1} />}
+  //                 </Text>
+  //                 <CurrencyLogo size="20px" style={{ marginLeft: '8px' }} currency={feeValue1?.currency} />
+  //               </RowFixed>
+  //             </RowBetween>
+  //           </>
+  //         ) : null}
+  //         <ButtonPrimary mt="16px" onClick={burn}>
+  //           <Trans>Remove</Trans>
+  //         </ButtonPrimary>
+  //       </AutoColumn>
+  //     )
+  //   }
 
-  const showCollectAsWeth = Boolean(
-    liquidityValue0?.currency &&
-      liquidityValue1?.currency &&
-      (liquidityValue0.currency.isNative ||
-        liquidityValue1.currency.isNative ||
-        WRAPPED_NATIVE_CURRENCY[liquidityValue0.currency.chainId]?.equals(liquidityValue0.currency.wrapped) ||
-        WRAPPED_NATIVE_CURRENCY[liquidityValue1.currency.chainId]?.equals(liquidityValue1.currency.wrapped))
-  )
+  //   const showCollectAsWeth = Boolean(
+  //     liquidityValue0?.currency &&
+  //       liquidityValue1?.currency &&
+  //       (liquidityValue0.currency.isNative ||
+  //         liquidityValue1.currency.isNative ||
+  //         WRAPPED_NATIVE_CURRENCY[liquidityValue0.currency.chainId]?.equals(liquidityValue0.currency.wrapped) ||
+  //         WRAPPED_NATIVE_CURRENCY[liquidityValue1.currency.chainId]?.equals(liquidityValue1.currency.wrapped))
+  //   )
+
   return (
     <AutoColumn>
-      <TransactionConfirmationModal
+      {/* <TransactionConfirmationModal
         isOpen={showConfirm}
         onDismiss={handleDismissConfirmation}
         attemptingTxn={attemptingTxn}
@@ -435,7 +436,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
             <Loader />
           )}
         </Wrapper>
-      </AppBody>
+      </AppBody> */}
     </AutoColumn>
   )
 }

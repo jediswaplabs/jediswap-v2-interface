@@ -23,7 +23,7 @@ import { Text } from 'rebass'
 //   useV3DerivedMintInfo,
 //   useV3MintActionHandlers,
 //   useV3MintState,
-// } from 'state/mint/v3/hooks'
+// } from 'state/mint/hooks'
 import styled, { useTheme } from 'styled-components'
 import { ThemedText } from 'theme/components'
 import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
@@ -48,7 +48,7 @@ import { ZERO_PERCENT } from '../../constants/misc'
 import { WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
 import { useCurrency } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallback } from '../../hooks/useApproveCallback'
-import { useArgentWalletContract } from '../../hooks/useArgentWalletContract'
+// import { useArgentWalletContract } from '../../hooks/useArgentWalletContract'
 // import { useV3NFTPositionManagerContract } from '../../hooks/useContract'
 import { useDerivedPositionInfo } from '../../hooks/useDerivedPositionInfo'
 import { useIsSwapUnsupported } from '../../hooks/useIsSwapUnsupported'
@@ -106,12 +106,12 @@ function AddLiquidity() {
   const addTransaction = useTransactionAdder()
   // const positionManager = useV3NFTPositionManagerContract()
 
-  // check for existing position if tokenId in url
-  const { position: existingPositionDetails, loading: positionLoading } = useV3PositionFromTokenId(
-    tokenId ? BigNumber.from(tokenId) : undefined
-  )
-  const hasExistingPosition = !!existingPositionDetails && !positionLoading
-  const { position: existingPosition } = useDerivedPositionInfo(existingPositionDetails)
+  // // check for existing position if tokenId in url
+  // const { position: existingPositionDetails, loading: positionLoading } = useV3PositionFromTokenId(
+  //   tokenId ? BigNumber.from(tokenId) : undefined
+  // // )
+  // const hasExistingPosition = !!existingPositionDetails && !positionLoading
+  // const { position: existingPosition } = useDerivedPositionInfo(existingPositionDetails)
 
   // fee selection from url
   const feeAmount: FeeAmount | undefined =
@@ -577,7 +577,7 @@ function AddLiquidity() {
           )}
           pendingText={pendingText}
         /> */}
-        <StyledBodyWrapper $hasExistingPosition={hasExistingPosition}>
+        <StyledBodyWrapper $hasExistingPosition={false}>
           {/*  <AddRemoveTabs
             creating={false}
             adding={true}
@@ -598,56 +598,56 @@ function AddLiquidity() {
             )}
           </AddRemoveTabs> */}
           <Wrapper>
-            <ResponsiveTwoColumns wide={!hasExistingPosition}>
+            <ResponsiveTwoColumns wide={false}>
               <AutoColumn gap="lg">
-                {!hasExistingPosition && (
-                  <>
-                    <AutoColumn gap="md">
-                      <RowBetween paddingBottom="20px">
-                        <ThemedText.DeprecatedLabel>
-                          <Trans>Select pair</Trans>
-                        </ThemedText.DeprecatedLabel>
-                      </RowBetween>
-                      <RowBetween gap="md">
-                        <CurrencyInputPanel
-                          value={formattedAmounts[Field.CURRENCY_A]}
-                          onUserInput={onFieldAInput}
-                          hideInput
-                          onMax={() => {
-                            onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
-                          }}
-                          onCurrencySelect={handleCurrencyASelect}
-                          showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
-                          currency={currencies[Field.CURRENCY_A] ?? null}
-                          id="add-liquidity-input-tokena"
-                          showCommonBases
-                        />
+                {/* {!hasExistingPosition && ( */}
+                <>
+                  <AutoColumn gap="md">
+                    <RowBetween paddingBottom="20px">
+                      <ThemedText.DeprecatedLabel>
+                        <Trans>Select pair</Trans>
+                      </ThemedText.DeprecatedLabel>
+                    </RowBetween>
+                    <RowBetween gap="md">
+                      <CurrencyInputPanel
+                        value={formattedAmounts[Field.CURRENCY_A]}
+                        onUserInput={onFieldAInput}
+                        hideInput
+                        onMax={() => {
+                          onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
+                        }}
+                        onCurrencySelect={handleCurrencyASelect}
+                        showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
+                        currency={currencies[Field.CURRENCY_A] ?? null}
+                        id="add-liquidity-input-tokena"
+                        showCommonBases
+                      />
 
-                        <CurrencyInputPanel
-                          value={formattedAmounts[Field.CURRENCY_B]}
-                          hideInput
-                          onUserInput={onFieldBInput}
-                          onCurrencySelect={handleCurrencyBSelect}
-                          onMax={() => {
-                            onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
-                          }}
-                          showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
-                          currency={currencies[Field.CURRENCY_B] ?? null}
-                          id="add-liquidity-input-tokenb"
-                          showCommonBases
-                        />
-                      </RowBetween>
+                      <CurrencyInputPanel
+                        value={formattedAmounts[Field.CURRENCY_B]}
+                        hideInput
+                        onUserInput={onFieldBInput}
+                        onCurrencySelect={handleCurrencyBSelect}
+                        onMax={() => {
+                          onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
+                        }}
+                        showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
+                        currency={currencies[Field.CURRENCY_B] ?? null}
+                        id="add-liquidity-input-tokenb"
+                        showCommonBases
+                      />
+                    </RowBetween>
 
-                      {/* <FeeSelector
+                    {/* <FeeSelector
                         disabled={!quoteCurrency || !baseCurrency}
                         feeAmount={feeAmount}
                         handleFeePoolSelect={handleFeePoolSelect}
                         currencyA={baseCurrency ?? undefined}
                         currencyB={quoteCurrency ?? undefined}
                       /> */}
-                    </AutoColumn>{' '}
-                  </>
-                )}
+                  </AutoColumn>{' '}
+                </>
+
                 {/* {hasExistingPosition && existingPosition && (
                   <PositionPreview
                     position={existingPosition}

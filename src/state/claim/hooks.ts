@@ -7,15 +7,15 @@ import { useSingleCallResult } from 'lib/hooks/multicall'
 import { useEffect, useState } from 'react'
 
 import { UNI } from '../../constants/tokens'
-import { useContract } from '../../hooks/useContract'
+// import { useContract } from '../../hooks/useContract'
 import { isAddress } from '../../utils'
 import { calculateGasMargin } from '../../utils/calculateGasMargin'
 import { useTransactionAdder } from '../transactions/hooks'
 import { TransactionType } from '../transactions/types'
 
-function useMerkleDistributorContract() {
-  return useContract(MERKLE_DISTRIBUTOR_ADDRESS, MerkleDistributorJSON.abi, true)
-}
+// function useMerkleDistributorContract() {
+//   return useContract(MERKLE_DISTRIBUTOR_ADDRESS, MerkleDistributorJSON.abi, true)
+// }
 
 interface UserClaimData {
   index: number
@@ -131,10 +131,10 @@ function useUserClaimData(account: string | null | undefined): UserClaimData | n
 // check if user is in blob and has not yet claimed UNI
 export function useUserHasAvailableClaim(account: string | null | undefined): boolean {
   const userClaimData = useUserClaimData(account)
-  const distributorContract = useMerkleDistributorContract()
-  const isClaimedResult = useSingleCallResult(distributorContract, 'isClaimed', [userClaimData?.index])
+  // const distributorContract = useMerkleDistributorContract()
+  // const isClaimedResult = useSingleCallResult(distributorContract, 'isClaimed', [userClaimData?.index])
   // user is in blob and contract marks as unclaimed
-  return Boolean(userClaimData && !isClaimedResult.loading && isClaimedResult.result?.[0] === false)
+  return false
 }
 
 export function useUserUnclaimedAmount(account: string | null | undefined): CurrencyAmount<Token> | undefined {
@@ -150,9 +150,7 @@ export function useUserUnclaimedAmount(account: string | null | undefined): Curr
   return CurrencyAmount.fromRawAmount(uni, JSBI.BigInt(userClaimData.amount))
 }
 
-export function useClaimCallback(account: string | null | undefined): {
-  claimCallback: () => Promise<string>
-} {
+export function useClaimCallback(account: string | null | undefined) {
   // get claim data for this account
   const { provider, chainId } = useWeb3React()
   const claimData = useUserClaimData(account)
@@ -160,26 +158,24 @@ export function useClaimCallback(account: string | null | undefined): {
   // used for popup summary
   const unclaimedAmount: CurrencyAmount<Token> | undefined = useUserUnclaimedAmount(account)
   const addTransaction = useTransactionAdder()
-  const distributorContract = useMerkleDistributorContract()
+  // const distributorContract = useMerkleDistributorContract()
 
   const claimCallback = async function () {
-    if (!claimData || !account || !provider || !chainId || !distributorContract) return
-
-    const args = [claimData.index, account, claimData.amount, claimData.proof]
-
-    return distributorContract.estimateGas['claim'](...args, {}).then((estimatedGasLimit) => {
-      return distributorContract
-        .claim(...args, { value: null, gasLimit: calculateGasMargin(estimatedGasLimit) })
-        .then((response: TransactionResponse) => {
-          addTransaction(response, {
-            type: TransactionType.CLAIM,
-            recipient: account,
-            uniAmountRaw: unclaimedAmount?.quotient.toString(),
-          })
-          return response.hash
-        })
-    })
+    // if (!claimData || !account || !provider || !chainId || !distributorContract) return
+    // const args = [claimData.index, account, claimData.amount, claimData.proof]
+    // return distributorContract.estimateGas['claim'](...args, {}).then((estimatedGasLimit) => {
+    //   return distributorContract
+    //     .claim(...args, { value: null, gasLimit: calculateGasMargin(estimatedGasLimit) })
+    //     .then((response: TransactionResponse) => {
+    //       addTransaction(response, {
+    //         type: TransactionType.CLAIM,
+    //         recipient: account,
+    //         uniAmountRaw: unclaimedAmount?.quotient.toString(),
+    //       })
+    //       return response.hash
+    //     })
+    // })
   }
 
-  return { claimCallback }
+  return { claimCallback: () => {} }
 }

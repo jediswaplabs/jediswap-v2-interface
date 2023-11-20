@@ -9,11 +9,11 @@ import {
   removeMulticallListeners,
   parseCallKey,
   toCallKey,
-  ListenerOptions
+  ListenerOptions,
 } from './actions'
 import { computeCallDataProps } from './utils'
 import { useAccount, useBlockNumber } from '@starknet-react/core'
-import { useAccountDetails } from '../../hooks'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 export interface Result extends ReadonlyArray<any> {
   readonly [key: string]: any
@@ -31,8 +31,8 @@ function isMethodArg(x: unknown): x is MethodArg {
 function isValidMethodArgs(x: unknown): x is MethodArgs | undefined {
   return (
     x === undefined ||
-    (Array.isArray(x) && x.every(xi => isMethodArg(xi) || (Array.isArray(xi) && xi.every(isMethodArg)))) ||
-    (typeof x === 'object' && x !== null && Object.keys(x).length > 0 && Object.values(x).every(xi => xi !== ''))
+    (Array.isArray(x) && x.every((xi) => isMethodArg(xi) || (Array.isArray(xi) && xi.every(isMethodArg)))) ||
+    (typeof x === 'object' && x !== null && Object.keys(x).length > 0 && Object.values(x).every((xi) => xi !== ''))
   )
 }
 
@@ -46,13 +46,17 @@ const INVALID_RESULT: CallResult = { valid: false, blockNumber: undefined, data:
 
 // use this options object
 export const NEVER_RELOAD: ListenerOptions = {
-  blocksPerFetch: Infinity
+  blocksPerFetch: Infinity,
 }
+
+// the lowest level call for subscribing to contract data
 
 // the lowest level call for subscribing to contract data
 function useCallsData(calls: (Call | undefined)[], methodAbi?: FunctionAbi, options?: ListenerOptions): CallResult[] {
   const { account, chainId } = useAccountDetails()
-  const callResults = useSelector<AppState, AppState['multicall']['callResults']>(state => state.multicall.callResults)
+  const callResults = useSelector<AppState, AppState['multicall']['callResults']>(
+    (state) => state.multicall.callResults
+  )
   const dispatch = useDispatch<AppDispatch>()
 
   const serializedCallKeys: string = useMemo(
@@ -70,14 +74,14 @@ function useCallsData(calls: (Call | undefined)[], methodAbi?: FunctionAbi, opti
   useEffect(() => {
     const callKeys: string[] = JSON.parse(serializedCallKeys)
     if (!chainId || callKeys.length === 0) return undefined
-    const calls = callKeys.map(key => parseCallKey(key))
+    const calls = callKeys.map((key) => parseCallKey(key))
 
     dispatch(
       addMulticallListeners({
         chainId,
         calls,
         options,
-        methodAbi
+        methodAbi,
       })
     )
 
@@ -86,7 +90,7 @@ function useCallsData(calls: (Call | undefined)[], methodAbi?: FunctionAbi, opti
         removeMulticallListeners({
           chainId,
           calls,
-          options
+          options,
         })
       )
     }
@@ -94,10 +98,10 @@ function useCallsData(calls: (Call | undefined)[], methodAbi?: FunctionAbi, opti
 
   return useMemo(
     () =>
-      calls.map<CallResult>(call => {
+      calls.map<CallResult>((call) => {
         if (!chainId || !call) return INVALID_RESULT
 
-        const result = callResults[chainId]?.[toCallKey(call)]
+        const result = callResults[1]?.[toCallKey(call)]
         let data
         if (result?.data && result?.data !== '0x') {
           // if (number.isHex(result.data)) {
@@ -155,7 +159,7 @@ function toCallState(
         loading: false,
         error: true,
         syncing,
-        result
+        result,
       }
     }
   }
@@ -164,7 +168,7 @@ function toCallState(
     loading: false,
     syncing,
     result: result,
-    error: !success
+    error: !success,
   }
 }
 
@@ -179,15 +183,15 @@ export function useSingleContractMultipleData(
 
   const calls = useMemo(
     () =>
-      contract && methodName && callInputs && callInputs.filter(input => typeof input !== 'undefined').length > 0
-        ? callInputs.map<Call>(inputs => {
+      contract && methodName && callInputs && callInputs.filter((input) => typeof input !== 'undefined').length > 0
+        ? callInputs.map<Call>((inputs) => {
             const { calldata_len, calldata } = computeCallDataProps(inputs)
 
             return {
               address: validateAndParseAddress(contract.address),
               methodName,
               calldata_len: calldata_len.toString(),
-              calldata
+              calldata,
             }
           })
         : [],
@@ -198,10 +202,10 @@ export function useSingleContractMultipleData(
   const results = useCallsData(calls, methodAbi, options)
 
   const { data: latestBlockNumber } = useBlockNumber({
-    refetchInterval: false
+    refetchInterval: false,
   })
   return useMemo(() => {
-    return results.map(result => toCallState(result, latestBlockNumber))
+    return results.map((result) => toCallState(result, latestBlockNumber))
   }, [results, latestBlockNumber])
 }
 
@@ -221,13 +225,13 @@ export function useMultipleContractSingleData(
   const calls = useMemo(
     () =>
       addresses && addresses.length > 0 && selector && isValidMethodArgs(callInputs)
-        ? addresses.map<Call | undefined>(address => {
+        ? addresses.map<Call | undefined>((address) => {
             return address
               ? {
                   address: validateAndParseAddress(address),
                   methodName,
                   calldata_len: callDataLength,
-                  calldata: callData
+                  calldata: callData,
                 }
               : undefined
           })
@@ -240,10 +244,10 @@ export function useMultipleContractSingleData(
   const results = useCallsData(calls, methodAbi, options)
 
   const { data: latestBlockNumber } = useBlockNumber({
-    refetchInterval: false
+    refetchInterval: false,
   })
   return useMemo(() => {
-    return results.map(result => toCallState(result, latestBlockNumber))
+    return results.map((result) => toCallState(result, latestBlockNumber))
   }, [results, latestBlockNumber])
 }
 
@@ -265,8 +269,8 @@ export function useSingleCallResult(
             address: validateAndParseAddress(contract.address),
             methodName,
             calldata_len: calldata_len.toString(),
-            calldata
-          }
+            calldata,
+          },
         ]
       : []
   }, [calldata, calldata_len, contract, inputs, methodName, selector])
@@ -276,7 +280,7 @@ export function useSingleCallResult(
   const result = useCallsData(calls, methodAbi, options)[0]
 
   const { data: latestBlockNumber } = useBlockNumber({
-    refetchInterval: false
+    refetchInterval: false,
   })
   return useMemo(() => {
     return toCallState(result, latestBlockNumber)
@@ -286,7 +290,7 @@ export function useSingleCallResult(
 export function useValidatedMethodAbi(contractAbi: Abi | undefined, methodName: string): FunctionAbi | undefined {
   return useMemo(
     () =>
-      contractAbi?.filter((abi): abi is FunctionAbi => abi.type === 'function').find(abi => abi.name === methodName),
+      contractAbi?.filter((abi): abi is FunctionAbi => abi.type === 'function').find((abi) => abi.name === methodName),
     [contractAbi, methodName]
   )
 }

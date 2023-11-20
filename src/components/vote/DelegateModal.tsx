@@ -78,15 +78,15 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
     // if callback not returned properly ignore
     if (!delegateCallback) return
 
-    // try delegation and store hash
-    const hash = await delegateCallback(parsedAddress ?? undefined)?.catch((error) => {
-      setAttempting(false)
-      console.log(error)
-    })
+    // // try delegation and store hash
+    // const hash = await delegateCallback(parsedAddress ?? undefined)?.catch((error) => {
+    //   setAttempting(false)
+    //   console.log(error)
+    // })
 
-    if (hash) {
-      setHash(hash)
-    }
+    // if (hash) {
+    //   setHash(hash)
+    // }
   }
 
   return (

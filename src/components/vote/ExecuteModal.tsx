@@ -62,13 +62,13 @@ export default function ExecuteModal({ isOpen, onDismiss, proposalId }: ExecuteM
     setAttempting(true)
 
     // if callback not returned properly ignore
-    if (!executeCallback) return
+    // if (!executeCallback) return
 
-    // try delegation and store hash
-    const hash = await executeCallback(proposalId)?.catch((error) => {
-      setAttempting(false)
-      console.log(error)
-    })
+    // // try delegation and store hash
+    // const hash = await executeCallback(proposalId)?.catch((error) => {
+    //   setAttempting(false)
+    //   console.log(error)
+    // })
 
     if (hash) {
       setHash(hash)

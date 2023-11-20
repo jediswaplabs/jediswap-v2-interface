@@ -10,7 +10,7 @@ import { RouterPreference } from 'state/routing/types'
 import { UserAddedToken } from 'types/tokens'
 
 import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from '../../constants/routing'
-import { useDefaultActiveTokens } from '../../hooks/Tokens'
+// import { useDefaultActiveTokens } from '../../hooks/Tokens'
 import {
   addSerializedPair,
   addSerializedToken,
@@ -245,7 +245,7 @@ export function useUserOptedOutOfUniswapX(): boolean {
  */
 export function useTrackedTokenPairs(): [Token, Token][] {
   const chainId = ''
-  const tokens = useDefaultActiveTokens(chainId as ChainId)
+  const tokens = [{}]
 
   // pinned pairs
   const pinnedPairs = useMemo(() => (chainId ? PINNED_PAIRS[chainId] ?? [] : []), [chainId])
@@ -255,18 +255,18 @@ export function useTrackedTokenPairs(): [Token, Token][] {
     () =>
       chainId
         ? Object.keys(tokens).flatMap((tokenAddress) => {
-            const token = tokens[tokenAddress]
+            const token = {}
             // for each token on the current chain,
             return (
               // loop though all bases on the current chain
               (BASES_TO_TRACK_LIQUIDITY_FOR[chainId] ?? [])
                 // to construct pairs of the given token with each base
                 .map((base) => {
-                  if (base.address === token.address) {
-                    return null
-                  } else {
-                    return [base, token]
-                  }
+                  // if (base.address === token.address) {
+                  //   return null
+                  // } else {
+                  return [base, token]
+                  // }
                 })
                 .filter((p): p is [Token, Token] => p !== null)
             )

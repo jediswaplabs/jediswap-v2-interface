@@ -46,7 +46,7 @@ interface VoteModalProps {
 export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }: VoteModalProps) {
   const { chainId } = useWeb3React()
   const voteCallback = useVoteCallback()
-  const { votes: availableVotes } = useUserVotes()
+  // const { votes: availableVotes } = useUserVotes()
 
   // monitor call to help UI loading state
   const [hash, setHash] = useState<string | undefined>()
@@ -65,14 +65,14 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }:
   async function onVote() {
     setAttempting(true)
 
-    // if callback not returned properly ignore
-    if (!voteCallback || voteOption === undefined) return
+    // // if callback not returned properly ignore
+    // if (!voteCallback || voteOption === undefined) return
 
-    // try delegation and store hash
-    const hash = await voteCallback(proposalId, voteOption)?.catch((error) => {
-      setAttempting(false)
-      console.log(error)
-    })
+    // // try delegation and store hash
+    // const hash = await voteCallback(proposalId, voteOption)?.catch((error) => {
+    //   setAttempting(false)
+    //   console.log(error)
+    // })
 
     if (hash) {
       setHash(hash)
@@ -97,7 +97,7 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }:
               <StyledClosed onClick={wrappedOnDismiss} />
             </RowBetween>
             <ThemedText.DeprecatedLargeHeader>
-              <Trans>{formatCurrencyAmount(availableVotes, 4)} Votes</Trans>
+              {/* <Trans>{formatCurrencyAmount(availableVotes, 4)} Votes</Trans> */}
             </ThemedText.DeprecatedLargeHeader>
             <ButtonPrimary onClick={onVote}>
               <ThemedText.DeprecatedMediumHeader color="white">

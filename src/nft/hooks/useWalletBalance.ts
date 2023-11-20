@@ -13,7 +13,7 @@ interface WalletBalanceProps {
 
 export function useWalletBalance(): WalletBalanceProps {
   const { account: address, provider } = useWeb3React()
-  const balanceString = useNativeCurrencyBalances(address ? [address] : [])?.[address ?? '']?.toSignificant(3) || '0'
+  const balanceString = useNativeCurrencyBalances(address ? [address] : [])?.[address ?? ''] || '0'
 
   return address == null
     ? {

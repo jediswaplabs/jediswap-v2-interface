@@ -4,7 +4,7 @@ import { UkDisclaimerModal } from 'components/NavBar/UkDisclaimerModal'
 
 // import { OffchainActivityModal } from 'components/AccountDrawer/MiniPortfolio/Activity/OffchainActivityModal';
 import UniwalletModal from 'components/AccountDrawer/UniwalletModal'
-import AirdropModal from 'components/AirdropModal'
+// import AirdropModal from 'components/AirdropModal'
 import BaseAnnouncementBanner from 'components/Banner/BaseAnnouncementBanner'
 import AddressClaimModal from 'components/claim/AddressClaimModal'
 import ConnectedAccountBlocked from 'components/ConnectedAccountBlocked'
@@ -35,7 +35,7 @@ export default function TopLevelModals() {
       <BaseAnnouncementBanner />
       {/* <OffchainActivityModal /> */}
       <TransactionCompleteModal />
-      <AirdropModal />
+      {/* <AirdropModal /> */}
       <FiatOnrampModal />
       <UkDisclaimerModal />
       {shouldShowDevFlags && <DevFlagsBox />}

@@ -1,7 +1,7 @@
 import { TransactionReceipt } from '@ethersproject/abstract-provider'
 import { ChainId } from '@uniswap/sdk-core'
 import { useWeb3React } from '@web3-react/core'
-import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
+// import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import useBlockNumber, { useFastForwardBlockNumber } from 'lib/hooks/useBlockNumber'
 import ms from 'ms'
 import { useCallback, useEffect } from 'react'
@@ -55,7 +55,7 @@ export default function Updater({ pendingTransactions, onCheck, onReceipt }: Upd
   const lastBlockNumber = useBlockNumber()
   const fastForwardBlockNumber = useFastForwardBlockNumber()
   const removeTransaction = useTransactionRemover()
-  const blockTimestamp = useCurrentBlockTimestamp()
+  // const blockTimestamp = useCurrentBlockTimestamp()
 
   const getReceipt = useCallback(
     (hash: string) => {
@@ -70,9 +70,9 @@ export default function Updater({ pendingTransactions, onCheck, onReceipt }: Upd
                 // Remove transactions past their deadline or - if there is no deadline - older than 6 hours.
                 if (tx.deadline) {
                   // Deadlines are expressed as seconds since epoch, as they are used on-chain.
-                  if (blockTimestamp && tx.deadline < blockTimestamp.toNumber()) {
-                    removeTransaction(hash)
-                  }
+                  // if (blockTimestamp && tx.deadline < blockTimestamp.toNumber()) {
+                  //   removeTransaction(hash)
+                  // }
                 } else if (tx.addedTime + ms(`6h`) < Date.now()) {
                   removeTransaction(hash)
                 }
@@ -84,7 +84,7 @@ export default function Updater({ pendingTransactions, onCheck, onReceipt }: Upd
         retryOptions
       )
     },
-    [account, blockTimestamp, chainId, pendingTransactions, provider, removeTransaction]
+    [account, chainId, pendingTransactions, provider, removeTransaction]
   )
 
   useEffect(() => {

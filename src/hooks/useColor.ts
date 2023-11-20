@@ -3,8 +3,7 @@ import { DEFAULT_COLOR } from 'constants/tokenColors'
 import useTokenLogoSource from 'hooks/useAssetLogoSource'
 import { darken, lighten, rgb } from 'polished'
 import { useEffect, useState } from 'react'
-import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
-import { WrappedTokenInfoV2 } from 'state/lists/wrappedTokenInfoV2'
+import { WrappedTokenInfo } from 'state/lists/hooks'
 import { useTheme } from 'styled-components'
 import { getColor } from 'utils/getColor'
 import { hex } from 'wcag-contrast'
@@ -36,30 +35,31 @@ function URIForEthToken(address: string) {
  * @returns {Promise< | null>} A promise that resolves to a color string or null if color cannot be determined.
  */
 async function getColorFromToken(token: Token, primarySrc?: string): Promise<string | null> {
-  const wrappedToken = token as WrappedTokenInfoV2
+  // const wrappedToken = token as WrappedTokenInfo
   let color: string | null = null
 
-  try {
-    if (primarySrc) {
-      const colorArray = await getColor(primarySrc)
-      color = colorArray === DEFAULT_COLOR ? null : convertColorArrayToString(colorArray)
-    }
+  // try {
+  //   if (primarySrc) {
+  //     const colorArray = await getColor(primarySrc)
+  //     color = colorArray === DEFAULT_COLOR ? null : convertColorArrayToString(colorArray)
+  //   }
 
-    if (!color && wrappedToken?.logoURI) {
-      const colorArray = await getColor(wrappedToken.logoURI)
-      color = colorArray === DEFAULT_COLOR ? null : convertColorArrayToString(colorArray)
-    }
+  //   if (!color && wrappedToken?.logoURI) {
+  //     const colorArray = await getColor(wrappedToken.logoURI)
+  //     color = colorArray === DEFAULT_COLOR ? null : convertColorArrayToString(colorArray)
+  //   }
 
-    if (!color && token.chainId === ChainId.MAINNET) {
-      const colorArray = await getColor(URIForEthToken(wrappedToken.address))
-      color = colorArray === DEFAULT_COLOR ? null : convertColorArrayToString(colorArray)
-    }
+  //   if (!color && token.chainId === ChainId.MAINNET) {
+  //     const colorArray = await getColor(URIForEthToken(wrappedToken.address))
+  //     color = colorArray === DEFAULT_COLOR ? null : convertColorArrayToString(colorArray)
+  //   }
 
-    return color
-  } catch (error) {
-    console.warn(`Unable to load logoURI (${token.symbol}): ${primarySrc}, ${wrappedToken.logoURI}`)
-    return null
-  }
+  return color
+
+  // catch (error) {
+  //   console.warn(`Unable to load logoURI (${token.symbol}): ${primarySrc}, ${wrappedToken.logoURI}`)
+  //   return null
+  // }
 }
 
 function convertColorArrayToString([red, green, blue]: number[]): string {

@@ -31,7 +31,7 @@ import { checkWarning } from 'constants/tokenSafety'
 import { useInfoExplorePageEnabled } from 'featureFlags/flags/infoExplore'
 import { useInfoTDPEnabled } from 'featureFlags/flags/infoTDP'
 import { TokenPriceQuery } from 'graphql/data/types-and-hooks'
-import { Chain, TokenQuery, TokenQueryData, QueryToken } from 'graphql/data/Token'
+import { Chain, TokenQuery, TokenQueryData } from 'graphql/data/Token'
 import { getTokenDetailsURL, InterfaceGqlChain, supportedChainIdFromGQLChain } from 'graphql/data/util'
 import { useOnGlobalChainSwitch } from 'hooks/useGlobalChainSwitch'
 import { UNKNOWN_TOKEN_SYMBOL, useTokenFromActiveNetwork } from 'lib/hooks/useCurrency'
@@ -83,9 +83,9 @@ function useRelevantToken(
     if (address === NATIVE_CHAIN_ID) {
       return nativeOnChain(pageChainId)
     }
-    if (tokenQueryData) {
-      return new QueryToken(address, tokenQueryData)
-    }
+    // if (tokenQueryData) {
+    //   return new QueryToken(address, tokenQueryData)
+    // }
     return undefined
   }, [pageChainId, address, tokenQueryData])
   // fetches on-chain token if query data is missing and page chain matches global chain (else fetch won't work)
@@ -220,7 +220,7 @@ export default function TokenDetails({
   return (
     <Trace
       page={InterfacePageName.TOKEN_DETAILS_PAGE}
-      properties={{ tokenAddress: address, tokenName: detailedToken?.name }}
+      properties={{ tokenAddress: address, tokenName: '' }}
       shouldLogImpression
     >
       <TokenDetailsLayout>
@@ -232,10 +232,10 @@ export default function TokenDetails({
             <TokenInfoContainer data-testid="token-info-container">
               <TokenNameCell>
                 {/* <PortfolioLogo currencies={[detailedToken]} chainId={detailedToken.chainId} size="32px" /> */}
-                <TokenTitle>
+                {/* <TokenTitle>
                   {detailedToken.name ?? <Trans>Name not found</Trans>}
                   <TokenSymbol>{detailedToken.symbol ?? <Trans>Symbol not found</Trans>}</TokenSymbol>
-                </TokenTitle>
+                </TokenTitle> */}
               </TokenNameCell>
               <TokenActions>{/* <ShareButton currency={detailedToken} /> */}</TokenActions>
             </TokenInfoContainer>
