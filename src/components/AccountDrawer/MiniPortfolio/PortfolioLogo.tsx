@@ -5,7 +5,7 @@ import { MissingImageLogo } from 'components/Logo/AssetLogo'
 import { ChainLogo, getDefaultBorderRadius } from 'components/Logo/ChainLogo'
 import { Unicon } from 'components/Unicon'
 import useTokenLogoSource from 'hooks/useAssetLogoSource'
-import useENSAvatar from 'hooks/useENSAvatar'
+// import useENSAvatar from 'hooks/useENSAvatar'
 import React from 'react'
 import { Loader } from 'react-feather'
 import styled from 'styled-components'
@@ -118,17 +118,17 @@ function DoubleCurrencyLogo({ chainId, currencies, backupImages, size }: DoubleC
   )
 }
 
-function PortfolioAvatar({ accountAddress, size }: { accountAddress: string; size: string }) {
-  const { avatar, loading } = useENSAvatar(accountAddress, false)
+// function PortfolioAvatar({ accountAddress, size }: { accountAddress: string; size: string }) {
+//   const { avatar, loading } = useENSAvatar(accountAddress, false)
 
-  if (loading) {
-    return <Loader size={size} />
-  }
-  if (avatar) {
-    return <ENSAvatarImg src={avatar} alt="avatar" />
-  }
-  return <Unicon size={40} address={accountAddress} />
-}
+//   if (loading) {
+//     return <Loader size={size} />
+//   }
+//   if (avatar) {
+//     return <ENSAvatarImg src={avatar} alt="avatar" />
+//   }
+//   return <Unicon size={40} address={accountAddress} />
+// }
 
 interface PortfolioLogoProps {
   chainId: ChainId
@@ -163,9 +163,9 @@ export function PortfolioLogo(props: PortfolioLogoProps) {
 }
 
 function getLogo({ chainId, accountAddress, currencies, images, size = '40px' }: PortfolioLogoProps) {
-  if (accountAddress) {
-    return <PortfolioAvatar accountAddress={accountAddress} size={size} />
-  }
+  // if (accountAddress) {
+  //   return <PortfolioAvatar accountAddress={accountAddress} size={size} />
+  // }
   if (currencies && currencies.length) {
     return <DoubleCurrencyLogo chainId={chainId} currencies={currencies} backupImages={images} size={size} />
   }

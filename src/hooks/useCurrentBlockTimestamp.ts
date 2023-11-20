@@ -1,15 +1,10 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { useSingleCallResult } from 'lib/hooks/multicall'
-import { useMemo } from 'react'
-
-import { useInterfaceMulticall } from './useContract'
+import { useEffect, useState, useCallback } from 'react'
+// import { BigNumber } from 'ethers'
+import { useSingleCallResult } from '../state/multicall/hooks'
+import { useMulticallContract } from './useContract'
 
 // gets the current timestamp from the blockchain
-export default function useCurrentBlockTimestamp(): BigNumber | undefined {
-  const multicall = useInterfaceMulticall()
-  const resultStr: string | undefined = useSingleCallResult(
-    multicall,
-    'getCurrentBlockTimestamp'
-  )?.result?.[0]?.toString()
-  return useMemo(() => (typeof resultStr === 'string' ? BigNumber.from(resultStr) : undefined), [resultStr])
+export default function useCurrentBlockTimestamp(): number | undefined {
+  const multicall = useMulticallContract()
+  return useSingleCallResult(multicall, 'get_current_block_timestamp')?.result?.[0]
 }

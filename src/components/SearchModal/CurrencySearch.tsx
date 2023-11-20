@@ -21,7 +21,7 @@ import { TokenBalances, tokenComparator, useSortTokensByQuery } from 'lib/hooks/
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { CloseIcon, ThemedText } from 'theme/components'
 import { UserAddedToken } from 'types/tokens'
-import { useDefaultActiveTokens, useIsUserAddedToken, useSearchInactiveTokenLists, useToken } from '../../hooks/Tokens'
+// import { useDefaultActiveTokens, useIsUserAddedToken, useSearchInactiveTokenLists, useToken } from '../../hooks/Tokens'
 import { isAddress } from '../../utils'
 import Column from '../Column'
 import Row, { RowBetween } from '../Row'
@@ -74,10 +74,10 @@ export function CurrencySearch({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
   const isAddressSearch = isAddress(debouncedQuery)
-  const searchToken = useToken(debouncedQuery)
-  const searchTokenIsAdded = useIsUserAddedToken(searchToken)
+  // const searchToken = useToken(debouncedQuery)
+  // const searchTokenIsAdded = useIsUserAddedToken(searchToken)
 
-  const defaultTokens = useDefaultActiveTokens(chainId as ChainId)
+  // const defaultTokens = useDefaultActiveTokens(chainId as ChainId)
 
   // const { data, loading: balancesAreLoading } = useCachedPortfolioBalancesQuery({ account })
   // const balances: TokenBalances = useMemo(

@@ -70,15 +70,15 @@ function FormattedCurrencyAmountManaged({
 }
 
 function ClaimSummary({ info: { recipient, uniAmountRaw } }: { info: ClaimTransactionInfo }) {
-  const { ENSName } = useENSName()
-  return typeof uniAmountRaw === 'string' ? (
-    <Trans>
-      Claim <FormattedCurrencyAmount rawAmount={uniAmountRaw} symbol="UNI" decimals={18} sigFigs={4} /> for{' '}
-      {ENSName ?? recipient}
-    </Trans>
-  ) : (
-    <Trans>Claim UNI reward for {ENSName ?? recipient}</Trans>
-  )
+  // const { ENSName } = useENSName()
+  // return typeof uniAmountRaw === 'string' ? (
+  //   <Trans>
+  //     Claim <FormattedCurrencyAmount rawAmount={uniAmountRaw} symbol="UNI" decimals={18} sigFigs={4} /> for{' '}
+  //     {ENSName ?? recipient}
+  //   </Trans>
+  // ) : (
+  //   <Trans>Claim UNI reward for {ENSName ?? recipient}</Trans>
+  // )
 }
 
 function SubmitProposalTransactionSummary() {
@@ -141,8 +141,8 @@ function ExecuteSummary({ info }: { info: ExecuteTransactionInfo }) {
 }
 
 function DelegateSummary({ info: { delegatee } }: { info: DelegateTransactionInfo }) {
-  const { ENSName } = useENSName(delegatee)
-  return <Trans>Delegate voting power to {ENSName ?? delegatee}</Trans>
+  // const { ENSName } = useENSName(delegatee)
+  // return <Trans>Delegate voting power to {ENSName ?? delegatee}</Trans>
 }
 
 function WrapSummary({ info: { chainId, currencyAmountRaw, unwrapped } }: { info: WrapTransactionInfo }) {
@@ -317,8 +317,8 @@ export function TransactionSummary({ info }: { info: TransactionInfo }) {
     case TransactionType.ADD_LIQUIDITY_V2_POOL:
       return <AddLiquidityV2PoolSummary info={info} />
 
-    case TransactionType.CLAIM:
-      return <ClaimSummary info={info} />
+    // case TransactionType.CLAIM:
+    //   return <ClaimSummary info={info} />
 
     case TransactionType.DEPOSIT_LIQUIDITY_STAKING:
       return <DepositLiquidityStakingSummary />
@@ -335,8 +335,8 @@ export function TransactionSummary({ info }: { info: TransactionInfo }) {
     case TransactionType.VOTE:
       return <VoteSummary info={info} />
 
-    case TransactionType.DELEGATE:
-      return <DelegateSummary info={info} />
+    // case TransactionType.DELEGATE:
+    //   return <DelegateSummary info={info} />
 
     case TransactionType.WRAP:
       return <WrapSummary info={info} />

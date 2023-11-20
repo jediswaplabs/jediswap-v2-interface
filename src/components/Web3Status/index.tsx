@@ -100,7 +100,7 @@ function Web3StatusInner() {
   const lastWeb3 = useLast(useWeb3React(), ignoreWhileSwitchingChain)
   const { account, connector } = useMemo(() => (activeWeb3.account ? activeWeb3 : lastWeb3), [activeWeb3, lastWeb3])
   const { address } = useAccountDetails()
-  const { ENSName, loading: ENSLoading } = useENSName(account)
+  // const { ENSName, loading: ENSLoading } = useENSName(account)
   const connection = getConnection(connector)
 
   const [, toggleAccountDrawer] = useAccountDrawer()
@@ -118,7 +118,7 @@ function Web3StatusInner() {
   // Subsequent connections are always considered initialized, and will not display startup/initializing states.
   const initialConnection = useRef(getPersistedConnectionMeta())
   const isConnectionInitializing = Boolean(
-    initialConnection.current?.address === account && initialConnection.current?.ENSName && ENSLoading
+    initialConnection.current?.address === account && initialConnection.current?.ENSName
   )
   const isConnectionInitialized = connectionReady && !isConnectionInitializing
   // Clear the initial connection once initialized so it does not interfere with subsequent connections.
@@ -128,16 +128,16 @@ function Web3StatusInner() {
     }
   }, [isConnectionInitialized])
   // Persist the connection if it changes, so it can be used to initialize the next session's connection.
-  useEffect(() => {
-    if (account || ENSName) {
-      const meta: ConnectionMeta = {
-        type: connection.type,
-        address: account,
-        ENSName: ENSName ?? undefined,
-      }
-      setPersistedConnectionMeta(meta)
-    }
-  }, [ENSName, account, connection.type])
+  // useEffect(() => {
+  //   if (account || ENSName) {
+  //     const meta: ConnectionMeta = {
+  //       type: connection.type,
+  //       address: account,
+  //       ENSName: ENSName ?? undefined,
+  //     }
+  //     setPersistedConnectionMeta(meta)
+  //   }
+  // }, [ENSName, account, connection.type])
 
   if (!isConnectionInitialized) {
     return (

@@ -9,12 +9,33 @@ import { useMemo } from 'react'
 import { useAppSelector } from 'state/hooks'
 import { isL2ChainId } from 'utils/chains'
 
-import { useAllLists, useCombinedActiveList, useCombinedTokenMapFromUrls } from '../state/lists/hooks'
-import { WrappedTokenInfo } from '../state/lists/wrappedTokenInfo'
+import { WrappedTokenInfo, useAllLists, useSelectedTokenList } from '../state/lists/hooks'
 import { deserializeToken, useUserAddedTokens } from '../state/user/hooks'
-import { useUnsupportedTokenList } from './../state/lists/hooks'
+// import { useUnsupportedTokenList } from './../state/lists/hooks'
+import { DEFAULT_CHAIN_ID } from 'constants/tokens'
 
 type Maybe<T> = T | null | undefined
+
+export function useAllTokens(chainId: ChainId): { [address: string]: Token } {
+  const userAddedTokens = useUserAddedTokens()
+  const allTokens = useSelectedTokenList()
+
+  return useMemo(() => {
+    return (
+      userAddedTokens
+        // reduce into all ALL_TOKENS filtered by the current chain
+        .reduce<{ [address: string]: Token }>(
+          (tokenMap, token) => {
+            tokenMap[token.address] = token
+            return tokenMap
+          },
+          // must make a copy because reduce modifies the map, and we do not
+          // want to make a copy in every iteration
+          { ...allTokens[chainId ?? DEFAULT_CHAIN_ID] }
+        )
+    )
+  }, [chainId, userAddedTokens, allTokens])
+}
 
 // reduce token map into standard address <-> Token mapping, optionally include user added tokens
 function useTokensFromMap(tokenMap: TokenAddressMap, chainId: Maybe<ChainId>): { [address: string]: Token } {
@@ -33,57 +54,58 @@ function useTokensFromMap(tokenMap: TokenAddressMap, chainId: Maybe<ChainId>): {
 export type ChainTokenMap = { [chainId in number]?: { [address in string]?: Token } }
 /** Returns tokens from all token lists on all chains, combined with user added tokens */
 export function useAllTokensMultichain(): ChainTokenMap {
-  const allTokensFromLists = useCombinedTokenMapFromUrls(DEFAULT_LIST_OF_LISTS)
-  const userAddedTokensMap = useAppSelector(({ user: { tokens } }) => tokens)
+  // const allTokensFromLists = useCombinedTokenMapFromUrls(DEFAULT_LIST_OF_LISTS)
+  // const userAddedTokensMap = useAppSelector(({ user: { tokens } }) => tokens)
 
-  return useMemo(() => {
-    const chainTokenMap: ChainTokenMap = {}
+  // return useMemo(() => {
+  //   const chainTokenMap: ChainTokenMap = {}
 
-    if (userAddedTokensMap) {
-      Object.keys(userAddedTokensMap).forEach((key) => {
-        const chainId = Number(key)
-        const tokenMap = {} as { [address in string]?: Token }
-        Object.values(userAddedTokensMap[chainId]).forEach((serializedToken) => {
-          tokenMap[serializedToken.address] = deserializeToken(serializedToken)
-        })
-        chainTokenMap[chainId] = tokenMap
-      })
-    }
+  //   // if (userAddedTokensMap) {
+  //   //   Object.keys(userAddedTokensMap).forEach((key) => {
+  //   //     const chainId = Number(key)
+  //   //     const tokenMap = {} as { [address in string]?: Token }
+  //   //     Object.values(userAddedTokensMap[chainId]).forEach((serializedToken) => {
+  //   //       tokenMap[serializedToken.address] = deserializeToken(serializedToken)
+  //   //     })
+  //   //     chainTokenMap[chainId] = tokenMap
+  //   //   })
+  //   // }
 
-    Object.keys(allTokensFromLists).forEach((key) => {
-      const chainId = Number(key)
-      const tokenMap = chainTokenMap[chainId] ?? {}
-      Object.values(allTokensFromLists[chainId]).forEach(({ token }) => {
-        tokenMap[token.address] = token
-      })
-      chainTokenMap[chainId] = tokenMap
-    })
+  //   // Object.keys(allTokensFromLists).forEach((key) => {
+  //   //   const chainId = Number(key)
+  //   //   const tokenMap = chainTokenMap[chainId] ?? {}
+  //   //   Object.values(allTokensFromLists[chainId]).forEach(({ token }) => {
+  //   //     tokenMap[token.address] = token
+  //   //   })
+  //   //   chainTokenMap[chainId] = tokenMap
+  //   // })
 
-    return chainTokenMap
-  }, [allTokensFromLists, userAddedTokensMap])
+  //   return chainTokenMap
+  // }, [allTokensFromLists, userAddedTokensMap])
+  return {}
 }
 
 /** Returns all tokens from the default list + user added tokens */
-export function useDefaultActiveTokens(chainId: ChainId): { [address: string]: Token } {
-  const defaultListTokens = useCombinedActiveList()
-  const tokensFromMap = useTokensFromMap(defaultListTokens, chainId)
-  const userAddedTokens = useUserAddedTokens()
-  return useMemo(() => {
-    return (
-      userAddedTokens
-        // reduce into all ALL_TOKENS filtered by the current chain
-        .reduce<{ [address: string]: Token }>(
-          (tokenMap, token) => {
-            tokenMap[token.address] = token
-            return tokenMap
-          },
-          // must make a copy because reduce modifies the map, and we do not
-          // want to make a copy in every iteration
-          { ...tokensFromMap }
-        )
-    )
-  }, [tokensFromMap, userAddedTokens])
-}
+// export function useDefaultActiveTokens(chainId: ChainId): { [address: string]: Token } {
+//   const defaultListTokens = useCombinedActiveList()
+//   const tokensFromMap = useTokensFromMap(defaultListTokens, chainId)
+//   const userAddedTokens = useUserAddedTokens()
+//   return useMemo(() => {
+//     return (
+//       userAddedTokens
+//         // reduce into all ALL_TOKENS filtered by the current chain
+//         .reduce<{ [address: string]: Token }>(
+//           (tokenMap, token) => {
+//             tokenMap[token.address] = token
+//             return tokenMap
+//           },
+//           // must make a copy because reduce modifies the map, and we do not
+//           // want to make a copy in every iteration
+//           { ...tokensFromMap }
+//         )
+//     )
+//   }, [tokensFromMap, userAddedTokens])
+// }
 
 type BridgeInfo = Record<
   ChainId,
@@ -95,9 +117,9 @@ type BridgeInfo = Record<
 >
 
 export function useUnsupportedTokens(): { [address: string]: Token } {
-  const { chainId } = useWeb3React()
-  const listsByUrl = useAllLists()
-  const unsupportedTokensMap = useUnsupportedTokenList()
+  // const { chainId } = useWeb3React()
+  // const listsByUrl = useAllLists()
+  // const unsupportedTokensMap = useUnsupportedTokenList()
   // const unsupportedTokens = useTokensFromMap(unsupportedTokensMap, chainId)
 
   // // checks the default L2 lists to see if `bridgeInfo` has an L1 address value that is unsupported

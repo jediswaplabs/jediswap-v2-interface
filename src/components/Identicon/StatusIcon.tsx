@@ -2,7 +2,7 @@ import styled from 'styled-components'
 
 import { Unicon } from 'components/Unicon'
 import { Connection, ConnectionType } from 'connection/types'
-import useENSAvatar from 'hooks/useENSAvatar'
+// import useENSAvatar from 'hooks/useENSAvatar'
 import { useIsDarkMode } from 'theme/components/ThemeToggle'
 import { flexColumnNoWrap } from 'theme/styles'
 import sockImg from '../../assets/svg/socks.svg'
@@ -62,18 +62,6 @@ const MiniWalletIcon = ({ connection, side }: { connection: Connection; side: 'l
       <MiniImg src={connection.getIcon?.(isDarkMode)} alt={`${connection.getName()} icon`} />
     </MiniIconContainer>
   )
-}
-
-const MainWalletIcon = ({ account, connection, size }: { account: string; connection: Connection; size: number }) => {
-  const { avatar } = useENSAvatar(account ?? undefined)
-
-  if (!account) {
-    return null
-  }
-  if (avatar || (connection.type === ConnectionType.INJECTED && connection.getName() === 'MetaMask')) {
-    return <Identicon account={account} size={size} />
-  }
-  return <Unicon address={account} size={size} />
 }
 
 export default function StatusIcon({

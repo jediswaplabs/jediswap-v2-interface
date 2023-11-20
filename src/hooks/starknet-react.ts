@@ -1,11 +1,36 @@
 import React, { useEffect, useState } from 'react'
-import { useAccount, useBalance, useConnect, useProvider } from '@starknet-react/core'
-import { constants } from 'starknet'
+import { Connector, useAccount, useBalance, useConnect, useProvider } from '@starknet-react/core'
+import { AccountInterface, constants } from 'starknet'
 import { ChainId } from '@jediswap/sdk'
 
-export const useAccountDetails = () => {
-  const { account, address, isConnected, status } = useAccount()
-  const [chainId, setChainId] = useState('')
+declare enum StarknetChainId {
+  SN_MAIN = '0x534e5f4d41494e',
+  SN_GOERLI = '0x534e5f474f45524c49',
+  SN_GOERLI2 = '0x534e5f474f45524c4932',
+}
+
+// Function to convert StarknetChainId to ChainId
+const convertStarknetToChainId = (starknetId: StarknetChainId): ChainId | undefined => {
+  switch (starknetId) {
+    case StarknetChainId.SN_MAIN:
+      return ChainId.SN_MAIN
+    case StarknetChainId.SN_GOERLI:
+    case StarknetChainId.SN_GOERLI2:
+      return ChainId.SN_GOERLI
+    default:
+      return undefined // Return undefined if no match found
+  }
+}
+
+export const useAccountDetails = (): {
+  account: AccountInterface | undefined
+  address: string | undefined
+  isConnected: boolean | undefined
+  chainId: ChainId | undefined
+  connector: Connector | undefined
+} => {
+  const { account, address, isConnected, status, connector } = useAccount()
+  const [chainId, setChainId] = useState<ChainId | undefined>(undefined)
 
   const { provider } = useProvider()
 
@@ -13,7 +38,8 @@ export const useAccountDetails = () => {
     const fetchChainId = async () => {
       try {
         const Id = await provider.getChainId()
-        setChainId(Id)
+        const convertedId: ChainId | undefined = convertStarknetToChainId(Id)
+        setChainId(convertedId)
       } catch (error) {
         console.error('Error fetching chainId:', error)
       }
@@ -22,8 +48,9 @@ export const useAccountDetails = () => {
     fetchChainId()
   }, [status, provider])
 
-  return { account, address, isConnected, chainId }
+  return { account, address, isConnected, chainId, connector }
 }
+
 export const useConnectors = () => {
   const { connect, connectors } = useConnect()
   return { connect, connectors }

@@ -1,5 +1,5 @@
 import jazzicon from '@metamask/jazzicon'
-import useENSAvatar from 'hooks/useENSAvatar'
+// import useENSAvatar from 'hooks/useENSAvatar'
 import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 
@@ -18,7 +18,7 @@ const StyledAvatar = styled.img`
 `
 
 export default function Identicon({ account, size }: { account: string; size?: number }) {
-  const { avatar } = useENSAvatar(account ?? undefined)
+  // const { avatar } = useENSAvatar(account ?? undefined)
   const [fetchable, setFetchable] = useState(true)
   const iconSize = size ?? 24
 
@@ -43,11 +43,11 @@ export default function Identicon({ account, size }: { account: string; size?: n
 
   return (
     <StyledIdenticon iconSize={iconSize}>
-      {avatar && fetchable ? (
+      {/*  {avatar && fetchable ? (
         <StyledAvatar alt="avatar" src={avatar} onError={handleError}></StyledAvatar>
       ) : (
         <span ref={iconRef} />
-      )}
+      )} */}
     </StyledIdenticon>
   )
 }
