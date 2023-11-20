@@ -22,7 +22,6 @@ import { unwrappedToken } from 'utils/unwrappedToken'
 import { DAI, USDC_MAINNET, USDT, WBTC, WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
 
 const LinkRow = styled(Link)`
-  align-items: center;
   display: flex;
   cursor: pointer;
   user-select: none;
@@ -51,8 +50,20 @@ const LinkRow = styled(Link)`
   `};
 `
 
+const PositionListItemWrapper = styled.div`
+  display: grid;
+  gap: 1em;
+  grid-template-columns: 1.5fr 0.5fr 0.5fr 1fr;
+  align-items: center;
+`
+
 const DataLineItem = styled.div`
   font-size: 14px;
+`
+const CurrencyText = styled.div`
+  font-size: 14px;
+  font-family: 'DM Sans';
+  font-weight: 700;
 `
 
 const RangeLineItem = styled(DataLineItem)`
@@ -70,10 +81,17 @@ const DoubleArrow = styled.span`
 `
 
 const RangeText = styled(ThemedText.BodySmall)`
-  font-size: 14px !important;
+  font-size: 12px !important;
   word-break: break-word;
   padding: 0.25rem 0.25rem;
   border-radius: 8px;
+  font-family: 'DM Sans';
+  font-weight: 400;
+`
+const PositionListItemText = styled.div`
+  font-size: 14px;
+  font-family: 'DM Sans';
+  font-weight: 700;
 `
 
 const FeeTierText = styled(ThemedText.UtilityBadge)`
@@ -208,19 +226,23 @@ export default function PositionListItem({
 
   return (
     <LinkRow to={positionSummaryLink}>
-      <RowBetween>
+      <PositionListItemWrapper>
         <PrimaryPositionIdData>
-          <DoubleCurrencyLogo currency0={currencyBase} currency1={currencyQuote} size={18} margin />
+          <DoubleCurrencyLogo currency0={currencyBase} currency1={currencyQuote} size={24} margin />
           <ThemedText.SubHeader>
-            &nbsp;{currencyQuote?.symbol}&nbsp;/&nbsp;{currencyBase?.symbol}
+            <CurrencyText>
+              &nbsp;{currencyQuote?.symbol}&nbsp;/&nbsp;{currencyBase?.symbol}
+            </CurrencyText>
           </ThemedText.SubHeader>
 
           <FeeTierText>
             <Trans>{new Percent(feeAmount, 1_000_000).toSignificant()}%</Trans>
           </FeeTierText>
         </PrimaryPositionIdData>
+        <PositionListItemText>$16.89</PositionListItemText>
+        <PositionListItemText>$0</PositionListItemText>
         <RangeBadge removed={removed} inRange={!outOfRange} />
-      </RowBetween>
+      </PositionListItemWrapper>
 
       {priceLower && priceUpper ? (
         <RangeLineItem>

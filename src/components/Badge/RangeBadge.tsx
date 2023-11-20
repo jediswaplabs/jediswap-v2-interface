@@ -11,14 +11,15 @@ const BadgeWrapper = styled.div`
 `
 
 const BadgeText = styled.div`
-  font-weight: 535;
+  font-weight: 700;
+  font-family: 'DM Sans';
   font-size: 12px;
   line-height: 14px;
   margin-right: 8px;
 `
 
 const ActiveDot = styled.span`
-  background-color: ${({ theme }) => theme.success};
+  background-color: ${({ theme }) => theme.signalGreen};
   border-radius: 50%;
   height: 8px;
   width: 8px;
@@ -53,11 +54,11 @@ export default function RangeBadge({ removed, inRange }: { removed?: boolean; in
             </Trans>
           }
         >
-          <LabelText color={theme.success}>
+          <LabelText color={theme.signalGreen}>
             <BadgeText>
-              <Trans>In range</Trans>
+              <Trans>In Range</Trans>
             </BadgeText>
-            <ActiveDot />
+            {/* <ActiveDot /> */}
           </LabelText>
         </MouseoverTooltip>
       ) : (
@@ -68,11 +69,11 @@ export default function RangeBadge({ removed, inRange }: { removed?: boolean; in
             </Trans>
           }
         >
-          <LabelText color={theme.deprecated_accentWarning}>
+          <LabelText color={theme.signalRed}>
             <BadgeText>
-              <Trans>Out of range</Trans>
+              <Trans>Closed</Trans>
             </BadgeText>
-            <AlertTriangle width={12} height={12} />
+            {/* <AlertTriangle width={12} height={12} /> */}
           </LabelText>
         </MouseoverTooltip>
       )}

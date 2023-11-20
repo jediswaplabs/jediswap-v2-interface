@@ -233,15 +233,25 @@ const ResponsiveButtonPrimary = styled(ButtonPrimary)`
   }
 `
 
-const MainContentWrapper = styled.main`
-  background-color: ${({ theme }) => theme.jediNavyBlue};
+const MainContentWrapper = styled.main<{ isWalletConnected?: boolean; filteredPositions?: any }>`
+  background-color: ${({ theme, isWalletConnected, filteredPositions }) =>
+    isWalletConnected && filteredPositions ? 'rgba(196, 196, 196, 0.01)' : theme.jediNavyBlue};
   padding: 0;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   width: 902px;
+  box-shadow: ${({ isWalletConnected, filteredPositions }) =>
+    isWalletConnected && filteredPositions
+      ? `0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
+        0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
+        0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset,
+        0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.3) inset`
+      : ''};
 `
+
+const PositionWrapper = styled.div``
 
 function PositionsLoadingPlaceholder() {
   return (
@@ -425,7 +435,7 @@ export default function Pool() {
               </ResponsiveButtonPrimary>
             </Row>
 
-            <MainContentWrapper>
+            <MainContentWrapper isWalletConnected={isWalletConnected} filteredPositions={filteredPositions.length}>
               {isWalletConnected ? (
                 !filteredPositions.length ? (
                   <NoPositions>

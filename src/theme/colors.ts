@@ -143,6 +143,7 @@ export const colors = {
   success: '#40B66B',
   critical: '#FF3257',
   scrim: 'rgba(0, 0, 0, 0.60)',
+  divider: 'rgba(255, 255, 255, 0.40)',
 }
 
 type Theme = typeof darkTheme
@@ -209,4 +210,5 @@ export const darkTheme = {
   success: colors.success,
   critical: colors.critical,
   scrim: colors.scrim,
+  divider: colors.divider,
 }

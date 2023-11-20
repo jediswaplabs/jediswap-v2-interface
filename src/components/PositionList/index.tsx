@@ -9,12 +9,13 @@ const DesktopHeader = styled.div`
   display: none;
   font-size: 14px;
   padding: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.surface3};
-
+  font-family: 'DM Sans';
+  font-weight: 700;
+  background-color: rgba(255, 255, 255, 0.2);
   @media screen and (min-width: ${MEDIA_WIDTHS.deprecated_upToSmall}px) {
-    align-items: center;
-    display: flex;
-    justify-content: space-between;
+    display: grid;
+    gap: 1em;
+    grid-template-columns: 1.5fr 0.5fr 0.5fr 1fr;
     & > div:last-child {
       text-align: right;
       margin-right: 12px;
@@ -54,9 +55,15 @@ const ToggleLabel = styled.button`
   cursor: pointer;
   background-color: transparent;
   border: none;
-  color: ${({ theme }) => theme.accent1};
+  color: ${({ theme }) => theme.jediBlue};
   font-size: 14px;
-  font-weight: 485;
+  font-style: normal;
+  font-weight: 700;
+  margin-left: auto;
+`
+const Divider = styled.div`
+  height: 1px;
+  background-color: ${({ theme }) => theme.divider};
 `
 
 type PositionListProps = React.PropsWithChildren<{
@@ -74,8 +81,14 @@ export default function PositionList({
     <>
       <DesktopHeader>
         <div>
-          <Trans>Your positions</Trans>
+          <Trans>My positions</Trans>
           {positions && ' (' + positions.length + ')'}
+        </div>
+        <div>
+          <Trans>Liquidity</Trans>
+        </div>
+        <div>
+          <Trans>Fees earned</Trans>
         </div>
 
         <ToggleLabel
@@ -99,8 +112,11 @@ export default function PositionList({
           </ToggleLabel>
         </ToggleWrap>
       </MobileHeader>
-      {positions.map((p) => (
-        <PositionListItem key={p.tokenId.toString()} {...p} />
+      {positions.map((p, index) => (
+        <>
+          <PositionListItem key={p.tokenId.toString()} {...p} />
+          {positions.length !== index + 1 ? <Divider /> : null}
+        </>
       ))}
     </>
   )
