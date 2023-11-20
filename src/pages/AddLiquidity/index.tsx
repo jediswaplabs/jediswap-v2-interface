@@ -1,125 +1,132 @@
-import { BigNumber } from '@ethersproject/bignumber';
-import type { TransactionResponse } from '@ethersproject/providers';
-import { Trans } from '@lingui/macro';
-import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events';
-import { Currency, CurrencyAmount, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES, Percent } from '@uniswap/sdk-core';
-import { FeeAmount, NonfungiblePositionManager } from '@uniswap/v3-sdk';
-import { useWeb3React } from '@web3-react/core';
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { AlertTriangle } from 'react-feather';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { Text } from 'rebass';
-import styled, { useTheme } from 'styled-components';
+import { BigNumber } from '@ethersproject/bignumber'
+import type { TransactionResponse } from '@ethersproject/providers'
+import { Trans } from '@lingui/macro'
+import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
+import { Currency, CurrencyAmount, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES, Percent } from '@uniswap/sdk-core'
+import { FeeAmount, NonfungiblePositionManager } from '@uniswap/v3-sdk'
+import { useWeb3React } from '@web3-react/core'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { AlertTriangle } from 'react-feather'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Text } from 'rebass'
+import styled, { useTheme } from 'styled-components'
 
-import { sendAnalyticsEvent, TraceEvent, useTrace } from 'analytics';
-import { useToggleAccountDrawer } from 'components/AccountDrawer';
-import OwnershipWarning from 'components/addLiquidity/OwnershipWarning';
-import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter';
-import { isSupportedChain } from 'constants/chains';
-import usePrevious from 'hooks/usePrevious';
-import { useSingleCallResult } from 'lib/hooks/multicall';
-import { BodyWrapper } from 'pages/AppBody';
-import { PositionPageUnsupportedContent } from 'pages/Pool/PositionPage';
-import { useRangeHopCallbacks,
+import { sendAnalyticsEvent, TraceEvent, useTrace } from 'analytics'
+import { useToggleAccountDrawer } from 'components/AccountDrawer'
+import OwnershipWarning from 'components/addLiquidity/OwnershipWarning'
+import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
+import { isSupportedChain } from 'constants/chains'
+import usePrevious from 'hooks/usePrevious'
+import { useSingleCallResult } from 'lib/hooks/multicall'
+import { BodyWrapper } from 'pages/AppBody'
+import { PositionPageUnsupportedContent } from 'pages/Pool/PositionPage'
+import {
+  useRangeHopCallbacks,
   useV3DerivedMintInfo,
   useV3MintActionHandlers,
-  useV3MintState } from 'state/mint/v3/hooks';
-import { ThemedText } from 'theme/components';
-import { addressesAreEquivalent } from 'utils/addressesAreEquivalent';
-import { WrongChainError } from 'utils/errors';
-import { ButtonError, ButtonLight, ButtonPrimary, ButtonText } from '../../components/Button';
-import { BlueCard, LightCard, OutlineCard, YellowCard } from '../../components/Card';
-import { AutoColumn } from '../../components/Column';
-import CurrencyInputPanel from '../../components/CurrencyInputPanel';
-import FeeSelector from '../../components/FeeSelector';
-import HoverInlineText from '../../components/HoverInlineText';
-import LiquidityChartRangeInput from '../../components/LiquidityChartRangeInput';
-import { AddRemoveTabs } from '../../components/NavigationTabs';
-import { PositionPreview } from '../../components/PositionPreview';
-import RangeSelector from '../../components/RangeSelector';
-import PresetsButtons from '../../components/RangeSelector/PresetsButtons';
-import RateToggle from '../../components/RateToggle';
-import Row, { RowBetween, RowFixed } from '../../components/Row';
-import { SwitchLocaleLink } from '../../components/SwitchLocaleLink';
-import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal';
-import { ZERO_PERCENT } from '../../constants/misc';
-import { WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens';
-import { useCurrency } from '../../hooks/Tokens';
-import { ApprovalState, useApproveCallback } from '../../hooks/useApproveCallback';
-import { useArgentWalletContract } from '../../hooks/useArgentWalletContract';
-import { useV3NFTPositionManagerContract } from '../../hooks/useContract';
-import { useDerivedPositionInfo } from '../../hooks/useDerivedPositionInfo';
-import { useIsSwapUnsupported } from '../../hooks/useIsSwapUnsupported';
-import { useStablecoinValue } from '../../hooks/useStablecoinPrice';
-import useTransactionDeadline from '../../hooks/useTransactionDeadline';
-import { useV3PositionFromTokenId } from '../../hooks/useV3Positions';
-import { Bound, Field } from '../../state/mint/v3/actions';
-import { useTransactionAdder } from '../../state/transactions/hooks';
-import { TransactionInfo, TransactionType } from '../../state/transactions/types';
-import { useUserSlippageToleranceWithDefault } from '../../state/user/hooks';
-import approveAmountCalldata from '../../utils/approveAmountCalldata';
-import { calculateGasMargin } from '../../utils/calculateGasMargin';
-import { currencyId } from '../../utils/currencyId';
-import { maxAmountSpend } from '../../utils/maxAmountSpend';
-import { Dots } from '../Pool/styled';
-import { Review } from './Review';
-import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled';
+  useV3MintState,
+} from 'state/mint/v3/hooks'
+import { ThemedText } from 'theme/components'
+import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
+import { WrongChainError } from 'utils/errors'
+import { ButtonError, ButtonLight, ButtonPrimary, ButtonText } from '../../components/Button'
+import { BlueCard, LightCard, OutlineCard, YellowCard } from '../../components/Card'
+import { AutoColumn } from '../../components/Column'
+import CurrencyInputPanel from '../../components/CurrencyInputPanel'
+import FeeSelector from '../../components/FeeSelector'
+import HoverInlineText from '../../components/HoverInlineText'
+import LiquidityChartRangeInput from '../../components/LiquidityChartRangeInput'
+import { AddRemoveTabs } from '../../components/NavigationTabs'
+import { PositionPreview } from '../../components/PositionPreview'
+import RangeSelector from '../../components/RangeSelector'
+import PresetsButtons from '../../components/RangeSelector/PresetsButtons'
+import RateToggle from '../../components/RateToggle'
+import Row, { RowBetween, RowFixed } from '../../components/Row'
+import { SwitchLocaleLink } from '../../components/SwitchLocaleLink'
+import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
+import { ZERO_PERCENT } from '../../constants/misc'
+import { WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
+import { useCurrency } from '../../hooks/Tokens'
+import { ApprovalState, useApproveCallback } from '../../hooks/useApproveCallback'
+import { useArgentWalletContract } from '../../hooks/useArgentWalletContract'
+import { useV3NFTPositionManagerContract } from '../../hooks/useContract'
+import { useDerivedPositionInfo } from '../../hooks/useDerivedPositionInfo'
+import { useIsSwapUnsupported } from '../../hooks/useIsSwapUnsupported'
+import { useStablecoinValue } from '../../hooks/useStablecoinPrice'
+import useTransactionDeadline from '../../hooks/useTransactionDeadline'
+import { useV3PositionFromTokenId } from '../../hooks/useV3Positions'
+import { Bound, Field } from '../../state/mint/v3/actions'
+import { useTransactionAdder } from '../../state/transactions/hooks'
+import { TransactionInfo, TransactionType } from '../../state/transactions/types'
+import { useUserSlippageToleranceWithDefault } from '../../state/user/hooks'
+import approveAmountCalldata from '../../utils/approveAmountCalldata'
+import { calculateGasMargin } from '../../utils/calculateGasMargin'
+import { currencyId } from '../../utils/currencyId'
+import { maxAmountSpend } from '../../utils/maxAmountSpend'
+import { Dots } from '../Pool/styled'
+import { Review } from './Review'
+import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
 
-const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000);
+const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
 const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>`
   padding: ${({ $hasExistingPosition }) => ($hasExistingPosition ? '10px' : 0)};
   max-width: 640px;
-`;
+`
 
 export default function AddLiquidityWrapper() {
-  const { chainId } = useWeb3React();
+  const { chainId } = useWeb3React()
   if (isSupportedChain(chainId)) {
-    return <AddLiquidity />;
+    return <AddLiquidity />
   }
-  return <PositionPageUnsupportedContent />;
+  return <PositionPageUnsupportedContent />
 }
 
 function AddLiquidity() {
-  const navigate = useNavigate();
-  const { currencyIdA,
+  const navigate = useNavigate()
+  const {
+    currencyIdA,
     currencyIdB,
     feeAmount: feeAmountFromUrl,
-    tokenId } = useParams<{
+    tokenId,
+  } = useParams<{
     currencyIdA?: string
     currencyIdB?: string
     feeAmount?: string
     tokenId?: string
-  }>();
-  const { account, chainId, provider } = useWeb3React();
-  const theme = useTheme();
-  const trace = useTrace();
+  }>()
+  const { account, chainId, provider } = useWeb3React()
+  const theme = useTheme()
+  const trace = useTrace()
 
-  const toggleWalletDrawer = useToggleAccountDrawer(); // toggle wallet when disconnected
-  const addTransaction = useTransactionAdder();
-  const positionManager = useV3NFTPositionManagerContract();
+  const toggleWalletDrawer = useToggleAccountDrawer() // toggle wallet when disconnected
+  const addTransaction = useTransactionAdder()
+  const positionManager = useV3NFTPositionManagerContract()
 
   // check for existing position if tokenId in url
   const { position: existingPositionDetails, loading: positionLoading } = useV3PositionFromTokenId(
-    tokenId ? BigNumber.from(tokenId) : undefined,
-  );
-  const hasExistingPosition = !!existingPositionDetails && !positionLoading;
-  const { position: existingPosition } = useDerivedPositionInfo(existingPositionDetails);
+    tokenId ? BigNumber.from(tokenId) : undefined
+  )
+  const hasExistingPosition = !!existingPositionDetails && !positionLoading
+  const { position: existingPosition } = useDerivedPositionInfo(existingPositionDetails)
 
   // fee selection from url
-  const feeAmount: FeeAmount | undefined = feeAmountFromUrl && Object.values(FeeAmount).includes(parseFloat(feeAmountFromUrl))
-    ? parseFloat(feeAmountFromUrl)
-    : undefined;
+  const feeAmount: FeeAmount | undefined =
+    feeAmountFromUrl && Object.values(FeeAmount).includes(parseFloat(feeAmountFromUrl))
+      ? parseFloat(feeAmountFromUrl)
+      : undefined
 
-  const baseCurrency = useCurrency(currencyIdA);
-  const currencyB = useCurrency(currencyIdB);
+  const baseCurrency = useCurrency(currencyIdA)
+  const currencyB = useCurrency(currencyIdB)
   // prevent an error if they input ETH/WETH
-  const quoteCurrency = baseCurrency && currencyB && baseCurrency.wrapped.equals(currencyB.wrapped) ? undefined : currencyB;
+  const quoteCurrency =
+    baseCurrency && currencyB && baseCurrency.wrapped.equals(currencyB.wrapped) ? undefined : currencyB
 
   // mint state
-  const { independentField, typedValue, startPriceTypedValue } = useV3MintState();
+  const { independentField, typedValue, startPriceTypedValue } = useV3MintState()
 
-  const { pool,
+  const {
+    pool,
     ticks,
     dependentField,
     price,
@@ -137,37 +144,39 @@ function AddLiquidity() {
     depositADisabled,
     depositBDisabled,
     invertPrice,
-    ticksAtLimit } = useV3DerivedMintInfo(
+    ticksAtLimit,
+  } = useV3DerivedMintInfo(
     baseCurrency ?? undefined,
     quoteCurrency ?? undefined,
     feeAmount,
     baseCurrency ?? undefined,
-    existingPosition,
-  );
+    existingPosition
+  )
 
-  const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } = useV3MintActionHandlers(noLiquidity);
+  const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
+    useV3MintActionHandlers(noLiquidity)
 
-  const isValid = !errorMessage && !invalidRange;
+  const isValid = !errorMessage && !invalidRange
 
   // modal and loading
-  const [showConfirm, setShowConfirm] = useState<boolean>(false);
-  const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false); // clicked confirm
+  const [showConfirm, setShowConfirm] = useState<boolean>(false)
+  const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
 
   // txn values
-  const deadline = useTransactionDeadline(); // custom from users settings
+  const deadline = useTransactionDeadline() // custom from users settings
 
-  const [txHash, setTxHash] = useState<string>('');
+  const [txHash, setTxHash] = useState<string>('')
 
   // get formatted amounts
   const formattedAmounts = {
     [independentField]: typedValue,
     [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
-  };
+  }
 
   const usdcValues = {
     [Field.CURRENCY_A]: useStablecoinValue(parsedAmounts[Field.CURRENCY_A]),
     [Field.CURRENCY_B]: useStablecoinValue(parsedAmounts[Field.CURRENCY_B]),
-  };
+  }
 
   // get the max amounts user can add
   const maxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
@@ -175,66 +184,69 @@ function AddLiquidity() {
       ...accumulator,
       [field]: maxAmountSpend(currencyBalances[field]),
     }),
-    {},
-  );
+    {}
+  )
 
   const atMaxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
     (accumulator, field) => ({
       ...accumulator,
       [field]: maxAmounts[field]?.equalTo(parsedAmounts[field] ?? '0'),
     }),
-    {},
-  );
+    {}
+  )
 
-  const argentWalletContract = useArgentWalletContract();
+  const argentWalletContract = useArgentWalletContract()
 
   // check whether the user has approved the router on the tokens
   const [approvalA, approveACallback] = useApproveCallback(
     argentWalletContract ? undefined : parsedAmounts[Field.CURRENCY_A],
-    chainId ? NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined,
-  );
+    chainId ? NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined
+  )
   const [approvalB, approveBCallback] = useApproveCallback(
     argentWalletContract ? undefined : parsedAmounts[Field.CURRENCY_B],
-    chainId ? NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined,
-  );
+    chainId ? NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined
+  )
 
   const allowedSlippage = useUserSlippageToleranceWithDefault(
-    outOfRange ? ZERO_PERCENT : DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE,
-  );
+    outOfRange ? ZERO_PERCENT : DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE
+  )
 
   async function onAdd() {
-    if (!chainId || !provider || !account) { return; }
+    if (!chainId || !provider || !account) {
+      return
+    }
 
     if (!positionManager || !baseCurrency || !quoteCurrency) {
-      return;
+      return
     }
 
     if (position && account && deadline) {
-      const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined;
-      const { calldata, value } = hasExistingPosition && tokenId
-        ? NonfungiblePositionManager.addCallParameters(position, {
-          tokenId,
-          slippageTolerance: allowedSlippage,
-          deadline: deadline.toString(),
-          useNative,
-        })
-        : NonfungiblePositionManager.addCallParameters(position, {
-          slippageTolerance: allowedSlippage,
-          recipient: account,
-          deadline: deadline.toString(),
-          useNative,
-          createPool: noLiquidity,
-        });
+      const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
+      const { calldata, value } =
+        hasExistingPosition && tokenId
+          ? NonfungiblePositionManager.addCallParameters(position, {
+              tokenId,
+              slippageTolerance: allowedSlippage,
+              deadline: deadline.toString(),
+              useNative,
+            })
+          : NonfungiblePositionManager.addCallParameters(position, {
+              slippageTolerance: allowedSlippage,
+              recipient: account,
+              deadline: deadline.toString(),
+              useNative,
+              createPool: noLiquidity,
+            })
 
       let txn: { to: string; data: string; value: string } = {
         to: NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
         data: calldata,
         value,
-      };
+      }
 
       if (argentWalletContract) {
-        const amountA = parsedAmounts[Field.CURRENCY_A];
-        const amountB = parsedAmounts[Field.CURRENCY_B];
+        const amountA = parsedAmounts[Field.CURRENCY_A]
+        const amountB = parsedAmounts[Field.CURRENCY_B]
         const batch = [
           ...(amountA && amountA.currency.isToken
             ? [approveAmountCalldata(amountA, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
@@ -247,19 +259,21 @@ function AddLiquidity() {
             data: txn.data,
             value: txn.value,
           },
-        ];
-        const data = argentWalletContract.interface.encodeFunctionData('wc_multiCall', [batch]);
+        ]
+        const data = argentWalletContract.interface.encodeFunctionData('wc_multiCall', [batch])
         txn = {
           to: argentWalletContract.address,
           data,
           value: '0x0',
-        };
+        }
       }
 
-      const connectedChainId = await provider.getSigner().getChainId();
-      if (chainId !== connectedChainId) { throw new WrongChainError(); }
+      const connectedChainId = await provider.getSigner().getChainId()
+      if (chainId !== connectedChainId) {
+        throw new WrongChainError()
+      }
 
-      setAttemptingTxn(true);
+      setAttemptingTxn(true)
 
       provider
         .getSigner()
@@ -268,13 +282,13 @@ function AddLiquidity() {
           const newTxn = {
             ...txn,
             gasLimit: calculateGasMargin(estimate),
-          };
+          }
 
           return provider
             .getSigner()
             .sendTransaction(newTxn)
             .then((response: TransactionResponse) => {
-              setAttemptingTxn(false);
+              setAttemptingTxn(false)
               const transactionInfo: TransactionInfo = {
                 type: TransactionType.ADD_LIQUIDITY_V3_POOL,
                 baseCurrencyId: currencyId(baseCurrency),
@@ -283,262 +297,272 @@ function AddLiquidity() {
                 expectedAmountBaseRaw: parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ?? '0',
                 expectedAmountQuoteRaw: parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ?? '0',
                 feeAmount: position.pool.fee,
-              };
-              addTransaction(response, transactionInfo);
-              setTxHash(response.hash);
+              }
+              addTransaction(response, transactionInfo)
+              setTxHash(response.hash)
               sendAnalyticsEvent(LiquidityEventName.ADD_LIQUIDITY_SUBMITTED, {
                 label: [currencies[Field.CURRENCY_A]?.symbol, currencies[Field.CURRENCY_B]?.symbol].join('/'),
                 ...trace,
                 ...transactionInfo,
-              });
-            });
+              })
+            })
         })
         .catch((error) => {
-          console.error('Failed to send transaction', error);
-          setAttemptingTxn(false);
+          console.error('Failed to send transaction', error)
+          setAttemptingTxn(false)
           // we only care if the error is something _other_ than the user rejected the tx
           if (error?.code !== 4001) {
-            console.error(error);
+            console.error(error)
           }
-        });
+        })
     } else {
-
     }
   }
 
   const handleCurrencySelect = useCallback(
     (currencyNew: Currency, currencyIdOther?: string): (string | undefined)[] => {
-      const currencyIdNew = currencyId(currencyNew);
+      const currencyIdNew = currencyId(currencyNew)
 
       if (currencyIdNew === currencyIdOther) {
         // not ideal, but for now clobber the other if the currency ids are equal
-        return [currencyIdNew, undefined];
+        return [currencyIdNew, undefined]
       }
       // prevent weth + eth
-      const isETHOrWETHNew = currencyIdNew === 'ETH'
-          || (chainId !== undefined && currencyIdNew === WRAPPED_NATIVE_CURRENCY[chainId]?.address);
-      const isETHOrWETHOther = currencyIdOther !== undefined
-          && (currencyIdOther === 'ETH'
-            || (chainId !== undefined && currencyIdOther === WRAPPED_NATIVE_CURRENCY[chainId]?.address));
+      const isETHOrWETHNew =
+        currencyIdNew === 'ETH' ||
+        (chainId !== undefined && currencyIdNew === WRAPPED_NATIVE_CURRENCY[chainId]?.address)
+      const isETHOrWETHOther =
+        currencyIdOther !== undefined &&
+        (currencyIdOther === 'ETH' ||
+          (chainId !== undefined && currencyIdOther === WRAPPED_NATIVE_CURRENCY[chainId]?.address))
 
       if (isETHOrWETHNew && isETHOrWETHOther) {
-        return [currencyIdNew, undefined];
+        return [currencyIdNew, undefined]
       }
-      return [currencyIdNew, currencyIdOther];
+      return [currencyIdNew, currencyIdOther]
     },
-    [chainId],
-  );
+    [chainId]
+  )
 
   const handleCurrencyASelect = useCallback(
     (currencyANew: Currency) => {
-      const [idA, idB] = handleCurrencySelect(currencyANew, currencyIdB);
+      const [idA, idB] = handleCurrencySelect(currencyANew, currencyIdB)
       if (idB === undefined) {
-        navigate(`/add/${idA}`);
+        navigate(`/add/${idA}`)
       } else {
-        navigate(`/add/${idA}/${idB}`);
+        navigate(`/add/${idA}/${idB}`)
       }
     },
-    [handleCurrencySelect, currencyIdB, navigate],
-  );
+    [handleCurrencySelect, currencyIdB, navigate]
+  )
 
   const handleCurrencyBSelect = useCallback(
     (currencyBNew: Currency) => {
-      const [idB, idA] = handleCurrencySelect(currencyBNew, currencyIdA);
+      const [idB, idA] = handleCurrencySelect(currencyBNew, currencyIdA)
       if (idA === undefined) {
-        navigate(`/add/${idB}`);
+        navigate(`/add/${idB}`)
       } else {
-        navigate(`/add/${idA}/${idB}`);
+        navigate(`/add/${idA}/${idB}`)
       }
     },
-    [handleCurrencySelect, currencyIdA, navigate],
-  );
+    [handleCurrencySelect, currencyIdA, navigate]
+  )
 
   const handleFeePoolSelect = useCallback(
     (newFeeAmount: FeeAmount) => {
-      onLeftRangeInput('');
-      onRightRangeInput('');
-      navigate(`/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`);
+      onLeftRangeInput('')
+      onRightRangeInput('')
+      navigate(`/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
     },
-    [currencyIdA, currencyIdB, navigate, onLeftRangeInput, onRightRangeInput],
-  );
+    [currencyIdA, currencyIdB, navigate, onLeftRangeInput, onRightRangeInput]
+  )
 
   const handleDismissConfirmation = useCallback(() => {
-    setShowConfirm(false);
+    setShowConfirm(false)
     // if there was a tx hash, we want to clear the input
     if (txHash) {
-      onFieldAInput('');
+      onFieldAInput('')
       // dont jump to pool page if creating
-      navigate('/pools');
+      navigate('/pools')
     }
-    setTxHash('');
-  }, [navigate, onFieldAInput, txHash]);
+    setTxHash('')
+  }, [navigate, onFieldAInput, txHash])
 
-  const addIsUnsupported = useIsSwapUnsupported(currencies?.CURRENCY_A, currencies?.CURRENCY_B);
+  const addIsUnsupported = useIsSwapUnsupported(currencies?.CURRENCY_A, currencies?.CURRENCY_B)
 
   const clearAll = useCallback(() => {
-    onFieldAInput('');
-    onFieldBInput('');
-    onLeftRangeInput('');
-    onRightRangeInput('');
-    navigate('/add');
-  }, [navigate, onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput]);
+    onFieldAInput('')
+    onFieldBInput('')
+    onLeftRangeInput('')
+    onRightRangeInput('')
+    navigate('/add')
+  }, [navigate, onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput])
 
   // get value and prices at ticks
-  const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks;
-  const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks;
+  const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks
+  const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks
 
-  const { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper, getSetFullRange } = useRangeHopCallbacks(baseCurrency ?? undefined, quoteCurrency ?? undefined, feeAmount, tickLower, tickUpper, pool);
+  const { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper, getSetFullRange } =
+    useRangeHopCallbacks(baseCurrency ?? undefined, quoteCurrency ?? undefined, feeAmount, tickLower, tickUpper, pool)
 
   // we need an existence check on parsed amounts for single-asset deposits
-  const showApprovalA = !argentWalletContract && approvalA !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_A];
-  const showApprovalB = !argentWalletContract && approvalB !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_B];
+  const showApprovalA =
+    !argentWalletContract && approvalA !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_A]
+  const showApprovalB =
+    !argentWalletContract && approvalB !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_B]
 
   const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${
     !depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
   } ${!outOfRange ? 'and' : ''} ${!depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) : ''} ${
     !depositBDisabled ? currencies[Field.CURRENCY_B]?.symbol : ''
-  }`;
+  }`
 
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const handleSetFullRange = useCallback(() => {
-    getSetFullRange();
+    getSetFullRange()
 
-    const minPrice = pricesAtLimit[Bound.LOWER];
-    if (minPrice) { searchParams.set('minPrice', minPrice.toSignificant(5)); }
-    const maxPrice = pricesAtLimit[Bound.UPPER];
-    if (maxPrice) { searchParams.set('maxPrice', maxPrice.toSignificant(5)); }
-    setSearchParams(searchParams);
-  }, [getSetFullRange, pricesAtLimit, searchParams, setSearchParams]);
+    const minPrice = pricesAtLimit[Bound.LOWER]
+    if (minPrice) {
+      searchParams.set('minPrice', minPrice.toSignificant(5))
+    }
+    const maxPrice = pricesAtLimit[Bound.UPPER]
+    if (maxPrice) {
+      searchParams.set('maxPrice', maxPrice.toSignificant(5))
+    }
+    setSearchParams(searchParams)
+  }, [getSetFullRange, pricesAtLimit, searchParams, setSearchParams])
 
   // START: sync values with query string
-  const oldSearchParams = usePrevious(searchParams);
+  const oldSearchParams = usePrevious(searchParams)
   // use query string as an input to onInput handlers
   useEffect(() => {
-    const minPrice = searchParams.get('minPrice');
-    const oldMinPrice = oldSearchParams?.get('minPrice');
+    const minPrice = searchParams.get('minPrice')
+    const oldMinPrice = oldSearchParams?.get('minPrice')
     if (
-      minPrice
-      && typeof minPrice === 'string'
-      && !isNaN(minPrice as any)
-      && (!oldMinPrice || oldMinPrice !== minPrice)
+      minPrice &&
+      typeof minPrice === 'string' &&
+      !isNaN(minPrice as any) &&
+      (!oldMinPrice || oldMinPrice !== minPrice)
     ) {
-      onLeftRangeInput(minPrice);
+      onLeftRangeInput(minPrice)
     }
     // disable eslint rule because this hook only cares about the url->input state data flow
     // input state -> url updates are handled in the input handlers
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [searchParams])
   useEffect(() => {
-    const maxPrice = searchParams.get('maxPrice');
-    const oldMaxPrice = oldSearchParams?.get('maxPrice');
+    const maxPrice = searchParams.get('maxPrice')
+    const oldMaxPrice = oldSearchParams?.get('maxPrice')
     if (
-      maxPrice
-      && typeof maxPrice === 'string'
-      && !isNaN(maxPrice as any)
-      && (!oldMaxPrice || oldMaxPrice !== maxPrice)
+      maxPrice &&
+      typeof maxPrice === 'string' &&
+      !isNaN(maxPrice as any) &&
+      (!oldMaxPrice || oldMaxPrice !== maxPrice)
     ) {
-      onRightRangeInput(maxPrice);
+      onRightRangeInput(maxPrice)
     }
     // disable eslint rule because this hook only cares about the url->input state data flow
     // input state -> url updates are handled in the input handlers
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, [searchParams])
   // END: sync values with query string
 
-  const Buttons = () => (addIsUnsupported ? (
-    <ButtonPrimary disabled $borderRadius="12px" padding="12px">
-      <ThemedText.DeprecatedMain mb="4px">
-        <Trans>Unsupported Asset</Trans>
-      </ThemedText.DeprecatedMain>
-    </ButtonPrimary>
-  ) : !account ? (
-    <TraceEvent
-      events={[BrowserEvent.onClick]}
-      name={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
-      properties={{ received_swap_quote: false }}
-      element={InterfaceElementName.CONNECT_WALLET_BUTTON}
-    >
-      <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
-        <Trans>Connect wallet</Trans>
-      </ButtonLight>
-    </TraceEvent>
-  ) : (
-    <AutoColumn gap="md">
-      {(approvalA === ApprovalState.NOT_APPROVED
-          || approvalA === ApprovalState.PENDING
-          || approvalB === ApprovalState.NOT_APPROVED
-          || approvalB === ApprovalState.PENDING)
-          && isValid && (
-          <RowBetween>
-          {showApprovalA && (
-            <ButtonPrimary
-              onClick={approveACallback}
-              disabled={approvalA === ApprovalState.PENDING}
-              width={showApprovalB ? '48%' : '100%'}
-            >
-              {approvalA === ApprovalState.PENDING ? (
-                <Dots>
-                  <Trans>Approving {currencies[Field.CURRENCY_A]?.symbol}</Trans>
-                </Dots>
-              ) : (
-                <Trans>Approve {currencies[Field.CURRENCY_A]?.symbol}</Trans>
-              )}
-            </ButtonPrimary>
-          )}
-          {showApprovalB && (
-            <ButtonPrimary
-              onClick={approveBCallback}
-              disabled={approvalB === ApprovalState.PENDING}
-              width={showApprovalA ? '48%' : '100%'}
-            >
-              {approvalB === ApprovalState.PENDING ? (
-                <Dots>
-                  <Trans>Approving {currencies[Field.CURRENCY_B]?.symbol}</Trans>
-                </Dots>
-              ) : (
-                <Trans>Approve {currencies[Field.CURRENCY_B]?.symbol}</Trans>
-              )}
-            </ButtonPrimary>
-          )}
-        </RowBetween>
-      )}
-      <ButtonError
-        onClick={() => {
-          setShowConfirm(true);
-        }}
-        disabled={
-          !isValid
-            || (!argentWalletContract && approvalA !== ApprovalState.APPROVED && !depositADisabled)
-            || (!argentWalletContract && approvalB !== ApprovalState.APPROVED && !depositBDisabled)
-        }
-        error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
+  const Buttons = () =>
+    addIsUnsupported ? (
+      <ButtonPrimary disabled $borderRadius="12px" padding="12px">
+        <ThemedText.DeprecatedMain mb="4px">
+          <Trans>Unsupported Asset</Trans>
+        </ThemedText.DeprecatedMain>
+      </ButtonPrimary>
+    ) : !account ? (
+      <TraceEvent
+        events={[BrowserEvent.onClick]}
+        name={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
+        properties={{ received_swap_quote: false }}
+        element={InterfaceElementName.CONNECT_WALLET_BUTTON}
       >
-        <Text fontWeight={535}>{errorMessage || <Trans>Preview</Trans>}</Text>
-      </ButtonError>
-    </AutoColumn>
-  ));
+        <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
+          <Trans>Connect wallet</Trans>
+        </ButtonLight>
+      </TraceEvent>
+    ) : (
+      <AutoColumn gap="md">
+        {(approvalA === ApprovalState.NOT_APPROVED ||
+          approvalA === ApprovalState.PENDING ||
+          approvalB === ApprovalState.NOT_APPROVED ||
+          approvalB === ApprovalState.PENDING) &&
+          isValid && (
+            <RowBetween>
+              {showApprovalA && (
+                <ButtonPrimary
+                  onClick={approveACallback}
+                  disabled={approvalA === ApprovalState.PENDING}
+                  width={showApprovalB ? '48%' : '100%'}
+                >
+                  {approvalA === ApprovalState.PENDING ? (
+                    <Dots>
+                      <Trans>Approving {currencies[Field.CURRENCY_A]?.symbol}</Trans>
+                    </Dots>
+                  ) : (
+                    <Trans>Approve {currencies[Field.CURRENCY_A]?.symbol}</Trans>
+                  )}
+                </ButtonPrimary>
+              )}
+              {showApprovalB && (
+                <ButtonPrimary
+                  onClick={approveBCallback}
+                  disabled={approvalB === ApprovalState.PENDING}
+                  width={showApprovalA ? '48%' : '100%'}
+                >
+                  {approvalB === ApprovalState.PENDING ? (
+                    <Dots>
+                      <Trans>Approving {currencies[Field.CURRENCY_B]?.symbol}</Trans>
+                    </Dots>
+                  ) : (
+                    <Trans>Approve {currencies[Field.CURRENCY_B]?.symbol}</Trans>
+                  )}
+                </ButtonPrimary>
+              )}
+            </RowBetween>
+          )}
+        <ButtonError
+          onClick={() => {
+            setShowConfirm(true)
+          }}
+          disabled={
+            !isValid ||
+            (!argentWalletContract && approvalA !== ApprovalState.APPROVED && !depositADisabled) ||
+            (!argentWalletContract && approvalB !== ApprovalState.APPROVED && !depositBDisabled)
+          }
+          error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
+        >
+          <Text fontWeight={535}>{errorMessage || <Trans>Preview</Trans>}</Text>
+        </ButtonError>
+      </AutoColumn>
+    )
 
-  const usdcValueCurrencyA = usdcValues[Field.CURRENCY_A];
-  const usdcValueCurrencyB = usdcValues[Field.CURRENCY_B];
+  const usdcValueCurrencyA = usdcValues[Field.CURRENCY_A]
+  const usdcValueCurrencyB = usdcValues[Field.CURRENCY_B]
   const currencyAFiat = useMemo(
     () => ({
       data: usdcValueCurrencyA ? parseFloat(usdcValueCurrencyA.toSignificant()) : undefined,
       isLoading: false,
     }),
-    [usdcValueCurrencyA],
-  );
+    [usdcValueCurrencyA]
+  )
   const currencyBFiat = useMemo(
     () => ({
       data: usdcValueCurrencyB ? parseFloat(usdcValueCurrencyB.toSignificant()) : undefined,
       isLoading: false,
     }),
-    [usdcValueCurrencyB],
-  );
+    [usdcValueCurrencyB]
+  )
 
-  const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0];
-  const ownsNFT = addressesAreEquivalent(owner, account) || addressesAreEquivalent(existingPositionDetails?.operator, account);
-  const showOwnershipWarning = Boolean(hasExistingPosition && account && !ownsNFT);
+  const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
+  const ownsNFT =
+    addressesAreEquivalent(owner, account) || addressesAreEquivalent(existingPositionDetails?.operator, account)
+  const showOwnershipWarning = Boolean(hasExistingPosition && account && !ownsNFT)
 
   return (
     <>
@@ -586,7 +610,7 @@ function AddLiquidity() {
               <Row justifyContent="flex-end" style={{ width: 'fit-content', minWidth: 'fit-content' }}>
                 <MediumOnly>
                   <ButtonText onClick={clearAll}>
-                    <ThemedText.DeprecatedBlue fontSize="12px">
+                    <ThemedText.DeprecatedBlue fontSize="14px" style={{ color: theme.jediBlue, fontWeight: '700' }}>
                       <Trans>Clear all</Trans>
                     </ThemedText.DeprecatedBlue>
                   </ButtonText>
@@ -601,9 +625,9 @@ function AddLiquidity() {
                   <>
                     <AutoColumn gap="md">
                       <RowBetween paddingBottom="20px">
-                        <ThemedText.DeprecatedLabel>
+                        <ThemedText.SubHeader style={{ fontFamily: 'DM Sans', fontWeight: '500' }}>
                           <Trans>Select pair</Trans>
-                        </ThemedText.DeprecatedLabel>
+                        </ThemedText.SubHeader>
                       </RowBetween>
                       <RowBetween gap="md">
                         <CurrencyInputPanel
@@ -611,7 +635,7 @@ function AddLiquidity() {
                           onUserInput={onFieldAInput}
                           hideInput
                           onMax={() => {
-                            onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '');
+                            onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
                           }}
                           onCurrencySelect={handleCurrencyASelect}
                           showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
@@ -627,7 +651,7 @@ function AddLiquidity() {
                           onUserInput={onFieldBInput}
                           onCurrencySelect={handleCurrencyBSelect}
                           onMax={() => {
-                            onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '');
+                            onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
                           }}
                           showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
                           currency={currencies[Field.CURRENCY_B] ?? null}
@@ -674,37 +698,35 @@ function AddLiquidity() {
                             handleRateToggle={() => {
                               if (!ticksAtLimit[Bound.LOWER] && !ticksAtLimit[Bound.UPPER]) {
                                 onLeftRangeInput(
-                                  (invertPrice ? priceLower : priceUpper?.invert())?.toSignificant(6) ?? '',
-                                );
+                                  (invertPrice ? priceLower : priceUpper?.invert())?.toSignificant(6) ?? ''
+                                )
                                 onRightRangeInput(
-                                  (invertPrice ? priceUpper : priceLower?.invert())?.toSignificant(6) ?? '',
-                                );
-                                onFieldAInput(formattedAmounts[Field.CURRENCY_B] ?? '');
+                                  (invertPrice ? priceUpper : priceLower?.invert())?.toSignificant(6) ?? ''
+                                )
+                                onFieldAInput(formattedAmounts[Field.CURRENCY_B] ?? '')
                               }
                               navigate(
                                 `/add/${currencyIdB as string}/${currencyIdA as string}${
                                   feeAmount ? `/${feeAmount}` : ''
-                                }`,
-                              );
+                                }`
+                              )
                             }}
                           />
                         </RowFixed>
                       )}
                     </RowBetween>
                     <LiquidityChartRangeInput
-                          currencyA={baseCurrency ?? undefined}
-                          currencyB={quoteCurrency ?? undefined}
-                          feeAmount={feeAmount}
-                          ticksAtLimit={ticksAtLimit}
-                          price={
-                            price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined
-                          }
-                          priceLower={priceLower}
-                          priceUpper={priceUpper}
-                          onLeftRangeInput={onLeftRangeInput}
-                          onRightRangeInput={onRightRangeInput}
-                          interactive={!hasExistingPosition}
-                        />
+                      currencyA={baseCurrency ?? undefined}
+                      currencyB={quoteCurrency ?? undefined}
+                      feeAmount={feeAmount}
+                      ticksAtLimit={ticksAtLimit}
+                      price={price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined}
+                      priceLower={priceLower}
+                      priceUpper={priceUpper}
+                      onLeftRangeInput={onLeftRangeInput}
+                      onRightRangeInput={onRightRangeInput}
+                      interactive={!hasExistingPosition}
+                    />
                     <RangeSelector
                       priceLower={priceLower}
                       priceUpper={priceUpper}
@@ -847,7 +869,7 @@ function AddLiquidity() {
                       value={formattedAmounts[Field.CURRENCY_A]}
                       onUserInput={onFieldAInput}
                       onMax={() => {
-                        onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '');
+                        onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
                       }}
                       showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
                       currency={currencies[Field.CURRENCY_A] ?? null}
@@ -861,7 +883,7 @@ function AddLiquidity() {
                       value={formattedAmounts[Field.CURRENCY_B]}
                       onUserInput={onFieldBInput}
                       onMax={() => {
-                        onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '');
+                        onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
                       }}
                       showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
                       fiatValue={currencyBFiat}
@@ -887,5 +909,5 @@ function AddLiquidity() {
       </ScrollablePage>
       <SwitchLocaleLink />
     </>
-  );
+  )
 }
