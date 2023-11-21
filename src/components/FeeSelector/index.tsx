@@ -63,36 +63,52 @@ export default function FeeSelector({
   const { chainId } = useWeb3React()
   const trace = useTrace()
 
-  const { isLoading, isError, largestUsageFeeTier, distributions } = useFeeTierDistribution(currencyA, currencyB)
+  // const { isLoading, isError, largestUsageFeeTier } = useFeeTierDistribution(currencyA, currencyB)
+  const isLoading = false
+  const largestUsageFeeTier = false
+  const isError = false
+  const distributions = {
+    '100': 0.13230880019434835,
+    '500': 58.77589559263296,
+    '3000': 39.81891308283566,
+    '10000': 1.272882524337048,
+  }
 
   // get pool data on-chain for latest states
-  const pools = usePools([
-    [currencyA, currencyB, FeeAmount.LOWEST],
-    [currencyA, currencyB, FeeAmount.LOW],
-    [currencyA, currencyB, FeeAmount.MEDIUM],
-    [currencyA, currencyB, FeeAmount.HIGH],
-  ])
+  // const pools = usePools([
+  //   [currencyA, currencyB, FeeAmount.LOWEST],
+  //   [currencyA, currencyB, FeeAmount.LOW],
+  //   [currencyA, currencyB, FeeAmount.MEDIUM],
+  //   [currencyA, currencyB, FeeAmount.HIGH],
+  // ])
 
-  const poolsByFeeTier: Record<FeeAmount, PoolState> = useMemo(
-    () =>
-      pools.reduce(
-        (acc, [curPoolState, curPool]) => {
-          acc = {
-            ...acc,
-            ...{ [curPool?.fee as FeeAmount]: curPoolState },
-          }
-          return acc
-        },
-        {
-          // default all states to NOT_EXISTS
-          [FeeAmount.LOWEST]: PoolState.NOT_EXISTS,
-          [FeeAmount.LOW]: PoolState.NOT_EXISTS,
-          [FeeAmount.MEDIUM]: PoolState.NOT_EXISTS,
-          [FeeAmount.HIGH]: PoolState.NOT_EXISTS,
-        }
-      ),
-    [pools]
-  )
+  // const poolsByFeeTier: Record<FeeAmount, PoolState> = useMemo(
+  //   () =>
+  //     pools.reduce(
+  //       (acc, [curPoolState, curPool]) => {
+  //         acc = {
+  //           ...acc,
+  //           ...{ [curPool?.fee as FeeAmount]: curPoolState },
+  //         }
+  //         return acc
+  //       },
+  //       {
+  //         // default all states to NOT_EXISTS
+  //         [FeeAmount.LOWEST]: PoolState.NOT_EXISTS,
+  //         [FeeAmount.LOW]: PoolState.NOT_EXISTS,
+  //         [FeeAmount.MEDIUM]: PoolState.NOT_EXISTS,
+  //         [FeeAmount.HIGH]: PoolState.NOT_EXISTS,
+  //       }
+  //     ),
+  //   [pools]
+  // )
+
+  const poolsByFeeTier = {
+    '100': 2,
+    '500': 2,
+    '3000': 2,
+    '10000': 2,
+  }
 
   const [showOptions, setShowOptions] = useState(false)
   const [pulsing, setPulsing] = useState(false)
@@ -103,10 +119,6 @@ export default function FeeSelector({
 
   const handleFeePoolSelectWithEvent = useCallback(
     (fee: FeeAmount) => {
-      sendAnalyticsEvent(LiquidityEventName.SELECT_LIQUIDITY_POOL_FEE_TIER, {
-        action: FeePoolSelectAction.MANUAL,
-        ...trace,
-      })
       handleFeePoolSelect(fee)
     },
     [handleFeePoolSelect, trace]
@@ -124,10 +136,6 @@ export default function FeeSelector({
       setShowOptions(false)
 
       recommended.current = true
-      sendAnalyticsEvent(LiquidityEventName.SELECT_LIQUIDITY_POOL_FEE_TIER, {
-        action: FeePoolSelectAction.RECOMMENDED,
-        ...trace,
-      })
 
       handleFeePoolSelect(largestUsageFeeTier)
     }

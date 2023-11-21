@@ -122,30 +122,43 @@ function AddLiquidity() {
   const baseCurrency = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
   // prevent an error if they input ETH/WETH
-  const quoteCurrency = Boolean(
-    chainId &&
-      ((baseCurrency && currencyEquals(baseCurrency, WETH[chainId])) ||
-        (currencyB && currencyEquals(currencyB, WETH[chainId])))
-  )
+  // const quoteCurrency = Boolean(
+  //   chainId &&
+  //     ((baseCurrency && currencyEquals(baseCurrency, WETH[chainId])) ||
+  //       (currencyB && currencyEquals(currencyB, WETH[chainId])))
+  // )
+
+  // const quoteCurrency =
+  //   chainId && baseCurrency && currencyB && baseCurrency && currencyEquals(baseCurrency, WETH[chainId])
+  //     ? undefined
+  //     : currencyB
+
+  const quoteCurrency = {
+    name: 'USDCoin',
+    symbol: 'USDC',
+    decimals: 6,
+    logoURI:
+      'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
+  }
 
   // mint state
   const { independentField, typedValue, otherTypedValue } = useMintState()
 
-  const {
-    dependentField,
-    currencies,
-    pair,
-    pairState,
-    currencyBalances,
-    parsedAmounts,
-    price,
-    noLiquidity,
-    liquidityMinted,
-    poolTokenPercentage,
-    error,
-  } = useDerivedMintInfo(baseCurrency ?? undefined, currencyB ?? undefined)
+  // const {
+  //   dependentField,
+  //   currencies,
+  //   pair,
+  //   pairState,
+  //   currencyBalances,
+  //   parsedAmounts,
+  //   price,
+  //   noLiquidity,
+  //   liquidityMinted,
+  //   poolTokenPercentage,
+  //   error,
+  // } = useDerivedMintInfo(baseCurrency ?? undefined, currencyB ?? undefined)
 
-  const { onFieldAInput, onFieldBInput } = useMintActionHandlers(noLiquidity)
+  // const { onFieldAInput, onFieldBInput } = useMintActionHandlers(noLiquidity)
 
   // const isValid = !errorMessage && !invalidRange
 
@@ -159,32 +172,32 @@ function AddLiquidity() {
   const [txHash, setTxHash] = useState<string>('')
 
   // get formatted amounts
-  const formattedAmounts = {
-    [independentField]: typedValue,
-    [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
-  }
+  // const formattedAmounts = {
+  //   [independentField]: typedValue,
+  //   [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
+  // }
 
-  // get the max amounts user can add
-  // get the max amounts user can add
-  const maxAmounts: { [field in Field]?: TokenAmount } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
-    (accumulator, field) => {
-      return {
-        ...accumulator,
-        [field]: maxAmountSpend(currencyBalances[field]),
-      }
-    },
-    {}
-  )
+  // // get the max amounts user can add
+  // // get the max amounts user can add
+  // const maxAmounts: { [field in Field]?: TokenAmount } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
+  //   (accumulator, field) => {
+  //     return {
+  //       ...accumulator,
+  //       [field]: maxAmountSpend(currencyBalances[field]),
+  //     }
+  //   },
+  //   {}
+  // )
 
-  const atMaxAmounts: { [field in Field]?: CurrencyAmount } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
-    (accumulator, field) => {
-      return {
-        ...accumulator,
-        [field]: maxAmounts[field]?.equalTo(parsedAmounts[field] ?? '0'),
-      }
-    },
-    {}
-  )
+  // const atMaxAmounts: { [field in Field]?: CurrencyAmount } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
+  //   (accumulator, field) => {
+  //     return {
+  //       ...accumulator,
+  //       [field]: maxAmounts[field]?.equalTo(parsedAmounts[field] ?? '0'),
+  //     }
+  //   },
+  //   {}
+  // )
 
   // const argentWalletContract = useArgentWalletContract()
 
@@ -351,14 +364,11 @@ function AddLiquidity() {
     [currencyIdA, history, currencyIdB]
   )
 
-  // const handleFeePoolSelect = useCallback(
-  //   (newFeeAmount: FeeAmount) => {
-  //     onLeftRangeInput('')
-  //     onRightRangeInput('')
-  //     navigate(`/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
-  //   },
-  //   [currencyIdA, currencyIdB, navigate, onLeftRangeInput, onRightRangeInput]
-  // )
+  const handleFeePoolSelect = useCallback((newFeeAmount: FeeAmount) => {
+    // onLeftRangeInput('')
+    // onRightRangeInput('')
+    // navigate(`/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
+  }, [])
 
   // const handleDismissConfirmation = useCallback(() => {
   //   setShowConfirm(false)
@@ -542,6 +552,7 @@ function AddLiquidity() {
   // const ownsNFT =
   //   addressesAreEquivalent(owner, account) || addressesAreEquivalent(existingPositionDetails?.operator, account)
   // const showOwnershipWarning = Boolean(hasExistingPosition && account && !ownsNFT)
+  const hasExistingPosition = false
 
   return (
     <>
@@ -609,7 +620,7 @@ function AddLiquidity() {
                       </ThemedText.DeprecatedLabel>
                     </RowBetween>
                     <RowBetween gap="md">
-                      <CurrencyInputPanel
+                      {/* <CurrencyInputPanel
                         value={formattedAmounts[Field.CURRENCY_A]}
                         onUserInput={onFieldAInput}
                         hideInput
@@ -618,7 +629,7 @@ function AddLiquidity() {
                         }}
                         onCurrencySelect={handleCurrencyASelect}
                         showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
-                        currency={currencies[Field.CURRENCY_A] ?? null}
+                        // currency={currencies[Field.CURRENCY_A] ?? null}
                         id="add-liquidity-input-tokena"
                         showCommonBases
                       />
@@ -632,19 +643,19 @@ function AddLiquidity() {
                           onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
                         }}
                         showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
-                        currency={currencies[Field.CURRENCY_B] ?? null}
+                        // currency={currencies[Field.CURRENCY_B] ?? null}
                         id="add-liquidity-input-tokenb"
                         showCommonBases
-                      />
+                      /> */}
                     </RowBetween>
 
-                    {/* <FeeSelector
-                        disabled={!quoteCurrency || !baseCurrency}
-                        feeAmount={feeAmount}
-                        handleFeePoolSelect={handleFeePoolSelect}
-                        currencyA={baseCurrency ?? undefined}
-                        currencyB={quoteCurrency ?? undefined}
-                      /> */}
+                    <FeeSelector
+                      disabled={!baseCurrency}
+                      feeAmount={500}
+                      handleFeePoolSelect={handleFeePoolSelect}
+                      // currencyA={baseCurrency ?? undefined}
+                      // currencyB={quoteCurrency ?? undefined}
+                    />
                   </AutoColumn>{' '}
                 </>
 
@@ -658,42 +669,41 @@ function AddLiquidity() {
                 )} */}
               </AutoColumn>
 
-              {/*   {!hasExistingPosition && (
+              {!hasExistingPosition && (
                 <>
-                  <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
+                  <DynamicSection gap="md" disabled={!feeAmount}>
                     <RowBetween>
                       <ThemedText.DeprecatedLabel>
                         <Trans>Set price range</Trans>
                       </ThemedText.DeprecatedLabel>
 
-                      {Boolean(baseCurrency && quoteCurrency) && (
+                      {baseCurrency && quoteCurrency && (
                         <RowFixed gap="8px">
-                          <PresetsButtons onSetFullRange={handleSetFullRange} />
                           <RateToggle
-                            currencyA={baseCurrency as Currency}
-                            currencyB={quoteCurrency as Currency}
-                            handleRateToggle={() => {
-                              if (!ticksAtLimit[Bound.LOWER] && !ticksAtLimit[Bound.UPPER]) {
-                                onLeftRangeInput(
-                                  (invertPrice ? priceLower : priceUpper?.invert())?.toSignificant(6) ?? ''
-                                )
-                                onRightRangeInput(
-                                  (invertPrice ? priceUpper : priceLower?.invert())?.toSignificant(6) ?? ''
-                                )
-                                onFieldAInput(formattedAmounts[Field.CURRENCY_B] ?? '')
-                              }
-                              navigate(
-                                `/add/${currencyIdB as string}/${currencyIdA as string}${
-                                  feeAmount ? '/' + feeAmount : ''
-                                }`
-                              )
-                            }}
+                            currencyA={baseCurrency}
+                            currencyB={quoteCurrency}
+                            // handleRateToggle={() => {
+                            //   if (!ticksAtLimit[Bound.LOWER] && !ticksAtLimit[Bound.UPPER]) {
+                            //     onLeftRangeInput(
+                            //       (invertPrice ? priceLower : priceUpper?.invert())?.toSignificant(6) ?? ''
+                            //     )
+                            //     onRightRangeInput(
+                            //       (invertPrice ? priceUpper : priceLower?.invert())?.toSignificant(6) ?? ''
+                            //     )
+                            //     onFieldAInput(formattedAmounts[Field.CURRENCY_B] ?? '')
+                            //   }
+                            //   navigate(
+                            //     `/add/${currencyIdB as string}/${currencyIdA as string}${
+                            //       feeAmount ? '/' + feeAmount : ''
+                            //     }`
+                            //   )
+                            // }}
                           />
                         </RowFixed>
                       )}
                     </RowBetween>
 
-                    <RangeSelector
+                    {/* <RangeSelector
                       priceLower={priceLower}
                       priceUpper={priceUpper}
                       getDecrementLower={getDecrementLower}
@@ -706,9 +716,9 @@ function AddLiquidity() {
                       currencyB={quoteCurrency}
                       feeAmount={feeAmount}
                       ticksAtLimit={ticksAtLimit}
-                    />
+                    /> */}
 
-                    {outOfRange && (
+                    {/* {outOfRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
                         <RowBetween>
                           <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
@@ -731,10 +741,10 @@ function AddLiquidity() {
                           </ThemedText.DeprecatedYellow>
                         </RowBetween>
                       </YellowCard>
-                    )}
+                    )} */}
                   </DynamicSection>
 
-                  <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
+                  {/* <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
                     {!noLiquidity ? (
                       <>
                         {Boolean(price && baseCurrency && quoteCurrency && !noLiquidity) && (
@@ -836,10 +846,10 @@ function AddLiquidity() {
                         </RowBetween>
                       </AutoColumn>
                     )}
-                  </DynamicSection>
+                  </DynamicSection> */}
                 </>
               )}
-              <div>
+              {/* <div>
                 <DynamicSection disabled={invalidPool || invalidRange || (noLiquidity && !startPriceTypedValue)}>
                   <AutoColumn gap="md">
                     <ThemedText.DeprecatedLabel>

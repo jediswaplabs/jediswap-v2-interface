@@ -1,6 +1,8 @@
 import { Trans } from '@lingui/macro'
-import { Currency } from '@uniswap/sdk-core'
+import { Currency } from '@jediswap/sdk'
 import { ToggleElement, ToggleWrapper } from 'components/Toggle/MultiToggle'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { wrappedCurrency, wrappedCurrencyAmount } from 'utils/wrappedCurrency'
 
 // the order of displayed base currencies from left to right is always in sort order
 // currencyA is treated as the preferred base currency
@@ -11,14 +13,18 @@ export default function RateToggle({
 }: {
   currencyA: Currency
   currencyB: Currency
-  handleRateToggle: () => void
+  handleRateToggle?: () => void
 }) {
-  const tokenA = currencyA?.wrapped
-  const tokenB = currencyB?.wrapped
+  const { chainId } = useAccountDetails()
+  const tokenA = wrappedCurrency(currencyA, chainId)
+  const tokenB = wrappedCurrency(currencyB, chainId)
+
+  console.log(tokenA && tokenB)
 
   const isSorted = tokenA && tokenB && tokenA.sortsBefore(tokenB)
+  console.log('am i here')
 
-  return tokenA && tokenB ? (
+  return (
     <div style={{ width: 'fit-content', display: 'flex', alignItems: 'center' }} onClick={handleRateToggle}>
       <ToggleWrapper width="fit-content">
         <ToggleElement isActive={isSorted} fontSize="12px">
@@ -29,5 +35,5 @@ export default function RateToggle({
         </ToggleElement>
       </ToggleWrapper>
     </div>
-  ) : null
+  )
 }
