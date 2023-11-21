@@ -10,7 +10,7 @@ import { useAppSelector } from 'state/hooks'
 import { isL2ChainId } from 'utils/chains'
 
 import { WrappedTokenInfo, useAllLists, useSelectedTokenList } from '../state/lists/hooks'
-import { deserializeToken, useUserAddedTokens } from '../state/user/hooks'
+import { useUserAddedTokens } from '../state/user/hooks'
 // import { useUnsupportedTokenList } from './../state/lists/hooks'
 import { DEFAULT_CHAIN_ID } from 'constants/tokens'
 
@@ -18,7 +18,9 @@ type Maybe<T> = T | null | undefined
 
 export function useAllTokens(chainId: ChainId): { [address: string]: Token } {
   const userAddedTokens = useUserAddedTokens()
+  console.log('🚀 ~ file: Tokens.ts:21 ~ useAllTokens ~ userAddedTokens:', userAddedTokens)
   const allTokens = useSelectedTokenList()
+  console.log('🚀 ~ file: Tokens.ts:23 ~ useAllTokens ~ allTokens:', allTokens)
 
   return useMemo(() => {
     return (

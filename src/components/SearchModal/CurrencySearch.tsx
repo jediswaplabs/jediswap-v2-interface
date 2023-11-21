@@ -29,6 +29,8 @@ import CommonBases from './CommonBases'
 import CurrencyList, { CurrencyRow, formatAnalyticsEventProperties } from './CurrencyList'
 import { PaddedColumn, SearchInput, Separator } from './styled'
 import { DEFAULT_CHAIN_ID } from 'constants/tokens'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { useAllTokens } from 'hooks/Tokens'
 
 const ContentWrapper = styled(Column)`
   background-color: ${({ theme }) => theme.surface1};
@@ -63,8 +65,9 @@ export function CurrencySearch({
   onlyShowCurrenciesWithBalance,
 }: CurrencySearchProps) {
   // const { chainId, account } = useWeb3React()
-  const chainId = DEFAULT_CHAIN_ID
+  const { chainId } = useAccountDetails()
   const theme = useTheme()
+  const allTokens = chainId && useAllTokens(chainId)
 
   const [tokenLoaderTimerElapsed, setTokenLoaderTimerElapsed] = useState(false)
 

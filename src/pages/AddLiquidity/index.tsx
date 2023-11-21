@@ -46,7 +46,7 @@ import { SwitchLocaleLink } from '../../components/SwitchLocaleLink'
 import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
 import { ZERO_PERCENT } from '../../constants/misc'
 import { WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
-import { useCurrency } from '../../hooks/Tokens'
+import { useAllTokens, useCurrency } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallback } from '../../hooks/useApproveCallback'
 // import { useArgentWalletContract } from '../../hooks/useArgentWalletContract'
 // import { useV3NFTPositionManagerContract } from '../../hooks/useContract'
@@ -99,6 +99,8 @@ function AddLiquidity() {
     tokenId?: string
   }>()
   const { account, chainId } = useAccountDetails()
+  // const allTokens = chainId && useAllTokens(chainId)
+  // console.log('🚀 ~ file: index.tsx:103 ~ allTokens:', allTokens)
   const theme = useTheme()
   const trace = useTrace()
 
@@ -553,6 +555,7 @@ function AddLiquidity() {
   //   addressesAreEquivalent(owner, account) || addressesAreEquivalent(existingPositionDetails?.operator, account)
   // const showOwnershipWarning = Boolean(hasExistingPosition && account && !ownsNFT)
   const hasExistingPosition = false
+  const noLiquidity = false
 
   return (
     <>
@@ -744,32 +747,32 @@ function AddLiquidity() {
                     )} */}
                   </DynamicSection>
 
-                  {/* <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
+                  <DynamicSection gap="md" disabled={!feeAmount}>
                     {!noLiquidity ? (
                       <>
-                        {Boolean(price && baseCurrency && quoteCurrency && !noLiquidity) && (
-                          <AutoColumn gap="2px" style={{ marginTop: '0.5rem' }}>
-                            <Trans>
-                              <ThemedText.DeprecatedMain fontWeight={535} fontSize={12} color="text1">
-                                Current price:
-                              </ThemedText.DeprecatedMain>
-                              <ThemedText.DeprecatedBody fontWeight={535} fontSize={20} color="text1">
-                                {price && (
+                        {/* {Boolean(price && baseCurrency && quoteCurrency && !noLiquidity) && ( */}
+                        <AutoColumn gap="2px" style={{ marginTop: '0.5rem' }}>
+                          <Trans>
+                            <ThemedText.DeprecatedMain fontWeight={535} fontSize={12} color="text1">
+                              Current price:
+                            </ThemedText.DeprecatedMain>
+                            <ThemedText.DeprecatedBody fontWeight={535} fontSize={20} color="text1">
+                              {/* {price && (
                                   <HoverInlineText
                                     maxCharacters={20}
                                     text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
                                   />
-                                )}
+                                )} */}
+                            </ThemedText.DeprecatedBody>
+                            {baseCurrency && (
+                              <ThemedText.DeprecatedBody color="text2" fontSize={12}>
+                                {quoteCurrency?.symbol} per {baseCurrency.symbol}
                               </ThemedText.DeprecatedBody>
-                              {baseCurrency && (
-                                <ThemedText.DeprecatedBody color="text2" fontSize={12}>
-                                  {quoteCurrency?.symbol} per {baseCurrency.symbol}
-                                </ThemedText.DeprecatedBody>
-                              )}
-                            </Trans>
-                          </AutoColumn>
-                        )}
-                        <LiquidityChartRangeInput
+                            )}
+                          </Trans>
+                        </AutoColumn>
+                        {/* )} */}
+                        {/* <LiquidityChartRangeInput
                           currencyA={baseCurrency ?? undefined}
                           currencyB={quoteCurrency ?? undefined}
                           feeAmount={feeAmount}
@@ -782,7 +785,7 @@ function AddLiquidity() {
                           onLeftRangeInput={onLeftRangeInput}
                           onRightRangeInput={onRightRangeInput}
                           interactive={!hasExistingPosition}
-                        />
+                        /> */}
                       </>
                     ) : (
                       <AutoColumn gap="md">
@@ -810,11 +813,11 @@ function AddLiquidity() {
                           </BlueCard>
                         )}
                         <OutlineCard padding="12px">
-                          <StyledInput
+                          {/* <StyledInput
                             className="start-price-input"
                             value={startPriceTypedValue}
                             onUserInput={onStartPriceInput}
-                          />
+                          /> */}
                         </OutlineCard>
                         <RowBetween
                           style={{
@@ -827,7 +830,7 @@ function AddLiquidity() {
                             <Trans>Starting {baseCurrency?.symbol} Price:</Trans>
                           </ThemedText.DeprecatedMain>
                           <ThemedText.DeprecatedMain>
-                            {price ? (
+                            {/* {price ? (
                               <ThemedText.DeprecatedMain>
                                 <RowFixed>
                                   <HoverInlineText
@@ -841,12 +844,12 @@ function AddLiquidity() {
                               </ThemedText.DeprecatedMain>
                             ) : (
                               '-'
-                            )}
+                            )} */}
                           </ThemedText.DeprecatedMain>
                         </RowBetween>
                       </AutoColumn>
                     )}
-                  </DynamicSection> */}
+                  </DynamicSection>
                 </>
               )}
               {/* <div>

@@ -1,20 +1,17 @@
 import { nanoid } from '@reduxjs/toolkit'
 import { TokenList } from '@jediswap/token-lists'
-import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
-import { useFallbackProviderEnabled } from 'featureFlags/flags/fallbackProvider'
-import getTokenList from 'lib/hooks/useTokenList/fetchTokenList'
-import resolveENSContentHash from 'lib/utils/resolveENSContentHash'
 import { useCallback } from 'react'
-import { useAppDispatch } from 'state/hooks'
-
+import { useDispatch } from 'react-redux'
+import { NETWORK_CHAIN_ID } from '../connectors'
+import { AppDispatch } from '../state'
 import { fetchTokenList } from '../state/lists/actions'
+import getTokenList from 'lib/hooks/useTokenList/fetchTokenList'
 
-export function useFetchListCallback(): (listUrl: string, skipValidation?: boolean) => Promise<TokenList> {
-  const dispatch = useAppDispatch()
-  const providers = useFallbackProviderEnabled() ? RPC_PROVIDERS : DEPRECATED_RPC_PROVIDERS
+export function useFetchListCallback(): (listUrl: string) => Promise<TokenList> {
+  const dispatch = useDispatch<AppDispatch>()
 
   return useCallback(
-    async (listUrl: string, skipValidation?: boolean) => {
+    async (listUrl: string) => {
       const requestId = nanoid()
       dispatch(fetchTokenList.pending({ requestId, url: listUrl }))
       return getTokenList(listUrl)
@@ -28,6 +25,6 @@ export function useFetchListCallback(): (listUrl: string, skipValidation?: boole
           throw error
         })
     },
-    [dispatch, providers]
+    [dispatch]
   )
 }

@@ -39,8 +39,8 @@ function Updaters() {
       <Helmet>
         <link rel="canonical" href={baseUrl} />
       </Helmet>
-      {/* <RadialGradientByChainUpdater />
       <ListsUpdater />
+      {/* <RadialGradientByChainUpdater />
       <SystemThemeUpdater />
       <ThemeColorMetaUpdater />
       <ApplicationUpdater />
