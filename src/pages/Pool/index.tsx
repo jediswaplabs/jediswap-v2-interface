@@ -47,8 +47,31 @@ const TitleRow = styled(RowBetween)`
     flex-wrap: wrap;
     gap: 12px;
     width: 100%;
+    padding-left: 12px;
   }
 `
+const PoolStats = styled.div`
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    > div {
+      display: flex;
+      flex-direction: column;
+      > div {
+        padding-bottom: 12px;
+      }
+    }
+  }
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    > div {
+      display: flex;
+      flex-direction: column;
+      > div {
+        padding-bottom: 12px;
+      }
+    }
+  }
+`
+
 const PoolsCard = styled.div`
   margin-right: 16px;
   align-items: center;
@@ -64,6 +87,15 @@ const PoolsCard = styled.div`
     0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.3) inset, 0px 5.38841px 8.46749px -3.07909px #fff inset,
     0px 30.02111px 43.10724px -27.7118px rgba(255, 255, 255, 0.5) inset;
   backdrop-filter: blur(38.48860168457031px);
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    width: 364px;
+    margin-right: 0px;
+  }
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    width: 364px;
+    margin-right: 0px;
+  }
 `
 const PoolsCardHeader = styled.div`
   color: ${({ theme }) => theme.notice};
@@ -146,21 +178,21 @@ const PositionsText = styled.div`
   line-height: 100%; /* 20px */
 `
 const ButtonRow = styled(RowFixed)`
-  & > *:not(:last-child) {
-    margin-left: 8px;
+  width: 902px;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    width: 374px;
+    padding-left: 12px;
   }
 
   @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
+    width: 374px;
+    padding-left: 12px;
   }
 `
 const PoolMenu = styled(Menu)`
   margin-left: 0;
   @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     flex: 1 1 auto;
-    width: 50%;
   }
 
   a {
@@ -196,6 +228,13 @@ const ErrorContainer = styled.div`
   justify-content: center;
   margin: auto;
   min-height: 25vh;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    padding: 0px 52px;
+  }
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    padding: 0px 52px;
+  }
 `
 
 const IconStyle = css`
@@ -228,8 +267,7 @@ const ResponsiveButtonPrimary = styled(ButtonPrimary)`
   margin-left: auto;
   height: 38px;
   @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    flex: 1 1 auto;
-    width: 50%;
+    width: 132px;
   }
 `
 
@@ -249,6 +287,15 @@ const MainContentWrapper = styled.main<{ isWalletConnected?: boolean; filteredPo
         0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset,
         0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.3) inset`
       : ''};
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    width: 368px;
+    margin-left: 8px;
+  }
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    margin-left: 8px;
+    width: 368px;
+  }
 `
 
 const PositionWrapper = styled.div``
@@ -306,7 +353,7 @@ function WrongNetworkCard() {
 
 export default function Pool() {
   const { account, chainId } = useWeb3React()
-  const [isWalletConnected, setIsWalletConnected] = useState(true)
+  const [isWalletConnected, setIsWalletConnected] = useState()
   const networkSupportsV2 = useNetworkSupportsV2()
   const toggleWalletDrawer = useToggleAccountDrawer()
 
@@ -398,46 +445,48 @@ export default function Pool() {
                 </ResponsiveButtonPrimary>
               </ButtonRow> */}
             </TitleRow>
-            <Row style={{ marginTop: '20px', marginBottom: '20px' }}>
-              <AutoColumn>
-                <PoolsCard>
-                  <PoolsCardHeader>Total Liquidity</PoolsCardHeader>
-                  <PoolsCardDetails>
-                    <PoolsCardNumbers>US$16,006,030</PoolsCardNumbers>
-                    <PoolsCardPercent>+0.70%</PoolsCardPercent>
-                  </PoolsCardDetails>
-                </PoolsCard>
-              </AutoColumn>
-              <AutoColumn>
-                <PoolsCard>
-                  <PoolsCardHeader>Total Volume (24hr)</PoolsCardHeader>
-                  <PoolsCardDetails>
-                    <PoolsCardNumbers>US$3,001,359</PoolsCardNumbers>
-                    <PoolsCardPercent>+40.09%</PoolsCardPercent>
-                  </PoolsCardDetails>
-                </PoolsCard>
-              </AutoColumn>
-              <AutoColumn>
-                <PoolsCard>
-                  <PoolsCardHeader>Total Fees (24hr)</PoolsCardHeader>
-                  <PoolsCardDetails>
-                    <PoolsCardNumbers>US$16,006,030</PoolsCardNumbers>
-                    <PoolsCardPercentNegative>-1.96%</PoolsCardPercentNegative>
-                  </PoolsCardDetails>
-                </PoolsCard>
-              </AutoColumn>
-            </Row>
+            <PoolStats>
+              <Row style={{ marginTop: '20px', marginBottom: '20px' }}>
+                <AutoColumn>
+                  <PoolsCard>
+                    <PoolsCardHeader>Total Liquidity</PoolsCardHeader>
+                    <PoolsCardDetails>
+                      <PoolsCardNumbers>US$16,006,030</PoolsCardNumbers>
+                      <PoolsCardPercent>+0.70%</PoolsCardPercent>
+                    </PoolsCardDetails>
+                  </PoolsCard>
+                </AutoColumn>
+                <AutoColumn>
+                  <PoolsCard>
+                    <PoolsCardHeader>Total Volume (24hr)</PoolsCardHeader>
+                    <PoolsCardDetails>
+                      <PoolsCardNumbers>US$3,001,359</PoolsCardNumbers>
+                      <PoolsCardPercent>+40.09%</PoolsCardPercent>
+                    </PoolsCardDetails>
+                  </PoolsCard>
+                </AutoColumn>
+                <AutoColumn>
+                  <PoolsCard>
+                    <PoolsCardHeader>Total Fees (24hr)</PoolsCardHeader>
+                    <PoolsCardDetails>
+                      <PoolsCardNumbers>US$16,006,030</PoolsCardNumbers>
+                      <PoolsCardPercentNegative>-1.96%</PoolsCardPercentNegative>
+                    </PoolsCardDetails>
+                  </PoolsCard>
+                </AutoColumn>
+              </Row>
+            </PoolStats>
 
-            <Row>
+            <ButtonRow>
               <PositionsText>My Positions</PositionsText>
               <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
                 + <Trans>New position</Trans>
               </ResponsiveButtonPrimary>
-            </Row>
+            </ButtonRow>
 
             <MainContentWrapper isWalletConnected={isWalletConnected} filteredPositions={filteredPositions.length}>
               {isWalletConnected ? (
-                !filteredPositions.length ? (
+                !filteredPositions.length && !positionsLoading ? (
                   <NoPositions>
                     <IconWrapper>
                       <img src={NoPositionsIcon} alt={'Icon'} />
@@ -449,6 +498,8 @@ export default function Pool() {
                       + <Trans>New position</Trans>
                     </ResponsiveButtonPrimary>
                   </NoPositions>
+                ) : positionsLoading ? (
+                  <PositionsLoadingPlaceholder />
                 ) : (
                   <PositionList
                     positions={filteredPositions}
@@ -492,7 +543,7 @@ export default function Pool() {
                 </ErrorContainer>
               )}
             </MainContentWrapper>
-            <HideSmall>{filteredPositions.length ? null : <CTACards />}</HideSmall>
+            {filteredPositions.length ? null : <CTACards />}
           </AutoColumn>
         </AutoColumn>
       </PageWrapper>
