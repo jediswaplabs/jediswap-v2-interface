@@ -55,6 +55,13 @@ const PositionListItemWrapper = styled.div`
   gap: 1em;
   grid-template-columns: 1.5fr 0.5fr 0.5fr 1fr;
   align-items: center;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    display: flex;
+  }
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    display: flex;
+  }
 `
 
 const DataLineItem = styled.div`
@@ -92,6 +99,13 @@ const PositionListItemText = styled.div`
   font-size: 14px;
   font-family: 'DM Sans';
   font-weight: 700;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    display: none;
+  }
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    display: none;
+  }
 `
 
 const FeeTierText = styled(ThemedText.UtilityBadge)`
@@ -116,6 +130,27 @@ const PrimaryPositionIdData = styled.div`
   > * {
     margin-right: 8px;
   }
+`
+const PositionListItemHeading = styled.div`
+  color: ${({ theme }) => theme.neutral2};
+  font-family: DM Sans;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 12px;
+  flex: 0.3;
+`
+const PositionListItemMobileWrapper = styled.div`
+  display: flex;
+`
+const PositionListItemMobile = styled.div`
+  font-family: DM Sans;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 12px;
+  flex: 0.3;
+  margin-top: 4px;
 `
 
 interface PositionListItemProps {
@@ -287,6 +322,16 @@ export default function PositionListItem({
       ) : (
         <Loader />
       )}
+      <SmallOnly>
+        <PositionListItemMobileWrapper>
+          <PositionListItemHeading>Liquidity</PositionListItemHeading>
+          <PositionListItemHeading>Fees earned</PositionListItemHeading>
+        </PositionListItemMobileWrapper>
+        <PositionListItemMobileWrapper>
+          <PositionListItemMobile>$16.89</PositionListItemMobile>
+          <PositionListItemMobile>$3467.26</PositionListItemMobile>
+        </PositionListItemMobileWrapper>
+      </SmallOnly>
     </LinkRow>
   )
 }

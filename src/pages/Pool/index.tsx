@@ -353,7 +353,7 @@ function WrongNetworkCard() {
 
 export default function Pool() {
   const { account, chainId } = useWeb3React()
-  const [isWalletConnected, setIsWalletConnected] = useState()
+  const [isWalletConnected, setIsWalletConnected] = useState(true)
   const networkSupportsV2 = useNetworkSupportsV2()
   const toggleWalletDrawer = useToggleAccountDrawer()
 

@@ -32,8 +32,7 @@ const MobileHeader = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 16px;
-  border-bottom: 1px solid ${({ theme }) => theme.surface3};
-
+  background-color: rgba(255, 255, 255, 0.2);
   @media screen and (min-width: ${MEDIA_WIDTHS.deprecated_upToSmall}px) {
     display: none;
   }
@@ -101,7 +100,10 @@ export default function PositionList({
         </ToggleLabel>
       </DesktopHeader>
       <MobileHeader>
-        <Trans>Your positions</Trans>
+        <div>
+          <Trans>My positions</Trans>
+          {positions && ' (' + positions.length + ')'}
+        </div>
         <ToggleWrap>
           <ToggleLabel
             onClick={() => {
