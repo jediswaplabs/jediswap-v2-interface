@@ -34,10 +34,11 @@ const pulse = (color: string) => keyframes`
     box-shadow: 0 0 0 0 ${color};
   }
 `
-const FocusedOutlineCard = styled(Card)<{ pulsing: boolean }>`
-  border: 1px solid ${({ theme }) => theme.surface3};
+const FocusedOutlineCard = styled(Card) <{ pulsing: boolean, feeAmount: FeeAmount }>`
+  border: 1px solid ${({ theme, feeAmount }) => feeAmount ? theme.jediBlue : theme.surface3};
   animation: ${({ pulsing, theme }) => pulsing && pulse(theme.accent1)} 0.6s linear;
   align-self: center;
+  border-radius: 8px;
 `
 
 const Select = styled.div`
@@ -146,7 +147,7 @@ export default function FeeSelector({
   return (
     <AutoColumn gap="16px">
       <DynamicSection gap="md" disabled={disabled}>
-        <FocusedOutlineCard pulsing={pulsing} onAnimationEnd={() => setPulsing(false)}>
+        <FocusedOutlineCard pulsing={pulsing} onAnimationEnd={() => setPulsing(false)} feeAmount={feeAmount}>
           <RowBetween>
             <AutoColumn id="add-liquidity-selected-fee">
               {!feeAmount ? (
@@ -161,9 +162,9 @@ export default function FeeSelector({
               ) : (
                 <>
                   <ThemedText.DeprecatedLabel className="selected-fee-label">
-                    <Trans>{FEE_AMOUNT_DETAIL[feeAmount].label}% fee tier</Trans>
+                    <Trans>{FEE_AMOUNT_DETAIL[feeAmount].label}% Fee Tier</Trans>
                   </ThemedText.DeprecatedLabel>
-                  <Box
+                  {/* <Box
                     style={{ width: 'fit-content', marginTop: '8px', backgroundColor: '#444', borderRadius: '4px' }}
                     className="selected-fee-percentage"
                   >
@@ -174,7 +175,7 @@ export default function FeeSelector({
                         poolState={poolsByFeeTier[feeAmount]}
                       />
                     )}
-                  </Box>
+                  </Box> */}
                 </>
               )}
             </AutoColumn>

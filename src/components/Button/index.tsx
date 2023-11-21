@@ -31,7 +31,7 @@ type BaseButtonProps = {
   altDisabledStyle?: boolean
 } & ButtonProps
 
-export const BaseButton = styled(RebassButton)<BaseButtonProps>`
+export const BaseButton = styled(RebassButton) <BaseButtonProps>`
   padding: ${({ padding }) => padding ?? '16px'};
   width: ${({ width }) => width ?? '100%'};
   line-height: 24px;
@@ -312,8 +312,7 @@ export function ButtonDropdownLight({ disabled = false, children, ...rest }: { d
 }
 
 const ActiveOutlined = styled(ButtonOutlined)`
-  border: 1px solid;
-  border-color: ${({ theme }) => theme.accent1};
+  border: ${({ theme }) => `1px solid ${theme.jediBlue}`} !important ;
 `;
 
 const Circle = styled.div`
@@ -353,9 +352,9 @@ export function ButtonRadioChecked({ active = false, children, ...rest }: { acti
       <RowBetween>
         {children}
         <CheckboxWrapper>
-          <Circle>
+          {/* <Circle>
             <ResponsiveCheck size={13} stroke={theme.white} />
-          </Circle>
+          </Circle> */}
         </CheckboxWrapper>
       </RowBetween>
     </ActiveOutlined>
@@ -466,7 +465,7 @@ const BaseThemeButton = styled.button<BaseThemeButtonProps>`
   }
 `;
 
-interface ThemeButtonProps extends React.ComponentPropsWithoutRef<'button'>, BaseThemeButtonProps {}
+interface ThemeButtonProps extends React.ComponentPropsWithoutRef<'button'>, BaseThemeButtonProps { }
 type ThemeButtonRef = HTMLButtonElement
 
 export const ThemeButton = forwardRef<ThemeButtonRef, ThemeButtonProps>((
