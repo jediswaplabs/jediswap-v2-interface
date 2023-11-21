@@ -4,7 +4,7 @@ import { useWeb3React } from '@web3-react/core'
 import { NATIVE_CHAIN_ID } from 'constants/tokens'
 import { CHAIN_ID_TO_BACKEND_NAME } from 'graphql/data/util'
 import { useStablecoinValue } from 'hooks/useStablecoinPrice'
-import useCurrencyBalance from 'lib/hooks/useCurrencyBalance'
+// import useCurrencyBalance from 'lib/hooks/useCurrencyBalance'
 import styled from 'styled-components'
 import { StyledInternalLink } from 'theme/components'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
@@ -83,21 +83,21 @@ const SwapButton = styled(StyledInternalLink)`
 
 export default function MobileBalanceSummaryFooter({ token }: { token: Currency }) {
   const { account } = useWeb3React()
-  const balance = useCurrencyBalance(account, token)
-  const { formatCurrencyAmount } = useFormatter()
-  const formattedBalance = formatCurrencyAmount({
-    amount: balance,
-    type: NumberType.TokenNonTx,
-  })
-  const formattedUsdValue = formatCurrencyAmount({
-    amount: useStablecoinValue(balance),
-    type: NumberType.FiatTokenStats,
-  })
+  // const balance = useCurrencyBalance(account, token)
+  // const { formatCurrencyAmount } = useFormatter()
+  // const formattedBalance = formatCurrencyAmount({
+  //   amount: balance,
+  //   type: NumberType.TokenNonTx,
+  // })
+  // const formattedUsdValue = formatCurrencyAmount({
+  //   amount: useStablecoinValue(balance),
+  //   type: NumberType.FiatTokenStats,
+  // })
   const chain = CHAIN_ID_TO_BACKEND_NAME[token.chainId].toLowerCase()
 
   return (
     <Wrapper>
-      {Boolean(account && balance) && (
+      {/* {Boolean(account && balance) && (
         <BalanceInfo>
           <Trans>Your {token.symbol} balance</Trans>
           <Balance>
@@ -107,7 +107,7 @@ export default function MobileBalanceSummaryFooter({ token }: { token: Currency 
             <FiatValue>{formattedUsdValue}</FiatValue>
           </Balance>
         </BalanceInfo>
-      )}
+      )} */}
       <SwapButton to={`/swap?chainName=${chain}&outputCurrency=${token.isNative ? NATIVE_CHAIN_ID : token.address}`}>
         <Trans>Swap</Trans>
       </SwapButton>

@@ -598,7 +598,7 @@ function AddLiquidity() {
             )}
           </AddRemoveTabs> */}
           <Wrapper>
-            <ResponsiveTwoColumns wide={false}>
+            <ResponsiveTwoColumns wide={true}>
               <AutoColumn gap="lg">
                 {/* {!hasExistingPosition && ( */}
                 <>

@@ -12,8 +12,8 @@ export function useTokenAllowance(token?: Token, owner?: string, spender?: strin
 
   const allowance = useSingleCallResult(contract, 'allowance', inputs).result
 
-  return useMemo(() => (token && allowance ? new TokenAmount(token, allowance.toString()) : undefined), [
-    token,
-    allowance
-  ])
+  return useMemo(
+    () => (token && allowance ? new TokenAmount(token, allowance.toString()) : undefined),
+    [token, allowance]
+  )
 }

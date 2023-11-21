@@ -39,15 +39,15 @@ function Updaters() {
       <Helmet>
         <link rel="canonical" href={baseUrl} />
       </Helmet>
-      <RadialGradientByChainUpdater />
+      {/* <RadialGradientByChainUpdater />
       <ListsUpdater />
       <SystemThemeUpdater />
       <ThemeColorMetaUpdater />
       <ApplicationUpdater />
       <TransactionUpdater />
       <OrderUpdater />
-      {/* <MulticallUpdater /> */}
-      <LogsUpdater />
+      <MulticallUpdater />
+      <LogsUpdater /> */}
     </>
   )
 }

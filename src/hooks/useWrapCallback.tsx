@@ -9,7 +9,7 @@ import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { useMemo, useState } from 'react'
 
 import { WRAPPED_NATIVE_CURRENCY } from '../constants/tokens'
-import { useCurrencyBalance } from '../state/connection/hooks'
+// import { useCurrencyBalance } from '../state/connection/hooks'
 import { useTransactionAdder } from '../state/transactions/hooks'
 import { TransactionType } from '../state/transactions/types'
 // import { useWETHContract } from './useContract'
@@ -63,7 +63,7 @@ export default function useWrapCallback(
 ): { wrapType: WrapType; execute?: () => Promise<string | undefined>; inputError?: WrapInputError } {
   const { chainId, account } = useWeb3React()
   // const wethContract = useWETHContract()
-  const balance = useCurrencyBalance(account ?? undefined, inputCurrency ?? undefined)
+  // const balance = useCurrencyBalance(account ?? undefined, inputCurrency ?? undefined)
   // we can always parse the amount typed as the input currency, since wrapping is 1:1
   const inputAmount = useMemo(
     () => tryParseCurrencyAmount(typedValue, inputCurrency ?? undefined),
@@ -171,5 +171,5 @@ export default function useWrapCallback(
     //     }
 
     return NOT_APPLICABLE
-  }, [chainId, inputCurrency, outputCurrency, inputAmount, balance, addTransaction])
+  }, [chainId, inputCurrency, outputCurrency, inputAmount, addTransaction])
 }

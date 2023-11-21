@@ -116,7 +116,7 @@ export default function OptionV2({ connector }: OptionProps) {
           </IconWrapper>
           <HeaderText>{connector.name}</HeaderText>
         </OptionCardLeft>
-        {isCurrentOptionPending && <Loader />}
+        {/* {isCurrentOptionPending && <Loader />} */}
       </OptionCardClickable>
       {/* </TraceEvent> */}
     </Wrapper>

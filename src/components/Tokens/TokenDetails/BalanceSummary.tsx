@@ -5,7 +5,7 @@ import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioL
 import { getChainInfo } from 'constants/chainInfo'
 import { asSupportedChain } from 'constants/chains'
 import { useStablecoinValue } from 'hooks/useStablecoinPrice'
-import useCurrencyBalance from 'lib/hooks/useCurrencyBalance'
+// import useCurrencyBalance from 'lib/hooks/useCurrencyBalance'
 import { useMemo } from 'react'
 import styled, { useTheme } from 'styled-components'
 import { ThemedText } from 'theme/components'
@@ -65,22 +65,22 @@ export default function BalanceSummary({ token }: { token: Currency }) {
   const { account, chainId } = useWeb3React()
   const theme = useTheme()
   const { label, color } = getChainInfo(asSupportedChain(chainId) ?? ChainId.MAINNET)
-  const balance = useCurrencyBalance(account, token)
-  const { formatCurrencyAmount } = useFormatter()
-  const formattedBalance = formatCurrencyAmount({
-    amount: balance,
-    type: NumberType.TokenNonTx,
-  })
-  const formattedUsdValue = formatCurrencyAmount({
-    amount: useStablecoinValue(balance),
-    type: NumberType.FiatTokenStats,
-  })
+  // const balance = useCurrencyBalance(account, token)
+  // const { formatCurrencyAmount } = useFormatter()
+  // const formattedBalance = formatCurrencyAmount({
+  //   amount: balance,
+  //   type: NumberType.TokenNonTx,
+  // })
+  // const formattedUsdValue = formatCurrencyAmount({
+  //   amount: useStablecoinValue(balance),
+  //   type: NumberType.FiatTokenStats,
+  // })
 
-  const currencies = useMemo(() => [token], [token])
+  // const currencies = useMemo(() => [token], [token])
 
-  if (!account || !balance) {
-    return null
-  }
+  // if (!account || !balance) {
+  //   return null
+  // }
   return (
     <BalancesCard>
       <BalanceSection>
@@ -88,9 +88,9 @@ export default function BalanceSummary({ token }: { token: Currency }) {
           <Trans>Your balance on {label}</Trans>
         </ThemedText.SubHeaderSmall>
         <BalanceRow>
-          <PortfolioLogo currencies={currencies} chainId={token.chainId} size="2rem" />
+          {/* <PortfolioLogo currencies={currencies} chainId={token.chainId} size="2rem" /> */}
           <BalanceContainer>
-            <BalanceAmountsContainer>
+            {/* <BalanceAmountsContainer>
               <BalanceItem>
                 <ThemedText.SubHeader>
                   {formattedBalance} {token.symbol}
@@ -99,7 +99,7 @@ export default function BalanceSummary({ token }: { token: Currency }) {
               <BalanceItem>
                 <ThemedText.BodyPrimary>{formattedUsdValue}</ThemedText.BodyPrimary>
               </BalanceItem>
-            </BalanceAmountsContainer>
+            </BalanceAmountsContainer> */}
             <StyledNetworkLabel color={color}>{label}</StyledNetworkLabel>
           </BalanceContainer>
         </BalanceRow>

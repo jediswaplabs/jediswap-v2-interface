@@ -1,17 +1,21 @@
 import { Currency, CurrencyAmount, ETHER, JSBI, Pair, Percent, Price, Token, TokenAmount } from '@jediswap/sdk'
 import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { wrappedCurrency, wrappedCurrencyAmount } from 'utils/wrappedCurrency'
-// import { tryParseAmount } from '../swap/hooks'
+import { PairState, usePair } from '../../data/Reserves'
+import { useTotalSupply } from '../../data/TotalSupply'
+import useDebounce from '../../hooks/useDebounce'
+import { wrappedCurrency, wrappedCurrencyAmount } from '../../utils/wrappedCurrency'
+import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
 import { Field, typeInput } from './actions'
 import { useAccountDetails } from 'hooks/starknet-react'
-import { PairState } from 'hooks/useV2Pairs'
-import { usePair } from 'data/Reserves'
-import { AppDispatch, AppState } from 'state'
-import useDebounce from 'hooks/useDebounce'
-import { useTotalSupply } from 'data/TotalSupply'
 import { parseUnits } from 'ethers/lib/utils'
+
+const ZERO = JSBI.BigInt(0)
+
+export function useMintState(): AppState['mint'] {
+  return useSelector<AppState, AppState['mint']>((state) => state.mint)
+}
 
 // try to parse a user entered amount for a given token
 export function tryParseAmount(value?: string, currency?: Currency): CurrencyAmount | undefined {
@@ -31,12 +35,6 @@ export function tryParseAmount(value?: string, currency?: Currency): CurrencyAmo
   }
   // necessary for all paths to return a value
   return undefined
-}
-
-const ZERO = JSBI.BigInt(0)
-
-export function useMintState(): AppState['mint'] {
-  return useSelector<AppState, AppState['mint']>((state) => state.mint)
 }
 
 export function useDerivedMintInfo(

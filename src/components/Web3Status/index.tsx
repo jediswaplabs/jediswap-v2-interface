@@ -142,9 +142,9 @@ function Web3StatusInner() {
   if (!isConnectionInitialized) {
     return (
       <Web3StatusConnecting disabled={!isConnectionInitializing} onClick={handleWalletDropdownClick}>
-        <IconWrapper size={24}>
+        {/* <IconWrapper size={24}>
           <Loader size="24px" stroke="white" />
-        </IconWrapper>
+        </IconWrapper> */}
         <AddressAndChevronContainer loading>
           <Text>{initialConnection.current?.ENSName ?? shortenAddress(initialConnection.current?.address)}</Text>
         </AddressAndChevronContainer>
