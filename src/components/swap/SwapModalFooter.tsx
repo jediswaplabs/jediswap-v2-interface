@@ -13,7 +13,7 @@ import { AlertTriangle } from 'react-feather'
 import { easings, useSpring } from 'react-spring'
 import { InterfaceTrade, RouterPreference } from 'state/routing/types'
 import { isClassicTrade } from 'state/routing/utils'
-import { useRouterPreference, useUserSlippageTolerance } from 'state/user/hooks'
+import { useUserSlippageTolerance } from 'state/user/hooks'
 import styled, { useTheme } from 'styled-components'
 import { Separator, ThemedText } from 'theme/components'
 import getRoutingDiagramEntries from 'utils/getRoutingDiagramEntries'
@@ -103,8 +103,8 @@ export default function SwapModalFooter({
   isLoading: boolean
 }) {
   const transactionDeadlineSecondsSinceEpoch = useTransactionDeadline()?.toNumber() // in seconds since epoch
-  const isAutoSlippage = useUserSlippageTolerance()[0] === 'auto'
-  const [routerPreference] = useRouterPreference()
+  const isAutoSlippage = false
+  // const [routerPreference] = useRouterPreference()
   const routes = isClassicTrade(trade) ? getRoutingDiagramEntries(trade) : undefined
   const theme = useTheme()
   const [showMore, setShowMore] = useState(false)
@@ -142,17 +142,17 @@ export default function SwapModalFooter({
             events={[BrowserEvent.onClick]}
             element={InterfaceElementName.CONFIRM_SWAP_BUTTON}
             name={SwapEventName.SWAP_SUBMITTED_BUTTON_CLICKED}
-            properties={formatSwapButtonClickEventProperties({
-              trade,
-              swapResult,
-              allowedSlippage,
-              transactionDeadlineSecondsSinceEpoch,
-              isAutoSlippage,
-              isAutoRouterApi: routerPreference === RouterPreference.API,
-              routes,
-              fiatValueInput: fiatValueInput.data,
-              fiatValueOutput: fiatValueOutput.data,
-            })}
+            // properties={formatSwapButtonClickEventProperties({
+            //   trade,
+            //   swapResult,
+            //   allowedSlippage,
+            //   transactionDeadlineSecondsSinceEpoch,
+            //   isAutoSlippage,
+            //   isAutoRouterApi: routerPreference === RouterPreference.API,
+            //   routes,
+            //   fiatValueInput: fiatValueInput.data,
+            //   fiatValueOutput: fiatValueOutput.data,
+            // })}
           >
             <ConfirmButton
               data-testid="confirm-swap-button"

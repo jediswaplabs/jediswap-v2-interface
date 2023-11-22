@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 import { ClassicTrade, InterfaceTrade, QuoteMethod, RouterPreference, TradeState } from 'state/routing/types'
 import { usePreviewTrade } from 'state/routing/usePreviewTrade'
 import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade'
-import { useRouterPreference } from 'state/user/hooks'
+// import { useRouterPreference } from 'state/user/hooks'
 
 import useAutoRouterSupported from './useAutoRouterSupported'
 import useDebounce from './useDebounce'
@@ -19,33 +19,33 @@ const DEBOUNCE_TIME_QUICKROUTE = 50
 // Temporary until we remove the feature flag.
 const DEBOUNCE_TIME_INCREASED = 650
 
-export function useDebouncedTrade(
-  tradeType: TradeType,
-  amountSpecified?: CurrencyAmount<Currency>,
-  otherCurrency?: Currency,
-  routerPreferenceOverride?: RouterPreference.X,
-  account?: string,
-  inputTax?: Percent,
-  outputTax?: Percent
-): {
-  state: TradeState
-  trade?: InterfaceTrade
-  swapQuoteLatency?: number
-}
+// export function useDebouncedTrade(
+//   tradeType: TradeType,
+//   amountSpecified?: CurrencyAmount<Currency>,
+//   otherCurrency?: Currency,
+//   routerPreferenceOverride?: RouterPreference.X,
+//   account?: string,
+//   inputTax?: Percent,
+//   outputTax?: Percent
+// ): {
+//   state: TradeState
+//   trade?: InterfaceTrade
+//   swapQuoteLatency?: number
+// }
 
-export function useDebouncedTrade(
-  tradeType: TradeType,
-  amountSpecified?: CurrencyAmount<Currency>,
-  otherCurrency?: Currency,
-  routerPreferenceOverride?: RouterPreference.API,
-  account?: string,
-  inputTax?: Percent,
-  outputTax?: Percent
-): {
-  state: TradeState
-  trade?: ClassicTrade
-  swapQuoteLatency?: number
-}
+// export function useDebouncedTrade(
+//   tradeType: TradeType,
+//   amountSpecified?: CurrencyAmount<Currency>,
+//   otherCurrency?: Currency,
+//   routerPreferenceOverride?: RouterPreference.API,
+//   account?: string,
+//   inputTax?: Percent,
+//   outputTax?: Percent
+// ): {
+//   state: TradeState
+//   trade?: ClassicTrade
+//   swapQuoteLatency?: number
+// }
 /**
  * Returns the debounced v2+v3 trade for a desired swap.
  * @param tradeType whether the swap is an exact in/out
@@ -63,12 +63,7 @@ export function useDebouncedTrade(
   account?: string,
   inputTax?: Percent,
   outputTax?: Percent
-): {
-  state: TradeState
-  trade?: InterfaceTrade
-  method?: QuoteMethod
-  swapQuoteLatency?: number
-} {
+) {
   const { chainId } = useWeb3React()
   const autoRouterSupported = useAutoRouterSupported()
   const isWindowVisible = useIsWindowVisible()
@@ -92,33 +87,35 @@ export function useDebouncedTrade(
     )
   }, [amountSpecified, chainId, otherCurrency])
 
-  const [routerPreference] = useRouterPreference()
+  // const [routerPreference] = [X]
 
-  const skipBothFetches = !autoRouterSupported || !isWindowVisible || isWrap
-  const skipRoutingFetch = skipBothFetches || isDebouncing
+  // const skipBothFetches = !autoRouterSupported || !isWindowVisible || isWrap
+  // const skipRoutingFetch = skipBothFetches || isDebouncing
 
-  const skipPreviewTradeFetch = skipBothFetches || isPreviewTradeDebouncing
+  // const skipPreviewTradeFetch = skipBothFetches || isPreviewTradeDebouncing
 
-  const previewTradeResult = usePreviewTrade(
-    skipPreviewTradeFetch,
-    tradeType,
-    amountSpecified,
-    otherCurrency,
-    inputTax,
-    outputTax
-  )
-  const routingApiTradeResult = useRoutingAPITrade(
-    skipRoutingFetch,
-    tradeType,
-    amountSpecified,
-    otherCurrency,
-    routerPreferenceOverride ?? routerPreference,
-    account,
-    inputTax,
-    outputTax
-  )
+  // const previewTradeResult = usePreviewTrade(
+  //   skipPreviewTradeFetch,
+  //   tradeType,
+  //   amountSpecified,
+  //   otherCurrency,
+  //   inputTax,
+  //   outputTax
+  // )
+  // const routingApiTradeResult = useRoutingAPITrade(
+  //   skipRoutingFetch,
+  //   tradeType,
+  //   amountSpecified,
+  //   otherCurrency,
+  //   routerPreferenceOverride ?? routerPreference,
+  //   account,
+  //   inputTax,
+  //   outputTax
+  // )
 
-  return previewTradeResult.currentTrade && !routingApiTradeResult.currentTrade
-    ? previewTradeResult
-    : routingApiTradeResult
+  // return previewTradeResult.currentTrade && !routingApiTradeResult.currentTrade
+  //   ? previewTradeResult
+  //   : routingApiTradeResult
+
+  return { state: undefined, trade: undefined }
 }

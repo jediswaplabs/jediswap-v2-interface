@@ -138,7 +138,7 @@ type LineItemData = {
 function useLineItem(props: SwapLineItemProps): LineItemData | undefined {
   const { trade, syncing, allowedSlippage, type } = props
   const { formatNumber, formatPercent } = useFormatter()
-  const isAutoSlippage = useUserSlippageTolerance()[0] === SlippageTolerance.Auto
+  const isAutoSlippage = false
   const feesEnabled = useFeesEnabled()
 
   const isUniswapX = isUniswapXTrade(trade)

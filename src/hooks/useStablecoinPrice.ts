@@ -56,10 +56,10 @@ export default function useStablecoinPrice(currency?: Currency): Price<Currency,
     }
 
     // if initial quoting fails, we may end up with a DutchOrderTrade
-    if (trade && trade instanceof ClassicTrade) {
-      const { numerator, denominator } = trade.routes[0].midPrice
-      return new Price(currency, stablecoin, denominator, numerator)
-    }
+    // if (trade && trade instanceof ClassicTrade) {
+    //   const { numerator, denominator } = trade.routes[0].midPrice
+    //   return new Price(currency, stablecoin, denominator, numerator)
+    // }
 
     return undefined
   }, [currency, stablecoin, trade])

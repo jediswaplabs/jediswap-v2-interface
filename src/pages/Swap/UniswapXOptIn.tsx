@@ -1,46 +1,50 @@
-import { Trans } from '@lingui/macro';
-import { PropsWithChildren, useRef, useState } from 'react';
-import { X } from 'react-feather';
-import { useLocation } from 'react-router-dom';
-import { Text } from 'rebass';
-import styled from 'styled-components';
+import { Trans } from '@lingui/macro'
+import { PropsWithChildren, useRef, useState } from 'react'
+import { X } from 'react-feather'
+import { useLocation } from 'react-router-dom'
+import { Text } from 'rebass'
+import styled from 'styled-components'
 
-import { sendAnalyticsEvent, Trace } from 'analytics';
-import Column from 'components/Column';
-import UniswapXBrandMark from 'components/Logo/UniswapXBrandMark';
-import { Arrow } from 'components/Popover';
-import UniswapXRouterLabel from 'components/RouterLabel/UniswapXRouterLabel';
-import Row from 'components/Row';
-import { SwapMustache,
+import { sendAnalyticsEvent, Trace } from 'analytics'
+import Column from 'components/Column'
+import UniswapXBrandMark from 'components/Logo/UniswapXBrandMark'
+import { Arrow } from 'components/Popover'
+import UniswapXRouterLabel from 'components/RouterLabel/UniswapXRouterLabel'
+import Row from 'components/Row'
+import {
+  SwapMustache,
   SwapMustacheShadow,
   SwapOptInSmallContainer,
   UniswapPopoverContainer,
   UniswapXOptInLargeContainer,
   UniswapXOptInLargeContainerPositioner,
-  UniswapXShine } from 'components/swap/styled';
-import { formatCommonPropertiesForTrade } from 'lib/utils/analytics';
-import { useAppDispatch } from 'state/hooks';
-import { RouterPreference } from 'state/routing/types';
-import { isClassicTrade } from 'state/routing/utils';
-import { SwapInfo } from 'state/swap/hooks';
-import { useRouterPreference, useUserDisabledUniswapX } from 'state/user/hooks';
-import { updateDisabledUniswapX } from 'state/user/reducer';
-import { ThemedText } from 'theme/components';
+  UniswapXShine,
+} from 'components/swap/styled'
+import { formatCommonPropertiesForTrade } from 'lib/utils/analytics'
+import { useAppDispatch } from 'state/hooks'
+import { RouterPreference } from 'state/routing/types'
+import { isClassicTrade } from 'state/routing/utils'
+import { SwapInfo } from 'state/swap/hooks'
+// import { useRouterPreference, useUserDisabledUniswapX } from 'state/user/hooks';
+// import { updateDisabledUniswapX } from 'state/user/reducer';
+import { ThemedText } from 'theme/components'
 
 export const UniswapXOptIn = (props: { swapInfo: SwapInfo; isSmall: boolean }) => {
-  const { trade: { trade },
-    allowedSlippage } = props.swapInfo;
-  const userDisabledUniswapX = useUserDisabledUniswapX();
-  const isOnClassic = Boolean(trade && isClassicTrade(trade) && trade.isUniswapXBetter && !userDisabledUniswapX);
-  const [hasEverShown, setHasEverShown] = useState(false);
+  const {
+    trade: { trade },
+    allowedSlippage,
+  } = props.swapInfo
+  // const userDisabledUniswapX = useUserDisabledUniswapX();
+  const isOnClassic = false
+  const [hasEverShown, setHasEverShown] = useState(false)
 
   if (isOnClassic && !hasEverShown) {
-    setHasEverShown(true);
+    setHasEverShown(true)
   }
 
   // avoid some work if never needed to show
   if (!hasEverShown) {
-    return null;
+    return null
   }
 
   return (
@@ -51,23 +55,27 @@ export const UniswapXOptIn = (props: { swapInfo: SwapInfo; isSmall: boolean }) =
     >
       <OptInContents isOnClassic={isOnClassic} {...props} />
     </Trace>
-  );
-};
+  )
+}
 
-const OptInContents = ({ swapInfo,
+const OptInContents = ({
+  swapInfo,
   isOnClassic,
-  isSmall }: {
+  isSmall,
+}: {
   swapInfo: SwapInfo
   isOnClassic: boolean
   isSmall: boolean
 }) => {
-  const { trade: { trade },
-    allowedSlippage } = swapInfo;
-  const [, setRouterPreference] = useRouterPreference();
-  const dispatch = useAppDispatch();
-  const [showYoureIn, setShowYoureIn] = useState(false);
-  const isVisible = isOnClassic;
-  const location = useLocation();
+  const {
+    trade: { trade },
+    allowedSlippage,
+  } = swapInfo
+  // const [, setRouterPreference] = useRouterPreference();
+  const dispatch = useAppDispatch()
+  const [showYoureIn, setShowYoureIn] = useState(false)
+  const isVisible = isOnClassic
+  const location = useLocation()
 
   const tryItNowElement = (
     <ThemedText.BodySecondary
@@ -77,18 +85,20 @@ const OptInContents = ({ swapInfo,
       onClick={() => {
         // slight delay before hiding
         setTimeout(() => {
-          setShowYoureIn(true);
+          setShowYoureIn(true)
           setTimeout(() => {
-            setShowYoureIn(false);
-          }, 5000);
-        }, 200);
+            setShowYoureIn(false)
+          }, 5000)
+        }, 200)
 
-        if (!trade) { return; }
+        if (!trade) {
+          return
+        }
         sendAnalyticsEvent('UniswapX Opt In Toggled', {
           ...formatCommonPropertiesForTrade(trade, allowedSlippage),
           new_preference: RouterPreference.X,
-        });
-        setRouterPreference(RouterPreference.X);
+        })
+        // setRouterPreference(RouterPreference.X);
       }}
       style={{
         cursor: 'pointer',
@@ -96,9 +106,9 @@ const OptInContents = ({ swapInfo,
     >
       Try it now
     </ThemedText.BodySecondary>
-  );
+  )
 
-  const containerRef = useRef<HTMLDivElement>();
+  const containerRef = useRef<HTMLDivElement>()
 
   if (isSmall || location.pathname.includes('/tokens/')) {
     return (
@@ -117,7 +127,7 @@ const OptInContents = ({ swapInfo,
           </Row>
         </SwapMustache>
       </SwapOptInSmallContainer>
-    );
+    )
   }
 
   return (
@@ -127,13 +137,15 @@ const OptInContents = ({ swapInfo,
         <CloseIcon
           size={18}
           onClick={() => {
-            if (!trade) { return; }
+            if (!trade) {
+              return
+            }
             sendAnalyticsEvent('UniswapX Opt In Toggled', {
               ...formatCommonPropertiesForTrade(trade, allowedSlippage),
               new_preference: RouterPreference.API,
-            });
-            setRouterPreference(RouterPreference.API);
-            dispatch(updateDisabledUniswapX({ disabledUniswapX: true }));
+            })
+            // setRouterPreference(RouterPreference.API);
+            // dispatch(updateDisabledUniswapX({ disabledUniswapX: true }));
           }}
         />
 
@@ -172,8 +184,8 @@ const OptInContents = ({ swapInfo,
         </ThemedText.BodySecondary>
       </UniswapXOptInPopover>
     </>
-  );
-};
+  )
+}
 
 const UniswapXOptInPopover = (props: PropsWithChildren<{ visible: boolean; shiny?: boolean }>) => (
   // positioner ensures no matter the height of the inner content
@@ -187,7 +199,7 @@ const UniswapXOptInPopover = (props: PropsWithChildren<{ visible: boolean; shiny
       </UniswapPopoverContainer>
     </UniswapXOptInLargeContainer>
   </UniswapXOptInLargeContainerPositioner>
-);
+)
 
 const CloseIcon = styled(X)`
   color: ${({ theme }) => theme.neutral3};
@@ -195,4 +207,4 @@ const CloseIcon = styled(X)`
   position: absolute;
   top: 14px;
   right: 14px;
-`;
+`

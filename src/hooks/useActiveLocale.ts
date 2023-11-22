@@ -1,7 +1,7 @@
 import { DEFAULT_LOCALE, SUPPORTED_LOCALES, SupportedLocale } from 'constants/locales'
 import { useMemo } from 'react'
 import store from 'state'
-import { useUserLocale } from 'state/user/hooks'
+// import { useUserLocale } from 'state/user/hooks'
 
 import useParsedQueryString, { parsedQueryString } from './useParsedQueryString'
 
@@ -33,7 +33,8 @@ export function navigatorLocale(): SupportedLocale | undefined {
 }
 
 function storeLocale(): SupportedLocale | undefined {
-  return store.getState().user.userLocale ?? undefined
+  // return store.getState().user.userLocale ?? undefined
+  return undefined
 }
 
 export const initialLocale =
@@ -50,6 +51,7 @@ function useUrlLocale() {
  */
 export function useActiveLocale(): SupportedLocale {
   const urlLocale = useUrlLocale()
-  const userLocale = useUserLocale()
-  return useMemo(() => urlLocale ?? userLocale ?? navigatorLocale() ?? DEFAULT_LOCALE, [urlLocale, userLocale])
+  // const userLocale = useUserLocale()
+  // return useMemo(() => urlLocale ?? userLocale ?? navigatorLocale() ?? DEFAULT_LOCALE, [urlLocale, userLocale])
+  return DEFAULT_LOCALE
 }

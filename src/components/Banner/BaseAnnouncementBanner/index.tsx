@@ -6,7 +6,7 @@ import { ReactComponent as AppleLogo } from 'assets/svg/apple_logo.svg'
 import baseLogoUrl from 'assets/svg/base_background_icon.svg'
 import { useScreenSize } from 'hooks/useScreenSize'
 import { useLocation } from 'react-router-dom'
-import { useHideBaseWalletBanner } from 'state/user/hooks'
+// import { useHideBaseWalletBanner } from 'state/user/hooks'
 import { ThemedText } from 'theme/components'
 import { openDownloadApp, openWalletMicrosite } from 'utils/openDownloadApp'
 import { isIOS, isMobileSafari } from 'utils/userAgent'
@@ -15,11 +15,11 @@ import { BannerButton, BaseBackgroundImage, ButtonRow, PopupContainer, StyledXBu
 
 export default function BaseWalletBanner() {
   const { chainId } = useWeb3React()
-  const [hideBaseWalletBanner, toggleHideBaseWalletBanner] = useHideBaseWalletBanner()
+  // const [hideBaseWalletBanner, toggleHideBaseWalletBanner] = useHideBaseWalletBanner()
   const location = useLocation()
   const isLandingScreen = location.search === '?intro=true' || location.pathname === '/'
 
-  const shouldDisplay = Boolean(!hideBaseWalletBanner && !isLandingScreen && chainId === ChainId.BASE)
+  const shouldDisplay = true
 
   const screenSize = useScreenSize()
 
@@ -34,7 +34,7 @@ export default function BaseWalletBanner() {
           // prevent click from bubbling to UI on the page underneath, i.e. clicking a token row
           e.preventDefault()
           e.stopPropagation()
-          toggleHideBaseWalletBanner()
+          // toggleHideBaseWalletBanner()
         }}
       />
 

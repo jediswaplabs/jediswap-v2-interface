@@ -18,7 +18,7 @@ import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { isSupportedChain } from 'constants/chains'
 import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
 import { useV3Positions } from 'hooks/useV3Positions'
-import { useUserHideClosedPositions } from 'state/user/hooks'
+// import { useUserHideClosedPositions } from 'state/user/hooks'
 import { HideSmall, ThemedText } from 'theme/components'
 import CTACards from './CTACards'
 import { LoadingRows } from './styled'
@@ -192,7 +192,7 @@ export default function Pool() {
   const toggleWalletDrawer = useToggleAccountDrawer()
 
   const theme = useTheme()
-  const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
+  // const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
 
   // const { positions, loading: positionsLoading } = useV3Positions(account)
 
