@@ -15,8 +15,8 @@ import {
 } from './reducer'
 
 export function useModalIsOpen(modal: ApplicationModal): boolean {
-  const openModal = useAppSelector((state: AppState) => state.application.openModal)
-  return openModal === modal
+  // const openModal = useAppSelector((state: AppState) => state.application.openModal)
+  return false
 }
 
 /** @ref https://dashboard.moonpay.com/api_reference/client_side_api#ip_addresses */
@@ -41,46 +41,46 @@ async function getMoonpayAvailability(): Promise<boolean> {
   return data.isBuyAllowed ?? false
 }
 
-export function useFiatOnrampAvailability(shouldCheck: boolean, callback?: () => void) {
-  const dispatch = useAppDispatch()
-  const { available, availabilityChecked } = useAppSelector((state: AppState) => state.application.fiatOnramp)
-  const [error, setError] = useState<string | null>(null)
-  const [loading, setLoading] = useState(false)
+// export function useFiatOnrampAvailability(shouldCheck: boolean, callback?: () => void) {
+//   const dispatch = useAppDispatch()
+//   // const { available, availabilityChecked } = useAppSelector((state: AppState) => state.application.fiatOnramp)
+//   const [error, setError] = useState<string | null>(null)
+//   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    async function checkAvailability() {
-      setError(null)
-      setLoading(true)
-      try {
-        const result = await getMoonpayAvailability()
-        sendAnalyticsEvent(MoonpayEventName.MOONPAY_GEOCHECK_COMPLETED, { success: result })
-        if (stale) return
-        dispatch(setFiatOnrampAvailability(result))
-        if (result && callback) {
-          callback()
-        }
-      } catch (e) {
-        console.error('Error checking onramp availability', e.toString())
-        if (stale) return
-        setError('Error, try again later.')
-        dispatch(setFiatOnrampAvailability(false))
-      } finally {
-        if (!stale) setLoading(false)
-      }
-    }
+//   useEffect(() => {
+//     async function checkAvailability() {
+//       setError(null)
+//       setLoading(true)
+//       try {
+//         const result = await getMoonpayAvailability()
+//         sendAnalyticsEvent(MoonpayEventName.MOONPAY_GEOCHECK_COMPLETED, { success: result })
+//         if (stale) return
+//         dispatch(setFiatOnrampAvailability(result))
+//         if (result && callback) {
+//           callback()
+//         }
+//       } catch (e) {
+//         console.error('Error checking onramp availability', e.toString())
+//         if (stale) return
+//         setError('Error, try again later.')
+//         dispatch(setFiatOnrampAvailability(false))
+//       } finally {
+//         if (!stale) setLoading(false)
+//       }
+//     }
 
-    if (!availabilityChecked && shouldCheck) {
-      checkAvailability()
-    }
+//     // if (!availabilityChecked && shouldCheck) {
+//     //   checkAvailability()
+//     // }
 
-    let stale = false
-    return () => {
-      stale = true
-    }
-  }, [availabilityChecked, callback, dispatch, shouldCheck])
+//     let stale = false
+//     return () => {
+//       stale = true
+//     }
+//   }, [availabilityChecked, callback, dispatch, shouldCheck])
 
-  return { available, availabilityChecked, loading, error }
-}
+//   return { available, availabilityChecked, loading, error }
+// }
 
 export function useToggleModal(modal: ApplicationModal): () => void {
   const isOpen = useModalIsOpen(modal)
@@ -88,22 +88,22 @@ export function useToggleModal(modal: ApplicationModal): () => void {
   return useCallback(() => dispatch(setOpenModal(isOpen ? null : modal)), [dispatch, modal, isOpen])
 }
 
-export function useCloseModal() {
-  const dispatch = useAppDispatch()
-  const currentlyOpenModal = useAppSelector((state: AppState) => state.application.openModal)
-  return useCallback(
-    (modalToClose?: ApplicationModal) => {
-      if (!modalToClose) {
-        // Close any open modal if no modal is specified.
-        dispatch(setOpenModal(null))
-      } else if (currentlyOpenModal === modalToClose) {
-        // Close the currently open modal if it is the one specified.
-        dispatch(setOpenModal(null))
-      }
-    },
-    [currentlyOpenModal, dispatch]
-  )
-}
+// export function useCloseModal() {
+//   const dispatch = useAppDispatch()
+//   const currentlyOpenModal = useAppSelector((state: AppState) => state.application.openModal)
+//   return useCallback(
+//     (modalToClose?: ApplicationModal) => {
+//       if (!modalToClose) {
+//         // Close any open modal if no modal is specified.
+//         dispatch(setOpenModal(null))
+//       } else if (currentlyOpenModal === modalToClose) {
+//         // Close the currently open modal if it is the one specified.
+//         dispatch(setOpenModal(null))
+//       }
+//     },
+//     [currentlyOpenModal, dispatch]
+//   )
+// }
 
 export function useOpenModal(modal: ApplicationModal): () => void {
   const dispatch = useAppDispatch()
@@ -173,8 +173,8 @@ export function useRemovePopup(): (key: string) => void {
   )
 }
 
-// get the list of active popups
-export function useActivePopups(): AppState['application']['popupList'] {
-  const list = useAppSelector((state: AppState) => state.application.popupList)
-  return useMemo(() => list.filter((item) => item.show), [list])
-}
+// // get the list of active popups
+// export function useActivePopups(): AppState['application']['popupList'] {
+//   const list = useAppSelector((state: AppState) => state.application.popupList)
+//   return useMemo(() => list.filter((item) => item.show), [list])
+// }

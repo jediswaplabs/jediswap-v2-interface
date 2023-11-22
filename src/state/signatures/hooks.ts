@@ -8,27 +8,30 @@ import { useAppSelector } from 'state/hooks'
 import { addSignature } from './reducer'
 import { SignatureDetails, SignatureType, UniswapXOrderDetails } from './types'
 
-export function useAllSignatures(): { [id: string]: SignatureDetails } {
+export function useAllSignatures() {
   const { account } = useWeb3React()
-  const signatures = useAppSelector((state) => state.signatures) ?? {}
-  if (!account || !signatures[account]) return {}
-  return signatures[account]
+  // const signatures = useAppSelector((state) => state.signatures) ?? {}
+  // if (!account || !signatures[account]) return {}
+  // return signatures[account]
+  return {}
 }
 
-export function usePendingOrders(): UniswapXOrderDetails[] {
-  const signatures = useAllSignatures()
-  return useMemo(() => {
-    return Object.values(signatures).filter(isPendingOrder)
-  }, [signatures])
+export function usePendingOrders() {
+  // const signatures = useAllSignatures()
+  // return useMemo(() => {
+  //   return Object.values(signatures).filter(isPendingOrder)
+  // }, [signatures])
+  return undefined
 }
 
 export function useOrder(orderHash: string): UniswapXOrderDetails | undefined {
-  const signatures = useAllSignatures()
-  return useMemo(() => {
-    const order = signatures[orderHash]
-    if (!order || order.type !== SignatureType.SIGN_UNISWAPX_ORDER) return undefined
-    return order
-  }, [signatures, orderHash])
+  // const signatures = useAllSignatures()
+  // return useMemo(() => {
+  //   const order = signatures[orderHash]
+  //   if (!order || order.type !== SignatureType.SIGN_UNISWAPX_ORDER) return undefined
+  //   return order
+  // }, [signatures, orderHash])
+  return undefined
 }
 
 export function useAddOrder() {

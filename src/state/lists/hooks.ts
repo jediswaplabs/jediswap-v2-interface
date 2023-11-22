@@ -179,6 +179,7 @@ export function listToTokenMap(list: TokenList): TokenAddressMap {
     { ...EMPTY_LIST }
   )
   listCache?.set(list, map)
+  console.log(map, 'madfkdnfdkp')
   return map
 }
 

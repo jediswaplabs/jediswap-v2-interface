@@ -11,7 +11,7 @@ import styled from 'styled-components'
 import { ExternalLink } from 'theme/components'
 import { textFadeIn } from 'theme/styles'
 
-import { useFiatOnrampAvailability, useOpenModal } from '../../state/application/hooks'
+import { useOpenModal } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
 
 export const MOONPAY_REGION_AVAILABILITY_ARTICLE =
@@ -44,11 +44,11 @@ export default function SwapBuyFiatButton() {
   const openFiatOnRampModal = useOpenModal(ApplicationModal.FIAT_ONRAMP)
   const shouldShowBuyFiatButton = useIsNotOriginCountry('GB')
   const [checkFiatRegionAvailability, setCheckFiatRegionAvailability] = useState(false)
-  const {
-    available: fiatOnrampAvailable,
-    availabilityChecked: fiatOnrampAvailabilityChecked,
-    loading: fiatOnrampAvailabilityLoading,
-  } = useFiatOnrampAvailability(checkFiatRegionAvailability)
+  // const {
+  //   available: fiatOnrampAvailable,
+  //   availabilityChecked: fiatOnrampAvailabilityChecked,
+  //   loading: fiatOnrampAvailabilityLoading,
+  // } = useFiatOnrampAvailability(checkFiatRegionAvailability)
   const [buyFiatFlowState, setBuyFiatFlowState] = useState(BuyFiatFlowState.INACTIVE)
   const [walletDrawerOpen, toggleWalletDrawer] = useAccountDrawer()
 
@@ -60,80 +60,50 @@ export default function SwapBuyFiatButton() {
   // the flow.
   // 3) If the feature is available and a wallet account is connected, show fiat on ramp modal.
   // 4) If the feature is unavailable, show feature unavailable tooltip.
-  const handleBuyCrypto = useCallback(() => {
-    if (!fiatOnrampAvailabilityChecked) {
-      setCheckFiatRegionAvailability(true)
-      setBuyFiatFlowState(BuyFiatFlowState.ACTIVE_CHECKING_REGION)
-    } else if (fiatOnrampAvailable && !account && !walletDrawerOpen) {
-      toggleWalletDrawer()
-      setBuyFiatFlowState(BuyFiatFlowState.ACTIVE_NEEDS_ACCOUNT)
-    } else if (fiatOnrampAvailable && account) {
-      openFiatOnRampModal()
-      setBuyFiatFlowState(BuyFiatFlowState.INACTIVE)
-    } else if (!fiatOnrampAvailable) {
-      setBuyFiatFlowState(BuyFiatFlowState.INACTIVE)
-    }
-  }, [
-    fiatOnrampAvailabilityChecked,
-    fiatOnrampAvailable,
-    account,
-    walletDrawerOpen,
-    toggleWalletDrawer,
-    openFiatOnRampModal,
-  ])
+  // const handleBuyCrypto = useCallback(() => {
+  //   if (!fiatOnrampAvailabilityChecked) {
+  //     setCheckFiatRegionAvailability(true)
+  //     setBuyFiatFlowState(BuyFiatFlowState.ACTIVE_CHECKING_REGION)
+  //   } else if (fiatOnrampAvailable && !account && !walletDrawerOpen) {
+  //     toggleWalletDrawer()
+  //     setBuyFiatFlowState(BuyFiatFlowState.ACTIVE_NEEDS_ACCOUNT)
+  //   } else if (fiatOnrampAvailable && account) {
+  //     openFiatOnRampModal()
+  //     setBuyFiatFlowState(BuyFiatFlowState.INACTIVE)
+  //   } else if (!fiatOnrampAvailable) {
+  //     setBuyFiatFlowState(BuyFiatFlowState.INACTIVE)
+  //   }
+  // }, [
+  //   fiatOnrampAvailabilityChecked,
+  //   fiatOnrampAvailable,
+  //   account,
+  //   walletDrawerOpen,
+  //   toggleWalletDrawer,
+  //   openFiatOnRampModal,
+  // ])
 
-  // Continue buy fiat flow automatically when requisite state changes have occured.
-  useEffect(() => {
-    if (
-      (buyFiatFlowState === BuyFiatFlowState.ACTIVE_CHECKING_REGION && fiatOnrampAvailabilityChecked) ||
-      (account && buyFiatFlowState === BuyFiatFlowState.ACTIVE_NEEDS_ACCOUNT)
-    ) {
-      handleBuyCrypto()
-    }
-  }, [account, handleBuyCrypto, buyFiatFlowState, fiatOnrampAvailabilityChecked])
+  // // Continue buy fiat flow automatically when requisite state changes have occured.
+  // useEffect(() => {
+  //   if (
+  //     (buyFiatFlowState === BuyFiatFlowState.ACTIVE_CHECKING_REGION && fiatOnrampAvailabilityChecked) ||
+  //     (account && buyFiatFlowState === BuyFiatFlowState.ACTIVE_NEEDS_ACCOUNT)
+  //   ) {
+  //     handleBuyCrypto()
+  //   }
+  // }, [account, handleBuyCrypto, buyFiatFlowState, fiatOnrampAvailabilityChecked])
 
-  const buyCryptoButtonDisabled =
-    (!fiatOnrampAvailable && fiatOnrampAvailabilityChecked) ||
-    fiatOnrampAvailabilityLoading ||
-    // When wallet drawer is open AND user is in the connect wallet step of the buy fiat flow, disable buy fiat button.
-    (walletDrawerOpen && buyFiatFlowState === BuyFiatFlowState.ACTIVE_NEEDS_ACCOUNT)
+  // const buyCryptoButtonDisabled =
+  //   (!fiatOnrampAvailable && fiatOnrampAvailabilityChecked) ||
+  //   fiatOnrampAvailabilityLoading ||
+  //   // When wallet drawer is open AND user is in the connect wallet step of the buy fiat flow, disable buy fiat button.
+  //   (walletDrawerOpen && buyFiatFlowState === BuyFiatFlowState.ACTIVE_NEEDS_ACCOUNT)
 
-  const fiatOnRampsUnavailableTooltipDisabled =
-    !fiatOnrampAvailabilityChecked || (fiatOnrampAvailabilityChecked && fiatOnrampAvailable)
+  // const fiatOnRampsUnavailableTooltipDisabled =
+  //   !fiatOnrampAvailabilityChecked || (fiatOnrampAvailabilityChecked && fiatOnrampAvailable)
 
-  if (!shouldShowBuyFiatButton) {
-    return null
-  }
+  // if (!shouldShowBuyFiatButton) {
+  //   return null
+  // }
 
-  return (
-    <MouseoverTooltip
-      text={
-        <div data-testid="fiat-on-ramp-unavailable-tooltip">
-          <Trans>Crypto purchases are not available in your region. </Trans>
-          <TraceEvent
-            events={[BrowserEvent.onClick]}
-            name={SharedEventName.ELEMENT_CLICKED}
-            element={InterfaceElementName.FIAT_ON_RAMP_LEARN_MORE_LINK}
-          >
-            <ExternalLink href={MOONPAY_REGION_AVAILABILITY_ARTICLE} style={{ paddingLeft: '4px' }}>
-              <Trans>Learn more</Trans>
-            </ExternalLink>
-          </TraceEvent>
-        </div>
-      }
-      placement="bottom"
-      disabled={fiatOnRampsUnavailableTooltipDisabled}
-    >
-      <TraceEvent
-        events={[BrowserEvent.onClick]}
-        name={SharedEventName.ELEMENT_CLICKED}
-        element={InterfaceElementName.FIAT_ON_RAMP_BUY_BUTTON}
-        properties={{ account_connected: !!account }}
-      >
-        <StyledTextButton onClick={handleBuyCrypto} disabled={buyCryptoButtonDisabled} data-testid="buy-fiat-button">
-          <Trans>Buy</Trans>
-        </StyledTextButton>
-      </TraceEvent>
-    </MouseoverTooltip>
-  )
+  return <></>
 }

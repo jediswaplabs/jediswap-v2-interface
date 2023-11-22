@@ -77,12 +77,13 @@ const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>
 `
 
 export default function AddLiquidityWrapper() {
-  const { chainId } = useWeb3React()
-  if (isSupportedChain(chainId)) {
-    return <AddLiquidity />
-  } else {
-    return <PositionPageUnsupportedContent />
-  }
+  const { chainId } = useAccountDetails()
+  // if (isSupportedChain(chainId)) {
+  //   return <AddLiquidity />
+  // } else {
+  //   return <PositionPageUnsupportedContent />
+  // }
+  return <AddLiquidity />
 }
 
 function AddLiquidity() {
@@ -99,8 +100,6 @@ function AddLiquidity() {
     tokenId?: string
   }>()
   const { account, chainId } = useAccountDetails()
-  // const allTokens = chainId && useAllTokens(chainId)
-  // console.log('🚀 ~ file: index.tsx:103 ~ allTokens:', allTokens)
   const theme = useTheme()
   const trace = useTrace()
 

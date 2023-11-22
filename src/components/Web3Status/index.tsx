@@ -93,88 +93,83 @@ const StyledConnectButton = styled(BaseButton)`
 `
 
 function Web3StatusInner() {
-  const switchingChain = useAppSelector((state) => state.wallets.switchingChain)
-  const ignoreWhileSwitchingChain = useCallback(() => !switchingChain, [switchingChain])
-  const connectionReady = useConnectionReady()
-  const activeWeb3 = useWeb3React()
-  const lastWeb3 = useLast(useWeb3React(), ignoreWhileSwitchingChain)
-  const { account, connector } = useMemo(() => (activeWeb3.account ? activeWeb3 : lastWeb3), [activeWeb3, lastWeb3])
-  const { address } = useAccountDetails()
-  // const { ENSName, loading: ENSLoading } = useENSName(account)
-  const connection = getConnection(connector)
-
-  const [, toggleAccountDrawer] = useAccountDrawer()
-  const handleWalletDropdownClick = useCallback(() => {
-    toggleAccountDrawer()
-  }, [toggleAccountDrawer])
-
-  // const { hasPendingActivity, pendingActivityCount } = usePendingActivity()
-
-  // Display a loading state while initializing the connection, based on the last session's persisted connection.
-  // The connection will go through three states:
-  // - startup:       connection is not ready
-  // - initializing:  account is available, but ENS (if preset on the persisted initialMeta) is still loading
-  // - initialized:   account and ENS are available
-  // Subsequent connections are always considered initialized, and will not display startup/initializing states.
-  const initialConnection = useRef(getPersistedConnectionMeta())
-  const isConnectionInitializing = Boolean(
-    initialConnection.current?.address === account && initialConnection.current?.ENSName
-  )
-  const isConnectionInitialized = connectionReady && !isConnectionInitializing
-  // Clear the initial connection once initialized so it does not interfere with subsequent connections.
-  useEffect(() => {
-    if (isConnectionInitialized) {
-      initialConnection.current = undefined
-    }
-  }, [isConnectionInitialized])
-  // Persist the connection if it changes, so it can be used to initialize the next session's connection.
+  // const switchingChain = useAppSelector((state) => state.wallets.switchingChain)
+  // const ignoreWhileSwitchingChain = useCallback(() => !switchingChain, [switchingChain])
+  // const connectionReady = useConnectionReady()
+  // const activeWeb3 = useWeb3React()
+  // const lastWeb3 = useLast(useWeb3React(), ignoreWhileSwitchingChain)
+  // const { account, connector } = useMemo(() => (activeWeb3.account ? activeWeb3 : lastWeb3), [activeWeb3, lastWeb3])
+  // const { address } = useAccountDetails()
+  // // const { ENSName, loading: ENSLoading } = useENSName(account)
+  // const connection = getConnection(connector)
+  // const [, toggleAccountDrawer] = useAccountDrawer()
+  // const handleWalletDropdownClick = useCallback(() => {
+  //   toggleAccountDrawer()
+  // }, [toggleAccountDrawer])
+  // // const { hasPendingActivity, pendingActivityCount } = usePendingActivity()
+  // // Display a loading state while initializing the connection, based on the last session's persisted connection.
+  // // The connection will go through three states:
+  // // - startup:       connection is not ready
+  // // - initializing:  account is available, but ENS (if preset on the persisted initialMeta) is still loading
+  // // - initialized:   account and ENS are available
+  // // Subsequent connections are always considered initialized, and will not display startup/initializing states.
+  // const initialConnection = useRef(getPersistedConnectionMeta())
+  // const isConnectionInitializing = Boolean(
+  //   initialConnection.current?.address === account && initialConnection.current?.ENSName
+  // )
+  // const isConnectionInitialized = connectionReady && !isConnectionInitializing
+  // // Clear the initial connection once initialized so it does not interfere with subsequent connections.
   // useEffect(() => {
-  //   if (account || ENSName) {
-  //     const meta: ConnectionMeta = {
-  //       type: connection.type,
-  //       address: account,
-  //       ENSName: ENSName ?? undefined,
-  //     }
-  //     setPersistedConnectionMeta(meta)
+  //   if (isConnectionInitialized) {
+  //     initialConnection.current = undefined
   //   }
-  // }, [ENSName, account, connection.type])
-
-  if (!isConnectionInitialized) {
-    return (
-      <Web3StatusConnecting disabled={!isConnectionInitializing} onClick={handleWalletDropdownClick}>
-        {/* <IconWrapper size={24}>
-          <Loader size="24px" stroke="white" />
-        </IconWrapper> */}
-        <AddressAndChevronContainer loading>
-          <Text>{initialConnection.current?.ENSName ?? shortenAddress(initialConnection.current?.address)}</Text>
-        </AddressAndChevronContainer>
-      </Web3StatusConnecting>
-    )
-  }
-
-  if (address) {
-    const addressShort = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : null
-
-    return <></>
-  }
-  return (
-    <Web3StatusConnectWrapper
-      tabIndex={0}
-      onKeyPress={(e) => e.key === 'Enter' && handleWalletDropdownClick()}
-      onClick={handleWalletDropdownClick}
-    >
-      <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet">
-        <Trans>Connect Wallet</Trans>
-      </StyledConnectButton>
-    </Web3StatusConnectWrapper>
-  )
+  // }, [isConnectionInitialized])
+  // // Persist the connection if it changes, so it can be used to initialize the next session's connection.
+  // // useEffect(() => {
+  // //   if (account || ENSName) {
+  // //     const meta: ConnectionMeta = {
+  // //       type: connection.type,
+  // //       address: account,
+  // //       ENSName: ENSName ?? undefined,
+  // //     }
+  // //     setPersistedConnectionMeta(meta)
+  // //   }
+  // // }, [ENSName, account, connection.type])
+  // if (!isConnectionInitialized) {
+  //   return (
+  //     <Web3StatusConnecting disabled={!isConnectionInitializing} onClick={handleWalletDropdownClick}>
+  //       {/* <IconWrapper size={24}>
+  //         <Loader size="24px" stroke="white" />
+  //       </IconWrapper> */}
+  //       <AddressAndChevronContainer loading>
+  //         <Text>{initialConnection.current?.ENSName ?? shortenAddress(initialConnection.current?.address)}</Text>
+  //       </AddressAndChevronContainer>
+  //     </Web3StatusConnecting>
+  //   )
+  // }
+  //   if (address) {
+  //     const addressShort = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : null
+  //     return <></>
+  //   }
+  //   return (
+  //     <Web3StatusConnectWrapper
+  //       tabIndex={0}
+  //       onKeyPress={(e) => e.key === 'Enter' && handleWalletDropdownClick()}
+  //       onClick={handleWalletDropdownClick}
+  //     >
+  //       <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet">
+  //         <Trans>Connect Wallet</Trans>
+  //       </StyledConnectButton>
+  //     </Web3StatusConnectWrapper>
+  //   )
+  // }
 }
 
 export default function Web3Status() {
   const [isDrawerOpen] = useAccountDrawer()
   return (
     <PrefetchBalancesWrapper shouldFetchOnAccountUpdate={isDrawerOpen}>
-      <Web3StatusInner />
+      {/* <Web3StatusInner /> */}
       <Portal>
         <PortfolioDrawer />
       </Portal>

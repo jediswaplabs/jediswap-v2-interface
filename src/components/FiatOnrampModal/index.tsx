@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { useWeb3React } from '@web3-react/core'
 import { useCallback, useEffect, useState } from 'react'
 import { useHref } from 'react-router-dom'
-import { useCloseModal, useModalIsOpen } from 'state/application/hooks'
+import { useModalIsOpen } from 'state/application/hooks'
 import { ApplicationModal } from 'state/application/reducer'
 import styled, { useTheme } from 'styled-components'
 import { CustomLightSpinner, ThemedText } from 'theme/components'
@@ -61,7 +61,7 @@ export default function FiatOnrampModal() {
   const { account } = useWeb3React()
   const theme = useTheme()
   const isDarkMode = useIsDarkMode()
-  const closeModal = useCloseModal()
+  // const closeModal = useCloseModal()
   const fiatOnrampModalOpen = useModalIsOpen(ApplicationModal.FIAT_ONRAMP)
 
   const { network, tokenAddress } = parsePathParts(location.pathname)
@@ -118,7 +118,7 @@ export default function FiatOnrampModal() {
   }, [fetchSignedIframeUrl])
 
   return (
-    <Modal isOpen={fiatOnrampModalOpen} onDismiss={() => closeModal()} height={80 /* vh */}>
+    <Modal isOpen={fiatOnrampModalOpen} height={80 /* vh */}>
       <Wrapper data-testid="fiat-onramp-modal" isDarkMode={isDarkMode}>
         {error ? (
           <>

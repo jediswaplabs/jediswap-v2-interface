@@ -34,7 +34,7 @@ import {
   UNISWAP_GRANTS_START_BLOCK,
 } from '../../constants/proposals'
 import { UNI } from '../../constants/tokens'
-import { useLogs } from '../logs/hooks'
+// import { useLogs } from '../logs/hooks'
 import { useTransactionAdder } from '../transactions/hooks'
 import { TransactionType } from '../transactions/types'
 import { VoteOption } from './types'
@@ -144,82 +144,83 @@ function useFormattedProposalCreatedLogs(
     }
   }, [contract, fromBlock, toBlock])
 
-  const useLogsResult = useLogs(filter)
+  // const useLogsResult = useLogs(filter)
 
-  return useMemo(() => {
-    return useLogsResult?.logs
-      ?.map((log) => {
-        const parsed = GovernanceInterface.parseLog(log).args
-        return parsed
-      })
-      ?.filter((parsed) => indices.flat().some((i) => i === parsed.id.toNumber()))
-      ?.map((parsed) => {
-        let description!: string
+  // return useMemo(() => {
+  //   return useLogsResult?.logs
+  //     ?.map((log) => {
+  //       const parsed = GovernanceInterface.parseLog(log).args
+  //       return parsed
+  //     })
+  //     ?.filter((parsed) => indices.flat().some((i) => i === parsed.id.toNumber()))
+  //     ?.map((parsed) => {
+  //       let description!: string
 
-        const startBlock = parseInt(parsed.startBlock?.toString())
-        try {
-          description = parsed.description
-        } catch (error) {
-          // replace invalid UTF-8 in the description with replacement characters
-          let onError = Utf8ErrorFuncs.replace
+  //       const startBlock = parseInt(parsed.startBlock?.toString())
+  //       try {
+  //         description = parsed.description
+  //       } catch (error) {
+  //         // replace invalid UTF-8 in the description with replacement characters
+  //         let onError = Utf8ErrorFuncs.replace
 
-          // Bravo proposal reverses the codepoints for U+2018 (‘) and U+2026 (…)
-          if (startBlock === BRAVO_START_BLOCK) {
-            const U2018 = [0xe2, 0x80, 0x98].toString()
-            const U2026 = [0xe2, 0x80, 0xa6].toString()
-            onError = (reason, offset, bytes, output) => {
-              if (reason === Utf8ErrorReason.UNEXPECTED_CONTINUE) {
-                const charCode = [bytes[offset], bytes[offset + 1], bytes[offset + 2]].reverse().toString()
-                if (charCode === U2018) {
-                  output.push(0x2018)
-                  return 2
-                } else if (charCode === U2026) {
-                  output.push(0x2026)
-                  return 2
-                }
-              }
-              return Utf8ErrorFuncs.replace(reason, offset, bytes, output)
-            }
-          }
+  //         // Bravo proposal reverses the codepoints for U+2018 (‘) and U+2026 (…)
+  //         if (startBlock === BRAVO_START_BLOCK) {
+  //           const U2018 = [0xe2, 0x80, 0x98].toString()
+  //           const U2026 = [0xe2, 0x80, 0xa6].toString()
+  //           onError = (reason, offset, bytes, output) => {
+  //             if (reason === Utf8ErrorReason.UNEXPECTED_CONTINUE) {
+  //               const charCode = [bytes[offset], bytes[offset + 1], bytes[offset + 2]].reverse().toString()
+  //               if (charCode === U2018) {
+  //                 output.push(0x2018)
+  //                 return 2
+  //               } else if (charCode === U2026) {
+  //                 output.push(0x2026)
+  //                 return 2
+  //               }
+  //             }
+  //             return Utf8ErrorFuncs.replace(reason, offset, bytes, output)
+  //           }
+  //         }
 
-          description = JSON.parse(toUtf8String(error.error.value, onError)) || ''
-        }
+  //         description = JSON.parse(toUtf8String(error.error.value, onError)) || ''
+  //       }
 
-        // some proposals omit newlines
-        if (
-          startBlock === BRAVO_START_BLOCK ||
-          startBlock === ONE_BIP_START_BLOCK ||
-          startBlock === MOONBEAN_START_BLOCK
-        ) {
-          description = description.replace(/ {2}/g, '\n').replace(/\d\. /g, '\n$&')
-        }
+  //       // some proposals omit newlines
+  //       if (
+  //         startBlock === BRAVO_START_BLOCK ||
+  //         startBlock === ONE_BIP_START_BLOCK ||
+  //         startBlock === MOONBEAN_START_BLOCK
+  //       ) {
+  //         description = description.replace(/ {2}/g, '\n').replace(/\d\. /g, '\n$&')
+  //       }
 
-        return {
-          description,
-          details: parsed.targets.map((target: string, i: number) => {
-            const signature = parsed.signatures[i]
-            let calldata = parsed.calldatas[i]
-            let name: string
-            let types: string
-            if (signature === '') {
-              const fourbyte = calldata.slice(0, 10)
-              const sig = FOUR_BYTES_DIR[fourbyte] ?? 'UNKNOWN()'
-              if (!sig) throw new Error('Missing four byte sig')
-              ;[name, types] = sig.substring(0, sig.length - 1).split('(')
-              calldata = `0x${calldata.slice(10)}`
-            } else {
-              ;[name, types] = signature.substring(0, signature.length - 1).split('(')
-            }
-            const decoded = defaultAbiCoder.decode(types.split(','), calldata)
-            return {
-              target,
-              functionSig: name,
-              callData: decoded.join(', '),
-            }
-          }),
-        }
-      })
-  }, [indices, useLogsResult])
+  //       return {
+  //         description,
+  //         details: parsed.targets.map((target: string, i: number) => {
+  //           const signature = parsed.signatures[i]
+  //           let calldata = parsed.calldatas[i]
+  //           let name: string
+  //           let types: string
+  //           if (signature === '') {
+  //             const fourbyte = calldata.slice(0, 10)
+  //             const sig = FOUR_BYTES_DIR[fourbyte] ?? 'UNKNOWN()'
+  //             if (!sig) throw new Error('Missing four byte sig')
+  //             ;[name, types] = sig.substring(0, sig.length - 1).split('(')
+  //             calldata = `0x${calldata.slice(10)}`
+  //           } else {
+  //             ;[name, types] = signature.substring(0, signature.length - 1).split('(')
+  //           }
+  //           const decoded = defaultAbiCoder.decode(types.split(','), calldata)
+  //           return {
+  //             target,
+  //             functionSig: name,
+  //             callData: decoded.join(', '),
+  //           }
+  //         }),
+  //       }
+  //     })
+  // }, [indices, useLogsResult])
+  return undefined
 }
 
 const V0_PROPOSAL_IDS = [[1], [2], [3], [4]]

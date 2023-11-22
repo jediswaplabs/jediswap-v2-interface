@@ -30,54 +30,54 @@ interface UseLogsResult {
  * @param filter The logs filter, with `fromBlock` or `toBlock` optionally specified.
  * The filter parameter should _always_ be memoized, or else will trigger constant refetching
  */
-export function useLogs(filter: Filter | undefined): UseLogsResult {
-  const { chainId } = useWeb3React()
-  const blockNumber = useBlockNumber()
+// export function useLogs(filter: Filter | undefined): UseLogsResult {
+//   const { chainId } = useWeb3React()
+//   const blockNumber = useBlockNumber()
 
-  const logs = useAppSelector((state) => state.logs)
-  const dispatch = useAppDispatch()
+//   // const logs = [useAppSelector((state) => state.logs)]
+//   const dispatch = useAppDispatch()
 
-  useEffect(() => {
-    if (!filter || !chainId) return
+//   useEffect(() => {
+//     if (!filter || !chainId) return
 
-    dispatch(addListener({ chainId, filter }))
-    return () => {
-      dispatch(removeListener({ chainId, filter }))
-    }
-  }, [chainId, dispatch, filter])
+//     dispatch(addListener({ chainId, filter }))
+//     return () => {
+//       dispatch(removeListener({ chainId, filter }))
+//     }
+//   }, [chainId, dispatch, filter])
 
-  return useMemo(() => {
-    if (!chainId || !filter || !blockNumber)
-      return {
-        logs: undefined,
-        state: LogsState.INVALID,
-      }
+//   return useMemo(() => {
+//     if (!chainId || !filter || !blockNumber)
+//       return {
+//         logs: undefined,
+//         state: LogsState.INVALID,
+//       }
 
-    const state = logs[chainId]?.[filterToKey(filter)]
-    const result = state?.results
+//     const state = logs[chainId]?.[filterToKey(filter)]
+//     const result = state?.results
 
-    if (!result) {
-      return {
-        state: LogsState.LOADING,
-        logs: undefined,
-      }
-    }
+//     if (!result) {
+//       return {
+//         state: LogsState.LOADING,
+//         logs: undefined,
+//       }
+//     }
 
-    if (result.error) {
-      return {
-        state: LogsState.ERROR,
-        logs: undefined,
-      }
-    }
+//     if (result.error) {
+//       return {
+//         state: LogsState.ERROR,
+//         logs: undefined,
+//       }
+//     }
 
-    return {
-      // if we're only fetching logs until a block that has already elapsed, we're synced regardless of result.blockNumber
-      state: isHistoricalLog(filter, blockNumber)
-        ? LogsState.SYNCED
-        : result.blockNumber >= blockNumber
-        ? LogsState.SYNCED
-        : LogsState.SYNCING,
-      logs: result.logs,
-    }
-  }, [blockNumber, chainId, filter, logs])
-}
+//     return {
+//       // if we're only fetching logs until a block that has already elapsed, we're synced regardless of result.blockNumber
+//       state: isHistoricalLog(filter, blockNumber)
+//         ? LogsState.SYNCED
+//         : result.blockNumber >= blockNumber
+//         ? LogsState.SYNCED
+//         : LogsState.SYNCING,
+//       logs: result.logs,
+//     }
+//   }, [blockNumber, chainId, filter, logs])
+// }

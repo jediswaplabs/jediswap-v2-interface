@@ -211,9 +211,9 @@ export default function Pool() {
 
   const filteredPositions = [...[]]
 
-  if (!isSupportedChain(chainId)) {
-    return <WrongNetworkCard />
-  }
+  // if (!isSupportedChain(chainId)) {
+  //   return <WrongNetworkCard />
+  // }
 
   const showConnectAWallet = Boolean(!account)
 

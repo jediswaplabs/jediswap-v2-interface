@@ -601,7 +601,7 @@ export function Swap({
 
   // const inputCurrency = currencies[Field.INPUT] ?? undefined
   const switchChain = useSwitchChain()
-  const switchingChain = useAppSelector((state) => state.wallets.switchingChain)
+  // const switchingChain = useAppSelector((state) => state.wallets.switchingChain)
   const showOptInSmall = !useScreenSize().navSearchInputVisible
   const isDark = useIsDarkMode()
   const isUniswapXDefaultEnabled = useUniswapXDefaultEnabled()

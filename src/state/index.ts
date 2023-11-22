@@ -1,49 +1,42 @@
 import { configureStore } from '@reduxjs/toolkit'
-import { setupListeners } from '@reduxjs/toolkit/query/react'
-import { persistStore } from 'redux-persist'
+import { save, load } from 'redux-localstorage-simple'
 
+import application from './application/reducer'
 import { updateVersion } from './global/actions'
-import { sentryEnhancer } from './logging'
-import reducer from './reducer'
-import { quickRouteApi } from './routing/quickRouteSlice'
-import { routingApi } from './routing/slice'
+import user from './user/reducer'
+import transactions from './transactions/reducer'
+import swap from './swap/reducer'
+import lists from './lists/reducer'
+import multicall from './multicall/reducer'
+import mint from './mint/reducer'
+import burn from './burn/reducer'
+import wallets from './wallets/reducer'
+// import zap from './zap/reducer'
+import pairs from './pairs/reducer'
 
-export function createDefaultStore() {
-  return configureStore({
-    reducer,
-    enhancers: (defaultEnhancers) => defaultEnhancers.concat(sentryEnhancer),
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware({
-        thunk: true,
-        immutableCheck: {
-          ignoredPaths: [routingApi.reducerPath, 'logs', 'lists'],
-        },
-        serializableCheck: {
-          // meta.arg and meta.baseQueryMeta are defaults. payload.trade is a nonserializable return value, but that's ok
-          // because we are not adding it into any persisted store that requires serialization (e.g. localStorage)
-          ignoredActionPaths: ['meta.arg', 'meta.baseQueryMeta', 'payload.trade'],
-          ignoredPaths: [routingApi.reducerPath, quickRouteApi.reducerPath],
-          ignoredActions: [
-            // ignore the redux-persist actions
-            'persist/PERSIST',
-            'persist/REHYDRATE',
-            'persist/PURGE',
-            'persist/FLUSH',
-          ],
-        },
-      })
-        .concat(routingApi.middleware)
-        .concat(quickRouteApi.middleware),
-  })
-}
+const PERSISTED_KEYS: string[] = ['user', 'transactions']
 
-const store = createDefaultStore()
-export const persistor = persistStore(store)
-export type AppState = ReturnType<typeof store.getState>
-export type AppDispatch = typeof store.dispatch
-
-setupListeners(store.dispatch)
+const store = configureStore({
+  reducer: {
+    application,
+    user,
+    transactions,
+    swap,
+    mint,
+    burn,
+    multicall,
+    lists,
+    wallets,
+    // zap,
+    pairs,
+  },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ thunk: false }).concat(save({ states: PERSISTED_KEYS })),
+  preloadedState: load({ states: PERSISTED_KEYS }),
+})
 
 store.dispatch(updateVersion())
 
 export default store
+
+export type AppState = ReturnType<typeof store.getState>
+export type AppDispatch = typeof store.dispatch

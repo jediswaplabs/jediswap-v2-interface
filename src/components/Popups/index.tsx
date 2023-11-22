@@ -1,4 +1,4 @@
-import { useActivePopups } from 'state/application/hooks'
+// import { useActivePopups } from 'state/application/hooks'
 import styled from 'styled-components'
 import { Z_INDEX } from 'theme/zIndex'
 
@@ -53,7 +53,7 @@ export default function Popups() {
   const [isAccountDrawerOpen] = useAccountDrawer()
 
   // get all popups
-  const activePopups = useActivePopups()
+  // const activePopups = useActivePopups()
 
   return (
     <>
@@ -63,18 +63,18 @@ export default function Popups() {
           <PopupItem key={item.key} content={item.content} popKey={item.key} removeAfterMs={item.removeAfterMs} />
         ))} */}
       </FixedPopupColumn>
-      {activePopups?.length > 0 && (
+      {/* {activePopups?.length > 0 && (
         <MobilePopupWrapper data-testid="popups">
           <MobilePopupInner>
-            {/* {activePopups // reverse so new items up front
+            {activePopups // reverse so new items up front
               .slice(0)
               .reverse()
               .map((item) => (
                 <PopupItem key={item.key} content={item.content} popKey={item.key} removeAfterMs={item.removeAfterMs} />
-              ))} */}
+              ))}
           </MobilePopupInner>
         </MobilePopupWrapper>
-      )}
+      )} */}
     </>
   )
 }

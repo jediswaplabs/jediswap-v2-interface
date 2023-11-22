@@ -13,9 +13,9 @@ import { unwrappedToken } from 'utils/unwrappedToken'
 import { AppState } from '../../reducer'
 import { selectPercent } from './actions'
 
-export function useBurnV3State(): AppState['burnV3'] {
-  return useAppSelector((state) => state.burnV3)
-}
+// export function useBurnV3State(): AppState['burnV3'] {
+//   return useAppSelector((state) => state.burnV3)
+// }
 
 export function useDerivedV3BurnInfo(
   position?: PositionDetails,
@@ -31,7 +31,7 @@ export function useDerivedV3BurnInfo(
   error?: ReactNode
 } {
   const { account } = useWeb3React()
-  const { percent } = useBurnV3State()
+  // const { percent } = useBurnV3State()
 
   const token0 = useToken(position?.token0)
   const token1 = useToken(position?.token1)
@@ -52,7 +52,7 @@ export function useDerivedV3BurnInfo(
     [pool, position]
   )
 
-  const liquidityPercentage = new Percent(percent, 100)
+  const liquidityPercentage = new Percent(25, 100)
 
   const discountedAmount0 = positionSDK
     ? liquidityPercentage.multiply(positionSDK.amount0.quotient).quotient
@@ -71,9 +71,9 @@ export function useDerivedV3BurnInfo(
   if (!account) {
     error = <Trans>Connect wallet</Trans>
   }
-  if (percent === 0) {
-    error = error ?? <Trans>Enter a percent</Trans>
-  }
+  // if (percent === 0) {
+  //   error = error ?? <Trans>Enter a percent</Trans>
+  // }
   return {
     position: positionSDK,
     liquidityPercentage,

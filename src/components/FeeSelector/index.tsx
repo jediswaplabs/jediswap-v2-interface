@@ -20,6 +20,7 @@ import { ThemedText } from 'theme/components'
 import { FeeOption } from './FeeOption'
 import { FeeTierPercentageBadge } from './FeeTierPercentageBadge'
 import { FEE_AMOUNT_DETAIL } from './shared'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const pulse = (color: string) => keyframes`
   0% {
@@ -60,7 +61,7 @@ export default function FeeSelector({
   currencyA?: Currency
   currencyB?: Currency
 }) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const trace = useTrace()
 
   // const { isLoading, isError, largestUsageFeeTier } = useFeeTierDistribution(currencyA, currencyB)
@@ -193,20 +194,16 @@ export default function FeeSelector({
         {chainId && showOptions && (
           <Select>
             {[FeeAmount.LOWEST, FeeAmount.LOW, FeeAmount.MEDIUM, FeeAmount.HIGH].map((_feeAmount, i) => {
-              const { supportedChains } = FEE_AMOUNT_DETAIL[_feeAmount]
-              if (supportedChains.includes(chainId)) {
-                return (
-                  <FeeOption
-                    feeAmount={_feeAmount}
-                    active={feeAmount === _feeAmount}
-                    onClick={() => handleFeePoolSelectWithEvent(_feeAmount)}
-                    distributions={distributions}
-                    poolState={poolsByFeeTier[_feeAmount]}
-                    key={i}
-                  />
-                )
-              }
-              return null
+              return (
+                <FeeOption
+                  feeAmount={_feeAmount}
+                  active={feeAmount === _feeAmount}
+                  onClick={() => handleFeePoolSelectWithEvent(_feeAmount)}
+                  distributions={distributions}
+                  poolState={poolsByFeeTier[_feeAmount]}
+                  key={i}
+                />
+              )
             })}
           </Select>
         )}
