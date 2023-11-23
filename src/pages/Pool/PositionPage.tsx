@@ -144,11 +144,18 @@ const ActionButtonResponsiveRow = styled(ResponsiveRow)`
   }
 `;
 
-const ResponsiveButtonConfirmed = styled(ButtonConfirmed)`
-  border-radius: 12px;
-  padding: 6px 8px;
+const ResponsiveButtonConfirmed = styled.button`
+  border-radius: 8px;
+  padding: 6px 16px;
   width: fit-content;
   font-size: 16px;
+  color: ${({ theme }) => `${theme.jediWhite}`};
+  border: ${({ theme }) => `2px solid ${theme.jediWhite}`};
+  text-align: center;
+  font-family: 'Avenir LT Std', sans-serif;
+  font-weight: 750;
+  line-height: 20px; 
+  background: transparent;
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     width: fit-content;
@@ -157,16 +164,17 @@ const ResponsiveButtonConfirmed = styled(ButtonConfirmed)`
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     width: fit-content;
   }
-`;
+`
 
 const NFTGrid = styled.div`
   display: grid;
   grid-template: 'overlap';
-  min-height: 400px;
 `;
 
 const NFTCanvas = styled.canvas`
   grid-area: overlap;
+  width: 162px !important;
+  height: 252px !important;
 `;
 
 const NFTImage = styled.img`
@@ -174,6 +182,17 @@ const NFTImage = styled.img`
   height: 400px;
   /* Ensures SVG appears on top of canvas. */
   z-index: 1;
+`;
+
+const DarkCardWrapper = styled.div`
+  width: 436px;
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    width: 100%;
+  }
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    width: 100%;
+  }
 `;
 
 function CurrentPriceCard({ inverted,
@@ -767,7 +786,8 @@ function PositionPageContent() {
                   </DarkCard>
                 )}
               </HideSmall>
-              <AutoColumn gap="sm" style={{ width: '100%', height: '100%' }}>
+              <DarkCardWrapper>
+              <AutoColumn gap="lg" style={{ width: '100%', height: '100%' }}>
                 <DarkCard>
                   <AutoColumn gap="md" style={{ width: '100%' }}>
                     <AutoColumn gap="md">
@@ -780,11 +800,11 @@ function PositionPageContent() {
                         </ThemedText.DeprecatedLargeHeader>
                       ) : (
                         <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="36px" fontWeight={535}>
-                          <Trans>$-</Trans>
+                          <Trans>$</Trans>
                         </ThemedText.DeprecatedLargeHeader>
                       )}
                     </AutoColumn>
-                    <LightCard padding="12px 16px">
+                   
                       <AutoColumn gap="md">
                         <RowBetween>
                           <LinkedCurrency chainId={chainId} currency={currencyQuote} />
@@ -792,13 +812,6 @@ function PositionPageContent() {
                             <ThemedText.DeprecatedMain>
                               {inverted ? position?.amount0.toSignificant(4) : position?.amount1.toSignificant(4)}
                             </ThemedText.DeprecatedMain>
-                            {typeof ratio === 'number' && !removed ? (
-                              <Badge style={{ marginLeft: '10px' }}>
-                                <BadgeText>
-                                  <Trans>{inverted ? ratio : 100 - ratio}%</Trans>
-                                </BadgeText>
-                              </Badge>
-                            ) : null}
                           </RowFixed>
                         </RowBetween>
                         <RowBetween>
@@ -807,17 +820,9 @@ function PositionPageContent() {
                             <ThemedText.DeprecatedMain>
                               {inverted ? position?.amount1.toSignificant(4) : position?.amount0.toSignificant(4)}
                             </ThemedText.DeprecatedMain>
-                            {typeof ratio === 'number' && !removed ? (
-                              <Badge style={{ marginLeft: '10px' }}>
-                                <BadgeText>
-                                  <Trans>{inverted ? 100 - ratio : ratio}%</Trans>
-                                </BadgeText>
-                              </Badge>
-                            ) : null}
                           </RowFixed>
                         </RowBetween>
                       </AutoColumn>
-                    </LightCard>
                   </AutoColumn>
                 </DarkCard>
                 <DarkCard>
@@ -834,7 +839,7 @@ function PositionPageContent() {
                             </ThemedText.DeprecatedLargeHeader>
                           ) : (
                             <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="36px" fontWeight={535}>
-                              <Trans>$-</Trans>
+                              <Trans>$</Trans>
                             </ThemedText.DeprecatedLargeHeader>
                           )}
                         </AutoColumn>
@@ -845,23 +850,21 @@ function PositionPageContent() {
                             disabled={collecting || !!collectMigrationHash}
                             confirmed={!!collectMigrationHash && !isCollectPending}
                             width="fit-content"
-                            style={{ borderRadius: '12px' }}
-                            padding="4px 8px"
                             onClick={() => setShowConfirm(true)}
                           >
                             {!!collectMigrationHash && !isCollectPending ? (
-                                <ThemedText.DeprecatedMain color={theme.neutral1}>
+                                <ThemedText.DeprecatedMain color={theme.neutral1} fontSize={'16px'} fontWeight={750}>
                                 <Trans> Collected</Trans>
                               </ThemedText.DeprecatedMain>
                               ) : isCollectPending || collecting ? (
-                                <ThemedText.DeprecatedMain color={theme.neutral1}>
+                                <ThemedText.DeprecatedMain color={theme.neutral1} fontSize={'16px'} fontWeight={750}>
                                   {' '}
                                   <Dots>
                                     <Trans>Collecting</Trans>
                                   </Dots>
                                 </ThemedText.DeprecatedMain>
                               ) : (
-                                <ThemedText.DeprecatedMain color={theme.white}>
+                                <ThemedText.DeprecatedMain color={theme.white} fontSize={'16px'} fontWeight={750}>
                                   <Trans>Collect fees</Trans>
                                 </ThemedText.DeprecatedMain>
                               )}
@@ -869,7 +872,6 @@ function PositionPageContent() {
                           ) : null}
                       </RowBetween>
                     </AutoColumn>
-                    <LightCard padding="12px 16px">
                       <AutoColumn gap="md">
                         <RowBetween>
                           <RowFixed>
@@ -902,8 +904,7 @@ function PositionPageContent() {
                           </RowFixed>
                         </RowBetween>
                       </AutoColumn>
-                    </LightCard>
-                    {showCollectAsWeth && (
+                    {/* {showCollectAsWeth && (
                       <AutoColumn gap="md">
                         <RowBetween>
                           <ThemedText.DeprecatedMain>
@@ -916,10 +917,11 @@ function PositionPageContent() {
                           />
                         </RowBetween>
                       </AutoColumn>
-                    )}
+                    )} */}
                   </AutoColumn>
                 </DarkCard>
               </AutoColumn>
+              </DarkCardWrapper>
             </ResponsiveRow>
             <DarkCard>
               <AutoColumn gap="md">
