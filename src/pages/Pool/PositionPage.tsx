@@ -86,7 +86,8 @@ const BadgeText = styled.div`
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Label = styled(({ end, ...props }) => <ThemedText.DeprecatedLabel {...props} />)<{ end?: boolean }>`
   display: flex;
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: 700;
   justify-content: ${({ end }) => (end ? 'flex-end' : 'flex-start')};
   align-items: center;
 `;
@@ -213,9 +214,9 @@ function CurrentPriceCard({ inverted,
   return (
     <LightCard padding="12px">
       <AutoColumn gap="sm" justify="center">
-        <ExtentsText>
+        <ThemedText.LabelSmall style={{color: '#fff'}}>
           <Trans>Current price</Trans>
-        </ExtentsText>
+        </ThemedText.LabelSmall>
         <ThemedText.DeprecatedMediumHeader textAlign="center">
           {formatPrice({ price: inverted ? pool.token1Price : pool.token0Price, type: NumberType.TokenTx })}
         </ThemedText.DeprecatedMediumHeader>
@@ -690,7 +691,7 @@ function PositionPageContent() {
             )}
             pendingText={<Trans>Collecting fees</Trans>}
           />
-          <AutoColumn gap="md">
+          <AutoColumn gap="lg">
             <AutoColumn gap="sm">
               <Link
                 data-cy="visit-pool"
@@ -720,27 +721,28 @@ function PositionPageContent() {
                 {ownsNFT && (
                   <ActionButtonResponsiveRow>
                     {currency0 && currency1 && feeAmount && tokenId ? (
-                      <ButtonGray
-                        as={Link}
-                        to={`/increase/${currencyId(currency0)}/${currencyId(currency1)}/${feeAmount}/${tokenId}`}
-                        padding="6px 8px"
-                        width="fit-content"
-                        $borderRadius="12px"
-                        style={{ marginRight: '8px' }}
-                      >
-                        <Trans>Increase liquidity</Trans>
-                      </ButtonGray>
-                    ) : null}
-                    {tokenId && !removed ? (
                       <SmallButtonPrimary
                         as={Link}
-                        to={`/remove/${tokenId}`}
-                        padding="6px 8px"
+                        to={`/increase/${currencyId(currency0)}/${currencyId(currency1)}/${feeAmount}/${tokenId}`}
+                        padding="12px"
                         width="fit-content"
-                        $borderRadius="12px"
+                        $borderRadius="8px !important"
+                        style={{ marginRight: '20px' }}
                       >
-                        <Trans>Remove liquidity</Trans>
+                        <Trans>Increase Liquidity</Trans>
                       </SmallButtonPrimary>
+                    ) : null}
+                    {tokenId && !removed ? (
+                      <ButtonGray
+                        as={Link}
+                        to={`/remove/${tokenId}`}
+                        padding="8px 12px"
+                        width="fit-content"
+                        $borderRadius="8px"
+                        style={{backgroundColor: 'transparent', color: '#fff', border: '2px solid #444'}}
+                      >
+                        <Trans>Remove Liquidity</Trans>
+                      </ButtonGray>
                     ) : null}
                   </ActionButtonResponsiveRow>
                 )}
@@ -923,8 +925,8 @@ function PositionPageContent() {
               </AutoColumn>
               </DarkCardWrapper>
             </ResponsiveRow>
-            <DarkCard>
-              <AutoColumn gap="md">
+            
+              <AutoColumn gap="lg">
                 <RowBetween>
                   <RowFixed>
                     <Label display="flex" style={{ marginRight: '12px' }}>
@@ -932,7 +934,7 @@ function PositionPageContent() {
                     </Label>
                     <HideExtraSmall>
                       <>
-                        <RangeBadge removed={removed} inRange={inRange} />
+                        <RangeBadge removed={removed} inRange={inRange} badgeStyle={{fontSize: '14px', fontWeight: '700'}} />
                         <span style={{ width: '8px' }} />
                       </>
                     </HideExtraSmall>
@@ -951,9 +953,9 @@ function PositionPageContent() {
                 <RowBetween>
                   <LightCard padding="12px" width="100%">
                     <AutoColumn gap="sm" justify="center">
-                      <ExtentsText>
+                      <ThemedText.LabelSmall style={{color: theme.jediWhite}}>
                         <Trans>Min price</Trans>
-                      </ExtentsText>
+                      </ThemedText.LabelSmall>
                       <ThemedText.DeprecatedMediumHeader textAlign="center">
                         {formatTickPrice({
                           price: priceLower,
@@ -968,21 +970,21 @@ function PositionPageContent() {
                           {currencyQuote?.symbol} per {currencyBase?.symbol}
                         </Trans>
                       </ExtentsText>
-
+{/* 
                       {inRange && (
                         <ThemedText.DeprecatedSmall color={theme.neutral3}>
                           <Trans>Your position will be 100% {currencyBase?.symbol} at this price.</Trans>
                         </ThemedText.DeprecatedSmall>
-                      )}
+                      )} */}
                     </AutoColumn>
                   </LightCard>
 
                   <DoubleArrow>⟷</DoubleArrow>
                   <LightCard padding="12px" width="100%">
                     <AutoColumn gap="sm" justify="center">
-                      <ExtentsText>
+                      <ThemedText.LabelSmall style={{color: theme.jediWhite}}>
                         <Trans>Max price</Trans>
-                      </ExtentsText>
+                      </ThemedText.LabelSmall>
                       <ThemedText.DeprecatedMediumHeader textAlign="center">
                         {formatTickPrice({
                           price: priceUpper,
@@ -998,11 +1000,11 @@ function PositionPageContent() {
                         </Trans>
                       </ExtentsText>
 
-                      {inRange && (
+                      {/* {inRange && (
                         <ThemedText.DeprecatedSmall color={theme.neutral3}>
                           <Trans>Your position will be 100% {currencyQuote?.symbol} at this price.</Trans>
                         </ThemedText.DeprecatedSmall>
-                      )}
+                      )} */}
                     </AutoColumn>
                   </LightCard>
                 </RowBetween>
@@ -1013,7 +1015,7 @@ function PositionPageContent() {
                   currencyBase={currencyBase}
                 />
               </AutoColumn>
-            </DarkCard>
+           
           </AutoColumn>
         </PageWrapper>
         <SwitchLocaleLink />
