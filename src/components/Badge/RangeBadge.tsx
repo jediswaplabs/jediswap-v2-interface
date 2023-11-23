@@ -33,14 +33,14 @@ const LabelText = styled.div<{ color: string }>`
   justify-content: flex-end;
 `
 
-export default function RangeBadge({ removed, inRange }: { removed?: boolean; inRange?: boolean }) {
+export default function RangeBadge({ removed, inRange, badgeStyle}: { removed?: boolean; inRange?: boolean; badgeStyle?: any }) {
   const theme = useTheme()
   return (
     <BadgeWrapper>
       {removed ? (
         <MouseoverTooltip text={<Trans>Your position has 0 liquidity, and is not earning fees.</Trans>}>
           <LabelText color={theme.neutral2}>
-            <BadgeText>
+            <BadgeText style={badgeStyle}>
               <Trans>Closed</Trans>
             </BadgeText>
             <Slash width={12} height={12} />
@@ -55,7 +55,7 @@ export default function RangeBadge({ removed, inRange }: { removed?: boolean; in
           }
         >
           <LabelText color={theme.signalGreen}>
-            <BadgeText>
+            <BadgeText style={badgeStyle}>
               <Trans>In Range</Trans>
             </BadgeText>
             {/* <ActiveDot /> */}
@@ -70,7 +70,7 @@ export default function RangeBadge({ removed, inRange }: { removed?: boolean; in
           }
         >
           <LabelText color={theme.signalRed}>
-            <BadgeText>
+            <BadgeText style={badgeStyle}>
               <Trans>Closed</Trans>
             </BadgeText>
             {/* <AlertTriangle width={12} height={12} /> */}

@@ -60,7 +60,6 @@ const PositionPageButtonPrimary = styled(ButtonPrimary)`
 `;
 
 const PageWrapper = styled.div`
-  padding: 68px 16px 16px 16px;
 
   min-width: 800px;
   max-width: 960px;
@@ -77,8 +76,8 @@ const PageWrapper = styled.div`
 `;
 
 const BadgeText = styled.div`
-  font-weight: 535;
-  font-size: 14px;
+  font-weight: 500;
+  font-size: 12px;
   color: ${({ theme }) => theme.neutral2};
 `;
 
@@ -100,14 +99,24 @@ const ExtentsText = styled.span`
   font-weight: 535;
 `;
 
+const HoverTextWrapper = styled.div`
+  display: flex;
+`
+
 const HoverText = styled(ThemedText.DeprecatedMain)`
   text-decoration: none;
-  color: ${({ theme }) => theme.neutral2};
+  color: ${({ theme }) => theme.jediBlue};
   :hover {
-    color: ${({ theme }) => theme.neutral1};
+    color: ${({ theme }) => theme.jediWhite};
     text-decoration: none;
   }
 `;
+
+const HoverLink = styled.div`
+  text-decoration: none;
+  color: ${({ theme }) => theme.jediWhite};
+  margin-right: 4px;
+`
 
 const DoubleArrow = styled.span`
   color: ${({ theme }) => theme.neutral3};
@@ -669,22 +678,25 @@ function PositionPageContent() {
                 style={{ textDecoration: 'none', width: 'fit-content', marginBottom: '0.5rem' }}
                 to="/pools"
               >
+                <HoverTextWrapper>
+                 <HoverLink>←</HoverLink> 
                 <HoverText>
-                  <Trans>← Back to Pools</Trans>
+                  <Trans> Back to My positions</Trans>
                 </HoverText>
+                </HoverTextWrapper>
               </Link>
               <ResponsiveRow>
                 <PositionLabelRow>
                   <DoubleCurrencyLogo currency0={currencyBase} currency1={currencyQuote} size={24} margin />
-                  <ThemedText.DeprecatedLabel fontSize="24px" mr="10px">
+                  <ThemedText.DeprecatedLabel fontSize="20px" fontWeight={700} mr="10px">
                     &nbsp;{currencyQuote?.symbol}&nbsp;/&nbsp;{currencyBase?.symbol}
                   </ThemedText.DeprecatedLabel>
-                  <Badge style={{ marginRight: '8px' }}>
+                  <Badge style={{ marginRight: '8px', backgroundColor: theme.jediGreyBorder, borderRadius: '4px' }}>
                     <BadgeText>
                       <Trans>{new Percent(feeAmount, 1_000_000).toSignificant()}%</Trans>
                     </BadgeText>
                   </Badge>
-                  <RangeBadge removed={removed} inRange={inRange} />
+                  <RangeBadge removed={removed} inRange={inRange} badgeStyle={{fontSize: '14px',fontWeight: '700'}}/>
                 </PositionLabelRow>
                 {ownsNFT && (
                   <ActionButtonResponsiveRow>
@@ -731,7 +743,7 @@ function PositionPageContent() {
                       alignItems: 'center',
                       flexDirection: 'column',
                       justifyContent: 'space-around',
-                      minWidth: '340px',
+                      minWidth: '436px',
                     }}
                   >
                     <NFT image={metadata.result.image} height={400} />
@@ -746,7 +758,7 @@ function PositionPageContent() {
                     width="100%"
                     height="100%"
                     style={{
-                      minWidth: '340px',
+                      minWidth: '436px',
                       position: 'relative',
                       overflow: 'hidden',
                     }}
