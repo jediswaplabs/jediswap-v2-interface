@@ -724,7 +724,7 @@ function PositionPageContent() {
                       <SmallButtonPrimary
                         as={Link}
                         to={`/increase/${currencyId(currency0)}/${currencyId(currency1)}/${feeAmount}/${tokenId}`}
-                        padding="12px"
+                        padding="8px 12px"
                         width="fit-content"
                         $borderRadius="8px !important"
                         style={{ marginRight: '20px' }}
@@ -736,7 +736,7 @@ function PositionPageContent() {
                       <ButtonGray
                         as={Link}
                         to={`/remove/${tokenId}`}
-                        padding="8px 12px"
+                        padding="6px 12px"
                         width="fit-content"
                         $borderRadius="8px"
                         style={{backgroundColor: 'transparent', color: '#fff', border: '2px solid #444'}}
