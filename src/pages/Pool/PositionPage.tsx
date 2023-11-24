@@ -122,6 +122,7 @@ const HoverLink = styled.div`
 const DoubleArrow = styled.span`
   color: ${({ theme }) => theme.neutral3};
   margin: 0 1rem;
+  font-size: 44px;
 `;
 const ResponsiveRow = styled(RowBetween)`
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
@@ -752,7 +753,7 @@ function PositionPageContent() {
               <HideSmall
                 style={{
                   height: '100%',
-                  marginRight: 12,
+                  marginRight: 34,
                 }}
               >
                 {'result' in metadata ? (
