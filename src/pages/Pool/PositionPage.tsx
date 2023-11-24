@@ -797,11 +797,11 @@ function PositionPageContent() {
                         <Trans>Liquidity</Trans>
                       </Label>
                       {fiatValueOfLiquidity?.greaterThan(new Fraction(1, 100)) ? (
-                        <ThemedText.DeprecatedLargeHeader fontSize="36px" fontWeight={535}>
+                        <ThemedText.DeprecatedLargeHeader fontSize="24px" fontWeight={535}>
                           <Trans>${fiatValueOfLiquidity.toFixed(2, { groupSeparator: ',' })}</Trans>
                         </ThemedText.DeprecatedLargeHeader>
                       ) : (
-                        <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="36px" fontWeight={535}>
+                        <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="24px" fontWeight={535}>
                           <Trans>$</Trans>
                         </ThemedText.DeprecatedLargeHeader>
                       )}
@@ -836,11 +836,11 @@ function PositionPageContent() {
                             <Trans>Unclaimed fees</Trans>
                           </Label>
                           {fiatValueOfFees?.greaterThan(new Fraction(1, 100)) ? (
-                            <ThemedText.DeprecatedLargeHeader color={theme.success} fontSize="36px" fontWeight={535}>
+                            <ThemedText.DeprecatedLargeHeader color={theme.success} fontSize="24px" fontWeight={535}>
                               <Trans>${fiatValueOfFees.toFixed(2, { groupSeparator: ',' })}</Trans>
                             </ThemedText.DeprecatedLargeHeader>
                           ) : (
-                            <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="36px" fontWeight={535}>
+                            <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="24px" fontWeight={535}>
                               <Trans>$</Trans>
                             </ThemedText.DeprecatedLargeHeader>
                           )}
