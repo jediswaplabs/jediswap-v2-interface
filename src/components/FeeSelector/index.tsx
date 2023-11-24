@@ -34,7 +34,7 @@ const pulse = (color: string) => keyframes`
     box-shadow: 0 0 0 0 ${color};
   }
 `
-const FocusedOutlineCard = styled(Card) <{ pulsing: boolean, feeAmount: FeeAmount }>`
+const FocusedOutlineCard = styled(Card) <{ pulsing: boolean, feeAmount: any }>`
   border: 1px solid ${({ theme, feeAmount }) => feeAmount ? theme.jediBlue : theme.surface3};
   animation: ${({ pulsing, theme }) => pulsing && pulse(theme.accent1)} 0.6s linear;
   align-self: center;
