@@ -1,25 +1,25 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import { Trans } from '@lingui/macro'
-import { Percent, Price, Token } from '@uniswap/sdk-core'
-import { Position } from '@uniswap/v3-sdk'
-import RangeBadge from 'components/Badge/RangeBadge'
-import DoubleCurrencyLogo from 'components/DoubleLogo'
-import HoverInlineText from 'components/HoverInlineText'
-import Loader from 'components/Icons/LoadingSpinner'
-import { RowBetween } from 'components/Row'
-import { useToken } from 'hooks/Tokens'
-import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
-import { usePool } from 'hooks/usePools'
-import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
-import { Bound } from 'state/mint/v3/actions'
-import styled from 'styled-components'
-import { MEDIA_WIDTHS } from 'theme'
-import { HideSmall, SmallOnly, ThemedText } from 'theme/components'
-import { useFormatter } from 'utils/formatNumbers'
-import { unwrappedToken } from 'utils/unwrappedToken'
+import { BigNumber } from '@ethersproject/bignumber';
+import { Trans } from '@lingui/macro';
+import { Percent, Price, Token } from '@uniswap/sdk-core';
+import { Position } from '@uniswap/v3-sdk';
+import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import styled from 'styled-components';
 
-import { DAI, USDC_MAINNET, USDT, WBTC, WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
+import RangeBadge from 'components/Badge/RangeBadge';
+import DoubleCurrencyLogo from 'components/DoubleLogo';
+import HoverInlineText from 'components/HoverInlineText';
+import Loader from 'components/Icons/LoadingSpinner';
+import { RowBetween } from 'components/Row';
+import { useToken } from 'hooks/Tokens';
+import useIsTickAtLimit from 'hooks/useIsTickAtLimit';
+import { usePool } from 'hooks/usePools';
+import { Bound } from 'state/mint/v3/actions';
+import { MEDIA_WIDTHS } from 'theme';
+import { HideSmall, MediumOnly, SmallOnly, ThemedText } from 'theme/components';
+import { useFormatter } from 'utils/formatNumbers';
+import { unwrappedToken } from 'utils/unwrappedToken';
+import { DAI, USDC_MAINNET, USDT, WBTC, WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens';
 
 const LinkRow = styled(Link)`
   display: flex;
@@ -48,30 +48,27 @@ const LinkRow = styled(Link)`
     flex-direction: column;
     row-gap: 8px;
   `};
-`
+`;
 
 const PositionListItemWrapper = styled.div`
   display: grid;
-  gap: 1em;
   grid-template-columns: 1.5fr 0.5fr 0.5fr 1fr;
-  align-items: center;
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
-    display: flex;
-  }
+  grid-template-areas: "MyPositions Liqidity Fee Range";
+  text-align: right;
 
   @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
-    display: flex;
+    grid-template-areas: "MyPositions MyPositions MyPositions Range";
   }
-`
+`;
 
 const DataLineItem = styled.div`
   font-size: 14px;
-`
+`;
 const CurrencyText = styled.div`
   font-size: 14px;
   font-family: 'DM Sans';
   font-weight: 700;
-`
+`;
 
 const RangeLineItem = styled(DataLineItem)`
   display: flex;
@@ -79,13 +76,13 @@ const RangeLineItem = styled(DataLineItem)`
   align-items: center;
   margin-top: 4px;
   width: 100%;
-`
+`;
 
 const DoubleArrow = styled.span`
   font-size: 12px;
   margin: 0 2px;
   color: ${({ theme }) => theme.neutral1};
-`
+`;
 
 const RangeText = styled(ThemedText.BodySmall)`
   font-size: 12px !important;
@@ -94,25 +91,27 @@ const RangeText = styled(ThemedText.BodySmall)`
   border-radius: 8px;
   font-family: 'DM Sans';
   font-weight: 400;
-`
+`;
 const PositionListItemText = styled.div`
-  font-size: 14px;
-  font-family: 'DM Sans';
-  font-weight: 700;
+  grid-area: Liqidity;
+
   @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     display: none;
   }
+`;
 
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+const PositionListItemFee = styled.div`
+  grid-area: Fee;
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     display: none;
   }
-`
+`;
 
-const FeeTierText = styled(ThemedText.UtilityBadge)`
-  font-size: 16px !important;
-  margin-left: 8px !important;
-  color: ${({ theme }) => theme.neutral3};
-`
+const RangeBadgeWrapper = styled.div`
+  grid-area: Range;
+`;
+
 const ExtentsText = styled(ThemedText.BodySmall)`
   color: ${({ theme }) => theme.neutral2};
   display: inline-block;
@@ -121,16 +120,18 @@ const ExtentsText = styled(ThemedText.BodySmall)`
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
     display: none;
   `};
-`
+`;
 
 const PrimaryPositionIdData = styled.div`
+  grid-area: MyPositions;
+  
   display: flex;
   flex-direction: row;
   align-items: center;
   > * {
     margin-right: 8px;
   }
-`
+`;
 const PositionListItemHeading = styled.div`
   color: ${({ theme }) => theme.neutral2};
   font-family: DM Sans;
@@ -139,10 +140,10 @@ const PositionListItemHeading = styled.div`
   font-weight: 500;
   line-height: 12px;
   flex: 0.3;
-`
+`;
 const PositionListItemMobileWrapper = styled.div`
   display: flex;
-`
+`;
 const PositionListItemMobile = styled.div`
   font-family: DM Sans;
   font-size: 14px;
@@ -151,7 +152,11 @@ const PositionListItemMobile = styled.div`
   line-height: 12px;
   flex: 0.3;
   margin-top: 4px;
-`
+`;
+
+const FeeTierText = styled(ThemedText.UtilityBadge)`
+
+`;
 
 interface PositionListItemProps {
   token0: string
@@ -170,32 +175,32 @@ export function getPriceOrderingFromPositionForUI(position?: Position): {
   base?: Token
 } {
   if (!position) {
-    return {}
+    return {};
   }
 
-  const token0 = position.amount0.currency
-  const token1 = position.amount1.currency
+  const token0 = position.amount0.currency;
+  const token1 = position.amount1.currency;
 
   // if token0 is a dollar-stable asset, set it as the quote token
-  const stables = [DAI, USDC_MAINNET, USDT]
+  const stables = [DAI, USDC_MAINNET, USDT];
   if (stables.some((stable) => stable.equals(token0))) {
     return {
       priceLower: position.token0PriceUpper.invert(),
       priceUpper: position.token0PriceLower.invert(),
       quote: token0,
       base: token1,
-    }
+    };
   }
 
   // if token1 is an ETH-/BTC-stable asset, set it as the base token
-  const bases = [...Object.values(WRAPPED_NATIVE_CURRENCY), WBTC]
+  const bases = [...Object.values(WRAPPED_NATIVE_CURRENCY), WBTC];
   if (bases.some((base) => base && base.equals(token1))) {
     return {
       priceLower: position.token0PriceUpper.invert(),
       priceUpper: position.token0PriceLower.invert(),
       quote: token0,
       base: token1,
-    }
+    };
   }
 
   // if both prices are below 1, invert
@@ -205,7 +210,7 @@ export function getPriceOrderingFromPositionForUI(position?: Position): {
       priceUpper: position.token0PriceLower.invert(),
       quote: token0,
       base: token1,
-    }
+    };
   }
 
   // otherwise, just return the default
@@ -214,50 +219,48 @@ export function getPriceOrderingFromPositionForUI(position?: Position): {
     priceUpper: position.token0PriceUpper,
     quote: token1,
     base: token0,
-  }
+  };
 }
 
-export default function PositionListItem({
-  token0: token0Address,
+export default function PositionListItem({ token0: token0Address,
   token1: token1Address,
   tokenId,
   fee: feeAmount,
   liquidity,
   tickLower,
-  tickUpper,
-}: PositionListItemProps) {
-  const { formatTickPrice } = useFormatter()
+  tickUpper }: PositionListItemProps) {
+  const { formatTickPrice } = useFormatter();
 
-  const token0 = useToken(token0Address)
-  const token1 = useToken(token1Address)
+  const token0 = useToken(token0Address);
+  const token1 = useToken(token1Address);
 
-  const currency0 = token0 ? unwrappedToken(token0) : undefined
-  const currency1 = token1 ? unwrappedToken(token1) : undefined
+  const currency0 = token0 ? unwrappedToken(token0) : undefined;
+  const currency1 = token1 ? unwrappedToken(token1) : undefined;
 
   // construct Position from details returned
-  const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount)
+  const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount);
 
   const position = useMemo(() => {
     if (pool) {
-      return new Position({ pool, liquidity: liquidity.toString(), tickLower, tickUpper })
+      return new Position({ pool, liquidity: liquidity.toString(), tickLower, tickUpper });
     }
-    return undefined
-  }, [liquidity, pool, tickLower, tickUpper])
+    return undefined;
+  }, [liquidity, pool, tickLower, tickUpper]);
 
-  const tickAtLimit = useIsTickAtLimit(feeAmount, tickLower, tickUpper)
+  const tickAtLimit = useIsTickAtLimit(feeAmount, tickLower, tickUpper);
 
   // prices
-  const { priceLower, priceUpper, quote, base } = getPriceOrderingFromPositionForUI(position)
+  const { priceLower, priceUpper, quote, base } = getPriceOrderingFromPositionForUI(position);
 
-  const currencyQuote = quote && unwrappedToken(quote)
-  const currencyBase = base && unwrappedToken(base)
+  const currencyQuote = quote && unwrappedToken(quote);
+  const currencyBase = base && unwrappedToken(base);
 
   // check if price is within range
-  const outOfRange: boolean = pool ? pool.tickCurrent < tickLower || pool.tickCurrent >= tickUpper : false
+  const outOfRange: boolean = pool ? pool.tickCurrent < tickLower || pool.tickCurrent >= tickUpper : false;
 
-  const positionSummaryLink = '/pools/' + tokenId
+  const positionSummaryLink = `/pools/${tokenId}`;
 
-  const removed = liquidity?.eq(0)
+  const removed = liquidity?.eq(0);
 
   return (
     <LinkRow to={positionSummaryLink}>
@@ -269,14 +272,12 @@ export default function PositionListItem({
               &nbsp;{currencyQuote?.symbol}&nbsp;/&nbsp;{currencyBase?.symbol}
             </CurrencyText>
           </ThemedText.SubHeader>
-
-          <FeeTierText>
-            <Trans>{new Percent(feeAmount, 1_000_000).toSignificant()}%</Trans>
-          </FeeTierText>
         </PrimaryPositionIdData>
         <PositionListItemText>$16.89</PositionListItemText>
-        <PositionListItemText>$0</PositionListItemText>
-        <RangeBadge removed={removed} inRange={!outOfRange} />
+        <PositionListItemFee>$0</PositionListItemFee>
+        <RangeBadgeWrapper>
+          <RangeBadge removed={removed} inRange={!outOfRange} />
+        </RangeBadgeWrapper>
       </PositionListItemWrapper>
 
       {priceLower && priceUpper ? (
@@ -299,9 +300,9 @@ export default function PositionListItem({
           <HideSmall>
             <DoubleArrow>↔</DoubleArrow>{' '}
           </HideSmall>
-          <SmallOnly>
+          <MediumOnly>
             <DoubleArrow>↔</DoubleArrow>{' '}
-          </SmallOnly>
+          </MediumOnly>
           <RangeText>
             <ExtentsText>
               <Trans>Max:</Trans>
@@ -322,7 +323,7 @@ export default function PositionListItem({
       ) : (
         <Loader />
       )}
-      <SmallOnly>
+      <MediumOnly>
         <PositionListItemMobileWrapper>
           <PositionListItemHeading>Liquidity</PositionListItemHeading>
           <PositionListItemHeading>Fees earned</PositionListItemHeading>
@@ -331,7 +332,7 @@ export default function PositionListItem({
           <PositionListItemMobile>$16.89</PositionListItemMobile>
           <PositionListItemMobile>$3467.26</PositionListItemMobile>
         </PositionListItemMobileWrapper>
-      </SmallOnly>
+      </MediumOnly>
     </LinkRow>
-  )
+  );
 }

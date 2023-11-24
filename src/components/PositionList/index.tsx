@@ -1,54 +1,50 @@
-import { Trans } from '@lingui/macro'
-import PositionListItem from 'components/PositionListItem'
-import React from 'react'
-import styled from 'styled-components'
-import { MEDIA_WIDTHS } from 'theme'
-import { PositionDetails } from 'types/position'
+import { Trans } from '@lingui/macro';
+import React from 'react';
+import styled from 'styled-components';
+import { PositionDetails } from 'types/position';
 
-const DesktopHeader = styled.div`
-  display: none;
-  font-size: 14px;
+import PositionListItem from 'components/PositionListItem';
+
+const Header = styled.div`
+  display: grid;
+  grid-template-columns: 1.5fr 0.5fr 0.5fr 1fr;
+  grid-template-areas: "MyPositions Liqidity Fee Toggle";
+  gap: 12px;
   padding: 16px;
-  font-family: 'DM Sans';
-  font-weight: 700;
-  background-color: rgba(255, 255, 255, 0.2);
-  @media screen and (min-width: ${MEDIA_WIDTHS.deprecated_upToSmall}px) {
-    display: grid;
-    gap: 1em;
-    grid-template-columns: 1.5fr 0.5fr 0.5fr 1fr;
-    & > div:last-child {
-      text-align: right;
-      margin-right: 12px;
-    }
+  text-align: right;
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    grid-template-areas: "MyPositions MyPositions Toggle Toggle";
   }
-`
+`;
 
-const MobileHeader = styled.div`
-  font-weight: medium;
-  padding: 8px;
-  font-weight: 535;
-  padding: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px;
-  background-color: rgba(255, 255, 255, 0.2);
-  @media screen and (min-width: ${MEDIA_WIDTHS.deprecated_upToSmall}px) {
+const HeaderMyPositionCell = styled.div`
+  text-align: left;
+  grid-area: MyPositions;
+`;
+const HeaderLiquidityCell = styled.div`
+  grid-area: Liqidity;
+  
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     display: none;
   }
-
-  @media screen and (max-width: ${MEDIA_WIDTHS.deprecated_upToExtraSmall}px) {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+`;
+const HeaderFeeCell = styled.div`
+  grid-area: Fee;
+  
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    display: none;
   }
-`
+`;
+const HeaderToggleLabelCell = styled.div`
+  grid-area: Toggle;
+`;
 
 const ToggleWrap = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-`
+`;
 
 const ToggleLabel = styled.button`
   cursor: pointer;
@@ -59,11 +55,11 @@ const ToggleLabel = styled.button`
   font-style: normal;
   font-weight: 700;
   margin-left: auto;
-`
+`;
 const Divider = styled.div`
   height: 1px;
   background-color: ${({ theme }) => theme.divider};
-`
+`;
 
 type PositionListProps = React.PropsWithChildren<{
   positions: PositionDetails[]
@@ -71,49 +67,34 @@ type PositionListProps = React.PropsWithChildren<{
   userHideClosedPositions: boolean
 }>
 
-export default function PositionList({
-  positions,
+export default function PositionList({ positions,
   setUserHideClosedPositions,
-  userHideClosedPositions,
-}: PositionListProps) {
+  userHideClosedPositions }: PositionListProps) {
   return (
     <>
-      <DesktopHeader>
-        <div>
+      <Header>
+        <HeaderMyPositionCell>
           <Trans>My positions</Trans>
-          {positions && ' (' + positions.length + ')'}
-        </div>
-        <div>
+          {positions && ` (${positions.length})`}
+        </HeaderMyPositionCell>
+        <HeaderLiquidityCell>
           <Trans>Liquidity</Trans>
-        </div>
-        <div>
+        </HeaderLiquidityCell>
+        <HeaderFeeCell>
           <Trans>Fees earned</Trans>
-        </div>
-
-        <ToggleLabel
-          id="desktop-hide-closed-positions"
-          onClick={() => {
-            setUserHideClosedPositions(!userHideClosedPositions)
-          }}
-        >
-          {userHideClosedPositions ? <Trans>Show closed positions</Trans> : <Trans>Hide closed positions</Trans>}
-        </ToggleLabel>
-      </DesktopHeader>
-      <MobileHeader>
-        <div>
-          <Trans>My positions</Trans>
-          {positions && ' (' + positions.length + ')'}
-        </div>
-        <ToggleWrap>
+        </HeaderFeeCell>
+        <HeaderToggleLabelCell>
           <ToggleLabel
+            id="desktop-hide-closed-positions"
             onClick={() => {
-              setUserHideClosedPositions(!userHideClosedPositions)
+              setUserHideClosedPositions(!userHideClosedPositions);
             }}
           >
             {userHideClosedPositions ? <Trans>Show closed positions</Trans> : <Trans>Hide closed positions</Trans>}
           </ToggleLabel>
-        </ToggleWrap>
-      </MobileHeader>
+        </HeaderToggleLabelCell>
+      </Header>
+
       {positions.map((p, index) => (
         <>
           <PositionListItem key={p.tokenId.toString()} {...p} />
@@ -121,5 +102,5 @@ export default function PositionList({
         </>
       ))}
     </>
-  )
+  );
 }
