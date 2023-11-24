@@ -1,5 +1,5 @@
 import { createReducer } from '@reduxjs/toolkit'
-import { Field, resetMintState, typeInput } from './actions'
+import { Field, resetMintState, setFullRange, typeInput, typeLeftRangeInput, typeRightRangeInput } from './actions'
 
 export interface MintState {
   readonly independentField: Field
@@ -10,12 +10,31 @@ export interface MintState {
 const initialState: MintState = {
   independentField: Field.CURRENCY_A,
   typedValue: '',
-  otherTypedValue: ''
+  otherTypedValue: '',
 }
 
-export default createReducer<MintState>(initialState, builder =>
+export default createReducer<MintState>(initialState, (builder) =>
   builder
     .addCase(resetMintState, () => initialState)
+    .addCase(setFullRange, (state) => {
+      return {
+        ...state,
+        leftRangeTypedValue: true,
+        rightRangeTypedValue: true,
+      }
+    })
+    .addCase(typeLeftRangeInput, (state, { payload: { typedValue } }) => {
+      return {
+        ...state,
+        leftRangeTypedValue: typedValue,
+      }
+    })
+    .addCase(typeRightRangeInput, (state, { payload: { typedValue } }) => {
+      return {
+        ...state,
+        rightRangeTypedValue: typedValue,
+      }
+    })
     .addCase(typeInput, (state, { payload: { field, typedValue, noLiquidity } }) => {
       if (noLiquidity) {
         // they're typing into the field they've last typed in
@@ -23,7 +42,7 @@ export default createReducer<MintState>(initialState, builder =>
           return {
             ...state,
             independentField: field,
-            typedValue
+            typedValue,
           }
         }
         // they're typing into a new field, store the other value
@@ -32,7 +51,7 @@ export default createReducer<MintState>(initialState, builder =>
             ...state,
             independentField: field,
             typedValue,
-            otherTypedValue: state.typedValue
+            otherTypedValue: state.typedValue,
           }
         }
       } else {
@@ -40,7 +59,7 @@ export default createReducer<MintState>(initialState, builder =>
           ...state,
           independentField: field,
           typedValue,
-          otherTypedValue: ''
+          otherTypedValue: '',
         }
       }
     })

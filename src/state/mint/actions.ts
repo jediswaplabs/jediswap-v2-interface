@@ -11,4 +11,7 @@ export enum Bound {
 }
 
 export const typeInput = createAction<{ field: Field; typedValue: string; noLiquidity: boolean }>('mint/typeInputMint')
-export const resetMintState = createAction<void>('mint/resetMintState')
+export const typeLeftRangeInput = createAction<{ typedValue: string }>('mintV3/typeLeftRangeInput')
+export const typeRightRangeInput = createAction<{ typedValue: string }>('mintV3/typeRightRangeInput')
+export const resetMintState = createAction<void>('mintV3/resetMintState')
+export const setFullRange = createAction<void>('mintV3/setFullRange')

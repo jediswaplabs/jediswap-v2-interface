@@ -7,9 +7,10 @@ import useDebounce from '../../hooks/useDebounce'
 import { wrappedCurrency, wrappedCurrencyAmount } from '../../utils/wrappedCurrency'
 import { AppDispatch, AppState } from '../index'
 import { useCurrencyBalances } from '../wallet/hooks'
-import { Field, typeInput } from './actions'
+import { Field, typeInput, typeLeftRangeInput, typeRightRangeInput } from './actions'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { parseUnits } from 'ethers/lib/utils'
+import { useSearchParams } from 'react-router-dom'
 
 const ZERO = JSBI.BigInt(0)
 
@@ -196,6 +197,8 @@ export function useDerivedMintInfo(
 export function useMintActionHandlers(noLiquidity: boolean | undefined): {
   onFieldAInput: (typedValue: string) => void
   onFieldBInput: (typedValue: string) => void
+  onLeftRangeInput: (typedValue: string) => void
+  onRightRangeInput: (typedValue: string) => void
 } {
   const dispatch = useDispatch<AppDispatch>()
 
@@ -212,8 +215,36 @@ export function useMintActionHandlers(noLiquidity: boolean | undefined): {
     [dispatch, noLiquidity]
   )
 
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const onLeftRangeInput = useCallback(
+    (typedValue: string) => {
+      dispatch(typeLeftRangeInput({ typedValue }))
+      const paramMinPrice = searchParams.get('minPrice')
+      if (!paramMinPrice || (paramMinPrice && paramMinPrice !== typedValue)) {
+        searchParams.set('minPrice', typedValue)
+        setSearchParams(searchParams)
+      }
+    },
+    [dispatch, searchParams, setSearchParams]
+  )
+
+  const onRightRangeInput = useCallback(
+    (typedValue: string) => {
+      dispatch(typeRightRangeInput({ typedValue }))
+      const paramMaxPrice = searchParams.get('maxPrice')
+      if (!paramMaxPrice || (paramMaxPrice && paramMaxPrice !== typedValue)) {
+        searchParams.set('maxPrice', typedValue)
+        setSearchParams(searchParams)
+      }
+    },
+    [dispatch, searchParams, setSearchParams]
+  )
+
   return {
     onFieldAInput,
     onFieldBInput,
+    onLeftRangeInput,
+    onRightRangeInput,
   }
 }

@@ -18,11 +18,7 @@ export default function RateToggle({
   const { chainId } = useAccountDetails()
   const tokenA = wrappedCurrency(currencyA, chainId)
   const tokenB = wrappedCurrency(currencyB, chainId)
-
-  console.log(tokenA && tokenB)
-
   const isSorted = tokenA && tokenB && tokenA.sortsBefore(tokenB)
-  console.log('am i here')
 
   return (
     <div style={{ width: 'fit-content', display: 'flex', alignItems: 'center' }} onClick={handleRateToggle}>

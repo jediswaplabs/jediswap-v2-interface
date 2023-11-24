@@ -72,7 +72,7 @@ export function AddRemoveTabs({
 }: {
   adding: boolean
   creating: boolean
-  autoSlippage: Percent
+  autoSlippage?: Percent
   positionID?: string
   showBackLink?: boolean
   children?: ReactNode
@@ -97,7 +97,6 @@ export function AddRemoveTabs({
             if (adding) {
               // not 100% sure both of these are needed
               dispatch(resetMintState())
-              dispatch(resetMintV3State())
             }
           }}
           flex={children ? '1' : undefined}

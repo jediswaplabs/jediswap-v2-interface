@@ -1,7 +1,10 @@
 import { Currency, CurrencyAmount, ETHER, Token, TokenAmount, WETH } from '@jediswap/sdk'
 import { ChainId } from '@jediswap/sdk'
 
-export function wrappedCurrency(currency: Currency | undefined, chainId: ChainId | undefined): Token | undefined {
+export function wrappedCurrency(
+  currency: Currency | undefined | null,
+  chainId: ChainId | undefined
+): Token | undefined {
   return chainId && currency === ETHER ? WETH[chainId] : currency instanceof Token ? currency : undefined
 }
 
