@@ -103,7 +103,6 @@ function AddLiquidity() {
   const { account, chainId, address } = useAccountDetails()
   const theme = useTheme()
   const trace = useTrace()
-
   const toggleWalletDrawer = useToggleAccountDrawer() // toggle wallet when disconnected
   const addTransaction = useTransactionAdder()
   // const positionManager = useV3NFTPositionManagerContract()
@@ -160,6 +159,7 @@ function AddLiquidity() {
   } = useDerivedMintInfo(baseCurrency ?? undefined, currencyB ?? undefined)
 
   const hasExistingPosition = false
+  const isValid = !error
 
   // const { isLoading, isError, error, data } = useBalance({
   //   address,
@@ -466,79 +466,31 @@ function AddLiquidity() {
   // }, [searchParams])
   // // END: sync values with query string
 
-  // const Buttons = () =>
-  //   addIsUnsupported ? (
-  //     <ButtonPrimary disabled={true} $borderRadius="12px" padding="12px">
-  //       <ThemedText.DeprecatedMain mb="4px">
-  //         <Trans>Unsupported Asset</Trans>
-  //       </ThemedText.DeprecatedMain>
-  //     </ButtonPrimary>
-  //   ) : !account ? (
-  //     <TraceEvent
-  //       events={[BrowserEvent.onClick]}
-  //       name={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
-  //       properties={{ received_swap_quote: false }}
-  //       element={InterfaceElementName.CONNECT_WALLET_BUTTON}
-  //     >
-  //       <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
-  //         <Trans>Connect wallet</Trans>
-  //       </ButtonLight>
-  //     </TraceEvent>
-  //   ) : (
-  //     <AutoColumn gap="md">
-  //       {(approvalA === ApprovalState.NOT_APPROVED ||
-  //         approvalA === ApprovalState.PENDING ||
-  //         approvalB === ApprovalState.NOT_APPROVED ||
-  //         approvalB === ApprovalState.PENDING) &&
-  //         isValid && (
-  //           <RowBetween>
-  //             {showApprovalA && (
-  //               <ButtonPrimary
-  //                 onClick={approveACallback}
-  //                 disabled={approvalA === ApprovalState.PENDING}
-  //                 width={showApprovalB ? '48%' : '100%'}
-  //               >
-  //                 {approvalA === ApprovalState.PENDING ? (
-  //                   <Dots>
-  //                     <Trans>Approving {currencies[Field.CURRENCY_A]?.symbol}</Trans>
-  //                   </Dots>
-  //                 ) : (
-  //                   <Trans>Approve {currencies[Field.CURRENCY_A]?.symbol}</Trans>
-  //                 )}
-  //               </ButtonPrimary>
-  //             )}
-  //             {showApprovalB && (
-  //               <ButtonPrimary
-  //                 onClick={approveBCallback}
-  //                 disabled={approvalB === ApprovalState.PENDING}
-  //                 width={showApprovalA ? '48%' : '100%'}
-  //               >
-  //                 {approvalB === ApprovalState.PENDING ? (
-  //                   <Dots>
-  //                     <Trans>Approving {currencies[Field.CURRENCY_B]?.symbol}</Trans>
-  //                   </Dots>
-  //                 ) : (
-  //                   <Trans>Approve {currencies[Field.CURRENCY_B]?.symbol}</Trans>
-  //                 )}
-  //               </ButtonPrimary>
-  //             )}
-  //           </RowBetween>
-  //         )}
-  //       <ButtonError
-  //         onClick={() => {
-  //           setShowConfirm(true)
-  //         }}
-  //         disabled={
-  //           !isValid ||
-  //           (!argentWalletContract && approvalA !== ApprovalState.APPROVED && !depositADisabled) ||
-  //           (!argentWalletContract && approvalB !== ApprovalState.APPROVED && !depositBDisabled)
-  //         }
-  //         error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
-  //       >
-  //         <Text fontWeight={535}>{errorMessage ? errorMessage : <Trans>Preview</Trans>}</Text>
-  //       </ButtonError>
-  //     </AutoColumn>
-  //   )
+  const Buttons = () =>
+    !account ? (
+      <TraceEvent
+        events={[BrowserEvent.onClick]}
+        name={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
+        properties={{ received_swap_quote: false }}
+        element={InterfaceElementName.CONNECT_WALLET_BUTTON}
+      >
+        <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
+          <Trans>Connect wallet</Trans>
+        </ButtonLight>
+      </TraceEvent>
+    ) : (
+      <AutoColumn gap="md">
+        <ButtonError
+          onClick={() => {
+            setShowConfirm(true)
+          }}
+          disabled={!isValid}
+          error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
+        >
+          <Text fontWeight={535}>{error ? error : <Trans>Preview</Trans>}</Text>
+        </ButtonError>
+      </AutoColumn>
+    )
 
   // const usdcValueCurrencyA = usdcValues[Field.CURRENCY_A]
   // const usdcValueCurrencyB = usdcValues[Field.CURRENCY_B]
@@ -596,7 +548,7 @@ function AddLiquidity() {
           )}
           pendingText={pendingText}
         /> */}
-        <StyledBodyWrapper $hasExistingPosition={false}>
+        <StyledBodyWrapper $hasExistingPosition={hasExistingPosition}>
           <AddRemoveTabs
             creating={false}
             adding={true}
@@ -827,7 +779,7 @@ function AddLiquidity() {
                   </AutoColumn>
                 </DynamicSection>
               </div>
-              {/* <Buttons /> */}
+              <Buttons />
             </ResponsiveTwoColumns>
           </Wrapper>
         </StyledBodyWrapper>
