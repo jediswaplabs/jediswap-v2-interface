@@ -68,6 +68,7 @@ import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
+import { useBalance } from '@starknet-react/core'
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -99,7 +100,7 @@ function AddLiquidity() {
     feeAmount?: string
     tokenId?: string
   }>()
-  const { account, chainId } = useAccountDetails()
+  const { account, chainId, address } = useAccountDetails()
   const theme = useTheme()
   const trace = useTrace()
 
@@ -145,21 +146,31 @@ function AddLiquidity() {
   // mint state
   const { independentField, typedValue, otherTypedValue } = useMintState()
 
-  // const {
-  //   dependentField,
-  //   currencies,
-  //   pair,
-  //   pairState,
-  //   currencyBalances,
-  //   parsedAmounts,
-  //   price,
-  //   noLiquidity,
-  //   liquidityMinted,
-  //   poolTokenPercentage,
-  //   error,
-  // } = useDerivedMintInfo(baseCurrency ?? undefined, currencyB ?? undefined)
+  const {
+    dependentField,
+    currencies,
+    pair,
+    pairState,
+    parsedAmounts,
+    price,
+    noLiquidity,
+    liquidityMinted,
+    poolTokenPercentage,
+    error,
+  } = useDerivedMintInfo(baseCurrency ?? undefined, currencyB ?? undefined)
 
-  // const { onFieldAInput, onFieldBInput } = useMintActionHandlers(noLiquidity)
+  console.log(chainId, 'SDKNSDKNSK')
+
+  const hasExistingPosition = false
+
+  // const { isLoading, isError, error, data } = useBalance({
+  //   address,
+  //   watch: true,
+  // })
+
+  // console.log(isLoading, isError, error, data)
+
+  const { onFieldAInput, onFieldBInput } = useMintActionHandlers(noLiquidity)
 
   // const isValid = !errorMessage && !invalidRange
 
@@ -173,32 +184,31 @@ function AddLiquidity() {
   const [txHash, setTxHash] = useState<string>('')
 
   // get formatted amounts
-  // const formattedAmounts = {
-  //   [independentField]: typedValue,
-  //   [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
-  // }
+  const formattedAmounts = {
+    [independentField]: typedValue,
+    [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
+  }
 
-  // // get the max amounts user can add
-  // // get the max amounts user can add
-  // const maxAmounts: { [field in Field]?: TokenAmount } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
-  //   (accumulator, field) => {
-  //     return {
-  //       ...accumulator,
-  //       [field]: maxAmountSpend(currencyBalances[field]),
-  //     }
-  //   },
-  //   {}
-  // )
+  // get the max amounts user can add
+  // get the max amounts user can add
+  const maxAmounts: { [field in Field]?: TokenAmount } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
+    (accumulator, field) => {
+      return {
+        ...accumulator,
+      }
+    },
+    {}
+  )
 
-  // const atMaxAmounts: { [field in Field]?: CurrencyAmount } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
-  //   (accumulator, field) => {
-  //     return {
-  //       ...accumulator,
-  //       [field]: maxAmounts[field]?.equalTo(parsedAmounts[field] ?? '0'),
-  //     }
-  //   },
-  //   {}
-  // )
+  const atMaxAmounts: { [field in Field]?: CurrencyAmount } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
+    (accumulator, field) => {
+      return {
+        ...accumulator,
+        [field]: maxAmounts[field]?.equalTo(parsedAmounts[field] ?? '0'),
+      }
+    },
+    {}
+  )
 
   // const argentWalletContract = useArgentWalletContract()
 
@@ -553,8 +563,6 @@ function AddLiquidity() {
   // const ownsNFT =
   //   addressesAreEquivalent(owner, account) || addressesAreEquivalent(existingPositionDetails?.operator, account)
   // const showOwnershipWarning = Boolean(hasExistingPosition && account && !ownsNFT)
-  const hasExistingPosition = false
-  const noLiquidity = false
 
   return (
     <>
@@ -622,7 +630,7 @@ function AddLiquidity() {
                       </ThemedText.DeprecatedLabel>
                     </RowBetween>
                     <RowBetween gap="md">
-                      {/* <CurrencyInputPanel
+                      <CurrencyInputPanel
                         value={formattedAmounts[Field.CURRENCY_A]}
                         onUserInput={onFieldAInput}
                         hideInput
@@ -631,7 +639,7 @@ function AddLiquidity() {
                         }}
                         onCurrencySelect={handleCurrencyASelect}
                         showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
-                        // currency={currencies[Field.CURRENCY_A] ?? null}
+                        currency={currencies[Field.CURRENCY_A] ?? null}
                         id="add-liquidity-input-tokena"
                         showCommonBases
                       />
@@ -645,10 +653,10 @@ function AddLiquidity() {
                           onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
                         }}
                         showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
-                        // currency={currencies[Field.CURRENCY_B] ?? null}
+                        currency={currencies[Field.CURRENCY_B] ?? null}
                         id="add-liquidity-input-tokenb"
                         showCommonBases
-                      /> */}
+                      />
                     </RowBetween>
 
                     <FeeSelector

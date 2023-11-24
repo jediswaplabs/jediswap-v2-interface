@@ -45,7 +45,7 @@ export function useDerivedMintInfo(
   currencies: { [field in Field]?: Currency }
   pair?: Pair | null
   pairState: PairState
-  currencyBalances: { [field in Field]?: CurrencyAmount }
+  // currencyBalances: { [field in Field]?: CurrencyAmount }
   parsedAmounts: { [field in Field]?: CurrencyAmount }
   price?: Price
   noLiquidity?: boolean
@@ -75,14 +75,14 @@ export function useDerivedMintInfo(
     pairState === PairState.NOT_EXISTS || Boolean(totalSupply && JSBI.equal(totalSupply.raw, ZERO))
 
   // balances
-  const balances = useCurrencyBalances(address ?? undefined, [
-    currencies[Field.CURRENCY_A],
-    currencies[Field.CURRENCY_B],
-  ])
-  const currencyBalances: { [field in Field]?: CurrencyAmount } = {
-    [Field.CURRENCY_A]: balances[0],
-    [Field.CURRENCY_B]: balances[1],
-  }
+  // const balances = useCurrencyBalances(address ?? undefined, [
+  //   currencies[Field.CURRENCY_A],
+  //   currencies[Field.CURRENCY_B],
+  // ])
+  // const currencyBalances: { [field in Field]?: CurrencyAmount } = {
+  //   [Field.CURRENCY_A]: balances[0],
+  //   [Field.CURRENCY_B]: balances[1],
+  // }
 
   // amounts
   const independentAmount: CurrencyAmount | undefined = tryParseAmount(typedValue, currencies[independentField])
@@ -170,20 +170,20 @@ export function useDerivedMintInfo(
 
   const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
 
-  if (currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) {
-    error = 'Insufficient ' + currencies[Field.CURRENCY_A]?.symbol + ' balance'
-  }
+  // if (currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) {
+  //   error = 'Insufficient ' + currencies[Field.CURRENCY_A]?.symbol + ' balance'
+  // }
 
-  if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) {
-    error = 'Insufficient ' + currencies[Field.CURRENCY_B]?.symbol + ' balance'
-  }
+  // if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) {
+  //   error = 'Insufficient ' + currencies[Field.CURRENCY_B]?.symbol + ' balance'
+  // }
 
   return {
     dependentField,
     currencies,
     pair,
     pairState,
-    currencyBalances,
+    // currencyBalances,
     parsedAmounts,
     price,
     noLiquidity,

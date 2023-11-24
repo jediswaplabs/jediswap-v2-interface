@@ -1,4 +1,4 @@
-import { ChainId, Currency, ETHER, Token } from '@jediswap/sdk'
+import { ChainId, Currency, ETHER, LPToken, Token } from '@jediswap/sdk'
 import { useWeb3React } from '@web3-react/core'
 import { getChainInfo } from 'constants/chainInfo'
 import { DEFAULT_INACTIVE_LIST_URLS, DEFAULT_LIST_OF_LISTS } from 'constants/lists'
@@ -9,10 +9,11 @@ import { useMemo } from 'react'
 import { useAppSelector } from 'state/hooks'
 import { isL2ChainId } from 'utils/chains'
 
-import { WrappedTokenInfo, useAllLists, useSelectedTokenList } from '../state/lists/hooks'
+import { WrappedTokenInfo, useAllLists, useSelectedLPTokenList, useSelectedTokenList } from '../state/lists/hooks'
 import { useUserAddedTokens } from '../state/user/hooks'
 // import { useUnsupportedTokenList } from './../state/lists/hooks'
 import { DEFAULT_CHAIN_ID } from 'constants/tokens'
+import { useAccountDetails } from './starknet-react'
 
 type Maybe<T> = T | null | undefined
 
@@ -205,6 +206,20 @@ export function useIsUserAddedToken(currency: Currency | undefined | null): bool
 
   // return !!userAddedTokens.find((token) => currency.equals(token))
   return false
+}
+
+export function useJediLPTokens(): { [address: string]: LPToken } {
+  const allLPTokens = useSelectedLPTokenList()
+
+  const { account, chainId } = useAccountDetails()
+
+  return useMemo(() => {
+    return allLPTokens[chainId ?? DEFAULT_CHAIN_ID]
+  }, [chainId, allLPTokens])
+
+  // return {
+  //   ...jediLPTokenList[chainId]
+  // }
 }
 
 // undefined if invalid or does not exist

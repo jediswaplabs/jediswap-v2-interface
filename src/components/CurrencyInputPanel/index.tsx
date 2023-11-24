@@ -217,7 +217,7 @@ export default function CurrencyInputPanel({
     setModalOpen(false)
   }, [setModalOpen])
 
-  const chainAllowed = isSupportedChain(chainId)
+  const chainAllowed = true
 
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>

@@ -28,7 +28,7 @@ import ThemeProvider, { ThemedGlobalStyle } from './theme'
 import TransactionUpdater from './state/transactions/updater'
 import RadialGradientByChainUpdater from './theme/components/RadialGradientByChainUpdater'
 
-import { goerli } from '@starknet-react/chains'
+import { goerli, mainnet } from '@starknet-react/chains'
 import { StarknetConfig, publicProvider, argent, braavos } from '@starknet-react/core'
 
 function Updaters() {
@@ -56,7 +56,7 @@ const queryClient = new QueryClient()
 
 const container = document.getElementById('root') as HTMLElement
 
-const chains = [goerli]
+const chains = [mainnet, goerli]
 const providers = [publicProvider()]
 const connectors = [argent(), braavos()]
 
