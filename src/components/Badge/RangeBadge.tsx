@@ -16,6 +16,13 @@ const BadgeText = styled.div`
   font-size: 12px;
   line-height: 14px;
   margin-right: 8px;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    margin-left: auto;
+  }
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    margin-left: auto;
+  }
 `
 
 const ActiveDot = styled.span`
@@ -31,6 +38,13 @@ const LabelText = styled.div<{ color: string }>`
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    width: 154px;
+  }
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    width: 154px;
+  }
 `
 
 export default function RangeBadge({ removed, inRange }: { removed?: boolean; inRange?: boolean }) {
