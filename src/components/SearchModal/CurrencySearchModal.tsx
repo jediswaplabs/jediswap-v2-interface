@@ -1,7 +1,7 @@
 import { Currency, Token } from '@jediswap/sdk'
 import { memo, useCallback, useEffect, useState } from 'react'
 
-import TokenSafety from 'components/TokenSafety'
+// import TokenSafety from 'components/TokenSafety'
 import { useUserAddedTokens } from 'state/user/hooks'
 import useLast from '../../hooks/useLast'
 import { useWindowSize } from '../../hooks/useWindowSize'
@@ -54,16 +54,13 @@ export default memo(
     }
 
     const handleCurrencySelect = useCallback(
-      (currency: Currency, hasWarning?: boolean) => {
-        // if (hasWarning && currency.isToken && !userAddedTokens.find((token) => token.equals(currency))) {
-        //   showTokenSafetySpeedbump(currency)
-        // } else {
-        //   onCurrencySelect(currency)
-        //   onDismiss()
-        // }
+      (currency: Currency) => {
+        onCurrencySelect(currency)
+        onDismiss()
       },
-      [onDismiss, onCurrencySelect, userAddedTokens]
+      [onDismiss, onCurrencySelect]
     )
+
     // used for token safety
     const [warningToken, setWarningToken] = useState<Token | undefined>()
 
@@ -91,19 +88,19 @@ export default memo(
           />
         )
         break
-      case CurrencyModalView.tokenSafety:
-        modalHeight = undefined
-        if (warningToken) {
-          content = (
-            <TokenSafety
-              tokenAddress={warningToken.address}
-              onContinue={() => handleCurrencySelect(warningToken)}
-              onCancel={() => setModalView(CurrencyModalView.search)}
-              showCancel
-            />
-          )
-        }
-        break
+      // case CurrencyModalView.tokenSafety:
+      //   modalHeight = undefined
+      //   if (warningToken) {
+      //     content = (
+      //       <TokenSafety
+      //         tokenAddress={warningToken.address}
+      //         onContinue={() => handleCurrencySelect(warningToken)}
+      //         onCancel={() => setModalView(CurrencyModalView.search)}
+      //         showCancel
+      //       />
+      //     )
+      //   }
+      //   break
     }
     return (
       <Modal isOpen={isOpen} onDismiss={onDismiss} height={modalHeight}>

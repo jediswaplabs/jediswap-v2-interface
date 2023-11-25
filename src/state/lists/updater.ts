@@ -13,7 +13,6 @@ export default function Updater(): null {
   const { account } = useAccountDetails()
   const dispatch = useDispatch<AppDispatch>()
   const lists = useSelector<AppState, AppState['lists']['byUrl']>((state) => state.lists.byUrl)
-  console.log('🚀 ~ file: updater.ts:16 ~ Updater ~ lists:', lists)
 
   const isWindowVisible = useIsWindowVisible()
 

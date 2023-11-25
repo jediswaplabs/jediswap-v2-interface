@@ -77,17 +77,7 @@ const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>
   max-width: 640px;
 `
 
-export default function AddLiquidityWrapper() {
-  const { chainId } = useAccountDetails()
-  // if (isSupportedChain(chainId)) {
-  //   return <AddLiquidity />
-  // } else {
-  //   return <PositionPageUnsupportedContent />
-  // }
-  return <AddLiquidity />
-}
-
-function AddLiquidity() {
+export default function AddLiquidity() {
   const navigate = useNavigate()
   const {
     currencyIdA,
@@ -105,14 +95,6 @@ function AddLiquidity() {
   const trace = useTrace()
   const toggleWalletDrawer = useToggleAccountDrawer() // toggle wallet when disconnected
   const addTransaction = useTransactionAdder()
-  // const positionManager = useV3NFTPositionManagerContract()
-
-  // // check for existing position if tokenId in url
-  // const { position: existingPositionDetails, loading: positionLoading } = useV3PositionFromTokenId(
-  //   tokenId ? BigNumber.from(tokenId) : undefined
-  // // )
-  // const hasExistingPosition = !!existingPositionDetails && !positionLoading
-  // const { position: existingPosition } = useDerivedPositionInfo(existingPositionDetails)
 
   // fee selection from url
   const feeAmount: FeeAmount | undefined =
@@ -123,24 +105,21 @@ function AddLiquidity() {
   const baseCurrency = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
   // prevent an error if they input ETH/WETH
-  // const quoteCurrency = Boolean(
-  //   chainId &&
-  //     ((baseCurrency && currencyEquals(baseCurrency, WETH[chainId])) ||
-  //       (currencyB && currencyEquals(currencyB, WETH[chainId])))
-  // )
 
-  // const quoteCurrency =
-  //   chainId && baseCurrency && currencyB && baseCurrency && currencyEquals(baseCurrency, WETH[chainId])
-  //     ? undefined
-  //     : currencyB
+  const quoteCurrency =
+    chainId &&
+    ((baseCurrency && currencyEquals(baseCurrency, WETH[chainId])) ||
+      (currencyB && currencyEquals(currencyB, WETH[chainId])))
+      ? undefined
+      : currencyB
 
-  const quoteCurrency = {
-    name: 'USDCoin',
-    symbol: 'USDC',
-    decimals: 6,
-    logoURI:
-      'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
-  }
+  // const quoteCurrency = {
+  //   name: 'USDCoin',
+  //   symbol: 'USDC',
+  //   decimals: 6,
+  //   logoURI:
+  //     'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
+  // }
 
   // mint state
   const { independentField, typedValue, otherTypedValue } = useMintState()
@@ -166,11 +145,7 @@ function AddLiquidity() {
   //   watch: true,
   // })
 
-  // console.log(isLoading, isError, error, data)
-
   const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput } = useMintActionHandlers(noLiquidity)
-
-  // const isValid = !errorMessage && !invalidRange
 
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
@@ -187,7 +162,6 @@ function AddLiquidity() {
     [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
 
-  // get the max amounts user can add
   // get the max amounts user can add
   const maxAmounts: { [field in Field]?: TokenAmount } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
     (accumulator, field) => {
@@ -208,151 +182,13 @@ function AddLiquidity() {
     {}
   )
 
-  // const argentWalletContract = useArgentWalletContract()
-
-  // const allowedSlippage = useUserSlippageToleranceWithDefault(
-  //   outOfRange ? ZERO_PERCENT : DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE
-  // )
-
-  // async function onAdd() {
-  //   if (!chainId || !provider || !account) return
-
-  //   if (!positionManager || !baseCurrency || !quoteCurrency) {
-  //     return
-  //   }
-
-  //   if (position && account && deadline) {
-  //     const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
-  //     const { calldata, value } =
-  //       hasExistingPosition && tokenId
-  //         ? NonfungiblePositionManager.addCallParameters(position, {
-  //             tokenId,
-  //             slippageTolerance: allowedSlippage,
-  //             deadline: deadline.toString(),
-  //             useNative,
-  //           })
-  //         : NonfungiblePositionManager.addCallParameters(position, {
-  //             slippageTolerance: allowedSlippage,
-  //             recipient: account,
-  //             deadline: deadline.toString(),
-  //             useNative,
-  //             createPool: noLiquidity,
-  //           })
-
-  //     let txn: { to: string; data: string; value: string } = {
-  //       to: NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
-  //       data: calldata,
-  //       value,
-  //     }
-
-  //     if (argentWalletContract) {
-  //       const amountA = parsedAmounts[Field.CURRENCY_A]
-  //       const amountB = parsedAmounts[Field.CURRENCY_B]
-  //       const batch = [
-  //         ...(amountA && amountA.currency.isToken
-  //           ? [approveAmountCalldata(amountA, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
-  //           : []),
-  //         ...(amountB && amountB.currency.isToken
-  //           ? [approveAmountCalldata(amountB, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
-  //           : []),
-  //         {
-  //           to: txn.to,
-  //           data: txn.data,
-  //           value: txn.value,
-  //         },
-  //       ]
-  //       const data = argentWalletContract.interface.encodeFunctionData('wc_multiCall', [batch])
-  //       txn = {
-  //         to: argentWalletContract.address,
-  //         data,
-  //         value: '0x0',
-  //       }
-  //     }
-
-  //     const connectedChainId = await provider.getSigner().getChainId()
-  //     if (chainId !== connectedChainId) throw new WrongChainError()
-
-  //     setAttemptingTxn(true)
-
-  //     provider
-  //       .getSigner()
-  //       .estimateGas(txn)
-  //       .then((estimate) => {
-  //         const newTxn = {
-  //           ...txn,
-  //           gasLimit: calculateGasMargin(estimate),
-  //         }
-
-  //         return provider
-  //           .getSigner()
-  //           .sendTransaction(newTxn)
-  //           .then((response: TransactionResponse) => {
-  //             setAttemptingTxn(false)
-  //             const transactionInfo: TransactionInfo = {
-  //               type: TransactionType.ADD_LIQUIDITY_V3_POOL,
-  //               baseCurrencyId: currencyId(baseCurrency),
-  //               quoteCurrencyId: currencyId(quoteCurrency),
-  //               createPool: Boolean(noLiquidity),
-  //               expectedAmountBaseRaw: parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ?? '0',
-  //               expectedAmountQuoteRaw: parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ?? '0',
-  //               feeAmount: position.pool.fee,
-  //             }
-  //             addTransaction(response, transactionInfo)
-  //             setTxHash(response.hash)
-  //             sendAnalyticsEvent(LiquidityEventName.ADD_LIQUIDITY_SUBMITTED, {
-  //               label: [currencies[Field.CURRENCY_A]?.symbol, currencies[Field.CURRENCY_B]?.symbol].join('/'),
-  //               ...trace,
-  //               ...transactionInfo,
-  //             })
-  //           })
-  //       })
-  //       .catch((error) => {
-  //         console.error('Failed to send transaction', error)
-  //         setAttemptingTxn(false)
-  //         // we only care if the error is something _other_ than the user rejected the tx
-  //         if (error?.code !== 4001) {
-  //           console.error(error)
-  //         }
-  //       })
-  //   } else {
-  //     return
-  //   }
-  // }
-
-  // const handleCurrencySelect = useCallback(
-  //   (currencyNew: Currency, currencyIdOther?: string): (string | undefined)[] => {
-  //     const currencyIdNew = currencyId(currencyNew)
-
-  //     if (currencyIdNew === currencyIdOther) {
-  //       // not ideal, but for now clobber the other if the currency ids are equal
-  //       return [currencyIdNew, undefined]
-  //     } else {
-  //       // prevent weth + eth
-  //       const isETHOrWETHNew =
-  //         currencyIdNew === 'ETH' ||
-  //         (chainId !== undefined && currencyIdNew === WRAPPED_NATIVE_CURRENCY[chainId]?.address)
-  //       const isETHOrWETHOther =
-  //         currencyIdOther !== undefined &&
-  //         (currencyIdOther === 'ETH' ||
-  //           (chainId !== undefined && currencyIdOther === WRAPPED_NATIVE_CURRENCY[chainId]?.address))
-
-  //       if (isETHOrWETHNew && isETHOrWETHOther) {
-  //         return [currencyIdNew, undefined]
-  //       } else {
-  //         return [currencyIdNew, currencyIdOther]
-  //       }
-  //     }
-  //   },
-  //   [chainId]
-  // )
-
   const handleCurrencyASelect = useCallback(
     (currencyA: Currency) => {
       const newCurrencyIdA = currencyId(currencyA)
       if (newCurrencyIdA === currencyIdB) {
-        // history.push(`/add/${currencyIdB}/${currencyIdA}`)
+        navigate(`/add/${currencyIdB}/${currencyIdA}`)
       } else {
-        // history.push(`/add/${newCurrencyIdA}/${currencyIdB}`)
+        navigate(`/add/${newCurrencyIdA}/${currencyIdB}`)
       }
     },
     [currencyIdB, history, currencyIdA]
@@ -360,37 +196,25 @@ function AddLiquidity() {
   const handleCurrencyBSelect = useCallback(
     (currencyB: Currency) => {
       const newCurrencyIdB = currencyId(currencyB)
+
       if (currencyIdA === newCurrencyIdB) {
         if (currencyIdB) {
-          // history.push(`/add/${currencyIdB}/${newCurrencyIdB}`)
+          navigate(`/add/${currencyIdB}/${newCurrencyIdB}`)
         } else {
-          // history.push(`/add/${newCurrencyIdB}`)
+          navigate(`/add/${newCurrencyIdB}`)
         }
       } else {
-        // history.push(`/add/${currencyIdA ? currencyIdA : 'ETH'}/${newCurrencyIdB}`)
+        navigate(`/add/${currencyIdA ? currencyIdA : 'ETH'}/${newCurrencyIdB}`)
       }
     },
     [currencyIdA, history, currencyIdB]
   )
 
   const handleFeePoolSelect = useCallback((newFeeAmount: FeeAmount) => {
-    // onLeftRangeInput('')
-    // onRightRangeInput('')
-    // navigate(`/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
+    onLeftRangeInput('')
+    onRightRangeInput('')
+    navigate(`/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
   }, [])
-
-  // const handleDismissConfirmation = useCallback(() => {
-  //   setShowConfirm(false)
-  //   // if there was a tx hash, we want to clear the input
-  //   if (txHash) {
-  //     onFieldAInput('')
-  //     // dont jump to pool page if creating
-  //     navigate('/pools')
-  //   }
-  //   setTxHash('')
-  // }, [navigate, onFieldAInput, txHash])
-
-  // const addIsUnsupported = useIsSwapUnsupported(currencies?.CURRENCY_A, currencies?.CURRENCY_B)
 
   const clearAll = useCallback(() => {
     onFieldAInput('')
@@ -399,72 +223,6 @@ function AddLiquidity() {
     onRightRangeInput('')
     navigate(`/add`)
   }, [navigate, onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput])
-
-  // get value and prices at ticks
-  // const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks
-  // const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks
-
-  // const { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper, getSetFullRange } =
-  //   useRangeHopCallbacks(baseCurrency ?? undefined, quoteCurrency ?? undefined, feeAmount, tickLower, tickUpper, pool)
-
-  // // we need an existence check on parsed amounts for single-asset deposits
-  // const showApprovalA =
-  //   !argentWalletContract && approvalA !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_A]
-  // const showApprovalB =
-  //   !argentWalletContract && approvalB !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_B]
-
-  // const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${
-  //   !depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
-  // } ${!outOfRange ? 'and' : ''} ${!depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) : ''} ${
-  //   !depositBDisabled ? currencies[Field.CURRENCY_B]?.symbol : ''
-  // }`
-
-  // const [searchParams, setSearchParams] = useSearchParams()
-
-  // const handleSetFullRange = useCallback(() => {
-  //   getSetFullRange()
-
-  //   const minPrice = pricesAtLimit[Bound.LOWER]
-  //   if (minPrice) searchParams.set('minPrice', minPrice.toSignificant(5))
-  //   const maxPrice = pricesAtLimit[Bound.UPPER]
-  //   if (maxPrice) searchParams.set('maxPrice', maxPrice.toSignificant(5))
-  //   setSearchParams(searchParams)
-  // }, [getSetFullRange, pricesAtLimit, searchParams, setSearchParams])
-
-  // // START: sync values with query string
-  // const oldSearchParams = usePrevious(searchParams)
-  // // use query string as an input to onInput handlers
-  // useEffect(() => {
-  //   const minPrice = searchParams.get('minPrice')
-  //   const oldMinPrice = oldSearchParams?.get('minPrice')
-  //   if (
-  //     minPrice &&
-  //     typeof minPrice === 'string' &&
-  //     !isNaN(minPrice as any) &&
-  //     (!oldMinPrice || oldMinPrice !== minPrice)
-  //   ) {
-  //     onLeftRangeInput(minPrice)
-  //   }
-  //   // disable eslint rule because this hook only cares about the url->input state data flow
-  //   // input state -> url updates are handled in the input handlers
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [searchParams])
-  // useEffect(() => {
-  //   const maxPrice = searchParams.get('maxPrice')
-  //   const oldMaxPrice = oldSearchParams?.get('maxPrice')
-  //   if (
-  //     maxPrice &&
-  //     typeof maxPrice === 'string' &&
-  //     !isNaN(maxPrice as any) &&
-  //     (!oldMaxPrice || oldMaxPrice !== maxPrice)
-  //   ) {
-  //     onRightRangeInput(maxPrice)
-  //   }
-  //   // disable eslint rule because this hook only cares about the url->input state data flow
-  //   // input state -> url updates are handled in the input handlers
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [searchParams])
-  // // END: sync values with query string
 
   const Buttons = () =>
     !account ? (
@@ -491,28 +249,6 @@ function AddLiquidity() {
         </ButtonError>
       </AutoColumn>
     )
-
-  // const usdcValueCurrencyA = usdcValues[Field.CURRENCY_A]
-  // const usdcValueCurrencyB = usdcValues[Field.CURRENCY_B]
-  // const currencyAFiat = useMemo(
-  //   () => ({
-  //     data: usdcValueCurrencyA ? parseFloat(usdcValueCurrencyA.toSignificant()) : undefined,
-  //     isLoading: false,
-  //   }),
-  //   [usdcValueCurrencyA]
-  // )
-  // const currencyBFiat = useMemo(
-  //   () => ({
-  //     data: usdcValueCurrencyB ? parseFloat(usdcValueCurrencyB.toSignificant()) : undefined,
-  //     isLoading: false,
-  //   }),
-  //   [usdcValueCurrencyB]
-  // )
-
-  // const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
-  // const ownsNFT =
-  //   addressesAreEquivalent(owner, account) || addressesAreEquivalent(existingPositionDetails?.operator, account)
-  // const showOwnershipWarning = Boolean(hasExistingPosition && account && !ownsNFT)
 
   return (
     <>
@@ -610,7 +346,7 @@ function AddLiquidity() {
                     </RowBetween>
 
                     <FeeSelector
-                      disabled={!baseCurrency}
+                      disabled={!baseCurrency || !quoteCurrency}
                       feeAmount={500}
                       handleFeePoolSelect={handleFeePoolSelect}
                       // currencyA={baseCurrency ?? undefined}

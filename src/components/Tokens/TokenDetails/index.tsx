@@ -24,8 +24,8 @@ import TokenDetailsSkeleton, {
   TokenNameCell,
 } from 'components/Tokens/TokenDetails/Skeleton'
 import StatsSection from 'components/Tokens/TokenDetails/StatsSection'
-import TokenSafetyMessage from 'components/TokenSafety/TokenSafetyMessage'
-import TokenSafetyModal from 'components/TokenSafety/TokenSafetyModal'
+// import TokenSafetyMessage from 'components/TokenSafety/TokenSafetyMessage'
+// import TokenSafetyModal from 'components/TokenSafety/TokenSafetyModal'
 import { NATIVE_CHAIN_ID, nativeOnChain } from 'constants/tokens'
 import { checkWarning } from 'constants/tokenSafety'
 import { useInfoExplorePageEnabled } from 'featureFlags/flags/infoExplore'
@@ -273,12 +273,12 @@ export default function TokenDetails({
               disableTokenInputs={pageChainId !== connectedChainId}
             />
           </div>
-          {tokenWarning && <TokenSafetyMessage tokenAddress={address} warning={tokenWarning} />}
+          {/* {tokenWarning && <TokenSafetyMessage tokenAddress={address} warning={tokenWarning} />} */}
           {/* {!isInfoTDPEnabled && detailedToken && <BalanceSummary token={detailedToken} />} */}
         </RightPanel>
         {/* {!isInfoTDPEnabled && detailedToken && <MobileBalanceSummaryFooter token={detailedToken} />} */}
 
-        <TokenSafetyModal
+        {/*  <TokenSafetyModal
           isOpen={openTokenSafetyModal || !!continueSwap}
           tokenAddress={address}
           onContinue={() => onResolveSwap(true)}
@@ -287,7 +287,7 @@ export default function TokenDetails({
           }}
           onCancel={() => onResolveSwap(false)}
           showCancel
-        />
+        /> */}
       </TokenDetailsLayout>
     </Trace>
   )

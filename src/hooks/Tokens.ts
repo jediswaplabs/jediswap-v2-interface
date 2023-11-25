@@ -14,14 +14,16 @@ import { useUserAddedTokens } from '../state/user/hooks'
 // import { useUnsupportedTokenList } from './../state/lists/hooks'
 import { DEFAULT_CHAIN_ID } from 'constants/tokens'
 import { useAccountDetails } from './starknet-react'
+import { isAddress } from 'utils/getContract'
+import { useTokenContract } from './useContract'
+import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
+import { num, shortString } from 'starknet'
 
 type Maybe<T> = T | null | undefined
 
 export function useAllTokens(chainId: ChainId): { [address: string]: Token } {
   const userAddedTokens = useUserAddedTokens()
-  console.log('🚀 ~ file: Tokens.ts:21 ~ useAllTokens ~ userAddedTokens:', userAddedTokens)
   const allTokens = useSelectedTokenList()
-  console.log('🚀 ~ file: Tokens.ts:22 ~ useAllTokens ~ allTokens:', allTokens)
 
   return useMemo(() => {
     return (
@@ -222,11 +224,55 @@ export function useJediLPTokens(): { [address: string]: LPToken } {
   // }
 }
 
+function parseStringFromArgs(data: any, isHexNumber?: boolean): string | undefined {
+  if (typeof data === 'string') {
+    if (isHexNumber) {
+      return num.hexToDecimalString(data)
+    } else if (shortString.isShortString(data)) {
+      return shortString.decodeShortString(data)
+    }
+    return data
+  }
+  return undefined
+}
+
 // undefined if invalid or does not exist
-// null if loading or null was passed
+// null if loading
 // otherwise returns the token
-export function useToken(tokenAddress?: string | null): Token | null | undefined {
-  return null
+export function useToken(tokenAddress?: string): Token | undefined | null {
+  const { account, chainId } = useAccountDetails()
+  const currencyTokens = useAllTokens(chainId)
+  const lpTokens = useJediLPTokens()
+
+  const tokens = { ...currencyTokens, ...lpTokens }
+
+  const address = isAddress(tokenAddress)
+  const token: Token | LPToken | undefined = address ? tokens[address] : undefined
+
+  const tokenContract = useTokenContract(address ? address : undefined)
+
+  const tokenName = useSingleCallResult(token ? undefined : tokenContract, 'name', undefined, NEVER_RELOAD)
+
+  const symbol = useSingleCallResult(token ? undefined : tokenContract, 'symbol', undefined, NEVER_RELOAD)
+
+  const decimals = useSingleCallResult(token ? undefined : tokenContract, 'decimals', undefined, NEVER_RELOAD)
+
+  return useMemo(() => {
+    if (token) return token
+    if (!chainId || !address) return undefined
+    if (decimals.loading || symbol.loading || tokenName.loading) return null
+    if (decimals.result) {
+      const token = new Token(
+        chainId,
+        address,
+        parseInt(decimals.result[0]),
+        parseStringFromArgs(symbol.result?.[0]),
+        parseStringFromArgs(symbol.result?.[0])
+      )
+      return token
+    }
+    return undefined
+  }, [address, chainId, decimals, symbol, token, tokenName])
 }
 
 export function useCurrency(currencyId: string | undefined): Currency | null | undefined {
