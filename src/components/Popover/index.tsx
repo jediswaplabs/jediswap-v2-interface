@@ -1,5 +1,5 @@
 import { Options, Placement } from '@popperjs/core';
-import Portal from '@reach/portal';
+import { Portal } from '@reach/portal';
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react';
 import { usePopper } from 'react-popper';
 import styled from 'styled-components';
