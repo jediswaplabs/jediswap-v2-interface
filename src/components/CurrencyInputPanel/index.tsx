@@ -1,28 +1,28 @@
-import { Trans } from '@lingui/macro';
-import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events';
-import { Currency, CurrencyAmount } from '@uniswap/sdk-core';
-import { Pair } from '@uniswap/v2-sdk';
-import { useWeb3React } from '@web3-react/core';
-import { darken } from 'polished';
-import { ReactNode, useCallback, useState } from 'react';
-import styled, { useTheme } from 'styled-components';
+import { Trans } from '@lingui/macro'
+import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
+import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
+import { Pair } from '@uniswap/v2-sdk'
+import { useWeb3React } from '@web3-react/core'
+import { darken } from 'polished'
+import { ReactNode, useCallback, useState } from 'react'
+import styled, { useTheme } from 'styled-components'
 
-import { TraceEvent } from 'analytics';
-import { LoadingOpacityContainer, loadingOpacityMixin } from 'components/Loader/styled';
-import PrefetchBalancesWrapper from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper';
-import { isSupportedChain } from 'constants/chains';
-import { ThemedText } from 'theme/components';
-import { flexColumnNoWrap, flexRowNoWrap } from 'theme/styles';
-import { formatCurrencyAmount } from 'utils/formatCurrencyAmount';
-import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg';
-import { useCurrencyBalance } from '../../state/connection/hooks';
-import { ButtonGray } from '../Button';
-import DoubleCurrencyLogo from '../DoubleLogo';
-import CurrencyLogo from '../Logo/CurrencyLogo';
-import { Input as NumericalInput } from '../NumericalInput';
-import { RowBetween, RowFixed } from '../Row';
-import CurrencySearchModal from '../SearchModal/CurrencySearchModal';
-import { FiatValue } from './FiatValue';
+import { TraceEvent } from 'analytics'
+import { LoadingOpacityContainer, loadingOpacityMixin } from 'components/Loader/styled'
+import PrefetchBalancesWrapper from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
+import { isSupportedChain } from 'constants/chains'
+import { ThemedText } from 'theme/components'
+import { flexColumnNoWrap, flexRowNoWrap } from 'theme/styles'
+import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
+import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
+import { useCurrencyBalance } from '../../state/connection/hooks'
+import { ButtonGray } from '../Button'
+import DoubleCurrencyLogo from '../DoubleLogo'
+import CurrencyLogo from '../Logo/CurrencyLogo'
+import { Input as NumericalInput } from '../NumericalInput'
+import { RowBetween, RowFixed } from '../Row'
+import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
+import { FiatValue } from './FiatValue'
 
 const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${flexColumnNoWrap};
@@ -34,7 +34,7 @@ const InputPanel = styled.div<{ hideInput?: boolean }>`
   width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
   transition: height 1s ease;
   will-change: height;
-`;
+`
 
 const Container = styled.div<{ hideInput: boolean; disabled: boolean }>`
   border-radius: ${({ hideInput }) => (hideInput ? '8px' : '8px')};
@@ -42,16 +42,20 @@ const Container = styled.div<{ hideInput: boolean; disabled: boolean }>`
   // background-color: ${({ theme }) => theme.surface2};
   background-color: rgba(196, 196, 196, 0.01);
   // background-color: #3e1371;
-  box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.20) inset, 0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.30) inset, 0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.30) inset, 0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.30) inset;
+  box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
+    0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
+    0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset,
+    0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.3) inset;
   width: ${({ hideInput }) => (hideInput ? '90%' : 'initial')};
-  ${({ theme, hideInput, disabled }) => !disabled
-    && `
+  ${({ theme, hideInput, disabled }) =>
+    !disabled &&
+    `
     :focus,
     :hover {
       border: 1px solid ${hideInput ? ' transparent' : theme.surface2};
     }
   `}
-`;
+`
 
 const CurrencySelect = styled(ButtonGray)<{
   visible: boolean
@@ -62,7 +66,7 @@ const CurrencySelect = styled(ButtonGray)<{
 }>`
   align-items: center;
   // background-color: ${({ selected, theme }) => (selected ? theme.surface1 : theme.accent1)};
-  background-color: ${({theme}) => theme.jediNavyBlue};
+  background-color: ${({ theme }) => theme.jediNavyBlue};
   opacity: ${({ disabled }) => (!disabled ? 1 : 0.4)};
   box-shadow: ${({ theme }) => theme.deprecated_shallowShadow};
   color: ${({ selected, theme }) => (selected ? theme.neutral1 : theme.white)};
@@ -80,14 +84,14 @@ const CurrencySelect = styled(ButtonGray)<{
   margin-left: ${({ hideInput }) => (hideInput ? '0' : '12px')};
   visibility: ${({ visible }) => (visible ? 'visible' : 'hidden')};
   ${({ pointerEvents }) => pointerEvents && 'pointer-events: none'}
-`;
+`
 
 const InputRow = styled.div<{ selected: boolean }>`
   ${flexRowNoWrap};
   align-items: center;
   justify-content: space-between;
   padding: ${({ selected }) => (selected ? ' 1rem 1rem 0.75rem 0' : '1rem 1rem 1rem 0')};
-`;
+`
 
 const LabelRow = styled.div`
   ${flexRowNoWrap};
@@ -100,13 +104,13 @@ const LabelRow = styled.div`
     cursor: pointer;
     color: ${({ theme }) => darken(0.2, theme.neutral2)};
   }
-`;
+`
 
 const FiatRow = styled(LabelRow)`
   justify-content: flex-end;
   padding: 0px 1rem 0.75rem;
   height: 32px;
-`;
+`
 
 // note the line height 0 ensures even if we change font/font-size it doesn't break centering
 const Aligner = styled.span`
@@ -115,7 +119,7 @@ const Aligner = styled.span`
   justify-content: space-between;
   width: 100%;
   line-height: 0px;
-`;
+`
 
 const StyledDropDown = styled(DropDown)<{ selected: boolean }>`
   margin: 0 0.25rem 0 0.35rem;
@@ -125,12 +129,14 @@ const StyledDropDown = styled(DropDown)<{ selected: boolean }>`
     stroke: ${({ selected, theme }) => (selected ? theme.neutral1 : theme.white)};
     stroke-width: 1.5px;
   }
-`;
+`
 
 const StyledTokenName = styled.span<{ active?: boolean }>`
   ${({ active }) => (active ? '  margin: 0 0.25rem 0 0.25rem;' : '  margin: 0 0.25rem 0 0.25rem;')}
-  font-size: 20px;
-`;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: 'DM Sans';
+`
 
 const StyledBalanceMax = styled.button<{ disabled?: boolean }>`
   background-color: transparent;
@@ -153,16 +159,16 @@ const StyledBalanceMax = styled.button<{ disabled?: boolean }>`
   :focus {
     outline: none;
   }
-`;
+`
 
 const StyledNumericalInput = styled(NumericalInput)<{ $loading: boolean }>`
   ${loadingOpacityMixin};
   text-align: left;
-`;
+`
 
 const StyledPrefetchBalancesWrapper = styled(PrefetchBalancesWrapper)<{ $fullWidth: boolean }>`
   width: ${({ $fullWidth }) => ($fullWidth ? '100%' : 'auto')};
-`;
+`
 
 interface CurrencyInputPanelProps {
   value: string
@@ -183,11 +189,12 @@ interface CurrencyInputPanelProps {
   disableNonToken?: boolean
   renderBalance?: (amount: CurrencyAmount<Currency>) => ReactNode
   locked?: boolean
-  loading?: boolean,
-  hideShadow?: boolean,
+  loading?: boolean
+  hideShadow?: boolean
 }
 
-export default function CurrencyInputPanel({ value,
+export default function CurrencyInputPanel({
+  value,
   onUserInput,
   onMax,
   showMaxButton,
@@ -206,19 +213,20 @@ export default function CurrencyInputPanel({ value,
   locked = false,
   loading = false,
   hideShadow = false,
-  ...rest }: CurrencyInputPanelProps) {
-  const [modalOpen, setModalOpen] = useState(false);
-  const { account, chainId } = useWeb3React();
-  const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined);
-  const theme = useTheme();
+  ...rest
+}: CurrencyInputPanelProps) {
+  const [modalOpen, setModalOpen] = useState(false)
+  const { account, chainId } = useWeb3React()
+  const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+  const theme = useTheme()
 
   const handleDismissSearch = useCallback(() => {
-    setModalOpen(false);
-  }, [setModalOpen]);
+    setModalOpen(false)
+  }, [setModalOpen])
 
-  const chainAllowed = isSupportedChain(chainId);
+  const chainAllowed = isSupportedChain(chainId)
 
-  const containerStyles = hideShadow ? {boxShadow: 'none'} : {};
+  const containerStyles = hideShadow ? { boxShadow: 'none' } : {}
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>
       {!locked && (
@@ -233,7 +241,7 @@ export default function CurrencyInputPanel({ value,
                 className="open-currency-select-button"
                 onClick={() => {
                   if (onCurrencySelect) {
-                    setModalOpen(true);
+                    setModalOpen(true)
                   }
                 }}
                 pointerEvents={!onCurrencySelect ? 'none' : undefined}
@@ -252,14 +260,12 @@ export default function CurrencyInputPanel({ value,
                         {pair?.token0.symbol}:{pair?.token1.symbol}
                       </StyledTokenName>
                     ) : (
-                      <StyledTokenName
-                        className="token-symbol-container"
-                        active={Boolean(currency && currency.symbol)}
-                      >
+                      <StyledTokenName className="token-symbol-container" active={Boolean(currency && currency.symbol)}>
                         {(currency && currency.symbol && currency.symbol.length > 20
-                          ? `${currency.symbol.slice(0, 4)
-                          }...${
-                            currency.symbol.slice(currency.symbol.length - 5, currency.symbol.length)}`
+                          ? `${currency.symbol.slice(0, 4)}...${currency.symbol.slice(
+                              currency.symbol.length - 5,
+                              currency.symbol.length
+                            )}`
                           : currency?.symbol) || <Trans>Select a token</Trans>}
                       </StyledTokenName>
                     )}
@@ -276,7 +282,7 @@ export default function CurrencyInputPanel({ value,
                   onUserInput={onUserInput}
                   disabled={!chainAllowed}
                   $loading={loading}
-                  style={{width: 'auto', textAlign: 'right'}}
+                  style={{ width: 'auto', textAlign: 'right' }}
                 />
               </div>
             )}
@@ -304,16 +310,16 @@ export default function CurrencyInputPanel({ value,
                       fontSize={14}
                       style={{ display: 'inline', cursor: 'pointer' }}
                     >
-                      {Boolean(!hideBalance && currency && selectedCurrencyBalance)
-                          && (renderBalance?.(selectedCurrencyBalance as CurrencyAmount<Currency>) || (
-                            <Trans>Bal: {formatCurrencyAmount(selectedCurrencyBalance, 4)}</Trans>
-                          ))}
+                      {Boolean(!hideBalance && currency && selectedCurrencyBalance) &&
+                        (renderBalance?.(selectedCurrencyBalance as CurrencyAmount<Currency>) || (
+                          <Trans>Bal: {formatCurrencyAmount(selectedCurrencyBalance, 4)}</Trans>
+                        ))}
                     </ThemedText.DeprecatedBody>
                   </RowFixed>
                 )}
-              <LoadingOpacityContainer $loading={loading}>
-                {fiatValue && <FiatValue fiatValue={fiatValue} />}
-              </LoadingOpacityContainer>
+                <LoadingOpacityContainer $loading={loading}>
+                  {fiatValue && <FiatValue fiatValue={fiatValue} />}
+                </LoadingOpacityContainer>
               </RowBetween>
             </FiatRow>
           )}
@@ -332,5 +338,5 @@ export default function CurrencyInputPanel({ value,
         />
       )}
     </InputPanel>
-  );
+  )
 }

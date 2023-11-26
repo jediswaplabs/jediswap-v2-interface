@@ -1,22 +1,22 @@
-import { useWeb3React } from '@web3-react/core';
-import { useAtom } from 'jotai';
-import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useState } from 'react';
-import { Navigate, Route, Routes, useLocation, useSearchParams } from 'react-router-dom';
-import styled from 'styled-components';
+import { useWeb3React } from '@web3-react/core'
+import { useAtom } from 'jotai'
+import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useState } from 'react'
+import { Navigate, Route, Routes, useLocation, useSearchParams } from 'react-router-dom'
+import styled from 'styled-components'
 
-import ErrorBoundary from 'components/ErrorBoundary';
-import Loader from 'components/Icons/LoadingSpinner';
-import NavBar, { PageTabs } from 'components/NavBar';
-import { FeatureFlag, useFeatureFlagsIsLoaded } from 'featureFlags';
-import { useUniswapXDefaultEnabled } from 'featureFlags/flags/uniswapXDefault';
-import { shouldDisableNFTRoutesAtom } from 'state/application/atoms';
-import { useAppSelector } from 'state/hooks';
-import { AppState } from 'state/reducer';
-import { RouterPreference } from 'state/routing/types';
-import { useRouterPreference, useUserOptedOutOfUniswapX } from 'state/user/hooks';
-import { flexRowNoWrap } from 'theme/styles';
-import { Z_INDEX } from 'theme/zIndex';
-import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions';
+import ErrorBoundary from 'components/ErrorBoundary'
+import Loader from 'components/Icons/LoadingSpinner'
+import NavBar, { PageTabs } from 'components/NavBar'
+import { FeatureFlag, useFeatureFlagsIsLoaded } from 'featureFlags'
+import { useUniswapXDefaultEnabled } from 'featureFlags/flags/uniswapXDefault'
+import { shouldDisableNFTRoutesAtom } from 'state/application/atoms'
+import { useAppSelector } from 'state/hooks'
+import { AppState } from 'state/reducer'
+import { RouterPreference } from 'state/routing/types'
+import { useRouterPreference, useUserOptedOutOfUniswapX } from 'state/user/hooks'
+import { flexRowNoWrap } from 'theme/styles'
+import { Z_INDEX } from 'theme/zIndex'
+import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
   display: flex;
@@ -26,6 +26,8 @@ const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
   padding: ${({ theme }) => theme.navHeight}px 0px 5rem 0px;
   align-items: center;
   flex: 1;
+  margin-top: 78px;
+  font-family: 'DM Sans';
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     min-height: calc(100vh);
@@ -34,7 +36,7 @@ const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     min-height: calc(100vh);
   }
-`;
+`
 
 const MobileBottomBar = styled.div`
   z-index: ${Z_INDEX.sticky};
@@ -51,11 +53,11 @@ const MobileBottomBar = styled.div`
   margin: 0;
   border-radius: 0;
   width: 100%;
- 
+
   @media screen and (min-width: ${({ theme }) => theme.breakpoint.md}px) {
     display: none;
   }
-`;
+`
 
 const HeaderWrapper = styled.div<{ transparent?: boolean; bannerIsVisible?: boolean; scrollY: number }>`
   ${flexRowNoWrap};
@@ -70,7 +72,7 @@ const HeaderWrapper = styled.div<{ transparent?: boolean; bannerIsVisible?: bool
   transition-property: background-color;
   transition-duration: ${({ theme }) => theme.transition.duration.fast};
   transition-timing-function: linear;
-  
+
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     top: 0;
   }
@@ -78,32 +80,32 @@ const HeaderWrapper = styled.div<{ transparent?: boolean; bannerIsVisible?: bool
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     top: 0;
   }
-`;
+`
 
 export default function App() {
-  const isLoaded = useFeatureFlagsIsLoaded();
+  const isLoaded = useFeatureFlagsIsLoaded()
 
-  const location = useLocation();
-  const { pathname } = location;
+  const location = useLocation()
+  const { pathname } = location
 
-  const [scrollY, setScrollY] = useState(0);
-  const scrolledState = scrollY > 0;
-  const routerConfig = useRouterConfig();
+  const [scrollY, setScrollY] = useState(0)
+  const scrolledState = scrollY > 0
+  const routerConfig = useRouterConfig()
 
-  const isHeaderTransparent = !scrolledState;
+  const isHeaderTransparent = !scrolledState
 
   useEffect(() => {
-    window.scrollTo(0, 0);
-    setScrollY(0);
-  }, [pathname]);
+    window.scrollTo(0, 0)
+    setScrollY(0)
+  }, [pathname])
 
   useEffect(() => {
     const scrollListener = () => {
-      setScrollY(window.scrollY);
-    };
-    window.addEventListener('scroll', scrollListener);
-    return () => window.removeEventListener('scroll', scrollListener);
-  }, []);
+      setScrollY(window.scrollY)
+    }
+    window.addEventListener('scroll', scrollListener)
+    return () => window.removeEventListener('scroll', scrollListener)
+  }, [])
 
   return (
     <ErrorBoundary>
@@ -114,13 +116,15 @@ export default function App() {
         <Suspense fallback={<Loader />}>
           {isLoaded ? (
             <Routes>
-              {routes.map((route: RouteDefinition) => (route.enabled(routerConfig) ? (
-                <Route key={route.path} path={route.path} element={route.getElement(routerConfig)}>
-                  {route.nestedPaths.map((nestedPath) => (
-                    <Route path={nestedPath} key={`${route.path}/${nestedPath}`} />
-                  ))}
-                </Route>
-              ) : null))}
+              {routes.map((route: RouteDefinition) =>
+                route.enabled(routerConfig) ? (
+                  <Route key={route.path} path={route.path} element={route.getElement(routerConfig)}>
+                    {route.nestedPaths.map((nestedPath) => (
+                      <Route path={nestedPath} key={`${route.path}/${nestedPath}`} />
+                    ))}
+                  </Route>
+                ) : null
+              )}
             </Routes>
           ) : (
             <Loader />
@@ -131,5 +135,5 @@ export default function App() {
         <PageTabs />
       </MobileBottomBar>
     </ErrorBoundary>
-  );
+  )
 }

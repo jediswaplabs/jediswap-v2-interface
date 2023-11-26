@@ -27,7 +27,7 @@ const HeaderText = styled(ThemedText.DeprecatedLabel)`
   align-items: center;
   color: ${({ theme }) => theme.jediBlue};
   font-feature-settings: 'clig' off, 'liga' off;
-  font-family: Avenir LT Std;
+  font-family: 'Avenir LT Std', sans-serif;
   font-size: 16px;
   font-style: normal;
   font-weight: 700;

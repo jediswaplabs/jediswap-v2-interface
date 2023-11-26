@@ -16,8 +16,8 @@ export function FeeTierPercentageBadge({
   poolState: PoolState
 }) {
   return (
-    <Badge style={{backgroundColor: '#444', borderRadius: '4px', padding: '2px'}}>
-      <ThemedText.DeprecatedLabel fontSize={10}>
+    <Badge style={{ backgroundColor: '#444', borderRadius: '4px', padding: '4px' }}>
+      <ThemedText.DeprecatedLabel fontSize={10} lineHeight={1}>
         {!distributions || poolState === PoolState.NOT_EXISTS || poolState === PoolState.INVALID ? (
           <Trans>Not created</Trans>
         ) : distributions[feeAmount] !== undefined ? (

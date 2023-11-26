@@ -34,10 +34,11 @@ const pulse = (color: string) => keyframes`
     box-shadow: 0 0 0 0 ${color};
   }
 `
-const FocusedOutlineCard = styled(Card)<{ pulsing: boolean }>`
-  border: 1px solid ${({ theme }) => theme.surface3};
+const FocusedOutlineCard = styled(Card) <{ pulsing: boolean, feeAmount: FeeAmount }>`
+  border: 1px solid ${({ theme, feeAmount }) => feeAmount ? theme.jediBlue : theme.surface3};
   animation: ${({ pulsing, theme }) => pulsing && pulse(theme.accent1)} 0.6s linear;
   align-self: center;
+  border-radius: 8px;
 `
 
 const Select = styled.div`
@@ -146,24 +147,27 @@ export default function FeeSelector({
   return (
     <AutoColumn gap="16px">
       <DynamicSection gap="md" disabled={disabled}>
-        <FocusedOutlineCard pulsing={pulsing} onAnimationEnd={() => setPulsing(false)}>
+        <FocusedOutlineCard pulsing={pulsing} onAnimationEnd={() => setPulsing(false)} feeAmount={feeAmount}>
           <RowBetween>
             <AutoColumn id="add-liquidity-selected-fee">
               {!feeAmount ? (
                 <>
-                  <ThemedText.DeprecatedLabel>
-                    <Trans>Select Fee tier</Trans>
+                  <ThemedText.DeprecatedLabel style={{ fontFamily: 'DM Sans', fontWeight: '500', fontSize: '16px' }}>
+                    <Trans>Select Fee Tier</Trans>
                   </ThemedText.DeprecatedLabel>
-                  <ThemedText.DeprecatedMain fontWeight={485} fontSize="12px" textAlign="left">
+                  <ThemedText.DeprecatedMain fontSize="12px" textAlign="left" style={{ fontFamily: 'DM Sans' }}>
                     <Trans>The % you will earn in fees.</Trans>
                   </ThemedText.DeprecatedMain>
                 </>
               ) : (
                 <>
                   <ThemedText.DeprecatedLabel className="selected-fee-label">
-                    <Trans>{FEE_AMOUNT_DETAIL[feeAmount].label}% fee tier</Trans>
+                    <Trans>{FEE_AMOUNT_DETAIL[feeAmount].label}% Fee Tier</Trans>
                   </ThemedText.DeprecatedLabel>
-                  <Box style={{ width: 'fit-content', marginTop: '8px', backgroundColor: '#444', borderRadius: '4px' }} className="selected-fee-percentage">
+                  {/* <Box
+                    style={{ width: 'fit-content', marginTop: '8px', backgroundColor: '#444', borderRadius: '4px' }}
+                    className="selected-fee-percentage"
+                  >
                     {distributions && (
                       <FeeTierPercentageBadge
                         distributions={distributions}
@@ -171,18 +175,18 @@ export default function FeeSelector({
                         poolState={poolsByFeeTier[feeAmount]}
                       />
                     )}
-                  </Box>
+                  </Box> */}
                 </>
               )}
             </AutoColumn>
 
-            <ButtonGray onClick={() => setShowOptions(!showOptions)} width="auto" padding="4px" $borderRadius="6px">
+            {/* <ButtonGray onClick={() => setShowOptions(!showOptions)} width="auto" padding="4px" $borderRadius="6px">
               {showOptions ? <Trans>Hide</Trans> : <Trans>Edit</Trans>}
-            </ButtonGray>
+            </ButtonGray> */}
           </RowBetween>
         </FocusedOutlineCard>
 
-        {chainId && showOptions && (
+        {chainId && (
           <Select>
             {[FeeAmount.LOWEST, FeeAmount.LOW, FeeAmount.MEDIUM, FeeAmount.HIGH].map((_feeAmount, i) => {
               const { supportedChains } = FEE_AMOUNT_DETAIL[_feeAmount]

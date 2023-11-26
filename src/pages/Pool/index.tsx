@@ -27,7 +27,7 @@ import WalletIcon from '../../assets/wallets/Wallet.png';
 import NoPositionsIcon from '../../assets/images/noPosition.png';
 
 const PageWrapper = styled(AutoColumn)`
-  padding: 70px 8px 0px;
+  padding: 0px 8px 0px;
   max-width: 920px;
   width: 100%;
 
