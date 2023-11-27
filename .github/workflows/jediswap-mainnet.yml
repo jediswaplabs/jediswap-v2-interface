@@ -106,8 +106,4 @@ jobs:
       - name: Run Cache Invalidation
         run: aws cloudfront create-invalidation --distribution-id $CDN_DISTRIBUTION_ID --paths /\*
         env:
-<<<<<<< HEAD
           CDN_DISTRIBUTION_ID: ${{ secrets.AWS_CDN_DISTRIBUTION_ID }}
-=======
-          CDN_DISTRIBUTION_ID: ${{ secrets.AWS_CDN_DISTRIBUTION_ID }}
->>>>>>> d2a7f2f5a171ea0ae113d50e1bf5b40cdd8891df
