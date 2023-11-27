@@ -9,7 +9,6 @@ const TextWrapper = styled(Text).withConfig({
   shouldForwardProp: (prop) => prop !== 'color',
 })<{ color: keyof string }>`
   color: ${({ color, theme }) => (theme as any)[color]};
-  font-family: 'DM Sans';
 `
 
 type TextProps = Omit<TextPropsOriginal, 'css'>

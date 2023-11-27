@@ -9,6 +9,7 @@ import SettingsTab from '../Settings';
 import SwapBuyFiatButton from './SwapBuyFiatButton';
 
 const StyledSwapHeader = styled(RowBetween)`
+  font-family: 'Avenir LT Std';
   margin-bottom: 24px;
   color: ${({ theme }) => theme.neutral2};
 `;
