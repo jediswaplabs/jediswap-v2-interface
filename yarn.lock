@@ -20111,10 +20111,10 @@ ts-transform-graphql-tag@^0.2.1:
   resolved "https://registry.yarnpkg.com/ts-transform-graphql-tag/-/ts-transform-graphql-tag-0.2.1.tgz#f596c491196b6a6a65b65a8b99bf6e2314c78017"
   integrity sha512-gciNzCpVafccayI/VQKU2ROaol4gMpz0t5sAW/jzG/J/wnjPYCn06yKzlM4mkQ5tjCvPmFuZnLYF4i0tUiIiMQ==
 
-tsafe@^1.6.4:
-  version "1.6.4"
-  resolved "https://registry.yarnpkg.com/tsafe/-/tsafe-1.6.4.tgz#048a114761714538c72f16abd25bb247d4e3780e"
-  integrity sha512-l4Z54QFGHO8GF0gBpb3yPGHjkIkIirl8rwW+lMBmtEMzOJeRs8BdjkDEx6nU8Ak9PQVp/KNDtECxTja8MMIDoA==
+tsafe@^1.6.5:
+  version "1.6.5"
+  resolved "https://registry.yarnpkg.com/tsafe/-/tsafe-1.6.5.tgz#74943b69190069168a53d2accd6d07891cf1cce8"
+  integrity sha512-895zss8xqqHKTc28sHGIfZKnt3C5jrstB1DyPr/h3/flK0zojsZUMQL1/W4ytdDW6KI4Oth62nb9rrxmA3s3Iw==
 
 tsconfig-paths@^3.14.1:
   version "3.14.1"

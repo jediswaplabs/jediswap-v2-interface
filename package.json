@@ -146,7 +146,7 @@
     "terser-webpack-plugin": "^5.3.9",
     "ts-jest": "^29.1.1",
     "ts-transform-graphql-tag": "^0.2.1",
-    "tsafe": "^1.6.4",
+    "tsafe": "^1.6.5",
     "typechain": "^5.0.0",
     "typescript": "^4.9.4",
     "webpack": "^5.88.2",
