@@ -1,4 +1,4 @@
-import { Contract, FunctionAbi, num, hash, uint256 } from 'starknet'
+import { Contract, FunctionAbi, num, hash, uint256, BlockNumber, BigNumberish } from 'starknet'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useMulticallContract } from '../../hooks/useContract'
@@ -18,6 +18,7 @@ import BN from 'bn.js'
 import { ChainId } from '@jediswap/sdk'
 // import { useBlockNumber } from '../application/hooks'
 import { useAccountDetails } from 'hooks/starknet-react'
+import { useBlockNumber } from '@starknet-react/core'
 
 // chunk calls so we do not exceed the gas limit
 const CALL_CHUNK_SIZE = 500
@@ -32,8 +33,7 @@ async function fetchChunk(
   multicallContract: Contract,
   chunk: Call[],
   minBlockNumber: number
-): Promise<{ results: BN[]; blockNumber: number }> {
-  console.debug('Fetching chunk', multicallContract, chunk, minBlockNumber)
+): Promise<{ results: BigNumberish[]; blockNumber: number }> {
   let resultsBlockNumber, returnData_len, returnData
 
   const { getSelectorFromName } = hash
@@ -70,29 +70,29 @@ async function fetchChunk(
  * @param allListeners the all listeners state
  * @param chainId the current chain id
  */
-// export function activeListeningKeys(
-//   allListeners: AppState['multicall']['callListeners'],
-//   chainId?: ChainId
-// ): { [callKey: string]: number } {
-//   if (!allListeners || !chainId) return {}
-//   const listeners = allListeners[chainId]
-//   if (!listeners) return {}
+export function activeListeningKeys(
+  allListeners: AppState['multicall']['callListeners'],
+  chainId?: ChainId
+): { [callKey: string]: number } {
+  if (!allListeners || !chainId) return {}
+  const listeners = allListeners[chainId]
+  if (!listeners) return {}
 
-//   return Object.keys(listeners).reduce<{ [callKey: string]: number }>((memo, callKey) => {
-//     const keyListeners = listeners[callKey]
+  return Object.keys(listeners).reduce<{ [callKey: string]: number }>((memo, callKey) => {
+    const keyListeners = listeners[callKey]
 
-//     memo[callKey] = Object.keys(keyListeners)
-//       .filter((key) => {
-//         const blocksPerFetch = parseInt(key)
-//         if (blocksPerFetch <= 0) return false
-//         return keyListeners[blocksPerFetch] > 0
-//       })
-//       .reduce((previousMin, current) => {
-//         return Math.min(previousMin, parseInt(current))
-//       }, Infinity)
-//     return memo
-//   }, {})
-// }
+    memo[callKey] = Object.keys(keyListeners)
+      .filter((key) => {
+        const blocksPerFetch = parseInt(key)
+        if (blocksPerFetch <= 0) return false
+        return keyListeners[blocksPerFetch] > 0
+      })
+      .reduce((previousMin, current) => {
+        return Math.min(previousMin, parseInt(current))
+      }, Infinity)
+    return memo
+  }, {})
+}
 
 /**
  * Return the keys that need to be refetched
@@ -101,231 +101,243 @@ async function fetchChunk(
  * @param chainId the current chain id
  * @param latestBlockNumber the latest block number
  */
-// export function outdatedListeningKeys(
-//   callResults: AppState['multicall']['callResults'],
-//   listeningKeys: { [callKey: string]: number },
-//   chainId: ChainId | undefined,
-//   latestBlockNumber: number | undefined
-// ): string[] {
-//   if (!chainId || !latestBlockNumber) return []
-//   const results = callResults[chainId]
-//   // no results at all, load everything
-//   if (!results) return Object.keys(listeningKeys)
+export function outdatedListeningKeys(
+  callResults: AppState['multicall']['callResults'],
+  listeningKeys: { [callKey: string]: number },
+  chainId: ChainId | undefined,
+  latestBlockNumber: number | undefined
+): string[] {
+  if (!chainId || !latestBlockNumber) return []
+  const results = callResults[chainId]
+  // no results at all, load everything
+  if (!results) return Object.keys(listeningKeys)
 
-//   return Object.keys(listeningKeys).filter((callKey) => {
-//     const blocksPerFetch = listeningKeys[callKey]
+  return Object.keys(listeningKeys).filter((callKey) => {
+    const blocksPerFetch = listeningKeys[callKey]
 
-//     const data = callResults[chainId][callKey]
-//     // no data, must fetch
-//     if (!data) return true
+    const data = callResults[chainId][callKey]
+    // no data, must fetch
+    if (!data) return true
 
-//     const minDataBlockNumber = latestBlockNumber - (blocksPerFetch - 1)
+    const minDataBlockNumber = latestBlockNumber - (blocksPerFetch - 1)
 
-//     // already fetching it for a recent enough block, don't refetch it
-//     if (data.fetchingBlockNumber && data.fetchingBlockNumber >= minDataBlockNumber) return false
+    // already fetching it for a recent enough block, don't refetch it
+    if (data.fetchingBlockNumber && data.fetchingBlockNumber >= minDataBlockNumber) return false
 
-//     // if data is older than minDataBlockNumber, fetch it
-//     return !data.blockNumber || data.blockNumber < minDataBlockNumber
-//   })
-// }
+    // if data is older than minDataBlockNumber, fetch it
+    return !data.blockNumber || data.blockNumber < minDataBlockNumber
+  })
+}
 
-// export function parseReturnData(
-//   currentIndex: number,
-//   returnData: string[],
-//   returnDataIterator: IterableIterator<string>,
-//   contractInterface?: FunctionAbi
-// ): string {
-//   if (contractInterface) {
-//     const numberOfOutputs = contractInterface.outputs.length
-//     const hasMultipleOutputs = numberOfOutputs > 1
-//     const hasUint256Output = contractInterface.outputs.some((o) => o.type === 'Uint256')
-//     const hasArrayOutput = contractInterface.outputs.some((o) => /_len$/.test(o.name))
+export function parseReturnData(
+  currentIndex: number,
+  returnData: string[],
+  returnDataIterator: IterableIterator<string>,
+  contractInterface?: FunctionAbi
+): string {
+  if (contractInterface) {
+    const numberOfOutputs = contractInterface.outputs.length
+    const hasMultipleOutputs = numberOfOutputs > 1
+    const hasUint256Output = contractInterface.outputs.some((o) => o.type === 'Uint256')
+    const hasArrayOutput = contractInterface.outputs.some((o) => /_len$/.test(o.name))
 
-//     if (hasMultipleOutputs) {
-//       const outputAbiEntries = contractInterface.outputs
+    if (hasMultipleOutputs) {
+      const outputAbiEntries = contractInterface.outputs
 
-//       if (!hasUint256Output) {
-//         // If output is not of type uint256, no. of results = no. of calls * no. of outputs
+      if (!hasUint256Output) {
+        // If output is not of type uint256, no. of results = no. of calls * no. of outputs
 
-//         const parsedReturnData = outputAbiEntries.reduce<{ [outputName: string]: string }>((memo, entry, i) => {
-//           if (hasArrayOutput && memo[`${entry.name}_len`]) {
-//             const len = parseInt(memo[`${entry.name}_len`], 16)
-//             const arr: string[] = []
+        const parsedReturnData = outputAbiEntries.reduce<{ [outputName: string]: string }>((memo, entry, i) => {
+          if (hasArrayOutput && memo[`${entry.name}_len`]) {
+            const len = parseInt(memo[`${entry.name}_len`], 16)
+            const arr: string[] = []
 
-//             while (arr.length < len) {
-//               const data = returnDataIterator.next().value
-//               arr.push(data)
-//             }
+            while (arr.length < len) {
+              const data = returnDataIterator.next().value
+              arr.push(data)
+            }
 
-//             delete memo[`${entry.name}_len`]
+            delete memo[`${entry.name}_len`]
 
-//             return {
-//               ...memo,
-//               [entry.name]: arr,
-//             }
-//           }
+            return {
+              ...memo,
+              [entry.name]: arr,
+            }
+          }
 
-//           return {
-//             ...memo,
-//             [entry.name]: returnDataIterator.next().value,
-//           }
-//         }, {})
+          return {
+            ...memo,
+            [entry.name]: returnDataIterator.next().value,
+          }
+        }, {})
 
-//         return JSON.stringify(parsedReturnData)
-//       } else {
-//         // Multiple outputs are of type uint256, no. of results = no. of calls * no. of outputs * 2
+        return JSON.stringify(parsedReturnData)
+      } else {
+        // Multiple outputs are of type uint256, no. of results = no. of calls * no. of outputs * 2
 
-//         const parsedReturnData = outputAbiEntries.reduce<{ [outputName: string]: string }>((memo, entry, i) => {
-//           if (entry.type === 'Uint256') {
-//             const returnDataLow = returnDataIterator.next().value
-//             const returnDataHigh = returnDataIterator.next().value
+        const parsedReturnData = outputAbiEntries.reduce<{ [outputName: string]: string }>((memo, entry, i) => {
+          if (entry.type === 'Uint256') {
+            const returnDataLow = returnDataIterator.next().value
+            const returnDataHigh = returnDataIterator.next().value
 
-//             const uint256ReturnData: uint256.Uint256 = { low: returnDataLow, high: returnDataHigh }
+            const uint256ReturnData: uint256.Uint256 = { low: returnDataLow, high: returnDataHigh }
 
-//             return {
-//               ...memo,
-//               [entry.name]: number.toHex(uint256.uint256ToBN(uint256ReturnData)),
-//             }
-//           } else {
-//             return {
-//               ...memo,
-//               [entry.name]: returnDataIterator.next().value,
-//             }
-//           }
-//         }, {})
+            return {
+              ...memo,
+              [entry.name]: num.toHex(uint256.uint256ToBN(uint256ReturnData)),
+            }
+          } else {
+            return {
+              ...memo,
+              [entry.name]: returnDataIterator.next().value,
+            }
+          }
+        }, {})
 
-//         return JSON.stringify(parsedReturnData)
-//       }
-//     } else {
-//       // Has Single Output
-//       if (!hasUint256Output) {
-//         // Single Output and no uint256, no. of results = no. of calls
+        return JSON.stringify(parsedReturnData)
+      }
+    } else {
+      // Has Single Output
+      if (!hasUint256Output) {
+        // Single Output and no uint256, no. of results = no. of calls
 
-//         // return returnData[currentIndex]
-//         return returnDataIterator.next().value
-//       } else {
-//         // Single Output of type uint256, no. of results = no. of calls * 2
-//         // const uint256Result: uint256.Uint256 = {
-//         //   low: returnData[currentIndex * 2],
-//         //   high: returnData[currentIndex * 2 + 1]
-//         // }
+        // return returnData[currentIndex]
+        return returnDataIterator.next().value
+      } else {
+        // Single Output of type uint256, no. of results = no. of calls * 2
+        // const uint256Result: uint256.Uint256 = {
+        //   low: returnData[currentIndex * 2],
+        //   high: returnData[currentIndex * 2 + 1]
+        // }
 
-//         const uint256Result: uint256.Uint256 = {
-//           low: returnDataIterator.next().value,
-//           high: returnDataIterator.next().value,
-//         }
+        const uint256Result: uint256.Uint256 = {
+          low: returnDataIterator.next().value,
+          high: returnDataIterator.next().value,
+        }
 
-//         const parsedReturnData = num.toHex(uint256.uint256ToBN(uint256Result))
+        const parsedReturnData = num.toHex(uint256.uint256ToBN(uint256Result))
 
-//         return parsedReturnData
-//       }
-//     }
-//   }
-//   return returnDataIterator.next().value
-// }
+        return parsedReturnData
+      }
+    }
+  }
+  return returnDataIterator.next().value
+}
 
 export default function Updater(): null {
-  // const dispatch = useDispatch<AppDispatch>()
-  // const state = useSelector<AppState, AppState['multicall']>((state) => state.multicall)
-  // // wait for listeners to settle before triggering updates
-  // const debouncedListeners = useDebounce(state.callListeners, 100)
-  // const latestBlockNumber = useBlockNumber()
-  // const { account, chainId } = useAccountDetails()
-  // const multicallContract = useMulticallContract()
-  // const cancellations = useRef<{ blockNumber: number; cancellations: (() => void)[] }>()
+  const dispatch = useDispatch<AppDispatch>()
+  const state = useSelector<AppState, AppState['multicall']>((state) => state.multicall)
+  // wait for listeners to settle before triggering updates
+  const debouncedListeners = useDebounce(state.callListeners, 100)
+  const {
+    data: latestBlockNumber,
+    isLoading,
+    isError,
+  } = useBlockNumber({
+    blockIdentifier: 'latest' as BlockNumber,
+  })
+  const { chainId } = useAccountDetails()
+  const multicallContract = useMulticallContract()
+  const cancellations = useRef<{ blockNumber: number; cancellations: (() => void)[] }>()
 
-  // const listeningKeys: { [callKey: string]: number } = useMemo(() => {
-  //   return activeListeningKeys(debouncedListeners, chainId)
-  // }, [debouncedListeners, chainId])
+  console.log(chainId, multicallContract, latestBlockNumber, 'sdksndksnkdskn')
 
-  // const unserializedOutdatedCallKeys = useMemo(() => {
-  //   return outdatedListeningKeys(state.callResults, listeningKeys, chainId, latestBlockNumber)
-  // }, [chainId, state.callResults, listeningKeys, latestBlockNumber])
+  const listeningKeys: { [callKey: string]: number } = useMemo(() => {
+    return activeListeningKeys(debouncedListeners, chainId)
+  }, [debouncedListeners, chainId])
 
-  // const serializedOutdatedCallKeys = useMemo(
-  //   () => JSON.stringify(unserializedOutdatedCallKeys.sort()),
-  //   [unserializedOutdatedCallKeys]
-  // )
+  const unserializedOutdatedCallKeys = useMemo(() => {
+    return outdatedListeningKeys(state.callResults, listeningKeys, chainId, latestBlockNumber)
+  }, [chainId, state.callResults, listeningKeys, latestBlockNumber])
 
-  // useEffect(() => {
-  //   if (!latestBlockNumber || !chainId || !multicallContract) return
+  const serializedOutdatedCallKeys = useMemo(
+    () => JSON.stringify(unserializedOutdatedCallKeys.sort()),
+    [unserializedOutdatedCallKeys]
+  )
 
-  //   const outdatedCallKeys: string[] = JSON.parse(serializedOutdatedCallKeys)
-  //   if (outdatedCallKeys.length === 0) return
-  //   const calls = outdatedCallKeys.map((key) => parseCallKey(key))
+  useEffect(() => {
+    if (!latestBlockNumber || !chainId || !multicallContract) return
 
-  //   const chunkedCalls = chunkArray(calls, CALL_CHUNK_SIZE)
+    const outdatedCallKeys: string[] = JSON.parse(serializedOutdatedCallKeys)
+    if (outdatedCallKeys.length === 0) return
+    const calls = outdatedCallKeys.map((key) => parseCallKey(key))
 
-  //   if (cancellations.current?.blockNumber !== latestBlockNumber) {
-  //     cancellations.current?.cancellations?.forEach((c) => c())
-  //   }
+    const chunkedCalls = chunkArray(calls, CALL_CHUNK_SIZE)
 
-  //   dispatch(
-  //     fetchingMulticallResults({
-  //       calls,
-  //       chainId,
-  //       fetchingBlockNumber: latestBlockNumber,
-  //     })
-  //   )
+    if (cancellations.current?.blockNumber !== latestBlockNumber) {
+      cancellations.current?.cancellations?.forEach((c) => c())
+    }
 
-  //   cancellations.current = {
-  //     blockNumber: latestBlockNumber,
-  //     cancellations: chunkedCalls.map((chunk, index) => {
-  //       const { cancel, promise } = retry(() => fetchChunk(multicallContract, chunk, latestBlockNumber), {
-  //         n: Infinity,
-  //         minWait: 2500,
-  //         maxWait: 3500,
-  //       })
-  //       promise
-  //         .then(({ results: returnData, blockNumber: fetchBlockNumber }) => {
-  //           cancellations.current = { cancellations: [], blockNumber: latestBlockNumber }
-  //           // accumulates the length of all previous indices
-  //           const firstCallKeyIndex = chunkedCalls.slice(0, index).reduce<number>((memo, curr) => memo + curr.length, 0)
+    console.log(calls, chainId, latestBlockNumber, 'dkfndkfndk')
 
-  //           const lastCallKeyIndex = firstCallKeyIndex + returnData.length
+    dispatch(
+      fetchingMulticallResults({
+        calls,
+        chainId,
+        fetchingBlockNumber: latestBlockNumber,
+      })
+    )
 
-  //           const uint256ReturnData: Array<string> = []
+    cancellations.current = {
+      blockNumber: latestBlockNumber,
+      cancellations: chunkedCalls.map((chunk, index) => {
+        const { cancel, promise } = retry(() => fetchChunk(multicallContract, chunk, latestBlockNumber), {
+          n: Infinity,
+          minWait: 2500,
+          maxWait: 3500,
+        })
+        promise
+          .then(({ results: returnData, blockNumber: fetchBlockNumber }) => {
+            console.log('🚀 ~ file: updater.tsx:287 ~ .then ~ returnData:', returnData)
+            console.log('🚀 ~ file: updater.tsx:332 ~ .then ~ fetchBlockNumber:', fetchBlockNumber)
+            cancellations.current = { cancellations: [], blockNumber: latestBlockNumber }
+            // accumulates the length of all previous indices
+            const firstCallKeyIndex = chunkedCalls.slice(0, index).reduce<number>((memo, curr) => memo + curr.length, 0)
 
-  //           const bnToHexArray = returnData.map((data) => number.toHex(data))
+            const lastCallKeyIndex = firstCallKeyIndex + returnData.length
 
-  //           const returnDataIterator = bnToHexArray.flat()[Symbol.iterator]()
+            const uint256ReturnData: Array<string> = []
 
-  //           dispatch(
-  //             updateMulticallResults({
-  //               chainId,
-  //               results: outdatedCallKeys
-  //                 .slice(firstCallKeyIndex, lastCallKeyIndex)
-  //                 .reduce<{ [callKey: string]: string | null }>((memo, callKey, i) => {
-  //                   const methodAbi = debouncedListeners?.[chainId]?.[callKey]?.methodAbi
+            const bnToHexArray = returnData.map((data) => num.toHex(data))
 
-  //                   const parsedReturnData: string = parseReturnData(i, bnToHexArray, returnDataIterator, methodAbi)
+            const returnDataIterator = bnToHexArray.flat()[Symbol.iterator]()
 
-  //                   memo[callKey] = parsedReturnData
+            dispatch(
+              updateMulticallResults({
+                chainId,
+                results: outdatedCallKeys
+                  .slice(firstCallKeyIndex, lastCallKeyIndex)
+                  .reduce<{ [callKey: string]: string | null }>((memo, callKey, i) => {
+                    const methodAbi = debouncedListeners?.[chainId]?.[callKey]?.methodAbi
 
-  //                   return memo
-  //                 }, {}),
-  //               blockNumber: fetchBlockNumber,
-  //             })
-  //           )
-  //         })
-  //         .catch((error: any) => {
-  //           if (error instanceof CancelledError) {
-  //             console.debug('Cancelled fetch for blockNumber', latestBlockNumber)
-  //             return
-  //           }
-  //           console.error('Failed to fetch multicall chunk', chunk, chainId, error)
-  //           dispatch(
-  //             errorFetchingMulticallResults({
-  //               calls: chunk,
-  //               chainId,
-  //               fetchingBlockNumber: latestBlockNumber,
-  //             })
-  //           )
-  //         })
-  //       return cancel
-  //     }),
-  //   }
-  // }, [chainId, multicallContract, dispatch, serializedOutdatedCallKeys, latestBlockNumber, debouncedListeners])
+                    const parsedReturnData: string = parseReturnData(i, bnToHexArray, returnDataIterator, methodAbi)
+
+                    memo[callKey] = parsedReturnData
+
+                    return memo
+                  }, {}),
+                blockNumber: fetchBlockNumber,
+              })
+            )
+          })
+          .catch((error: any) => {
+            if (error instanceof CancelledError) {
+              console.debug('Cancelled fetch for blockNumber', latestBlockNumber)
+              return
+            }
+            console.error('Failed to fetch multicall chunk', chunk, chainId, error)
+            dispatch(
+              errorFetchingMulticallResults({
+                calls: chunk,
+                chainId,
+                fetchingBlockNumber: latestBlockNumber,
+              })
+            )
+          })
+        return cancel
+      }),
+    }
+  }, [chainId, multicallContract, dispatch, serializedOutdatedCallKeys, latestBlockNumber, debouncedListeners])
 
   return null
 }

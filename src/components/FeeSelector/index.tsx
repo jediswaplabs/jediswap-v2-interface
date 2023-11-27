@@ -75,35 +75,6 @@ export default function FeeSelector({
     '10000': 1.272882524337048,
   }
 
-  // get pool data on-chain for latest states
-  // const pools = usePools([
-  //   [currencyA, currencyB, FeeAmount.LOWEST],
-  //   [currencyA, currencyB, FeeAmount.LOW],
-  //   [currencyA, currencyB, FeeAmount.MEDIUM],
-  //   [currencyA, currencyB, FeeAmount.HIGH],
-  // ])
-
-  // const poolsByFeeTier: Record<FeeAmount, PoolState> = useMemo(
-  //   () =>
-  //     pools.reduce(
-  //       (acc, [curPoolState, curPool]) => {
-  //         acc = {
-  //           ...acc,
-  //           ...{ [curPool?.fee as FeeAmount]: curPoolState },
-  //         }
-  //         return acc
-  //       },
-  //       {
-  //         // default all states to NOT_EXISTS
-  //         [FeeAmount.LOWEST]: PoolState.NOT_EXISTS,
-  //         [FeeAmount.LOW]: PoolState.NOT_EXISTS,
-  //         [FeeAmount.MEDIUM]: PoolState.NOT_EXISTS,
-  //         [FeeAmount.HIGH]: PoolState.NOT_EXISTS,
-  //       }
-  //     ),
-  //   [pools]
-  // )
-
   const poolsByFeeTier = {
     '100': 2,
     '500': 2,

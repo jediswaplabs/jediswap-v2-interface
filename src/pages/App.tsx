@@ -18,6 +18,7 @@ import { useIsDarkMode } from 'theme/components/ThemeToggle'
 import { flexRowNoWrap } from 'theme/styles'
 import { Z_INDEX } from 'theme/zIndex'
 import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions'
+import useFetchAllPairsCallback from 'hooks/useFetchAllPairs'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
   display: flex;
@@ -91,6 +92,12 @@ export default function App() {
   const routerConfig = useRouterConfig()
 
   const isHeaderTransparent = !scrolledState
+
+  const fetchAllPairs = useFetchAllPairsCallback()
+
+  useEffect(() => {
+    fetchAllPairs()
+  }, [fetchAllPairs])
 
   useEffect(() => {
     window.scrollTo(0, 0)

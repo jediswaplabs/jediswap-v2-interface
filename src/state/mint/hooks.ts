@@ -120,6 +120,8 @@ export function useDerivedMintInfo(
   const price = useMemo(() => {
     if (noLiquidity) {
       const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
+      console.log('🚀 ~ file: hooks.ts:123 ~ price ~ currencyAAmount:', currencyAAmount, currencyBAmount)
+      console.log('🚀 ~ file: hooks.ts:123 ~ price ~ parsedAmounts:', parsedAmounts)
       if (currencyAAmount && currencyBAmount) {
         return new Price(currencyAAmount.currency, currencyBAmount.currency, currencyAAmount.raw, currencyBAmount.raw)
       }

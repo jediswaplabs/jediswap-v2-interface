@@ -30,6 +30,8 @@ export const useAccountDetails = (): {
   connector: Connector | undefined
 } => {
   const { account, address, isConnected, status, connector } = useAccount()
+  console.log('🚀 ~ file: starknet-react.ts:33 ~ status:', status)
+  console.log('🚀 ~ file: starknet-react.ts:33 ~ isConnected:', isConnected)
   const [chainId, setChainId] = useState<ChainId>(ChainId.SN_MAIN)
 
   const { provider } = useProvider()
@@ -46,7 +48,7 @@ export const useAccountDetails = (): {
     }
 
     fetchChainId()
-  }, [status, provider])
+  }, [status, provider, account])
 
   return { account, address, isConnected, chainId, connector }
 }

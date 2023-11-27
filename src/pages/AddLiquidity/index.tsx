@@ -69,6 +69,7 @@ import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, Style
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
 import { useBalance } from '@starknet-react/core'
+import PairPrice from 'components/PairPrice'
 
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -113,14 +114,6 @@ export default function AddLiquidity() {
       ? undefined
       : currencyB
 
-  // const quoteCurrency = {
-  //   name: 'USDCoin',
-  //   symbol: 'USDC',
-  //   decimals: 6,
-  //   logoURI:
-  //     'https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
-  // }
-
   // mint state
   const { independentField, typedValue, otherTypedValue } = useMintState()
 
@@ -139,11 +132,6 @@ export default function AddLiquidity() {
 
   const hasExistingPosition = false
   const isValid = !error
-
-  // const { isLoading, isError, error, data } = useBalance({
-  //   address,
-  //   watch: true,
-  // })
 
   const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput } = useMintActionHandlers(noLiquidity)
 
@@ -347,7 +335,7 @@ export default function AddLiquidity() {
 
                     <FeeSelector
                       disabled={!baseCurrency || !quoteCurrency}
-                      feeAmount={500}
+                      feeAmount={feeAmount}
                       handleFeePoolSelect={handleFeePoolSelect}
                       // currencyA={baseCurrency ?? undefined}
                       // currencyB={quoteCurrency ?? undefined}
@@ -450,6 +438,7 @@ export default function AddLiquidity() {
                                     text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
                                   />
                                 )} */}
+                          <PairPrice pair={pair} />
                         </ThemedText.DeprecatedBody>
                         {baseCurrency && (
                           <ThemedText.DeprecatedBody color="text2" fontSize={12}>

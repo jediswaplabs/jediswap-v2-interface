@@ -3,6 +3,7 @@ import invariant from 'tiny-invariant'
 
 export const NATIVE_CHAIN_ID = 'NATIVE'
 export const DEFAULT_CHAIN_ID = '0x534e5f4d41494e'
+export const DEFAULT_POOL_FEE = 500
 
 // When decimals are not specified for an ERC20 token
 // use default ERC20 token decimals as specified here:

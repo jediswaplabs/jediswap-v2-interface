@@ -11,7 +11,6 @@ import { QueryClient, QueryClientProvider } from 'react-query'
 import { Provider } from 'react-redux'
 import { HashRouter, useLocation } from 'react-router-dom'
 
-import { MulticallUpdater } from 'lib/state/multicall'
 import { BlockNumberProvider } from 'lib/hooks/useBlockNumber'
 import { apolloClient } from 'graphql/data/apollo'
 import { FeatureFlagsProvider } from 'featureFlags'
@@ -21,6 +20,7 @@ import { LanguageProvider } from './i18n'
 import App from './pages/App'
 import store from './state'
 import ApplicationUpdater from './state/application/updater'
+import MulticallUpdater from 'state/multicall/updater'
 import ListsUpdater from './state/lists/updater'
 import LogsUpdater from './state/logs/updater'
 import OrderUpdater from './state/signatures/updater'
@@ -40,14 +40,14 @@ function Updaters() {
         <link rel="canonical" href={baseUrl} />
       </Helmet>
       <ListsUpdater />
-      {/* <RadialGradientByChainUpdater />
+      <RadialGradientByChainUpdater />
       <SystemThemeUpdater />
       <ThemeColorMetaUpdater />
       <ApplicationUpdater />
       <TransactionUpdater />
       <OrderUpdater />
       <MulticallUpdater />
-      <LogsUpdater /> */}
+      <LogsUpdater />
     </>
   )
 }

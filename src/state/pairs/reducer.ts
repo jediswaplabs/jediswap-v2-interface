@@ -6,10 +6,10 @@ export interface AllPairsState {
 }
 
 export const initialState: AllPairsState = {
-  allPairs: []
+  allPairs: [],
 }
 
-export default createReducer(initialState, builder =>
+export default createReducer(initialState, (builder) =>
   builder.addCase(updateAllPairs, (state, action) => {
     state.allPairs = [...action.payload.allPairs]
   })

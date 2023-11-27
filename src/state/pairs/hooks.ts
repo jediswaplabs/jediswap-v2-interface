@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux'
 import { useMemo } from 'react'
 
 export function useAllPairs(): string[] {
-  // const allPairs = useSelector<AppState, AppState['pairs']['allPairs']>(state => state.pairs.allPairs)
+  const allPairs = useSelector<AppState, AppState['pairs']['allPairs']>((state) => state.pairs.allPairs)
 
-  return ['']
+  return useMemo(() => allPairs.map((pairAddress) => validateAndParseAddress(pairAddress)), [allPairs])
 }

@@ -15,11 +15,14 @@ import { ChainId } from '@jediswap/sdk'
 // returns null on errors
 function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
   const { account, chainId, connector } = useAccountDetails()
+  console.log('🚀 ~ file: useContract.ts:18 ~ useContract ~ connector:', connector)
+  console.log('🚀 ~ file: useContract.ts:18 ~ useContract ~ account:', account)
   return useMemo(() => {
+    console.log(address, ABI, account, 'sdksndsknsk')
     if (!address || !ABI || !account) return null
-
     try {
       const contract = getContract(address, ABI, account, connector as Connector) //line 26
+      console.log('🚀 ~ file: useContract.ts:23 ~ returnuseMemo ~ contract:', contract)
       return contract
     } catch (error) {
       console.error('Failed to get contract', error)
@@ -49,7 +52,8 @@ export function useRouterContract(): Contract | null {
 }
 
 export function useMulticallContract(): Contract | null {
-  const { account, chainId } = useAccountDetails()
+  const { chainId } = useAccountDetails()
+  console.log('🚀 ~ file: useContract.ts:56 ~ useMulticallContract ~ chainId:', chainId)
 
   return useContract(MULTICALL_NETWORKS[(chainId as ChainId) ?? DEFAULT_CHAIN_ID], MULTICALL_ABI, false)
 }
