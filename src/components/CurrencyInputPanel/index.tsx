@@ -38,10 +38,7 @@ const InputPanel = styled.div<{ hideInput?: boolean }>`
 
 const Container = styled.div<{ hideInput: boolean; disabled: boolean }>`
   border-radius: ${({ hideInput }) => (hideInput ? '8px' : '8px')};
-  border: 1px solid ${({ theme }) => theme.surface3};
-  // background-color: ${({ theme }) => theme.surface2};
   background-color: rgba(196, 196, 196, 0.01);
-  // background-color: #3e1371;
   box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
     0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
     0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset,
