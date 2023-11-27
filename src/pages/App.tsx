@@ -72,6 +72,7 @@ const HeaderWrapper = styled.div<{ transparent?: boolean; bannerIsVisible?: bool
   transition-property: background-color;
   transition-duration: ${({ theme }) => theme.transition.duration.fast};
   transition-timing-function: linear;
+  font-family: 'Avenir LT Std';
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     top: 0;

@@ -112,12 +112,12 @@ export default function ThemeProvider({ children }: { children: React.ReactNode 
 
 export const ThemedGlobalStyle = createGlobalStyle`
   html, input, textarea, button {
-    font-family: 'Avenir LT Std', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     font-display: fallback;
   }
   @supports (font-variation-settings: normal) {
     html, input, textarea, button {
-      font-family: 'Avenir LT Std', sans-serif;
+      font-family: 'DM Sans', sans-serif;
     }
   }
 

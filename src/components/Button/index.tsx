@@ -69,6 +69,7 @@ export const BaseButton = styled(RebassButton) <BaseButtonProps>`
 `;
 
 export const ButtonPrimary = styled(BaseButton<BaseThemeButtonProps>)`
+  font-family: 'Avenir LT Std';
   width: ${({ width }) => width ?? '100%'};
   background: ${({ theme }) => theme.brandedGradient};
   border: none;
@@ -106,6 +107,7 @@ export const SmallButtonPrimary = styled(ButtonPrimary)`
 `;
 
 const BaseButtonLight = styled(BaseButton)`
+  font-family: 'Avenir LT Std';
   background-color: ${({ theme }) => theme.accent2};
   color: ${({ theme }) => theme.accent1};
   font-size: 20px;
@@ -265,6 +267,7 @@ const ButtonConfirmedStyle = styled(BaseButton)`
 `;
 
 const ButtonErrorStyle = styled(ButtonPrimary)`
+  font-family: 'Avenir LT Std';
   color: ${({ theme }) => theme.critical};
   
    &:disabled {
