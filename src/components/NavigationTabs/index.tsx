@@ -46,7 +46,7 @@ const StyledArrowLeft = styled(ArrowLeft)`
 export function FindPoolTabs({ origin }: { origin: string }) {
   return (
     <Tabs>
-      <RowBetween style={{ padding: '1rem 1rem 0 1rem', position: 'relative' }}>
+      <RowBetween style={{ padding: '8px', position: 'relative' }}>
         <Link to={origin}>
           <StyledArrowLeft />
         </Link>
@@ -61,6 +61,9 @@ export function FindPoolTabs({ origin }: { origin: string }) {
 const AddRemoveTitleText = styled(ThemedText.SubHeaderLarge)`
   flex: 1;
   margin: auto;
+  font-family: 'Avenir LT Std', sans-serif;
+  font-size: 24px !important;
+  font-weight: 700 !important;
 `
 
 export function AddRemoveTabs({
@@ -90,7 +93,7 @@ export function AddRemoveTabs({
 
   return (
     <Tabs>
-      <RowBetween style={{ padding: '1rem 1rem 0 1rem' }} align="center">
+      <RowBetween style={{ padding: '16px' }} align="center">
         <StyledLink
           to={poolLink}
           onClick={() => {
@@ -102,13 +105,13 @@ export function AddRemoveTabs({
           }}
           flex={children ? '1' : undefined}
         >
-          <StyledArrowLeft stroke={theme.neutral2} />
+          <StyledArrowLeft stroke={theme.jediWhite} />
         </StyledLink>
         <AddRemoveTitleText textAlign={children ? 'start' : 'center'}>
           {creating ? (
             <Trans>Create a pair</Trans>
           ) : adding ? (
-            <Trans>Add liquidity</Trans>
+            <Trans>Add Liquidity</Trans>
           ) : (
             <Trans>Remove liquidity</Trans>
           )}

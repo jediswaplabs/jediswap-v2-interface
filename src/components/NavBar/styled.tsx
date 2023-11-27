@@ -19,7 +19,7 @@ export const Nav = styled.nav`
   }
 `;
 
-export const LogoContainer = styled(Box)`
+export const LogoContainer = styled.div`
   display: flex;
   margin-right: 12px;
   align-items: center;
@@ -27,11 +27,30 @@ export const LogoContainer = styled(Box)`
   img {
     cursor: pointer;
   }
+  img.desktop {
+    display: none;
+  }
+
+  @media screen and (min-width: ${({ theme }) => theme.breakpoint.lg}px) {
+    img.mobile {
+      display: none;
+    }
+    img.desktop {
+      display: block;
+    }
+  }
 `;
 
-export const MenuContainer = styled(Box)`
+export const MenuContainer = styled.div`
+  display: none;
   align-items: center;
   justify-content: space-around;
+  margin: 0px 12px;
+  
+  @media screen and (min-width: ${({ theme }) => theme.breakpoint.md}px) {
+    margin: 0px;
+    display: flex;
+  }
 `;
 
 const baseLinkCss = css`
@@ -46,7 +65,7 @@ const baseLinkCss = css`
   text-align: center;
   text-decoration: none;
   line-height: 22px;
-  font-weight: 800;
+  font-weight: 750;
   text-transform: uppercase;
   color: ${({ theme }) => theme.neutral1};
 
@@ -63,6 +82,10 @@ export const StatusContainer = styled(Box)`
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 8px;
+  @media screen and (min-width: ${({ theme }) => theme.breakpoint.lg}px) {
+    gap: 16px;
+  }
 `;
 
 export const MenuItem = styled(BaseMenuItem)``;

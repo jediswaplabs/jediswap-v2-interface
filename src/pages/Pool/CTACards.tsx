@@ -1,92 +1,68 @@
-import { Trans } from '@lingui/macro';
-import { useWeb3React } from '@web3-react/core';
-import styled from 'styled-components';
+import { Trans } from '@lingui/macro'
+import { useWeb3React } from '@web3-react/core'
+import styled from 'styled-components'
 
-import { AutoColumn } from 'components/Column';
-import { getChainInfoOrDefault } from 'constants/chainInfo';
-import { ThemedText, ExternalLink } from 'theme/components';
+import { AutoColumn } from 'components/Column'
+import { getChainInfoOrDefault } from 'constants/chainInfo'
+import { ThemedText, ExternalLink } from 'theme/components'
+import ExternalLinkIcon from '../../assets/images/ExternalLinkIcon.png'
 
 const CTASection = styled.section`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  opacity: 0.8;
-
-  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
-    grid-template-columns: auto;
-    grid-template-rows: auto;
-  `};
-`;
+  display: flex;
+  justify-content: center;
+`
 
 const CTA = styled(ExternalLink)`
-  padding: 16px;
-  border-radius: 20px;
-  position: relative;
-  overflow: hidden;
-  border: 1px solid ${({ theme }) => theme.surface3};
-
-  * {
-    color: ${({ theme }) => theme.neutral1};
-    text-decoration: none !important;
-  }
-
-  :hover {
-    border: 1px solid ${({ theme }) => theme.surface3};
-
-    text-decoration: none;
-    * {
-      text-decoration: none !important;
-    }
-  }
-`;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.jediGrey};
+  align-items: center;
+  width: 293px;
+  height: 56px;
+  text-align: center;
+  display: flex;
+`
 
 const HeaderText = styled(ThemedText.DeprecatedLabel)`
   align-items: center;
-  display: flex;
+  color: ${({ theme }) => theme.jediBlue};
+  font-feature-settings: 'clig' off, 'liga' off;
+  font-family: 'Avenir LT Std', sans-serif;
   font-size: 16px;
-  font-weight: 535 !important;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 24px;
   ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
     font-size: 16px;
   `};
-`;
+`
 
 const ResponsiveColumn = styled(AutoColumn)`
-  grid-template-columns: 1fr;
-  width: 100%;
-  gap: 8px;
+  display: flex;
+`
 
-  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToMedium`
-    gap: 8px;
-  `};
-  justify-content: space-between;
-`;
+const IconWrapper = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  margin-left: 4px;
+`
 
 export default function CTACards() {
-  const { chainId } = useWeb3React();
-  const { infoLink } = getChainInfoOrDefault(chainId);
+  const { chainId } = useWeb3React()
+  const { infoLink } = getChainInfoOrDefault(chainId)
 
   return (
     <CTASection>
       <CTA href="https://support.uniswap.org/hc/en-us/categories/8122334631437-Providing-Liquidity-">
         <ResponsiveColumn>
-          <HeaderText>
-            <Trans>Learn about providing liquidity</Trans> ↗
-          </HeaderText>
-          <ThemedText.DeprecatedBody style={{ alignItems: 'center', display: 'flex', fontWeight: 485 }}>
-            <Trans>Check out our v3 LP walkthrough and migration guides.</Trans>
-          </ThemedText.DeprecatedBody>
-        </ResponsiveColumn>
-      </CTA>
-      <CTA data-testid="cta-infolink" href={`${infoLink}pools`}>
-        <ResponsiveColumn>
-          <HeaderText style={{ alignSelf: 'flex-start' }}>
-            <Trans>Top pools</Trans> ↗
-          </HeaderText>
-          <ThemedText.DeprecatedBody style={{ alignSelf: 'flex-start', fontWeight: 485 }}>
-            <Trans>Explore Uniswap Analytics.</Trans>
-          </ThemedText.DeprecatedBody>
+          <HeaderText>Checkout Top Pools</HeaderText>
+          <IconWrapper>
+            <img src={ExternalLinkIcon} alt={'Icon'} />
+          </IconWrapper>
         </ResponsiveColumn>
       </CTA>
     </CTASection>
-  );
+  )
 }

@@ -36,21 +36,27 @@ export const SearchInput = styled.input`
   align-items: center;
   width: 100%;
   white-space: nowrap;
-  background-color: ${({ theme }) => theme.surface2};
-  border: none;
+  background-color: ${({ theme }) => theme.surface4};
   outline: none;
-  border-radius: 12px;
+  border-radius: 8px;
   color: ${({ theme }) => theme.neutral1};
-  border-style: solid;
+
   border: 1px solid ${({ theme }) => theme.surface3};
   -webkit-appearance: none;
-  font-weight: 485;
+  
+  color: ${({ theme }) => theme.jediWhite};
 
-  font-size: 16px;
+  font-size: 14px;
+  font-weight: 400;
+  box-shadow: inset 0px -63.1213px 52.3445px -49.2654px rgba(96, 68, 145, 0.3),
+  inset 0px 75.4377px 76.9772px -36.9491px rgba(202, 172, 255, 0.3),
+  inset 0px 3.07909px 13.8559px rgba(154, 146, 210, 0.3), inset 0px 0.769772px 30.7909px rgba(227, 222, 255, 0.2);
+  
 
+  
   ::placeholder {
     color: ${({ theme }) => theme.neutral3};
-    font-size: 16px;
+    font-size: 14px;
   }
   transition: border 100ms;
   :focus {

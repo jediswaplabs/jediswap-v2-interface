@@ -17,9 +17,8 @@ import { Portal } from 'nft/components/common/Portal'
 import { useAppSelector } from 'state/hooks'
 import { flexRowNoWrap } from 'theme/styles'
 import { shortenAddress } from 'utils'
-import { BaseButton, ButtonSecondary } from '../Button'
+import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
 import { RowBetween } from '../Row'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 const Web3StatusGeneric = styled(ButtonSecondary)`
   ${flexRowNoWrap};
@@ -43,6 +42,7 @@ const Web3StatusConnected = styled(Web3StatusGeneric)<{
   pending?: boolean
   isClaimAvailable?: boolean
 }>`
+  font-family: 'Avenir LT Std';
   background-color: ${({ theme }) => theme.surface5};
   border: 2px solid ${({ theme }) => theme.white};
   color: ${({ theme }) => theme.white};
@@ -76,16 +76,10 @@ const Text = styled.p`
   font-weight: 600;
 `
 
-const StyledConnectButton = styled(BaseButton)`
-  background: ${({ theme }) => theme.brandedGradient};
-  border: none;
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 16px;
+const StyledConnectButton = styled(ThemeButton)`
+  font-family: 'Avenir LT Std';
   width: 200px;
   line-height: 18px;
-  font-weight: 800;
-  border: 2px solid ${({ theme }) => theme.white};
   :hover,
   :focus {
     background: ${({ theme }) => theme.brandedGradientReversed};
@@ -99,7 +93,6 @@ function Web3StatusInner() {
   const activeWeb3 = useWeb3React()
   const lastWeb3 = useLast(useWeb3React(), ignoreWhileSwitchingChain)
   const { account, connector } = useMemo(() => (activeWeb3.account ? activeWeb3 : lastWeb3), [activeWeb3, lastWeb3])
-  const { address } = useAccountDetails()
   const { ENSName, loading: ENSLoading } = useENSName(account)
   const connection = getConnection(connector)
 
@@ -152,9 +145,7 @@ function Web3StatusInner() {
     )
   }
 
-  if (address) {
-    const addressShort = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : null
-
+  if (account) {
     return (
       <Web3StatusConnected
         disabled={Boolean(switchingChain)}
@@ -163,7 +154,7 @@ function Web3StatusInner() {
         pending={hasPendingActivity}
       >
         {!hasPendingActivity && connection && (
-          <StatusIcon account={address} size={24} connection={connection} showMiniIcons={false} />
+          <StatusIcon account={account} size={24} connection={connection} showMiniIcons={false} />
         )}
         {hasPendingActivity ? (
           <RowBetween>
@@ -174,7 +165,7 @@ function Web3StatusInner() {
           </RowBetween>
         ) : (
           <AddressAndChevronContainer>
-            <Text>{ENSName ?? addressShort}</Text>
+            <Text>{ENSName ?? shortenAddress(account)}</Text>
           </AddressAndChevronContainer>
         )}
       </Web3StatusConnected>
@@ -186,7 +177,7 @@ function Web3StatusInner() {
       onKeyPress={(e) => e.key === 'Enter' && handleWalletDropdownClick()}
       onClick={handleWalletDropdownClick}
     >
-      <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet">
+      <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet" size={ButtonSize.small}>
         <Trans>Connect Wallet</Trans>
       </StyledConnectButton>
     </Web3StatusConnectWrapper>

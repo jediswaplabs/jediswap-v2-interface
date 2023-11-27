@@ -1,14 +1,15 @@
 // @ts-nocheck
 import { Trans } from '@lingui/macro';
-import { ReactNode, useCallback } from 'react';
-import { NavLinkProps, useLocation, useNavigate } from 'react-router-dom';
+import { useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
+import Logo from 'assets/jedi/logo.png';
+import MobileLogo from 'assets/jedi/squareLogo.png';
 import { useAccountDrawer } from 'components/AccountDrawer';
 import Web3Status from 'components/Web3Status';
 import { useIsPoolsPage } from 'hooks/useIsPoolsPage';
-import { Row } from 'nft/components/Flex';
-import Logo from 'assets/jedi/logo.png';
-import { Nav, LogoContainer, MenuContainer, StatusContainer, MenuItem, ActiveMenuItem, ExternalMenuItem } from './styled';
+import { NetworkName } from './NetworkName';
+import { ActiveMenuItem, ExternalMenuItem, LogoContainer, MenuContainer, MenuItem, Nav, StatusContainer } from './styled';
 
 const MenuItemLink = ({ to, dataTestId, id, isActive, children }) => {
   const Component = isActive ? ActiveMenuItem : MenuItem;
@@ -64,17 +65,17 @@ const Navbar = () => {
   return (
     <Nav>
       <LogoContainer>
-        <img width={'195px'} height={'32px'} src={Logo} alt="logo" onClick={handleLogoIconClick} />
+        <img width={'195px'} height={'32px'} src={Logo} alt="logo" onClick={handleLogoIconClick} className={'desktop'} />
+        <img width={'32'} height={'32'} src={MobileLogo} alt="logo" onClick={handleLogoIconClick} className={'mobile'} />
       </LogoContainer>
 
-      <MenuContainer display={{ sm: 'none', lg: 'flex' }}>
+      <MenuContainer>
         <PageTabs />
       </MenuContainer>
 
       <StatusContainer>
-        <Row gap="12">
-          <Web3Status />
-        </Row>
+        <NetworkName />
+        <Web3Status />
       </StatusContainer>
     </Nav>
 

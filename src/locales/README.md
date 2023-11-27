@@ -1,4 +1,4 @@
-**Do not edit translation files manually**
+g**Do not edit translation files manually**
 
 ## Contributing
 

@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro';
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfacePageName } from '@uniswap/analytics-events';
 import { useWeb3React } from '@web3-react/core';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { AlertTriangle, BookOpen, ChevronDown, ChevronsRight, Inbox, Layers } from 'react-feather';
 import { Link } from 'react-router-dom';
 import styled, { css, useTheme } from 'styled-components';
@@ -13,7 +13,7 @@ import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button';
 import { AutoColumn } from 'components/Column';
 import { FlyoutAlignment, Menu } from 'components/Menu';
 import PositionList from 'components/PositionList';
-import { RowBetween, RowFixed } from 'components/Row';
+import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row';
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink';
 import { isSupportedChain } from 'constants/chains';
 import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions';
@@ -23,19 +23,15 @@ import { useUserHideClosedPositions } from 'state/user/hooks';
 import { HideSmall, ThemedText } from 'theme/components';
 import CTACards from './CTACards';
 import { LoadingRows } from './styled';
+import WalletIcon from '../../assets/wallets/Wallet.png';
+import NoPositionsIcon from '../../assets/images/noPosition.png';
 
 const PageWrapper = styled(AutoColumn)`
-  padding: 68px 8px 0px;
-  max-width: 870px;
+  padding: 0px 8px 0px;
+  max-width: 920px;
   width: 100%;
 
   @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
-    max-width: 800px;
-    padding-top: 48px;
-  }
-
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    max-width: 500px;
     padding-top: 20px;
   }
 `;
@@ -45,24 +41,112 @@ const TitleRow = styled(RowBetween)`
     flex-wrap: wrap;
     gap: 12px;
     width: 100%;
+    padding-left: 12px;
   }
 `;
-const ButtonRow = styled(RowFixed)`
-  & > *:not(:last-child) {
-    margin-left: 8px;
+const PoolStats = styled.div`
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(3, 1fr);
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    grid-template-columns: 1fr;
   }
+`;
 
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    width: 100%;
-    flex-direction: row;
-    justify-content: space-between;
+const PoolsCard = styled.div`
+  padding: 20px;
+  border-radius: 8px;
+  backdrop-filter: blur(38px);
+  background-color: rgba(196, 196, 196, 0.01);
+  box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.20) inset, 0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.30) inset, 0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.30) inset, 0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.30) inset, 0px 5.38841px 8.46749px -3.07909px #FFF inset, 0px 30.02111px 43.10724px -27.7118px rgba(255, 255, 255, 0.50) inset;
+  color: ${({ theme }) => theme.jediWhite};
+`;
+const PoolsCardHeader = styled.div`
+  color: ${({ theme }) => theme.notice};
+  font-family: DM Sans;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: 20px;
+  margin-bottom: 20px;
+  
+   @media (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
+     font-size: 14px;
+   }
+`;
+const PoolsCardDetails = styled.div`
+  display: flex;
+  align-items: center;
+  
+`;
+
+const PoolsCardNumbers = styled.div`
+  color: ${({ theme }) => theme.jediWhite};
+  font-family: DM Sans;
+  font-size: 24px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 20px;
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
+    font-size: 18px;
   }
 `;
+
+const PoolsCardPercent = styled.div`
+  color: ${({ theme }) => theme.signalGreen};
+  text-align: right;
+  margin-left: auto;
+  font-family: DM Sans;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 100%;
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
+    font-size: 12px;
+  }
+`;
+const PoolsCardPercentNegative = styled(PoolsCardPercent)`
+  color: ${({ theme }) => theme.signalRed};
+`;
+
+const NoPositions = styled.div`
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: auto;
+  min-height: 25vh;
+  height: 240px;
+`;
+
+const NewPositionText = styled.div`
+  margin-top: 12px;
+  margin-bottom: 20px;
+`;
+
+const PoolsHeading = styled.div`
+  color: ${({ theme }) => theme.jediWhite};
+  font-family: 'Avenir LT Std', sans-serif;
+  text-transform: uppercase;
+  font-size: 24px;
+  font-weight: 750;
+`;
+const PositionsText = styled.div`
+  color: ${({ theme }) => theme.jediWhite};
+  font-family: DM Sans;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 100%; /* 20px */
+`;
+const ButtonRow = styled(AutoRow)``;
+
 const PoolMenu = styled(Menu)`
   margin-left: 0;
   @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     flex: 1 1 auto;
-    width: 50%;
   }
 
   a {
@@ -97,14 +181,28 @@ const ErrorContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   margin: auto;
-  max-width: 300px;
   min-height: 25vh;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    padding: 0px 52px;
+  }
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    padding: 0px 52px;
+  }
 `;
 
 const IconStyle = css`
   width: 48px;
   height: 48px;
   margin-bottom: 0.5rem;
+`;
+
+const IconWrapper = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
 `;
 
 const NetworkIcon = styled(AlertTriangle)`
@@ -116,25 +214,30 @@ const InboxIcon = styled(Inbox)`
 `;
 
 const ResponsiveButtonPrimary = styled(ButtonPrimary)`
-  border-radius: 12px;
+  border-radius: 8px;
   font-size: 16px;
   padding: 6px 8px;
-  width: fit-content;
+  width: 175px;
+  margin-left: auto;
+  height: 38px;
   @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    flex: 1 1 auto;
-    width: 50%;
+    width: 132px;
   }
 `;
 
-const MainContentWrapper = styled.main`
-  background-color: ${({ theme }) => theme.surface1};
-  border: 1px solid ${({ theme }) => theme.surface3};
-  padding: 0;
-  border-radius: 16px;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+const MainContentWrapper = styled.main<{ isWalletConnected?: boolean; filteredPositions?: any }>`
+  background-color: ${({ theme, isWalletConnected, filteredPositions }) => (isWalletConnected && filteredPositions ? 'rgba(196, 196, 196, 0.01)' : theme.jediNavyBlue)};
+  border-radius: 8px;
+  box-shadow: ${({ isWalletConnected, filteredPositions }) => (isWalletConnected && filteredPositions
+    ? `0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
+        0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
+        0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset,
+        0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.3) inset`
+    : '')};
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {  }
 `;
+
+const PositionWrapper = styled.div``;
 
 function PositionsLoadingPlaceholder() {
   return (
@@ -189,6 +292,7 @@ function WrongNetworkCard() {
 
 export default function Pool() {
   const { account, chainId } = useWeb3React();
+  const [isWalletConnected, setIsWalletConnected] = useState(true);
   const networkSupportsV2 = useNetworkSupportsV2();
   const toggleWalletDrawer = useToggleAccountDrawer();
 
@@ -258,9 +362,9 @@ export default function Pool() {
           <AutoColumn gap="lg" style={{ width: '100%' }}>
             <TitleRow padding="0">
               <ThemedText.LargeHeader>
-                <Trans>Pools</Trans>
+                <PoolsHeading>Pools</PoolsHeading>
               </ThemedText.LargeHeader>
-              <ButtonRow>
+              {/* <ButtonRow>
                 {networkSupportsV2 && (
                   <PoolMenu
                     menuItems={menuItems}
@@ -278,24 +382,70 @@ export default function Pool() {
                 <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
                   + <Trans>New position</Trans>
                 </ResponsiveButtonPrimary>
-              </ButtonRow>
+              </ButtonRow> */}
             </TitleRow>
+            <PoolStats>
+              <PoolsCard>
+                <PoolsCardHeader>Total Liquidity</PoolsCardHeader>
+                <PoolsCardDetails>
+                  <PoolsCardNumbers>US$16,006,030</PoolsCardNumbers>
+                  <PoolsCardPercent>+0.70%</PoolsCardPercent>
+                </PoolsCardDetails>
+              </PoolsCard>
+              <PoolsCard>
+                <PoolsCardHeader>Total Volume (24hr)</PoolsCardHeader>
+                <PoolsCardDetails>
+                  <PoolsCardNumbers>US$3,001,359</PoolsCardNumbers>
+                  <PoolsCardPercent>+40.09%</PoolsCardPercent>
+                </PoolsCardDetails>
+              </PoolsCard>
+              <PoolsCard>
+                <PoolsCardHeader>Total Fees (24hr)</PoolsCardHeader>
+                <PoolsCardDetails>
+                  <PoolsCardNumbers>US$16,006,030</PoolsCardNumbers>
+                  <PoolsCardPercentNegative>-1.96%</PoolsCardPercentNegative>
+                </PoolsCardDetails>
+              </PoolsCard>
+            </PoolStats>
 
-            <MainContentWrapper>
-              {positionsLoading ? (
-                <PositionsLoadingPlaceholder />
-              ) : filteredPositions && closedPositions && filteredPositions.length > 0 ? (
-                <PositionList
-                  positions={filteredPositions}
-                  setUserHideClosedPositions={setUserHideClosedPositions}
-                  userHideClosedPositions={userHideClosedPositions}
-                />
+            <ButtonRow justifyContent={'space-between'}>
+              <PositionsText>My Positions</PositionsText>
+              <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
+                + <Trans>New position</Trans>
+              </ResponsiveButtonPrimary>
+            </ButtonRow>
+
+            <MainContentWrapper isWalletConnected={isWalletConnected} filteredPositions={filteredPositions.length}>
+              {isWalletConnected ? (
+                !filteredPositions.length && !positionsLoading ? (
+                  <NoPositions>
+                    <IconWrapper>
+                      <img src={NoPositionsIcon} alt={'Icon'} />
+                    </IconWrapper>
+                    <NewPositionText>
+                      <Trans>Open a new position</Trans>
+                    </NewPositionText>
+                    <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
+                      + <Trans>New position</Trans>
+                    </ResponsiveButtonPrimary>
+                  </NoPositions>
+                ) : positionsLoading ? (
+                  <PositionsLoadingPlaceholder />
+                ) : (
+                  <PositionList
+                    positions={filteredPositions}
+                    setUserHideClosedPositions={setUserHideClosedPositions}
+                    userHideClosedPositions={userHideClosedPositions}
+                  />
+                )
               ) : (
                 <ErrorContainer>
                   <ThemedText.BodyPrimary color={theme.neutral3} textAlign="center">
-                    <InboxIcon strokeWidth={1} style={{ marginTop: '2em' }} />
+                    <IconWrapper>
+                      <img src={WalletIcon} alt={'Icon'} />
+                    </IconWrapper>
                     <div>
-                      <Trans>Your active V3 liquidity positions will appear here.</Trans>
+                      <Trans>Connect wallet to see your positions or open a new position</Trans>
                     </div>
                   </ThemedText.BodyPrimary>
                   {!showConnectAWallet && closedPositions.length > 0 && (
@@ -314,19 +464,17 @@ export default function Pool() {
                       element={InterfaceElementName.CONNECT_WALLET_BUTTON}
                     >
                       <ButtonPrimary
-                        style={{ marginTop: '2em', marginBottom: '2em', padding: '8px 16px' }}
+                        style={{ marginTop: '2em', marginBottom: '2em', padding: '8px 16px', width: 'fit-content' }}
                         onClick={toggleWalletDrawer}
                       >
-                        <Trans>Connect a wallet</Trans>
+                        <Trans>Connect wallet</Trans>
                       </ButtonPrimary>
                     </TraceEvent>
                   )}
                 </ErrorContainer>
               )}
             </MainContentWrapper>
-            <HideSmall>
-              <CTACards />
-            </HideSmall>
+            {filteredPositions.length ? null : <CTACards />}
           </AutoColumn>
         </AutoColumn>
       </PageWrapper>

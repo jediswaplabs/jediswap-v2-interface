@@ -1,28 +1,27 @@
-import { Trans } from '@lingui/macro'
-import { Percent } from '@uniswap/sdk-core'
-import { InterfaceTrade } from 'state/routing/types'
-import styled from 'styled-components'
-import { ThemedText } from 'theme/components'
+import { Trans } from '@lingui/macro';
+import { Percent } from '@uniswap/sdk-core';
+import styled from 'styled-components';
 
-import { RowBetween, RowFixed } from '../Row'
-import SettingsTab from '../Settings'
-import SwapBuyFiatButton from './SwapBuyFiatButton'
+import { InterfaceTrade } from 'state/routing/types';
+import { ThemedText } from 'theme/components';
+import { RowBetween, RowFixed } from '../Row';
+import SettingsTab from '../Settings';
+import SwapBuyFiatButton from './SwapBuyFiatButton';
 
 const StyledSwapHeader = styled(RowBetween)`
-  margin-bottom: 10px;
+  font-family: 'Avenir LT Std';
+  margin-bottom: 24px;
   color: ${({ theme }) => theme.neutral2};
-`
+`;
 
 const HeaderButtonContainer = styled(RowFixed)`
-  padding: 0 12px;
+  padding: 0;
   gap: 16px;
-`
+`;
 
-export default function SwapHeader({
-  autoSlippage,
+export default function SwapHeader({ autoSlippage,
   chainId,
-  trade,
-}: {
+  trade }: {
   autoSlippage: Percent
   chainId?: number
   trade?: InterfaceTrade
@@ -30,8 +29,8 @@ export default function SwapHeader({
   return (
     <StyledSwapHeader>
       <HeaderButtonContainer>
-        <ThemedText.SubHeader>
-          <Trans>Swap</Trans>
+        <ThemedText.SubHeader fontSize={'24px'} fontWeight={700}>
+          <Trans>SWAP</Trans>
         </ThemedText.SubHeader>
         <SwapBuyFiatButton />
       </HeaderButtonContainer>
@@ -39,5 +38,5 @@ export default function SwapHeader({
         <SettingsTab autoSlippage={autoSlippage} chainId={chainId} trade={trade} />
       </RowFixed>
     </StyledSwapHeader>
-  )
+  );
 }

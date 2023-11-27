@@ -1,31 +1,30 @@
-import { rootCssString } from 'nft/css/cssStringFromTheme'
-import React, { useMemo } from 'react'
-import { createGlobalStyle, css, ThemeProvider as StyledComponentsThemeProvider } from 'styled-components'
-import { useIsDarkMode } from 'theme/components/ThemeToggle'
+import React, { useMemo } from 'react';
+import { createGlobalStyle, css, ThemeProvider as StyledComponentsThemeProvider } from 'styled-components';
 
-import { navDimensions } from '../nft/css/sprinkles.css'
-import { darkTheme, lightTheme } from './colors'
-import { darkDeprecatedTheme, lightDeprecatedTheme } from './deprecatedColors'
+import { rootCssString } from 'nft/css/cssStringFromTheme';
+import { navDimensions } from '../nft/css/sprinkles.css';
+import { darkTheme } from './colors';
+import { darkDeprecatedTheme } from './deprecatedColors';
 
 export const MEDIA_WIDTHS = {
   deprecated_upToExtraSmall: 500,
   deprecated_upToSmall: 720,
   deprecated_upToMedium: 960,
   deprecated_upToLarge: 1280,
-}
+};
 
-const MAX_CONTENT_WIDTH = '1200px'
+const MAX_CONTENT_WIDTH = '1200px';
 
-const deprecated_mediaWidthTemplates: { [width in keyof typeof MEDIA_WIDTHS]: typeof css } = Object.keys(
-  MEDIA_WIDTHS
+const deprecatedMediaWidthTemplates: { [width in keyof typeof MEDIA_WIDTHS]: typeof css } = Object.keys(
+  MEDIA_WIDTHS,
 ).reduce((acc, size) => {
   acc[size] = (a: any, b: any, c: any) => css`
     @media (max-width: ${(MEDIA_WIDTHS as any)[size]}px) {
       ${css(a, b, c)}
     }
-  `
-  return acc
-}, {} as any)
+  `;
+  return acc;
+}, {} as any);
 
 export const BREAKPOINTS = {
   xs: 396,
@@ -35,7 +34,7 @@ export const BREAKPOINTS = {
   xl: 1280,
   xxl: 1536,
   xxxl: 1920,
-}
+};
 
 // deprecated - please use the ones in styles.ts file
 const transitions = {
@@ -50,38 +49,38 @@ const transitions = {
     out: 'ease-out',
     inOut: 'ease-in-out',
   },
-}
+};
 
 const opacities = {
   hover: 0.6,
   click: 0.4,
   disabled: 0.5,
   enabled: 1,
-}
+};
 
 const fonts = {
   code: 'courier, courier new, serif',
-}
+};
 
 const gapValues = {
   xs: '4px',
   sm: '8px',
   md: '12px',
-  lg: '24px',
-  xl: '32px',
-}
+  lg: '16px',
+  xl: '24px',
+};
 export type Gap = keyof typeof gapValues
 
-function getSettings(darkMode: boolean) {
+function getSettings() {
   return {
     grids: gapValues,
     fonts,
 
     // shadows
-    shadow1: darkMode ? '#000' : '#2F80ED',
+    shadow1: '#000',
 
     // media queries
-    deprecated_mediaWidth: deprecated_mediaWidthTemplates,
+    deprecated_mediaWidth: deprecatedMediaWidthTemplates,
 
     navHeight: navDimensions.height,
     navVerticalPad: navDimensions.verticalPad,
@@ -93,33 +92,32 @@ function getSettings(darkMode: boolean) {
     breakpoint: BREAKPOINTS,
     transition: transitions,
     opacity: opacities,
-  }
+  };
 }
 
 // eslint-disable-next-line import/no-unused-modules -- used in styled.d.ts
-export function getTheme(darkMode: boolean) {
+export function getTheme() {
   return {
-    darkMode,
-    ...(darkMode ? darkTheme : lightTheme),
-    ...(darkMode ? darkDeprecatedTheme : lightDeprecatedTheme),
-    ...getSettings(darkMode),
-  }
+    darkMode: true,
+    ...(darkTheme),
+    ...(darkDeprecatedTheme),
+    ...getSettings(),
+  };
 }
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const darkMode = useIsDarkMode()
-  const themeObject = useMemo(() => getTheme(darkMode), [darkMode])
-  return <StyledComponentsThemeProvider theme={themeObject}>{children}</StyledComponentsThemeProvider>
+  const themeObject = getTheme();
+  return <StyledComponentsThemeProvider theme={themeObject}>{children}</StyledComponentsThemeProvider>;
 }
 
 export const ThemedGlobalStyle = createGlobalStyle`
   html, input, textarea, button {
-    font-family: 'Avenir LT Std', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     font-display: fallback;
   }
   @supports (font-variation-settings: normal) {
     html, input, textarea, button {
-      font-family: 'Avenir LT Std', sans-serif;
+      font-family: 'DM Sans', sans-serif;
     }
   }
 
@@ -127,6 +125,10 @@ export const ThemedGlobalStyle = createGlobalStyle`
   body {
     margin: 0;
     padding: 0;
+    overscroll-behavior: none;
+    background: ${({ theme }) => theme.bgdGradient};
+    background-repeat: no-repeat;
+    background-size: cover;
   }
 
   * {
@@ -146,22 +148,13 @@ export const ThemedGlobalStyle = createGlobalStyle`
     font-feature-settings: 'ss01' on, 'ss02' on, 'cv01' on, 'cv03' on;
 
     color: ${({ theme }) => theme.neutral1};
-    background: linear-gradient(108.58deg, #03001E 20.7%, #EC38BC 36.65%, #7303C0 57.02%, #2A3EF5 71.08%, #38742F 93.32%);
-    background-repeat: no-repeat;
-    background-size: cover;
   }
   
   body {
     min-height: 100vh;
-    background: linear-gradient(66.46deg, #03001E 24.27%, rgba(3, 0, 30, 0.612102) 57.29%, rgba(3, 0, 30, 0) 100%);
-    background-repeat: no-repeat;
-    background-size: cover;
   }
-  // a {
-  //   color: ${({ theme }) => theme.accent1}; 
-  // }
-
+  
   :root {
     ${({ theme }) => rootCssString(theme.darkMode)}
   }
-`
+`;

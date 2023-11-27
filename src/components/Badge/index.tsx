@@ -1,6 +1,6 @@
-import { readableColor } from 'polished'
-import { PropsWithChildren } from 'react'
-import styled, { DefaultTheme } from 'styled-components'
+import { readableColor } from 'polished';
+import { PropsWithChildren } from 'react';
+import styled, { DefaultTheme } from 'styled-components';
 
 export enum BadgeVariant {
   DEFAULT = 'DEFAULT',
@@ -22,51 +22,51 @@ interface BadgeProps {
 function pickBackgroundColor(variant: BadgeVariant | undefined, theme: DefaultTheme): string {
   switch (variant) {
     case BadgeVariant.BRANDED:
-      return theme.brandedGradient
+      return theme.brandedGradient;
     case BadgeVariant.PROMOTIONAL:
-      return theme.promotionalGradient
+      return theme.promotionalGradient;
     case BadgeVariant.NEGATIVE:
-      return theme.critical
+      return theme.critical;
     case BadgeVariant.POSITIVE:
-      return theme.success
+      return theme.success;
     case BadgeVariant.SOFT:
-      return theme.accent2
+      return theme.accent2;
     case BadgeVariant.PRIMARY:
-      return theme.accent1
+      return theme.accent1;
     case BadgeVariant.WARNING:
-      return theme.deprecated_accentWarning
+      return theme.deprecated_accentWarning;
     case BadgeVariant.WARNING_OUTLINE:
-      return 'transparent'
+      return 'transparent';
     default:
-      return theme.surface2
+      return theme.surface6;
   }
 }
 
 function pickBorder(variant: BadgeVariant | undefined, theme: DefaultTheme): string {
   switch (variant) {
     case BadgeVariant.WARNING_OUTLINE:
-      return `1px solid ${theme.deprecated_accentWarning}`
+      return `1px solid ${theme.deprecated_accentWarning}`;
     default:
-      return 'unset'
+      return 'unset';
   }
 }
 
 function pickFontColor(variant: BadgeVariant | undefined, theme: DefaultTheme): string {
   switch (variant) {
     case BadgeVariant.BRANDED:
-      return theme.darkMode ? theme.neutral1 : theme.white
+      return theme.darkMode ? theme.neutral1 : theme.white;
     case BadgeVariant.NEGATIVE:
-      return readableColor(theme.critical)
+      return readableColor(theme.critical);
     case BadgeVariant.POSITIVE:
-      return readableColor(theme.success)
+      return readableColor(theme.success);
     case BadgeVariant.SOFT:
-      return theme.accent1
+      return theme.accent1;
     case BadgeVariant.WARNING:
-      return readableColor(theme.deprecated_accentWarning)
+      return readableColor(theme.deprecated_accentWarning);
     case BadgeVariant.WARNING_OUTLINE:
-      return theme.deprecated_accentWarning
+      return theme.deprecated_accentWarning;
     default:
-      return readableColor(theme.neutral2)
+      return readableColor(theme.neutral2);
   }
 }
 
@@ -80,6 +80,6 @@ const Badge = styled.div<PropsWithChildren<BadgeProps>>`
   padding: 4px 6px;
   justify-content: center;
   font-weight: 535;
-`
+`;
 
-export default Badge
+export default Badge;

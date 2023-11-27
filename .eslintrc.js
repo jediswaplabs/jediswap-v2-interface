@@ -85,6 +85,7 @@ module.exports = {
     'jsx-a11y/tabindex-no-positive': 'off',
     '@typescript-eslint/ban-ts-ignore': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
+    '@typescript-eslint/no-empty-function': 'off',
     'react/jsx-filename-extension': 'off',
     'max-len': 'off',
     'max-params': ['error', 3],
@@ -97,13 +98,15 @@ module.exports = {
     'no-extra-boolean-cast': 0,
     'no-plusplus': 'off',
     'no-prototype-builtins': 'off',
+    'no-nested-ternary': 'off',
     'no-restricted-properties': 'off',
     'no-restricted-syntax': 'off',
     'no-promise-executor-return': 'off',
-    'no-unused-vars': ['error', {
+    'no-unused-vars': ['off', {
       varsIgnorePattern: 'Fragment', ignoreRestSiblings: true,
     }],
-    '@typescript-eslint/no-unused-vars': 'error',
+    'linebreak-style': 0,
+    '@typescript-eslint/no-unused-vars': 'off',
     'no-use-before-define': 'off',
     'object-curly-newline': ['error', {
       ObjectExpression: { consistent: true },

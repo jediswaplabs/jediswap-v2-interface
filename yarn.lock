@@ -164,6 +164,30 @@
   dependencies:
     node-fetch "^2.6.1"
 
+"@argent/starknet-react-webwallet-connector@^6.4.2":
+  version "6.6.0"
+  resolved "https://registry.yarnpkg.com/@argent/starknet-react-webwallet-connector/-/starknet-react-webwallet-connector-6.6.0.tgz#5f0ba8c5d2535959d6623abb7d1e22e8f0b0d5e6"
+  integrity sha512-megg03CygKEFbvfq7VELB1PUU8pWNXD+abmrb1vBglw7gcR1b5/9VcZy34mKDnKkN+Q2ABlRcfqtmvxmjv639g==
+  dependencies:
+    "@argent/web-sdk" "^6.4.1"
+    "@argent/x-window" "^6.4.0"
+    "@starknet-react/core" "2.0.0-next.0"
+
+"@argent/web-sdk@^6.4.1":
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/@argent/web-sdk/-/web-sdk-6.4.1.tgz#33540a421e4511d2d8892e60b14bc6a8760d4b09"
+  integrity sha512-QDWmxlv0KhJKE6vqyQ1nWhcM3eRXyz0b0poA1u4r/205gnJcD8sy+EvuAAmav4mUdkmHvReEnqSXevDZ2iriuA==
+  dependencies:
+    "@argent/x-window" "^6.4.0"
+    get-starknet-core "^3.0.1"
+    lodash-es "^4.17.21"
+    trpc-browser "^1.3.2"
+
+"@argent/x-window@^6.4.0":
+  version "6.4.0"
+  resolved "https://registry.yarnpkg.com/@argent/x-window/-/x-window-6.4.0.tgz#60f5fd56567c84588b3c90ab8f66f5f83f4689a9"
+  integrity sha512-fGFUWCrtnH8OJl+OnvUh/EdCdru8cfnftOls6XgzqwZLqhNC7PMQnKEP3WR+xL+C6pzja1K2hlK84qSap+WMYA==
+
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.10.4", "@babel/code-frame@^7.12.13", "@babel/code-frame@^7.16.0", "@babel/code-frame@^7.22.5", "@babel/code-frame@^7.8.3":
   version "7.22.5"
   resolved "https://registry.yarnpkg.com/@babel/code-frame/-/code-frame-7.22.5.tgz#234d98e1551960604f1246e6475891a570ad5658"
@@ -3514,26 +3538,26 @@
   resolved "https://registry.yarnpkg.com/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
-"@lingui/babel-plugin-extract-messages@4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@lingui/babel-plugin-extract-messages/-/babel-plugin-extract-messages-4.3.0.tgz#2cf9486880318804d846e9ef96cef9841a68c14e"
-  integrity sha512-X23evX574Pv5wRpg9HytCuE0dsRaFi0kkrj8uQC++Dk1Iti0ptRFeuMU4jxINlfa972Ri3GF6ckGQ+Req3drYg==
+"@lingui/babel-plugin-extract-messages@4.5.0":
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/@lingui/babel-plugin-extract-messages/-/babel-plugin-extract-messages-4.5.0.tgz#71e56cc2eae73890caeea15a00ae4965413430ec"
+  integrity sha512-jZq3Gbi691jsHyQ4+OPnGgIqZt5eKEGnmI75akYlZpwTPxF7n+hiuKlQS+YB3xfKvcvlAED76ZAMCcwYG5fNrQ==
 
-"@lingui/cli@^4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@lingui/cli/-/cli-4.3.0.tgz#7c0530ef2caf0902c13fafd4db4b8b552d57446e"
-  integrity sha512-Z44IxdK7kzmL+5TB2Kuu2xB3O6n1WCsBG0nUXOMtwTWHNxBLdr89hFogO3Orf7QNyxpfw6yZ3Go3xRm3JO3rJg==
+"@lingui/cli@^4.5.0":
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/@lingui/cli/-/cli-4.5.0.tgz#fb8685cb682cf624b6e5b6d1207f8127b98ed95a"
+  integrity sha512-MzhxNUNd+YYEmK79TwmneUow5BuLwpOlrUrZq9EyIAWUM4N6kkCVkZ8VIMYCL4TXGQ4kBQjstgDpkF8wdFRtNg==
   dependencies:
     "@babel/core" "^7.21.0"
     "@babel/generator" "^7.21.1"
     "@babel/parser" "^7.21.2"
     "@babel/runtime" "^7.21.0"
     "@babel/types" "^7.21.2"
-    "@lingui/babel-plugin-extract-messages" "4.3.0"
-    "@lingui/conf" "4.3.0"
-    "@lingui/core" "4.3.0"
-    "@lingui/format-po" "4.3.0"
-    "@lingui/message-utils" "4.3.0"
+    "@lingui/babel-plugin-extract-messages" "4.5.0"
+    "@lingui/conf" "4.5.0"
+    "@lingui/core" "4.5.0"
+    "@lingui/format-po" "4.5.0"
+    "@lingui/message-utils" "4.5.0"
     babel-plugin-macros "^3.0.1"
     chalk "^4.1.0"
     chokidar "3.5.1"
@@ -3566,6 +3590,18 @@
     jiti "^1.17.1"
     lodash.get "^4.4.2"
 
+"@lingui/conf@4.5.0":
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/@lingui/conf/-/conf-4.5.0.tgz#09b39de3a03a9017cd8299b1d8df923c78447ebf"
+  integrity sha512-OBm4RQQtbpvmuazLWVpvpaOpt/xvu1PBv8WUX8QoW1vsROe/3P5BpRHRYFyMeZz5mhORJgis9lQtDTq145Ruug==
+  dependencies:
+    "@babel/runtime" "^7.20.13"
+    chalk "^4.1.0"
+    cosmiconfig "^8.0.0"
+    jest-validate "^29.4.3"
+    jiti "^1.17.1"
+    lodash.get "^4.4.2"
+
 "@lingui/core@4.3.0", "@lingui/core@^4.3.0":
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/@lingui/core/-/core-4.3.0.tgz#239e9fed6e858185ecfd59355b09678df1335393"
@@ -3575,13 +3611,22 @@
     "@lingui/message-utils" "4.3.0"
     unraw "^2.0.1"
 
-"@lingui/format-po@4.3.0":
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/@lingui/format-po/-/format-po-4.3.0.tgz#ce4281ea047749842c1ebcbe4cb01fefd102571a"
-  integrity sha512-iwqMve+VMxfRisTCk2evcnhAfn54v5qXTXZUDGZQrSQ60r2A4VGtS8VdCzqHwKxvbIatjq4NfWGa0v0zb092jg==
+"@lingui/core@4.5.0":
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/@lingui/core/-/core-4.5.0.tgz#8b907238bd0b420b372272d0a757c56bed3aed14"
+  integrity sha512-8zTuIXJo5Qvjato7LWE6Q4RHiO4LjTBVOoRlqfOGYDp8VZ9w9P7Z7IJgxI7UP5Z1wiuEvnMdVF9I1C4acqXGlQ==
   dependencies:
-    "@lingui/conf" "4.3.0"
-    "@lingui/message-utils" "4.3.0"
+    "@babel/runtime" "^7.20.13"
+    "@lingui/message-utils" "4.5.0"
+    unraw "^3.0.0"
+
+"@lingui/format-po@4.5.0":
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/@lingui/format-po/-/format-po-4.5.0.tgz#88dabeaa565ce5e4ff2a1b9865da7759b393af27"
+  integrity sha512-xQNzZ4RCQfh6TjzjUsyHz3B0R9FJuzhBit9R37NyMn6mL3kBTCUExpPczknm8gWZjtfFO4T8EH5eJhhC5vgJYg==
+  dependencies:
+    "@lingui/conf" "4.5.0"
+    "@lingui/message-utils" "4.5.0"
     date-fns "^2.29.3"
     pofile "^1.1.4"
 
@@ -3600,6 +3645,13 @@
   version "4.3.0"
   resolved "https://registry.yarnpkg.com/@lingui/message-utils/-/message-utils-4.3.0.tgz#e5ace0103261e2611c8a86748f7c9711e47e3db7"
   integrity sha512-UtgO5pm6LpJKqmZctr2R2hT+qicb8UijFDG3dctKGBuwkkwunFZUswOLJ+AxfhaO652Vov/yf5qsymJ6UFXPBA==
+  dependencies:
+    "@messageformat/parser" "^5.0.0"
+
+"@lingui/message-utils@4.5.0":
+  version "4.5.0"
+  resolved "https://registry.yarnpkg.com/@lingui/message-utils/-/message-utils-4.5.0.tgz#7ae9dc6cb65cbb5e2dc1b8cdcc4c8b92d5c7189f"
+  integrity sha512-iRqh2wvNtzJO3NStB77nEXEfeI53aVVjzD7/mBrEm/P0lC7sqPHk0WBQCfzE0N9xm6a+XHmHu3J+x2nnQ2OjcA==
   dependencies:
     "@messageformat/parser" "^5.0.0"
 
@@ -4827,6 +4879,17 @@
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@starknet-react/chains/-/chains-0.1.0.tgz#3728f0c5d391b8ce34526a47c975d0b648ff7ca9"
   integrity sha512-tzhLuNbFLWUGKYDZC2mbWuyO/bohQW1Q9D7Q0dCDDvowXgG1/Z0WykVusuCl0Pe4iVVrjqkiFKJRR717FzsPUQ==
+
+"@starknet-react/core@2.0.0-next.0":
+  version "2.0.0-next.0"
+  resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-2.0.0-next.0.tgz#3aae8f84af791a0b29e0f83fc177b1c2dd66aeab"
+  integrity sha512-OZf45Na0NyfDyd4utFkY32I4x0MWzpbA5XG6Q6tWHbsYSWBA7YIxdOktY5iLqhzUgxzN6g/9QMWaRtxx5Iw5WA==
+  dependencies:
+    "@starknet-react/chains" "^0.1.0-next.0"
+    "@tanstack/react-query" "^4.35.3"
+    eventemitter3 "^5.0.1"
+    immutable "^4.3.4"
+    zod "^3.22.2"
 
 "@starknet-react/core@^2.0.0-next.3":
   version "2.0.0-next.3"
@@ -12312,7 +12375,7 @@ get-source@^2.0.12:
     data-uri-to-buffer "^2.0.0"
     source-map "^0.6.1"
 
-get-starknet-core@^3.2.0:
+get-starknet-core@^3.0.1, get-starknet-core@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/get-starknet-core/-/get-starknet-core-3.2.0.tgz#44cabcbd573262340d575cb6b9a38e469a8029ed"
   integrity sha512-SZhxtLlKoPKLZ2H3l9WIU7CiNmkL3qLWGksALmvZdAXa/9PykYfLtvIB5B8A2UZMpf2ojTZlWLfuo1KhgmVobA==
@@ -15164,6 +15227,11 @@ locate-path@^6.0.0:
   integrity sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==
   dependencies:
     p-locate "^5.0.0"
+
+lodash-es@^4.17.21:
+  version "4.17.21"
+  resolved "https://registry.yarnpkg.com/lodash-es/-/lodash-es-4.17.21.tgz#43e626c46e6591b7750beb2b50117390c609e3ee"
+  integrity sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==
 
 lodash.camelcase@^4.3.0:
   version "4.3.0"
@@ -20046,6 +20114,11 @@ trough@^1.0.0:
   resolved "https://registry.npmjs.org/trough/-/trough-1.0.5.tgz"
   integrity sha512-rvuRbTarPXmMb79SmzEp8aqXNKcK+y0XaB298IXueQ8I2PsrATcPBCSPyK/dDNa2iWOhKlfNnOjdAOTBU/nkFA==
 
+trpc-browser@^1.3.2:
+  version "1.3.6"
+  resolved "https://registry.yarnpkg.com/trpc-browser/-/trpc-browser-1.3.6.tgz#7aa9823dd5b278a87a00f8f001007e517beea157"
+  integrity sha512-4Z3zEE7ODupQ6OZ7ABZD8PnC9BP4FBi42eH+5OTxua4VRsnkk0fDvSJL3sS7sb5wJTASdsE5lSbqM7xGQjKknA==
+
 tryer@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/tryer/-/tryer-1.0.1.tgz#f2c85406800b9b0f74c9f7465b81eaad241252f8"
@@ -20493,6 +20566,11 @@ unraw@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/unraw/-/unraw-2.0.1.tgz#7b51dcdfb1e43d59d5e52cdb44d349d029edbaba"
   integrity sha512-tdOvLfRzHolwYcHS6HIX860MkK9LQ4+oLuNwFYL7bpgTEO64PZrcQxkisgwJYCfF8sKiWLwwu1c83DvMkbefIQ==
+
+unraw@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/unraw/-/unraw-3.0.0.tgz#73443ed70d2ab09ccbac2b00525602d5991fbbe3"
+  integrity sha512-08/DA66UF65OlpUDIQtbJyrqTR0jTAlJ+jsnkQ4jxR7+K5g5YG1APZKQSMCE1vqqmD+2pv6+IdEjmopFatacvg==
 
 untildify@^4.0.0:
   version "4.0.0"

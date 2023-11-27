@@ -426,7 +426,7 @@ export default function ConfirmSwapModal({ trade,
           <ErrorModalContent errorType={errorType} onRetry={startSwapFlow} />
         ) : (
           <ConfirmationModalContent
-            title={confirmModalState === ConfirmModalState.REVIEWING ? <Trans>Review swap</Trans> : undefined}
+            title={confirmModalState === ConfirmModalState.REVIEWING ? <Trans>Confirm swap</Trans> : undefined}
             onDismiss={onModalDismiss}
             topContent={modalHeader}
             bottomContent={modalBottom}

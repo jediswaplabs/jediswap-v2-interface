@@ -86,7 +86,6 @@ export function PoolDetailsStatsButtons({ chainId, token0, token1, feeTier, load
     <PoolDetailsStatsButtonsRow>
       <PoolButton
         size={ButtonSize.medium}
-        emphasis={ButtonEmphasis.highSoft}
         onClick={() => handleOnClick(false)}
         data-testid="pool-details-add-liquidity-button"
       >
@@ -94,7 +93,6 @@ export function PoolDetailsStatsButtons({ chainId, token0, token1, feeTier, load
       </PoolButton>
       <PoolButton
         size={ButtonSize.medium}
-        emphasis={ButtonEmphasis.highSoft}
         onClick={() => handleOnClick(true)}
         data-testid="pool-details-swap-button"
       >

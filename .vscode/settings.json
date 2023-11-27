@@ -2,13 +2,6 @@
   "npm.packageManager": "yarn",
   "typescript.updateImportsOnFileMove.enabled": "always",
   "javascript.updateImportsOnFileMove.enabled": "always",
-  "editor.formatOnSaveMode": "file",
-  "editor.tabCompletion": "on",
-  "editor.tabSize": 2,
-  "editor.inlineSuggest.enabled": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.formatOnSave": true,
-  "editor.formatOnPaste": false,
   "[javascript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
@@ -18,5 +11,10 @@
   "files.eol": "\n",
   "eslint.enable": true,
   "eslint.debug": true,
-  "prettier.trailingComma": "none",
+  "extensions.disabled": [
+    "ms-vscode.jscs",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "rvest.vs-code-prettier-eslint"
+  ]
 }

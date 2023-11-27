@@ -1,22 +1,19 @@
 import { Trans } from '@lingui/macro'
+import { ReactNode } from 'react'
+import { ChevronRight } from 'react-feather'
+import styled from 'styled-components'
+
 import Column from 'components/Column'
 import Row from 'components/Row'
 import { LOCALE_LABEL } from 'constants/locales'
 import { useCurrencyConversionFlagEnabled } from 'featureFlags/flags/currencyConversion'
 import { useActiveLocalCurrency } from 'hooks/useActiveLocalCurrency'
 import { useActiveLocale } from 'hooks/useActiveLocale'
-import { ReactNode } from 'react'
-import { ChevronRight } from 'react-feather'
-import styled from 'styled-components'
 import { ClickableStyle, ThemedText } from 'theme/components'
-import ThemeToggle from 'theme/components/ThemeToggle'
-
-import { AnalyticsToggle } from './AnalyticsToggle'
 import { GitVersionRow } from './GitVersionRow'
 import { LanguageMenuItems } from './LanguageMenu'
 import { SlideOutMenu } from './SlideOutMenu'
 import { SmallBalanceToggle } from './SmallBalanceToggle'
-import { TestnetsToggle } from './TestnetsToggle'
 
 const Container = styled(Column)`
   height: 100%;
@@ -36,7 +33,7 @@ const ToggleWrapper = styled.div<{ currencyConversionEnabled?: boolean }>`
 `
 
 const SettingsButtonWrapper = styled(Row)`
-  ${ClickableStyle}
+  ${ClickableStyle};
   padding: 16px 0px;
 `
 
@@ -85,15 +82,12 @@ export default function SettingsMenu({
     <SlideOutMenu title={<Trans>Settings</Trans>} onClose={onClose}>
       <Container>
         <div>
-          <SectionTitle data-testid="wallet-header">
+          {/* <SectionTitle data-testid="wallet-header">
             <Trans>Preferences</Trans>
-          </SectionTitle>
-          <ToggleWrapper currencyConversionEnabled={currencyConversionEnabled}>
-            <ThemeToggle />
+          </SectionTitle> */}
+          {/* <ToggleWrapper currencyConversionEnabled={currencyConversionEnabled}>
             <SmallBalanceToggle />
-            <AnalyticsToggle />
-            <TestnetsToggle />
-          </ToggleWrapper>
+          </ToggleWrapper> */}
           {!currencyConversionEnabled && (
             <>
               <SectionTitle data-testid="wallet-header">

@@ -1,14 +1,20 @@
 // Based mostly on https://github.com/Uniswap/interface/blob/main/src/theme/index.tsx
 
-const jediBlue = '#50D5FF';
-const jediPink = '#FF00E9';
-const jediWhite = '#fff';
-const jediGrey = '#959595';
-const jediNavyBlue = '#141451';
+const jediBlue = '#50D5FF'
+const jediPink = '#FF00E9'
+const jediWhite = '#fff'
+const jediGrey = '#959595'
+const jediNavyBlue = '#141451'
+const signalGreen = '#21E70F'
+const jediGreyBorder = '#444'
+const signalRed = '#FC4D4D'
 
 export const colors = {
   white: '#FFFFFF',
   black: '#000000',
+
+  greyLight: '#F2F2F2',
+
   gray50: '#F5F6FC',
   gray100: '#E8ECFB',
   gray150: '#D2D9EE',
@@ -65,6 +71,8 @@ export const colors = {
   gold200: '#EEB317',
   gold400: '#B17900',
   goldVibrant: '#FEB239',
+
+  green1: signalGreen,
   green50: '#E3F3E6',
   green100: '#BFEECA',
   green200: '#76D191',
@@ -106,19 +114,20 @@ export const colors = {
 
   // NEW COLORS FOR SPORE - need to define light/dark here cause they are root colors now (different system)
   neutral1_dark: '#FFFFFF',
-  neutral2_dark: '#9B9B9B',
-  neutral3_dark: '#5E5E5E',
+  neutral2_dark: '#959595',
+  neutral3_dark: jediGrey,
 
-  surface1_dark: '#212429',
+  surface1_dark: jediNavyBlue,
   surface2_dark: '#2C2F36',
   surface3_dark: '#40444F',
-  surface4_dark: '#565A69',
+  surface4_dark: '#C4C4C403',
   surface5_dark: '#ffffff26',
+  surface6_dark: '#323C5C',
 
   accent1_dark: jediBlue,
   accent2_dark: jediPink,
 
-  neutral1_light: '#222222',
+  neutral1_light: jediWhite,
   neutral2_light: '#7D7D7D',
   neutral3_light: '#CECECE',
 
@@ -127,13 +136,15 @@ export const colors = {
   surface3_light: '#22222212',
   surface4_light: '#FFFFFF64',
   surface5_light: '#00000004',
+  surface6_light: '#00000004',
 
-  accent1_light: '#FC72FF',
+  accent1_light: jediBlue,
   accent2_light: '#FFEFFF',
   success: '#40B66B',
-  critical: '#FF5F52',
+  critical: '#FF3257',
   scrim: 'rgba(0, 0, 0, 0.60)',
-};
+  divider: 'rgba(255, 255, 255, 0.40)',
+}
 
 type Theme = typeof darkTheme
 
@@ -161,17 +172,22 @@ const commonTheme = {
   chain_84531: colors.networkBase,
   chain_56_background: colors.networkBsc,
   promotional: colors.magenta300,
+  notice: colors.greyLight,
 
   brandedGradient: 'linear-gradient(95.64deg, #29aafd 8.08%, #ff00e9 105.91%)',
   brandedGradientReversed: 'linear-gradient(95.64deg, #ff00e9 8.08%, #29aafd 105.91%)',
   promotionalGradient: 'linear-gradient(95.64deg, #ff00e9 8.08%, #29aafd 105.91%)',
+  bgdGradient: 'linear-gradient(180deg, #03001E 0%, #2C045C 46.35%, #930BD3 100%)',
 
   jediBlue,
   jediPink,
   jediWhite,
   jediGrey,
   jediNavyBlue,
-};
+  signalGreen,
+  jediGreyBorder,
+  signalRed,
+}
 
 export const darkTheme = {
   ...commonTheme,
@@ -187,33 +203,12 @@ export const darkTheme = {
   surface3: colors.surface3_dark,
   surface4: colors.surface4_dark,
   surface5: colors.surface5_dark,
+  surface6: colors.surface6_dark,
 
   accent1: colors.accent1_dark,
   accent2: colors.accent2_dark,
   success: colors.success,
   critical: colors.critical,
   scrim: colors.scrim,
-};
-
-export const lightTheme: Theme = {
-  ...commonTheme,
-
-  background: colors.white,
-
-  neutral1: colors.neutral1_light,
-  neutral2: colors.neutral2_light,
-  neutral3: colors.neutral3_light,
-
-  surface1: colors.surface1_light,
-  surface2: colors.surface2_light,
-  surface3: colors.surface3_light,
-  surface4: colors.surface4_light,
-  surface5: colors.surface5_light,
-
-  accent1: colors.accent1_light,
-  accent2: colors.accent2_light,
-
-  success: colors.success,
-  critical: colors.critical,
-  scrim: colors.scrim,
-};
+  divider: colors.divider,
+}

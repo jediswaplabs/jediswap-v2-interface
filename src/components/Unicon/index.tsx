@@ -1,18 +1,15 @@
-import React, { memo, useMemo } from 'react'
-import { useIsDarkMode } from 'theme/components/ThemeToggle'
+import React, { memo, useMemo } from 'react';
 
-import { blurs, UniconAttributeData, UniconAttributes, UniconAttributesToIndices } from './types'
-import { deriveUniconAttributeIndices, getUniconAttributeData, isEthAddress } from './utils'
+import { blurs, UniconAttributeData, UniconAttributes, UniconAttributesToIndices } from './types';
+import { deriveUniconAttributeIndices, getUniconAttributeData, isEthAddress } from './utils';
 
-const ORIGINAL_CONTAINER_SIZE = 36
-const EMBLEM_XY_SHIFT = 10
+const ORIGINAL_CONTAINER_SIZE = 36;
+const EMBLEM_XY_SHIFT = 10;
 
-function PathMask({
-  id,
+function PathMask({ id,
   paths,
   scale,
-  shift = 0,
-}: {
+  shift = 0 }: {
   id: string
   paths: React.SVGProps<SVGPathElement>[]
   scale: number
@@ -27,13 +24,13 @@ function PathMask({
         ))}
       </g>
     </mask>
-  )
+  );
 }
 
 type UniconMaskProps = { maskId: string; attributeData: UniconAttributeData; size: number }
 function UniconMask({ maskId, attributeData, size }: UniconMaskProps) {
-  const shapeMaskId = `shape-${maskId}`
-  const containerMaskId = `container-${maskId}`
+  const shapeMaskId = `shape-${maskId}`;
+  const containerMaskId = `container-${maskId}`;
 
   return (
     <defs>
@@ -70,7 +67,7 @@ function UniconMask({ maskId, attributeData, size }: UniconMaskProps) {
         </g>
       </mask>
     </defs>
-  )
+  );
 }
 
 type UniconGradientProps = { gradientId: string; attributeData: UniconAttributeData }
@@ -80,7 +77,7 @@ function UniconGradient({ gradientId, attributeData }: UniconGradientProps) {
       <stop offset="0%" stopColor={attributeData[UniconAttributes.GradientStart]} />
       <stop offset="100%" stopColor={attributeData[UniconAttributes.GradientEnd]} />
     </linearGradient>
-  )
+  );
 }
 
 function UniconBlur({ blurId, size }: { blurId: string; size: number }) {
@@ -88,30 +85,27 @@ function UniconBlur({ blurId, size }: { blurId: string; size: number }) {
     <filter id={blurId} x="-50%" y="-50%" height="200%" width="200%">
       <feGaussianBlur in="SourceGraphic" stdDeviation={size / 3} />
     </filter>
-  )
+  );
 }
 
-function UniconSvg({
-  attributeIndices,
+function UniconSvg({ attributeIndices,
   size,
-  address,
-}: {
+  address }: {
   attributeIndices: UniconAttributesToIndices
   size: number
   address: string
   mobile?: boolean
 }) {
-  const isDarkMode = useIsDarkMode()
-  const attributeData = useMemo(() => getUniconAttributeData(attributeIndices), [attributeIndices])
+  const attributeData = useMemo(() => getUniconAttributeData(attributeIndices), [attributeIndices]);
 
-  const gradientId = `gradient${address + size}`
-  const maskId = `mask${address + size}`
-  const blurId = `blur${address + size}`
+  const gradientId = `gradient${address + size}`;
+  const maskId = `mask${address + size}`;
+  const blurId = `blur${address + size}`;
   const svgProps = {
     viewBox: `0 0 ${size} ${size}`,
-  }
+  };
 
-  if (!attributeIndices || !attributeData) return null
+  if (!attributeIndices || !attributeData) { return null; }
 
   return (
     <svg {...svgProps}>
@@ -123,7 +117,6 @@ function UniconSvg({
 
       <g mask={`url(#${maskId})`}>
         <rect x="0" y="0" width="100%" height="100%" fill={`url(#${gradientId})`} />
-        {!isDarkMode && <rect x="0" y="0" width="100%" height="100%" fill="black" opacity={0.08} />}
         <ellipse
           cx={size / 2}
           cy={0}
@@ -134,7 +127,7 @@ function UniconSvg({
         />
       </g>
     </svg>
-  )
+  );
 }
 
 interface Props {
@@ -146,9 +139,9 @@ interface Props {
 }
 
 function _Unicon({ address, size = 24, randomSeed = 0, mobile }: Props) {
-  const attributeIndices = useMemo(() => deriveUniconAttributeIndices(address, randomSeed), [address, randomSeed])
+  const attributeIndices = useMemo(() => deriveUniconAttributeIndices(address, randomSeed), [address, randomSeed]);
 
-  if (!address || !isEthAddress(address) || !attributeIndices) return null
+  if (!address || !isEthAddress(address) || !attributeIndices) { return null; }
 
   return (
     <div style={{ height: size, width: size, position: 'relative' }}>
@@ -156,7 +149,7 @@ function _Unicon({ address, size = 24, randomSeed = 0, mobile }: Props) {
         <UniconSvg attributeIndices={attributeIndices} size={size} address={address} mobile={mobile} />
       </div>
     </div>
-  )
+  );
 }
 
-export const Unicon = memo(_Unicon)
+export const Unicon = memo(_Unicon);

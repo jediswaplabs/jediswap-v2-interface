@@ -1,23 +1,23 @@
 import { BrowserEvent, InterfaceEventName } from '@uniswap/analytics-events'
-import { TraceEvent } from 'analytics'
-import { ScrollBarStyles } from 'components/Common'
-import useDisableScrolling from 'hooks/useDisableScrolling'
-import usePrevious from 'hooks/usePrevious'
-import { useWindowSize } from 'hooks/useWindowSize'
 import { atom } from 'jotai'
 import { useAtomValue, useUpdateAtom } from 'jotai/utils'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { ChevronsRight } from 'react-feather'
 import { useGesture } from 'react-use-gesture'
 import styled from 'styled-components'
+
+import { useWindowSize } from 'hooks/useWindowSize'
+import usePrevious from 'hooks/usePrevious'
+import useDisableScrolling from 'hooks/useDisableScrolling'
+import { ScrollBarStyles } from 'components/Common'
+import { TraceEvent } from 'analytics'
 import { BREAKPOINTS } from 'theme'
 import { ClickableStyle } from 'theme/components'
 import { Z_INDEX } from 'theme/zIndex'
 import { isMobile } from 'utils/userAgent'
-
 import DefaultMenu from './DefaultMenu'
 
-const DRAWER_WIDTH_XL = '390px'
+const DRAWER_WIDTH_XL = '324px'
 const DRAWER_WIDTH = '320px'
 const DRAWER_MARGIN = '8px'
 const DRAWER_OFFSET = '10px'
@@ -69,7 +69,9 @@ export const Scrim = (props: ScrimBackgroundProps) => {
   const { width } = useWindowSize()
 
   useEffect(() => {
-    if (width && width < BREAKPOINTS.sm && props.$open) document.body.style.overflow = 'hidden'
+    if (width && width < BREAKPOINTS.sm && props.$open) {
+      document.body.style.overflow = 'hidden'
+    }
     return () => {
       document.body.style.overflow = 'visible'
     }
@@ -111,7 +113,7 @@ const Container = styled.div`
 `
 
 const AccountDrawerWrapper = styled.div<{ open: boolean }>`
-  margin-right: ${({ open }) => (open ? 0 : '-' + DRAWER_WIDTH)};
+  margin-right: ${({ open }) => (open ? 0 : `-${DRAWER_WIDTH}`)};
   height: 100%;
   overflow: hidden;
 
@@ -136,8 +138,8 @@ const AccountDrawerWrapper = styled.div<{ open: boolean }>`
   border-radius: 12px;
   width: ${DRAWER_WIDTH};
   font-size: 16px;
-  background-color: ${({ theme }) => theme.surface1};
-  border: ${({ theme }) => `1px solid ${theme.surface3}`};
+  background: ${({ theme }) => theme.bgdGradient};
+  border: ${({ theme }) => `1px solid ${theme.jediGrey}`};
 
   box-shadow: ${({ theme }) => theme.deprecated_deepShadow};
   transition: margin-right ${({ theme }) => theme.transition.duration.medium};
@@ -243,15 +245,9 @@ function AccountDrawer() {
   return (
     <Container>
       {walletDrawerOpen && (
-        <TraceEvent
-          events={[BrowserEvent.onClick]}
-          name={InterfaceEventName.MINI_PORTFOLIO_TOGGLED}
-          properties={{ type: 'close' }}
-        >
-          <CloseDrawer onClick={toggleWalletDrawer} data-testid="close-account-drawer">
-            <CloseIcon />
-          </CloseDrawer>
-        </TraceEvent>
+        <CloseDrawer onClick={toggleWalletDrawer} data-testid="close-account-drawer">
+          <CloseIcon />
+        </CloseDrawer>
       )}
       <Scrim onClick={toggleWalletDrawer} $open={walletDrawerOpen} />
       <AccountDrawerWrapper

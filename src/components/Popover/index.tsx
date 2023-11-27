@@ -1,10 +1,11 @@
-import { Options, Placement } from '@popperjs/core'
-import Portal from '@reach/portal'
-import useInterval from 'lib/hooks/useInterval'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
-import { usePopper } from 'react-popper'
-import styled from 'styled-components'
-import { Z_INDEX } from 'theme/zIndex'
+import { Options, Placement } from '@popperjs/core';
+import { Portal } from '@reach/portal';
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react';
+import { usePopper } from 'react-popper';
+import styled from 'styled-components';
+
+import useInterval from 'lib/hooks/useInterval';
+import { Z_INDEX } from 'theme/zIndex';
 
 const PopoverContainer = styled.div<{ show: boolean }>`
   z-index: ${Z_INDEX.popover};
@@ -13,12 +14,12 @@ const PopoverContainer = styled.div<{ show: boolean }>`
   opacity: ${(props) => (props.show ? 1 : 0)};
   transition: visibility 150ms linear, opacity 150ms linear;
   color: ${({ theme }) => theme.neutral2};
-`
+`;
 
 const ReferenceElement = styled.div`
   display: inline-block;
   height: inherit;
-`
+`;
 
 export const Arrow = styled.div`
   width: 8px;
@@ -70,7 +71,7 @@ export const Arrow = styled.div`
       border-top: none;
     }
   }
-`
+`;
 
 export interface PopoverProps {
   content: React.ReactNode
@@ -84,8 +85,7 @@ export interface PopoverProps {
   style?: CSSProperties
 }
 
-export default function Popover({
-  content,
+export default function Popover({ content,
   show,
   children,
   placement = 'auto',
@@ -93,11 +93,10 @@ export default function Popover({
   offsetY = 8,
   hideArrow = false,
   showInline = false,
-  style,
-}: PopoverProps) {
-  const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null)
-  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null)
-  const [arrowElement, setArrowElement] = useState<HTMLDivElement | null>(null)
+  style }: PopoverProps) {
+  const [referenceElement, setReferenceElement] = useState<HTMLDivElement | null>(null);
+  const [popperElement, setPopperElement] = useState<HTMLDivElement | null>(null);
+  const [arrowElement, setArrowElement] = useState<HTMLDivElement | null>(null);
 
   const options: Options = useMemo(
     () => ({
@@ -109,15 +108,15 @@ export default function Popover({
         { name: 'preventOverflow', options: { padding: 8 } },
       ],
     }),
-    [placement, offsetX, offsetY, arrowElement]
-  )
+    [placement, offsetX, offsetY, arrowElement],
+  );
 
-  const { styles, update, attributes } = usePopper(referenceElement, show ? popperElement : null, options)
+  const { styles, update, attributes } = usePopper(referenceElement, show ? popperElement : null, options);
 
   const updateCallback = useCallback(() => {
-    update && update()
-  }, [update])
-  useInterval(updateCallback, show ? 100 : null)
+    update && update();
+  }, [update]);
+  useInterval(updateCallback, show ? 100 : null);
 
   return showInline ? (
     <PopoverContainer show={show}>{content}</PopoverContainer>
@@ -140,5 +139,5 @@ export default function Popover({
         </PopoverContainer>
       </Portal>
     </>
-  )
+  );
 }

@@ -1,11 +1,12 @@
-import { Trans } from '@lingui/macro'
-import { headlineMedium } from 'nft/css/common.css'
-import { useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
-import styled from 'styled-components'
-import { ThemedText } from 'theme/components'
+import { Trans } from '@lingui/macro';
+import { useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
 
-import { EmptyActivityIcon, EmptyNftsIcon, EmptyPoolsIcon, EmptyTokensIcon } from './icons'
+import { headlineMedium } from 'nft/css/common.css';
+import { ThemedText } from 'theme/components';
+import { EmptyActivityIcon, EmptyNftsIcon, EmptyPoolsIcon, EmptyTokensIcon } from './icons';
+import { ButtonPrimary } from '../../../../components/Button';
 
 const EmptyWalletContainer = styled.div`
   display: flex;
@@ -15,23 +16,21 @@ const EmptyWalletContainer = styled.div`
   flex-wrap: wrap;
   height: 100%;
   width: 100%;
-`
+`;
 
 const EmptyWalletText = styled(ThemedText.SubHeader)`
   white-space: normal;
   margin-top: 12px;
   text-align: center;
-`
+`;
 
 const EmptyWalletSubtitle = styled(ThemedText.BodySmall)`
   white-space: normal;
   text-align: center;
   margin-top: 8px;
-`
+`;
 
-const ActionButton = styled.button`
-  background-color: ${({ theme }) => theme.accent1};
-  padding: 10px 24px;
+const ActionButton = styled(ButtonPrimary)`
   color: ${({ theme }) => theme.white};
   width: min-content;
   border: none;
@@ -43,7 +42,7 @@ const ActionButton = styled.button`
   font-weight: 535;
   font-size: 16px;
   line-height: 24px;
-`
+`;
 
 type EmptyWalletContent = {
   title: React.ReactNode
@@ -52,20 +51,11 @@ type EmptyWalletContent = {
   urlPath?: string
   icon: React.ReactNode
 }
-type EmptyWalletContentType = 'nft' | 'token' | 'activity' | 'pool'
+type EmptyWalletContentType = 'token' | 'activity' | 'pool'
 const EMPTY_WALLET_CONTENT: { [key in EmptyWalletContentType]: EmptyWalletContent } = {
-  nft: {
-    title: <Trans>No NFTs yet</Trans>,
-    subtitle: <Trans>Buy or transfer NFTs to this wallet to get started.</Trans>,
-    actionText: <Trans>Explore NFTs</Trans>,
-    urlPath: '/nfts',
-    icon: <EmptyNftsIcon />,
-  },
   token: {
     title: <Trans>No tokens yet</Trans>,
     subtitle: <Trans>Buy or transfer tokens to this wallet to get started.</Trans>,
-    actionText: <Trans>Explore tokens</Trans>,
-    urlPath: '/tokens',
     icon: <EmptyTokensIcon />,
   },
   activity: {
@@ -80,24 +70,24 @@ const EMPTY_WALLET_CONTENT: { [key in EmptyWalletContentType]: EmptyWalletConten
     urlPath: '/pool',
     icon: <EmptyPoolsIcon />,
   },
-}
+};
 
 interface EmptyWalletContentProps {
   type?: EmptyWalletContentType
   onNavigateClick?: () => void
 }
 
-const EmptyWalletContent = ({ type = 'nft', onNavigateClick }: EmptyWalletContentProps) => {
-  const navigate = useNavigate()
+const EmptyWalletContent = ({ type = 'token', onNavigateClick }: EmptyWalletContentProps) => {
+  const navigate = useNavigate();
 
-  const content = EMPTY_WALLET_CONTENT[type]
+  const content = EMPTY_WALLET_CONTENT[type];
 
   const actionButtonClick = useCallback(() => {
     if (content.urlPath) {
-      onNavigateClick?.()
-      navigate(content.urlPath)
+      onNavigateClick?.();
+      navigate(content.urlPath);
     }
-  }, [content.urlPath, navigate, onNavigateClick])
+  }, [content.urlPath, navigate, onNavigateClick]);
 
   return (
     <>
@@ -110,13 +100,11 @@ const EmptyWalletContent = ({ type = 'nft', onNavigateClick }: EmptyWalletConten
         </ActionButton>
       )}
     </>
-  )
-}
+  );
+};
 
-export const EmptyWalletModule = (props?: EmptyWalletContentProps) => {
-  return (
-    <EmptyWalletContainer>
-      <EmptyWalletContent {...props} />
-    </EmptyWalletContainer>
-  )
-}
+export const EmptyWalletModule = (props?: EmptyWalletContentProps) => (
+  <EmptyWalletContainer>
+    <EmptyWalletContent {...props} />
+  </EmptyWalletContainer>
+);

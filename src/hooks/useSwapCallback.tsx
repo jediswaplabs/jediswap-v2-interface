@@ -77,7 +77,7 @@ export function useSwapCallback(
       type: TransactionType.SWAP,
       inputCurrencyId: currencyId(trade.inputAmount.currency),
       outputCurrencyId: currencyId(trade.outputAmount.currency),
-      isUniswapXOrder: result.type === TradeFillType.UniswapX,
+      isUniswapXOrder: false,
       ...(trade.tradeType === TradeType.EXACT_INPUT
         ? {
           tradeType: TradeType.EXACT_INPUT,
@@ -93,17 +93,7 @@ export function useSwapCallback(
         }),
     };
 
-    if (result.type === TradeFillType.UniswapX) {
-      addOrder(
-        account,
-        result.response.orderHash,
-        chainId,
-        result.response.deadline,
-        swapInfo as UniswapXOrderDetails['swapInfo'],
-      );
-    } else {
-      addTransaction(result.response, swapInfo, deadline?.toNumber());
-    }
+    addTransaction(result.response, swapInfo, deadline?.toNumber());
 
     return result;
   }, [account, addOrder, addTransaction, allowedSlippage, chainId, deadline, swapCallback, trade]);
