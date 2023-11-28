@@ -12,7 +12,7 @@ const Header = styled.div`
   gap: 12px;
   padding: 16px;
   text-align: right;
-
+  background: rgba(255,255,255,0.2);
   @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     grid-template-areas: "MyPositions MyPositions Toggle Toggle";
   }
