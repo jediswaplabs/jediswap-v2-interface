@@ -45,10 +45,9 @@ const Web3StatusConnected = styled(Web3StatusGeneric)<{
 }>`
   font-family: 'Avenir LT Std';
   background-color: ${({ theme }) => theme.surface5};
-  border: 2px solid ${({ theme }) => theme.white};
+  border: none;
   color: ${({ theme }) => theme.white};
   padding: 10px 24px;
-
   :hover,
   :focus {
     border: 2px solid ${({ theme }) => theme.white};

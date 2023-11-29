@@ -25,6 +25,7 @@ import { useToggleAccountDrawer } from '.';
 import IconButton, { IconHoverText, IconWithConfirmTextButton } from './IconButton';
 import MiniPortfolio from './MiniPortfolio';
 import { portfolioFadeInAnimation } from './MiniPortfolio/PortfolioRow';
+import { useDisconnect } from '@starknet-react/core';
 
 const AuthenticatedHeaderWrapper = styled.div`
   padding: 20px 16px;
@@ -91,11 +92,12 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
   const { ENSName } = useENSName(account);
   const dispatch = useAppDispatch();
   const { formatNumber, formatDelta } = useFormatter();
+  const { disconnect } = useDisconnect();
 
   const connection = getConnection(connector);
-  const disconnect = useCallback(() => {
-    if (connector && connector.deactivate) {
-      connector.deactivate();
+  const disconnectWallet = useCallback(() => {
+    if (connector) {
+      disconnect();
     }
     connector.resetState();
     dispatch(updateSelectedWallet({ wallet: undefined }));
@@ -163,7 +165,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           />
           <IconWithConfirmTextButton
             data-testid="wallet-disconnect"
-            onConfirm={disconnect}
+            onConfirm={disconnectWallet}
             onShowConfirm={setShowDisconnectConfirm}
             Icon={Power}
             text="Disconnect"
