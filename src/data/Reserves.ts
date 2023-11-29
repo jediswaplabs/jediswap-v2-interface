@@ -24,7 +24,6 @@ export interface LiquidityPairToken {
 export function usePairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][] {
   const { account, chainId } = useAccountDetails()
   const allPairs = useAllPairs()
-  console.log('🚀 ~ file: Reserves.ts:27 ~ usePairs ~ allPairs:', allPairs)
 
   const tokens = useMemo(
     () =>
@@ -34,7 +33,6 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
       ]),
     [chainId, currencies]
   )
-  console.log('🚀 ~ file: Reserves.ts:37 ~ usePairs ~ tokens:', tokens)
 
   const pairAddresses = useMemo(
     () =>
@@ -45,7 +43,6 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
       }),
     [tokens]
   )
-  console.log('🚀 ~ file: Reserves.ts:48 ~ usePairs ~ pairAddresses:', pairAddresses)
 
   const validatedPairAddress = useMemo(
     () => pairAddresses.map((addr) => (addr && allPairs.includes(addr) ? addr : undefined)),
@@ -53,7 +50,6 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
   )
 
   const results = useMultipleContractSingleData(validatedPairAddress, JediswapPairABI as Abi, 'get_reserves')
-  console.log('🚀 ~ file: Reserves.ts:56 ~ usePairs ~ results:', results)
 
   return useMemo(() => {
     return results.map((result, i) => {
@@ -81,6 +77,5 @@ export function usePairs(currencies: [Currency | undefined, Currency | undefined
 
 export function usePair(tokenA?: Currency, tokenB?: Currency): [PairState, Pair | null] {
   const pairs = usePairs([[tokenA, tokenB]])?.[0]
-  console.log('🚀 ~ file: Reserves.ts:83 ~ usePair ~ pairs:', pairs)
   return pairs ?? [PairState.LOADING, null]
 }

@@ -19,6 +19,8 @@ import { flexRowNoWrap } from 'theme/styles'
 import { Z_INDEX } from 'theme/zIndex'
 import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions'
 import useFetchAllPairsCallback from 'hooks/useFetchAllPairs'
+import { BlockNumber } from 'starknet'
+import { useBlockNumber } from '@starknet-react/core'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
   display: flex;
@@ -93,11 +95,15 @@ export default function App() {
 
   const isHeaderTransparent = !scrolledState
 
-  const fetchAllPairs = useFetchAllPairsCallback()
+  // const fetchAllPairs = useFetchAllPairsCallback()
 
-  useEffect(() => {
-    fetchAllPairs()
-  }, [fetchAllPairs])
+  // useEffect(() => {
+  //   fetchAllPairs()
+  // }, [fetchAllPairs])
+
+  // const { data, isLoading, isError } = useBlockNumber({
+  //   blockIdentifier: 'latest' as BlockNumber,
+  // })
 
   useEffect(() => {
     window.scrollTo(0, 0)

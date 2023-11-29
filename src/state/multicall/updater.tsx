@@ -240,8 +240,6 @@ export default function Updater(): null {
   const multicallContract = useMulticallContract()
   const cancellations = useRef<{ blockNumber: number; cancellations: (() => void)[] }>()
 
-  console.log(chainId, multicallContract, latestBlockNumber, 'sdksndksnkdskn')
-
   const listeningKeys: { [callKey: string]: number } = useMemo(() => {
     return activeListeningKeys(debouncedListeners, chainId)
   }, [debouncedListeners, chainId])
@@ -268,8 +266,6 @@ export default function Updater(): null {
       cancellations.current?.cancellations?.forEach((c) => c())
     }
 
-    console.log(calls, chainId, latestBlockNumber, 'dkfndkfndk')
-
     dispatch(
       fetchingMulticallResults({
         calls,
@@ -288,8 +284,6 @@ export default function Updater(): null {
         })
         promise
           .then(({ results: returnData, blockNumber: fetchBlockNumber }) => {
-            console.log('🚀 ~ file: updater.tsx:287 ~ .then ~ returnData:', returnData)
-            console.log('🚀 ~ file: updater.tsx:332 ~ .then ~ fetchBlockNumber:', fetchBlockNumber)
             cancellations.current = { cancellations: [], blockNumber: latestBlockNumber }
             // accumulates the length of all previous indices
             const firstCallKeyIndex = chunkedCalls.slice(0, index).reduce<number>((memo, curr) => memo + curr.length, 0)

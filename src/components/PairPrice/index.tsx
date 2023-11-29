@@ -22,8 +22,6 @@ export default function PairPrice({ pair, showInverted, setShowInverted, ...rest
   //   : `${price?.baseCurrency?.symbol} per ${price?.quoteCurrency?.symbol}`
 
   const formattedPrice = pair && formatPairExecutionPrice(pair, showInverted, '=')
-  // console.log('🚀 ~ file: index.tsx:25 ~ PairPrice ~ pair:', pair)
-  // console.log('🚀 ~ file: index.tsx:25 ~ PairPrice ~ formattedPrice:', formattedPrice)
 
   return (
     <>

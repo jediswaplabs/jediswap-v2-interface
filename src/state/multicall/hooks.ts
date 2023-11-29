@@ -55,7 +55,6 @@ function useCallsData(calls: (Call | undefined)[], methodAbi?: FunctionAbi, opti
   const callResults = useSelector<AppState, AppState['multicall']['callResults']>(
     (state) => state.multicall.callResults
   )
-  console.log('🚀 ~ file: hooks.ts:58 ~ useCallsData ~ callResults:', callResults)
   const dispatch = useDispatch<AppDispatch>()
 
   const serializedCallKeys: string = useMemo(
@@ -277,7 +276,6 @@ export function useSingleCallResult(
   const methodAbi = useValidatedMethodAbi(contract?.abi, methodName)
 
   const result = useCallsData(calls, methodAbi, options)[0]
-  console.log('🚀 ~ file: hooks.ts:281 ~ result:', result)
 
   const { data: latestBlockNumber } = useBlockNumber({
     refetchInterval: false,
