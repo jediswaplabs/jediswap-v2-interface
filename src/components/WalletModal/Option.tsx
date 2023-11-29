@@ -1,13 +1,14 @@
-import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
 import { useWeb3React } from '@web3-react/core'
-import styled from 'styled-components'
-
-import { TraceEvent } from 'analytics'
+import { InjectedConnector , Connector} from '@starknet-react/core';
+import { WebWalletConnector } from '@argent/starknet-react-webwallet-connector';
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import Loader from 'components/Icons/LoadingSpinner'
 import { ActivationStatus, useActivationState } from 'connection/activate'
-import { Connection } from 'connection/types'
+import { useConnectors } from 'hooks/starknet-react'
+import styled from 'styled-components'
+// import { useIsDarkMode } from 'theme/components/ThemeToggle'
 import { flexColumnNoWrap, flexRowNoWrap } from 'theme/styles'
+
 
 const OptionCardLeft = styled.div`
   ${flexColumnNoWrap};
@@ -102,7 +103,7 @@ const Wrapper = styled.div<{ disabled: boolean }>`
 `
 
 interface OptionProps {
-  connection?: Connection
+  connector?: Connector
   link?: string | null
   clickable?: boolean
   size?: number | null
@@ -114,8 +115,8 @@ interface OptionProps {
   active?: boolean
   id: string
 }
-export default function Option({
-  connection,
+export default function OptionV2({
+  connector,
   link = null,
   clickable = true,
   size,
@@ -127,24 +128,32 @@ export default function Option({
   active = false,
   id,
 }: OptionProps) {
+  console.log('🚀 ~ file: OptionV2.tsx:84 ~ OptionV2 ~ connector:', connector)
   const { activationState, tryActivation } = useActivationState()
   const toggleAccountDrawer = useToggleAccountDrawer()
   const { chainId } = useWeb3React()
+  const { connect } = useConnectors()
   // const activate = () => tryActivation(connection, toggleAccountDrawer, chainId)
 
   const isSomeOptionPending = activationState.status === ActivationStatus.PENDING
-  // const isCurrentOptionPending = isSomeOptionPending && activationState.connection.type === connection.type
+  const isCurrentOptionPending = false
+  // const isDarkMode = useIsDarkMode()
 
   return (
     <Wrapper disabled={isSomeOptionPending}>
-      <TraceEvent
+      {/* <TraceEvent
         events={[BrowserEvent.onClick]}
         name={InterfaceEventName.WALLET_SELECTED}
-        // properties={{ wallet_type: connection.getName() }}
+        properties={{ wallet_type: connection.getName() }}
         element={InterfaceElementName.WALLET_TYPE_OPTION}
+      > */}
+      <OptionCardClickable
+        disabled={isSomeOptionPending}
+        onClick={() => connect({ connector })}
+        selected={isCurrentOptionPending}
+        // data-testid={`wallet-option-${connection.type}`}
       >
-        <OptionCardClickable id={id} onClick={onClick} clickable={clickable && !active} active={active}>
-          <OptionCardLeft>
+       <OptionCardLeft>
             <HeaderText color={color}>
               {active ? (
                 <CircleWrapper>
@@ -163,7 +172,7 @@ export default function Option({
             <img src={icon} alt={'Icon'} />
           </IconWrapper>
         </OptionCardClickable>
-      </TraceEvent>
+      {/* </TraceEvent> */}
     </Wrapper>
   )
 }

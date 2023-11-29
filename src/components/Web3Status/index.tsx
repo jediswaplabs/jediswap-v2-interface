@@ -81,8 +81,6 @@ const StyledConnectButton = styled(ThemeButton)`
   font-family: 'Avenir LT Std';
   width: 200px;
   line-height: 18px;
-  font-weight: 800;
-  border: 2px solid ${({ theme }) => theme.white};
   :hover,
   :focus {
     background: ${({ theme }) => theme.brandedGradientReversed};
