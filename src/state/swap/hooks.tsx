@@ -20,7 +20,7 @@ import { TOKEN_SHORTHANDS } from '../../constants/tokens'
 import { useCurrency } from '../../hooks/Tokens'
 import useENS from '../../hooks/useENS'
 import useParsedQueryString from '../../hooks/useParsedQueryString'
-import { isAddress } from '../../utils'
+import { isAddress, checkAddress } from '../../utils'
 import { useCurrencyBalances } from '../connection/hooks'
 import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies, typeInput } from './actions'
 import { SwapState } from './reducer'
@@ -121,7 +121,7 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
   )
 
   const recipientLookup = useENS(recipient ?? undefined)
-  const to: string | AccountInterface | null = (recipient === null ? account : recipientLookup.address) ?? null
+  const to: string | AccountInterface | null = (recipient === null ? address : recipientLookup.address) ?? null
 
   const relevantTokenBalances = useCurrencyBalances(
     account ?? undefined,
@@ -196,7 +196,8 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
       inputError = inputError ?? <Trans>Enter an amount</Trans>
     }
 
-    const formattedTo = isAddress(to)
+    const formattedTo = checkAddress(to)
+    console.log({formattedTo})
     if (!to || !formattedTo) {
       inputError = inputError ?? <Trans>Enter a recipient</Trans>
     } else {
