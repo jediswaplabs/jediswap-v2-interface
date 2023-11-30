@@ -5,9 +5,12 @@ import { AutoRow } from 'components/Row'
 import { Bound } from 'state/mint/actions'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { wrappedCurrency } from 'utils/wrappedCurrency'
+import { FullRange } from 'state/mint/reducer'
 
 // currencyA is the base token
 export default function RangeSelector({
+  leftPrice,
+  rightPrice,
   priceLower,
   priceUpper,
   onLeftRangeInput,
@@ -17,6 +20,8 @@ export default function RangeSelector({
   feeAmount,
 }: // ticksAtLimit,
 {
+  leftPrice: string
+  rightPrice: string
   priceLower?: Price
   priceUpper?: Price
   getDecrementLower?: () => string
@@ -35,13 +40,10 @@ export default function RangeSelector({
   const tokenB = wrappedCurrency(currencyB, chainId)
   const isSorted = tokenA && tokenB && tokenA.sortsBefore(tokenB)
 
-  const leftPrice = isSorted ? priceLower : priceUpper?.invert()
-  const rightPrice = isSorted ? priceUpper : priceLower?.invert()
-
   return (
     <AutoRow gap="md">
       <StepCounter
-        value={'0'}
+        value={leftPrice}
         onUserInput={onLeftRangeInput}
         feeAmount={feeAmount}
         label={leftPrice ? `${currencyB?.symbol}` : '-'}
@@ -50,7 +52,7 @@ export default function RangeSelector({
         tokenB={currencyB?.symbol}
       />
       <StepCounter
-        value={'0'}
+        value={rightPrice}
         onUserInput={onRightRangeInput}
         feeAmount={feeAmount}
         label={rightPrice ? `${currencyB?.symbol}` : '-'}

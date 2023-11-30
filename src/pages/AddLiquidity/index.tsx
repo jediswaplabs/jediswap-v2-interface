@@ -91,6 +91,7 @@ export default function AddLiquidity() {
     feeAmount?: string
     tokenId?: string
   }>()
+
   const { account, chainId, address } = useAccountDetails()
   const theme = useTheme()
   const trace = useTrace()
@@ -133,7 +134,14 @@ export default function AddLiquidity() {
   const hasExistingPosition = false
   const isValid = !error
 
-  const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput } = useMintActionHandlers(noLiquidity)
+  const {
+    onFieldAInput,
+    onFieldBInput,
+    onLeftRangeInput,
+    onRightRangeInput,
+    leftRangeTypedValue,
+    rightRangeTypedValue,
+  } = useMintActionHandlers(noLiquidity)
 
   // modal and loading
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
@@ -170,6 +178,103 @@ export default function AddLiquidity() {
     {}
   )
 
+  async function onAdd() {
+    // if (!chainId || !provider || !account) return
+    // if (!positionManager || !baseCurrency || !quoteCurrency) {
+    //   return
+    // }
+    // if (position && account && deadline) {
+    //   const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
+    //   const { calldata, value } =
+    //     hasExistingPosition && tokenId
+    //       ? NonfungiblePositionManager.addCallParameters(position, {
+    //           tokenId,
+    //           slippageTolerance: allowedSlippage,
+    //           deadline: deadline.toString(),
+    //           useNative,
+    //         })
+    //       : NonfungiblePositionManager.addCallParameters(position, {
+    //           slippageTolerance: allowedSlippage,
+    //           recipient: account,
+    //           deadline: deadline.toString(),
+    //           useNative,
+    //           createPool: noLiquidity,
+    //         })
+    //   let txn: { to: string; data: string; value: string } = {
+    //     to: NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
+    //     data: calldata,
+    //     value,
+    //   }
+    //   if (argentWalletContract) {
+    //     const amountA = parsedAmounts[Field.CURRENCY_A]
+    //     const amountB = parsedAmounts[Field.CURRENCY_B]
+    //     const batch = [
+    //       ...(amountA && amountA.currency.isToken
+    //         ? [approveAmountCalldata(amountA, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
+    //         : []),
+    //       ...(amountB && amountB.currency.isToken
+    //         ? [approveAmountCalldata(amountB, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
+    //         : []),
+    //       {
+    //         to: txn.to,
+    //         data: txn.data,
+    //         value: txn.value,
+    //       },
+    //     ]
+    //     const data = argentWalletContract.interface.encodeFunctionData('wc_multiCall', [batch])
+    //     txn = {
+    //       to: argentWalletContract.address,
+    //       data,
+    //       value: '0x0',
+    //     }
+    //   }
+    //   const connectedChainId = await provider.getSigner().getChainId()
+    //   if (chainId !== connectedChainId) throw new WrongChainError()
+    //   setAttemptingTxn(true)
+    //   provider
+    //     .getSigner()
+    //     .estimateGas(txn)
+    //     .then((estimate) => {
+    //       const newTxn = {
+    //         ...txn,
+    //         gasLimit: calculateGasMargin(estimate),
+    //       }
+    //       return provider
+    //         .getSigner()
+    //         .sendTransaction(newTxn)
+    //         .then((response: TransactionResponse) => {
+    //           setAttemptingTxn(false)
+    //           const transactionInfo: TransactionInfo = {
+    //             type: TransactionType.ADD_LIQUIDITY_V3_POOL,
+    //             baseCurrencyId: currencyId(baseCurrency),
+    //             quoteCurrencyId: currencyId(quoteCurrency),
+    //             createPool: Boolean(noLiquidity),
+    //             expectedAmountBaseRaw: parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ?? '0',
+    //             expectedAmountQuoteRaw: parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ?? '0',
+    //             feeAmount: position.pool.fee,
+    //           }
+    //           addTransaction(response, transactionInfo)
+    //           setTxHash(response.hash)
+    //           sendAnalyticsEvent(LiquidityEventName.ADD_LIQUIDITY_SUBMITTED, {
+    //             label: [currencies[Field.CURRENCY_A]?.symbol, currencies[Field.CURRENCY_B]?.symbol].join('/'),
+    //             ...trace,
+    //             ...transactionInfo,
+    //           })
+    //         })
+    //     })
+    //     .catch((error) => {
+    //       console.error('Failed to send transaction', error)
+    //       setAttemptingTxn(false)
+    //       // we only care if the error is something _other_ than the user rejected the tx
+    //       if (error?.code !== 4001) {
+    //         console.error(error)
+    //       }
+    //     })
+    // } else {
+    //   return
+    // }
+  }
+
   const handleCurrencyASelect = useCallback(
     (currencyA: Currency) => {
       const newCurrencyIdA = currencyId(currencyA)
@@ -198,11 +303,25 @@ export default function AddLiquidity() {
     [currencyIdA, history, currencyIdB]
   )
 
-  const handleFeePoolSelect = useCallback((newFeeAmount: FeeAmount) => {
-    onLeftRangeInput('')
-    onRightRangeInput('')
-    navigate(`/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
-  }, [])
+  const handleFeePoolSelect = useCallback(
+    (newFeeAmount: FeeAmount) => {
+      onLeftRangeInput('')
+      onRightRangeInput('')
+      navigate(`/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
+    },
+    [currencyIdA, currencyIdB, navigate, onLeftRangeInput, onRightRangeInput]
+  )
+
+  const handleDismissConfirmation = useCallback(() => {
+    setShowConfirm(false)
+    // if there was a tx hash, we want to clear the input
+    if (txHash) {
+      onFieldAInput('')
+      // dont jump to pool page if creating
+      navigate('/pools')
+    }
+    setTxHash('')
+  }, [navigate, onFieldAInput, txHash])
 
   const clearAll = useCallback(() => {
     onFieldAInput('')
@@ -241,7 +360,7 @@ export default function AddLiquidity() {
   return (
     <>
       <ScrollablePage>
-        {/*  <TransactionConfirmationModal
+        <TransactionConfirmationModal
           isOpen={showConfirm}
           onDismiss={handleDismissConfirmation}
           attemptingTxn={attemptingTxn}
@@ -251,15 +370,16 @@ export default function AddLiquidity() {
               title={<Trans>Add Liquidity</Trans>}
               onDismiss={handleDismissConfirmation}
               topContent={() => (
-                <Review
-                  parsedAmounts={parsedAmounts}
-                  position={position}
-                  existingPosition={existingPosition}
-                  priceLower={priceLower}
-                  priceUpper={priceUpper}
-                  outOfRange={outOfRange}
-                  ticksAtLimit={ticksAtLimit}
-                />
+                // <Review
+                //   parsedAmounts={parsedAmounts}
+                //   position={position}
+                //   existingPosition={existingPosition}
+                //   priceLower={priceLower}
+                //   priceUpper={priceUpper}
+                //   outOfRange={outOfRange}
+                //   ticksAtLimit={ticksAtLimit}
+                // />
+                <></>
               )}
               bottomContent={() => (
                 <ButtonPrimary style={{ marginTop: '1rem' }} onClick={onAdd}>
@@ -270,8 +390,8 @@ export default function AddLiquidity() {
               )}
             />
           )}
-          pendingText={pendingText}
-        /> */}
+          pendingText={''}
+        />
         <StyledBodyWrapper $hasExistingPosition={hasExistingPosition}>
           <AddRemoveTabs
             creating={false}
@@ -388,8 +508,8 @@ export default function AddLiquidity() {
                     </RowBetween>
 
                     <RangeSelector
-                      // priceLower={priceLower}
-                      // priceUpper={priceUpper}
+                      leftPrice={leftRangeTypedValue}
+                      rightPrice={rightRangeTypedValue}
                       onLeftRangeInput={onLeftRangeInput}
                       onRightRangeInput={onRightRangeInput}
                       currencyA={baseCurrency}

@@ -11,6 +11,7 @@ import { Field, typeInput, typeLeftRangeInput, typeRightRangeInput } from './act
 import { useAccountDetails } from 'hooks/starknet-react'
 import { parseUnits } from 'ethers/lib/utils'
 import { useSearchParams } from 'react-router-dom'
+import { FullRange } from './reducer'
 
 const ZERO = JSBI.BigInt(0)
 
@@ -195,12 +196,16 @@ export function useDerivedMintInfo(
 }
 
 export function useMintActionHandlers(noLiquidity: boolean | undefined): {
+  leftRangeTypedValue: string
+  rightRangeTypedValue: string
   onFieldAInput: (typedValue: string) => void
   onFieldBInput: (typedValue: string) => void
   onLeftRangeInput: (typedValue: string) => void
   onRightRangeInput: (typedValue: string) => void
 } {
   const dispatch = useDispatch<AppDispatch>()
+
+  const { leftRangeTypedValue, rightRangeTypedValue } = useSelector<AppState, AppState['mint']>((state) => state.mint)
 
   const onFieldAInput = useCallback(
     (typedValue: string) => {
@@ -242,6 +247,8 @@ export function useMintActionHandlers(noLiquidity: boolean | undefined): {
   )
 
   return {
+    leftRangeTypedValue,
+    rightRangeTypedValue,
     onFieldAInput,
     onFieldBInput,
     onLeftRangeInput,

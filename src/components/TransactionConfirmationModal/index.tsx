@@ -22,6 +22,7 @@ import { AutoColumn, ColumnCenter } from '../Column'
 import Modal from '../Modal'
 import Row, { RowBetween, RowFixed } from '../Row'
 import AnimatedConfirmation from './AnimatedConfirmation'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const Wrapper = styled.div`
   background-color: ${({ theme }) => theme.surface1};
@@ -316,14 +317,14 @@ export default function TransactionConfirmationModal({
   reviewContent,
   currencyToAdd,
 }: ConfirmationModalProps) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   if (!chainId) return null
 
   // confirmation screen
   return (
     <Modal isOpen={isOpen} $scrollOverlay={true} onDismiss={onDismiss} maxHeight={90}>
-      {isL2ChainId(chainId) && (hash || attemptingTxn) ? (
+      {/* {isL2ChainId(chainId) && (hash || attemptingTxn) ? (
         <L2Content chainId={chainId} hash={hash} onDismiss={onDismiss} pendingText={pendingText} />
       ) : attemptingTxn ? (
         <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} />
@@ -336,7 +337,7 @@ export default function TransactionConfirmationModal({
         />
       ) : (
         reviewContent()
-      )}
+      )} */}
     </Modal>
   )
 }

@@ -65,9 +65,7 @@ export default function FeeSelector({
   const trace = useTrace()
 
   // const { isLoading, isError, largestUsageFeeTier } = useFeeTierDistribution(currencyA, currencyB)
-  const isLoading = false
-  const largestUsageFeeTier = false
-  const isError = false
+
   const distributions = {
     '100': 0.13230880019434835,
     '500': 58.77589559263296,
@@ -82,40 +80,10 @@ export default function FeeSelector({
     '10000': 2,
   }
 
-  const [showOptions, setShowOptions] = useState(false)
+  const [showOptions, setShowOptions] = useState(true)
   const [pulsing, setPulsing] = useState(false)
 
   const previousFeeAmount = usePrevious(feeAmount)
-
-  const recommended = useRef(false)
-
-  const handleFeePoolSelectWithEvent = useCallback(
-    (fee: FeeAmount) => {
-      handleFeePoolSelect(fee)
-    },
-    [handleFeePoolSelect, trace]
-  )
-
-  useEffect(() => {
-    if (feeAmount || isLoading || isError) {
-      return
-    }
-
-    if (!largestUsageFeeTier) {
-      // cannot recommend, open options
-      setShowOptions(true)
-    } else {
-      setShowOptions(false)
-
-      recommended.current = true
-
-      handleFeePoolSelect(largestUsageFeeTier)
-    }
-  }, [feeAmount, isLoading, isError, largestUsageFeeTier, handleFeePoolSelect, trace])
-
-  useEffect(() => {
-    setShowOptions(isError)
-  }, [isError])
 
   useEffect(() => {
     if (feeAmount && previousFeeAmount !== feeAmount) {
@@ -169,7 +137,7 @@ export default function FeeSelector({
                 <FeeOption
                   feeAmount={_feeAmount}
                   active={feeAmount === _feeAmount}
-                  onClick={() => handleFeePoolSelectWithEvent(_feeAmount)}
+                  onClick={() => handleFeePoolSelect(_feeAmount)}
                   distributions={distributions}
                   poolState={poolsByFeeTier[_feeAmount]}
                   key={i}
