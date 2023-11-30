@@ -11,6 +11,7 @@ import { useRouterPreference } from 'state/user/hooks'
 import useAutoRouterSupported from './useAutoRouterSupported'
 import useDebounce from './useDebounce'
 import useIsWindowVisible from './useIsWindowVisible'
+import { AccountInterface } from 'starknet'
 
 // Prevents excessive quote requests between keystrokes.
 const DEBOUNCE_TIME = 350
@@ -24,7 +25,7 @@ export function useDebouncedTrade(
   amountSpecified?: CurrencyAmount<Currency>,
   otherCurrency?: Currency,
   routerPreferenceOverride?: RouterPreference.X,
-  account?: string,
+  account?: AccountInterface,
   inputTax?: Percent,
   outputTax?: Percent
 ): {
@@ -38,7 +39,7 @@ export function useDebouncedTrade(
   amountSpecified?: CurrencyAmount<Currency>,
   otherCurrency?: Currency,
   routerPreferenceOverride?: RouterPreference.API,
-  account?: string,
+  account?: AccountInterface,
   inputTax?: Percent,
   outputTax?: Percent
 ): {
@@ -60,7 +61,7 @@ export function useDebouncedTrade(
   amountSpecified?: CurrencyAmount<Currency>,
   otherCurrency?: Currency,
   routerPreferenceOverride?: RouterPreference,
-  account?: string,
+  account?: AccountInterface,
   inputTax?: Percent,
   outputTax?: Percent
 ): {

@@ -13,6 +13,7 @@ import { useCurrencyBalance } from '../state/connection/hooks'
 import { useTransactionAdder } from '../state/transactions/hooks'
 import { TransactionType } from '../state/transactions/types'
 import { useWETHContract } from './useContract'
+import { useAccountDetails } from './starknet-react'
 
 export enum WrapType {
   NOT_APPLICABLE,
@@ -61,7 +62,9 @@ export default function useWrapCallback(
   outputCurrency: Currency | undefined | null,
   typedValue: string | undefined
 ): { wrapType: WrapType; execute?: () => Promise<string | undefined>; inputError?: WrapInputError } {
-  const { chainId, account } = useWeb3React()
+  const { chainId } = useWeb3React()
+  const { account } = useAccountDetails();
+
   const wethContract = useWETHContract()
   const balance = useCurrencyBalance(account ?? undefined, inputCurrency ?? undefined)
   // we can always parse the amount typed as the input currency, since wrapping is 1:1

@@ -17,6 +17,7 @@ import { AutoColumn } from '../Column'
 import Modal from '../Modal'
 import { LoadingView, SubmittedView } from '../ModalViews'
 import { RowBetween } from '../Row'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const ContentWrapper = styled(AutoColumn)`
   width: 100%;
@@ -42,7 +43,9 @@ interface VoteModalProps {
 }
 
 export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalProps) {
-  const { account, chainId } = useWeb3React()
+  const { chainId } = useWeb3React()
+  const { account } = useAccountDetails();
+
 
   // state for delegate input
   const [usingDelegate, setUsingDelegate] = useState(false)
@@ -54,7 +57,7 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
   // monitor for self delegation or input for third part delegate
   // default is self delegation
   const activeDelegate = usingDelegate ? typed : account
-  const { address: parsedAddress } = useENS(activeDelegate)
+  const { address: parsedAddress } = useENS(activeDelegate as any)
 
   // get the number of votes available to delegate
   const uniBalance = useTokenBalance(account ?? undefined, chainId ? UNI[chainId] : undefined)

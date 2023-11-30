@@ -4,6 +4,7 @@ import { useWeb3React } from '@web3-react/core'
 import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo'
 import { getChainInfo } from 'constants/chainInfo'
 import { asSupportedChain } from 'constants/chains'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useStablecoinValue } from 'hooks/useStablecoinPrice'
 import useCurrencyBalance from 'lib/hooks/useCurrencyBalance'
 import { useMemo } from 'react'
@@ -62,7 +63,9 @@ const StyledNetworkLabel = styled.div`
 `
 
 export default function BalanceSummary({ token }: { token: Currency }) {
-  const { account, chainId } = useWeb3React()
+  const { chainId } = useWeb3React()
+  const { account } = useAccountDetails();
+
   const theme = useTheme()
   const { label, color } = getChainInfo(asSupportedChain(chainId) ?? ChainId.MAINNET)
   const balance = useCurrencyBalance(account, token)

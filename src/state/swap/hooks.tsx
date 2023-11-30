@@ -24,6 +24,8 @@ import { isAddress } from '../../utils'
 import { useCurrencyBalances } from '../connection/hooks'
 import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies, typeInput } from './actions'
 import { SwapState } from './reducer'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { AccountInterface } from 'starknet'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
@@ -99,7 +101,7 @@ export type SwapInfo = {
 
 // from the current swap inputs, compute the best trade and return it.
 export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefined): SwapInfo {
-  const { account } = useWeb3React()
+  const { account, address } = useAccountDetails()
 
   const {
     independentField,
@@ -119,7 +121,7 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
   )
 
   const recipientLookup = useENS(recipient ?? undefined)
-  const to: string | null = (recipient === null ? account : recipientLookup.address) ?? null
+  const to: string | AccountInterface | null = (recipient === null ? account : recipientLookup.address) ?? null
 
   const relevantTokenBalances = useCurrencyBalances(
     account ?? undefined,

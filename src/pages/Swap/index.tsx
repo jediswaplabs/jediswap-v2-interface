@@ -63,6 +63,7 @@ import { computeRealizedPriceImpact, warningSeverity } from 'utils/prices';
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage';
 import { useScreenSize } from '../../hooks/useScreenSize';
 import { OutputTaxTooltipBody } from './TaxTooltipBody';
+import { useAccountDetails } from 'hooks/starknet-react';
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -169,7 +170,9 @@ export function Swap({ className,
   disableTokenInputs?: boolean
 }) {
   const connectionReady = useConnectionReady();
-  const { account, chainId: connectedChainId, connector } = useWeb3React();
+  const { chainId: connectedChainId, connector } = useWeb3React();
+  const { account } = useAccountDetails();
+
 
   // token warning stuff
   const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId);

@@ -25,6 +25,7 @@ import CurrencyLogo from '../Logo/CurrencyLogo'
 import { AutoRow, RowBetween, RowFixed } from '../Row'
 import { Dots } from '../swap/styled'
 import { FixedHeightRow } from '.'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const StyledPositionCard = styled(LightCard)<{ bgColor: any }>`
   border: none;
@@ -42,7 +43,7 @@ interface PositionCardProps {
 }
 
 export default function V2PositionCard({ pair, border, stakedBalance }: PositionCardProps) {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails();
 
   const currency0 = unwrappedToken(pair.token0)
   const currency1 = unwrappedToken(pair.token1)

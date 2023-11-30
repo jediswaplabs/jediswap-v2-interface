@@ -39,6 +39,7 @@ import styled, { useTheme } from 'styled-components'
 import { ThemedText } from 'theme/components'
 
 import { BuyButtonStateData, BuyButtonStates, getBuyButtonStateData } from './ButtonStates'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const FooterContainer = styled.div`
   padding: 0px 12px;
@@ -268,7 +269,8 @@ interface BagFooterProps {
 export const BagFooter = ({ setModalIsOpen, eventProperties }: BagFooterProps) => {
   const toggleWalletDrawer = useToggleAccountDrawer()
   const theme = useTheme()
-  const { account, chainId, connector } = useWeb3React()
+  const { chainId, connector } = useWeb3React()
+  const { account } = useAccountDetails();
   const connected = Boolean(account && chainId)
   const totalEthPrice = useBagTotalEthPrice()
   const { inputCurrency } = useTokenInput(({ inputCurrency }) => ({ inputCurrency }))
