@@ -197,7 +197,6 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     }
 
     const formattedTo = checkAddress(to)
-    console.log({formattedTo})
     if (!to || !formattedTo) {
       inputError = inputError ?? <Trans>Enter a recipient</Trans>
     } else {

@@ -385,7 +385,6 @@ interface BaseThemeButtonProps {
 }
 
 function pickThemeButtonFontSize({ size }) {
-  console.log(size);
   switch (size) {
     case ButtonSize.large:
       return '24px';
