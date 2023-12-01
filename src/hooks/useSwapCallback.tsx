@@ -19,6 +19,7 @@ import { currencyId } from '../utils/currencyId';
 import useTransactionDeadline from './useTransactionDeadline';
 import { useUniswapXSwapCallback } from './useUniswapXSwapCallback';
 import { useUniversalRouterSwapCallback } from './useUniversalRouter';
+import { useAccountDetails } from './starknet-react';
 
 export type SwapResult = Awaited<ReturnType<ReturnType<typeof useSwapCallback>>>
 
@@ -46,7 +47,8 @@ export function useSwapCallback(
 
   const addTransaction = useTransactionAdder();
   const addOrder = useAddOrder();
-  const { account, chainId } = useWeb3React();
+  const { chainId } = useWeb3React();
+  const { account } = useAccountDetails();
 
   const uniswapXSwapCallback = useUniswapXSwapCallback({
     trade: isUniswapXTrade(trade) ? trade : undefined,
