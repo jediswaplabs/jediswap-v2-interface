@@ -17,6 +17,7 @@ import { SignatureExpiredError, UserRejectedRequestError } from 'utils/errors';
 import { signTypedData } from 'utils/signing';
 import { didUserReject, swapErrorToUserReadableMessage } from 'utils/swapErrorToUserReadableMessage';
 import { getWalletMeta } from 'utils/walletMeta';
+import { useAccountDetails } from './starknet-react';
 
 type DutchAuctionOrderError = { errorCode?: number; detail?: string }
 type DutchAuctionOrderSuccess = { hash: string }
@@ -55,7 +56,8 @@ export function useUniswapXSwapCallback({ trade,
   fiatValues: { amountIn?: number; amountOut?: number; feeUsd?: number }
   allowedSlippage: Percent
 }) {
-  const { account, provider, connector } = useWeb3React();
+  const { provider, connector } = useWeb3React();
+  const { account } = useAccountDetails();
   const analyticsContext = useTrace();
 
   const { data } = useCachedPortfolioBalancesQuery({ account });

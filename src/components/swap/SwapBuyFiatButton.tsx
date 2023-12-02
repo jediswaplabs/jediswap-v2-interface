@@ -13,6 +13,7 @@ import { textFadeIn } from 'theme/styles'
 
 import { useFiatOnrampAvailability, useOpenModal } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 export const MOONPAY_REGION_AVAILABILITY_ARTICLE =
   'https://support.uniswap.org/hc/en-us/articles/11306664890381-Why-isn-t-MoonPay-available-in-my-region-'
@@ -40,7 +41,7 @@ const StyledTextButton = styled(ButtonText)`
 `
 
 export default function SwapBuyFiatButton() {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
   const openFiatOnRampModal = useOpenModal(ApplicationModal.FIAT_ONRAMP)
   const shouldShowBuyFiatButton = useIsNotOriginCountry('GB')
   const [checkFiatRegionAvailability, setCheckFiatRegionAvailability] = useState(false)

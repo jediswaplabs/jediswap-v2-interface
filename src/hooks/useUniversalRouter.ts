@@ -22,6 +22,7 @@ import isZero from 'utils/isZero';
 import { didUserReject, swapErrorToUserReadableMessage } from 'utils/swapErrorToUserReadableMessage';
 import { getWalletMeta } from 'utils/walletMeta';
 import { PermitSignature } from './usePermitAllowance';
+import { useAccountDetails } from './starknet-react';
 
 /** Thrown when gas estimation fails. This class of error usually requires an emulator to determine the root cause. */
 class GasEstimationError extends Error {
@@ -55,7 +56,8 @@ export function useUniversalRouterSwapCallback(
   fiatValues: { amountIn?: number; amountOut?: number; feeUsd?: number },
   options: SwapOptions,
 ) {
-  const { account, chainId, provider, connector } = useWeb3React();
+  const { chainId, provider, connector } = useWeb3React();
+  const { account, address } = useAccountDetails();
   const analyticsContext = useTrace();
   const blockNumber = useBlockNumber();
   const isAutoSlippage = useUserSlippageTolerance()[0] === 'auto';
