@@ -324,20 +324,19 @@ export default function TransactionConfirmationModal({
   // confirmation screen
   return (
     <Modal isOpen={isOpen} $scrollOverlay={true} onDismiss={onDismiss} maxHeight={90}>
-      {/* {isL2ChainId(chainId) && (hash || attemptingTxn) ? (
-        <L2Content chainId={chainId} hash={hash} onDismiss={onDismiss} pendingText={pendingText} />
-      ) : attemptingTxn ? (
+      {attemptingTxn ? (
         <ConfirmationPendingContent onDismiss={onDismiss} pendingText={pendingText} />
       ) : hash ? (
-        <TransactionSubmittedContent
-          chainId={chainId}
-          hash={hash}
-          onDismiss={onDismiss}
-          currencyToAdd={currencyToAdd}
-        />
+        // <TransactionSubmittedContent
+        //   chainId={chainId}
+        //   hash={hash}
+        //   onDismiss={onDismiss}
+        //   currencyToAdd={currencyToAdd}
+        // />
+        <></>
       ) : (
         reviewContent()
-      )} */}
+      )}
     </Modal>
   )
 }

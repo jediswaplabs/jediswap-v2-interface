@@ -37,13 +37,13 @@ export function usePairContract(pairAddress?: string, withSignerIfPossible?: boo
 }
 //Change here
 export function useFactoryContract(): Contract | null {
-  const { account, chainId } = useAccountDetails()
+  const { chainId } = useAccountDetails()
 
   return useContract(FACTORY_ADDRESS[(chainId as ChainId) ?? DEFAULT_CHAIN_ID], FACTORY_ABI, true)
 }
 //Change Here
 export function useRouterContract(): Contract | null {
-  const { account, chainId } = useAccountDetails()
+  const { chainId } = useAccountDetails()
 
   return useContract(ROUTER_ADDRESS[(chainId as ChainId) ?? DEFAULT_CHAIN_ID], ROUTER_ABI, true)
 }
@@ -55,7 +55,7 @@ export function useMulticallContract(): Contract | null {
 }
 //Change Here
 export function useZapInContract(): Contract | null {
-  const { account, chainId } = useAccountDetails()
+  const { chainId } = useAccountDetails()
 
   return useContract(ZAP_IN_ADDRESS[(chainId as ChainId) ?? DEFAULT_CHAIN_ID], ZAP_IN_ABI, true)
 }

@@ -30,7 +30,7 @@ import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
 import { WrongChainError } from 'utils/errors'
 
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonText } from '../../components/Button'
-import { BlueCard, OutlineCard, YellowCard } from '../../components/Card'
+import { BlueCard, LightCard, OutlineCard, YellowCard } from '../../components/Card'
 import { AutoColumn } from '../../components/Column'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import FeeSelector from '../../components/FeeSelector'
@@ -45,7 +45,7 @@ import Row, { RowBetween, RowFixed } from '../../components/Row'
 import { SwitchLocaleLink } from '../../components/SwitchLocaleLink'
 import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
 import { ZERO_PERCENT } from '../../constants/misc'
-import { WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
+import { DEFAULT_CHAIN_ID, WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
 import { useAllTokens, useCurrency } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallback } from '../../hooks/useApproveCallback'
 // import { useArgentWalletContract } from '../../hooks/useArgentWalletContract'
@@ -68,9 +68,16 @@ import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
-import { useBalance } from '@starknet-react/core'
+import { useBalance, useContractWrite, useNetwork } from '@starknet-react/core'
 import PairPrice from 'components/PairPrice'
-
+import { useApprovalCall } from 'hooks/useApproveCall'
+import { ROUTER_ADDRESS } from 'constants/index'
+import { wrappedCurrency } from 'utils/wrappedCurrency'
+import { calculateSlippageAmount, parsedAmountToUint256Args } from 'utils/getContract'
+import { Call, CallData, RawArgs } from 'starknet'
+import { useRouterContract } from 'hooks/useContractV2'
+import { useUserSlippageTolerance } from 'state/user/hooks'
+import { Break } from 'components/earn/styled'
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
 const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>`
@@ -92,11 +99,18 @@ export default function AddLiquidity() {
     tokenId?: string
   }>()
 
-  const { account, chainId, address } = useAccountDetails()
+  const [callData, setCallData] = useState<Call[]>([])
+
   const theme = useTheme()
-  const trace = useTrace()
+  const { account, chainId, address } = useAccountDetails()
+  const { chain } = useNetwork()
   const toggleWalletDrawer = useToggleAccountDrawer() // toggle wallet when disconnected
   const addTransaction = useTransactionAdder()
+  const [allowedSlippage] = useUserSlippageTolerance() // custom from users
+  const routerContract = useRouterContract()
+  const { writeAsync: execute, data: registerData } = useContractWrite({
+    calls: callData,
+  })
 
   // fee selection from url
   const feeAmount: FeeAmount | undefined =
@@ -178,101 +192,55 @@ export default function AddLiquidity() {
     {}
   )
 
+  // check whether the user has approved the router on the tokens
+  const approvalACallback = useApprovalCall(
+    parsedAmounts[Field.CURRENCY_A],
+    ROUTER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+  )
+  const approvalBCallback = useApprovalCall(
+    parsedAmounts[Field.CURRENCY_B],
+    ROUTER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+  )
+
+  // useEffect(() => {
+  //   if (!chainId || !account || !address) return
+  //   const approvalA = approvalACallback()
+  //   const approvalB = approvalBCallback()
+  //   if (!approvalA || !approvalB) return
+  //   const router = routerContract
+  //   if (!router) return
+  //   const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
+  //   if (!parsedAmountA || !parsedAmountB || !baseCurrency || !currencyB) {
+  //     return
+  //   }
+  //   const amountsMin = {
+  //     [Field.CURRENCY_A]: calculateSlippageAmount(parsedAmountA, noLiquidity ? 0 : allowedSlippage)[0],
+  //     [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0],
+  //   }
+
+  //   const args: RawArgs = {
+  //     tokenA: wrappedCurrency(baseCurrency, chainId)?.address ?? '',
+  //     tokenB: wrappedCurrency(currencyB, chainId)?.address ?? '',
+  //     amountADesired: parsedAmountToUint256Args(parsedAmountA.raw),
+  //     amountBDesired: parsedAmountToUint256Args(parsedAmountB.raw),
+  //     amountAMin: parsedAmountToUint256Args(amountsMin[Field.CURRENCY_A]),
+  //     amountBMin: parsedAmountToUint256Args(amountsMin[Field.CURRENCY_B]),
+  //     to: address,
+  //   }
+  //   const calldata = CallData.compile(args)
+  //   const calls: Call[] | undefined = [
+  //     {
+  //       contractAddress: router.address,
+  //       entrypoint: 'modify_position',
+  //       calldata,
+  //     },
+  //   ]
+  //   setCallData(calls)
+  // }, [noLiquidity, allowedSlippage, routerContract])
+
   async function onAdd() {
-    // if (!chainId || !provider || !account) return
-    // if (!positionManager || !baseCurrency || !quoteCurrency) {
-    //   return
-    // }
-    // if (position && account && deadline) {
-    //   const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
-    //   const { calldata, value } =
-    //     hasExistingPosition && tokenId
-    //       ? NonfungiblePositionManager.addCallParameters(position, {
-    //           tokenId,
-    //           slippageTolerance: allowedSlippage,
-    //           deadline: deadline.toString(),
-    //           useNative,
-    //         })
-    //       : NonfungiblePositionManager.addCallParameters(position, {
-    //           slippageTolerance: allowedSlippage,
-    //           recipient: account,
-    //           deadline: deadline.toString(),
-    //           useNative,
-    //           createPool: noLiquidity,
-    //         })
-    //   let txn: { to: string; data: string; value: string } = {
-    //     to: NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
-    //     data: calldata,
-    //     value,
-    //   }
-    //   if (argentWalletContract) {
-    //     const amountA = parsedAmounts[Field.CURRENCY_A]
-    //     const amountB = parsedAmounts[Field.CURRENCY_B]
-    //     const batch = [
-    //       ...(amountA && amountA.currency.isToken
-    //         ? [approveAmountCalldata(amountA, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
-    //         : []),
-    //       ...(amountB && amountB.currency.isToken
-    //         ? [approveAmountCalldata(amountB, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
-    //         : []),
-    //       {
-    //         to: txn.to,
-    //         data: txn.data,
-    //         value: txn.value,
-    //       },
-    //     ]
-    //     const data = argentWalletContract.interface.encodeFunctionData('wc_multiCall', [batch])
-    //     txn = {
-    //       to: argentWalletContract.address,
-    //       data,
-    //       value: '0x0',
-    //     }
-    //   }
-    //   const connectedChainId = await provider.getSigner().getChainId()
-    //   if (chainId !== connectedChainId) throw new WrongChainError()
-    //   setAttemptingTxn(true)
-    //   provider
-    //     .getSigner()
-    //     .estimateGas(txn)
-    //     .then((estimate) => {
-    //       const newTxn = {
-    //         ...txn,
-    //         gasLimit: calculateGasMargin(estimate),
-    //       }
-    //       return provider
-    //         .getSigner()
-    //         .sendTransaction(newTxn)
-    //         .then((response: TransactionResponse) => {
-    //           setAttemptingTxn(false)
-    //           const transactionInfo: TransactionInfo = {
-    //             type: TransactionType.ADD_LIQUIDITY_V3_POOL,
-    //             baseCurrencyId: currencyId(baseCurrency),
-    //             quoteCurrencyId: currencyId(quoteCurrency),
-    //             createPool: Boolean(noLiquidity),
-    //             expectedAmountBaseRaw: parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ?? '0',
-    //             expectedAmountQuoteRaw: parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ?? '0',
-    //             feeAmount: position.pool.fee,
-    //           }
-    //           addTransaction(response, transactionInfo)
-    //           setTxHash(response.hash)
-    //           sendAnalyticsEvent(LiquidityEventName.ADD_LIQUIDITY_SUBMITTED, {
-    //             label: [currencies[Field.CURRENCY_A]?.symbol, currencies[Field.CURRENCY_B]?.symbol].join('/'),
-    //             ...trace,
-    //             ...transactionInfo,
-    //           })
-    //         })
-    //     })
-    //     .catch((error) => {
-    //       console.error('Failed to send transaction', error)
-    //       setAttemptingTxn(false)
-    //       // we only care if the error is something _other_ than the user rejected the tx
-    //       if (error?.code !== 4001) {
-    //         console.error(error)
-    //       }
-    //     })
-    // } else {
-    //   return
-    // }
+    setAttemptingTxn(true)
+    execute().then((res) => console.log(res))
   }
 
   const handleCurrencyASelect = useCallback(
@@ -312,6 +280,43 @@ export default function AddLiquidity() {
     [currencyIdA, currencyIdB, navigate, onLeftRangeInput, onRightRangeInput]
   )
 
+  const handleOpenConfirmation = () => {
+    setShowConfirm(true)
+    if (!chainId || !account || !address) return
+    const approvalA = approvalACallback()
+    const approvalB = approvalBCallback()
+    if (!approvalA || !approvalB) return
+    const router = routerContract
+    if (!router) return
+    const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
+    if (!parsedAmountA || !parsedAmountB || !baseCurrency || !currencyB) {
+      return
+    }
+    const amountsMin = {
+      [Field.CURRENCY_A]: calculateSlippageAmount(parsedAmountA, noLiquidity ? 0 : allowedSlippage)[0],
+      [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0],
+    }
+
+    const args: RawArgs = {
+      tokenA: wrappedCurrency(baseCurrency, chainId)?.address ?? '',
+      tokenB: wrappedCurrency(currencyB, chainId)?.address ?? '',
+      amountADesired: parsedAmountToUint256Args(parsedAmountA.raw),
+      amountBDesired: parsedAmountToUint256Args(parsedAmountB.raw),
+      amountAMin: parsedAmountToUint256Args(amountsMin[Field.CURRENCY_A]),
+      amountBMin: parsedAmountToUint256Args(amountsMin[Field.CURRENCY_B]),
+      to: address,
+    }
+    const calldata = CallData.compile(args)
+    const calls: Call[] | undefined = [
+      {
+        contractAddress: router.address,
+        entrypoint: 'modify_position',
+        calldata,
+      },
+    ]
+    setCallData(calls)
+  }
+
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
     // if there was a tx hash, we want to clear the input
@@ -346,9 +351,7 @@ export default function AddLiquidity() {
     ) : (
       <AutoColumn gap="md">
         <ButtonError
-          onClick={() => {
-            setShowConfirm(true)
-          }}
+          onClick={handleOpenConfirmation}
           disabled={!isValid}
           error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
         >
@@ -356,6 +359,145 @@ export default function AddLiquidity() {
         </ButtonError>
       </AutoColumn>
     )
+
+  const reviewContent = () => {
+    return (
+      <Wrapper>
+        <AutoColumn gap="lg">
+          <AutoColumn gap="md" style={{ marginTop: '0.5rem' }}>
+            <RowBetween style={{ marginBottom: '0.5rem' }}>
+              <RowFixed>
+                {/* <DoubleCurrencyLogo
+            currency0={currency0 ?? undefined}
+            currency1={currency1 ?? undefined}
+            size={24}
+            margin={true}
+          /> */}
+                <ThemedText.DeprecatedLabel ml="10px" fontSize="24px">
+                  {currencies[Field.CURRENCY_A]?.symbol} / {currencies[Field.CURRENCY_A]?.symbol}
+                </ThemedText.DeprecatedLabel>
+              </RowFixed>
+              {/* <RangeBadge removed={removed} inRange={inRange} /> */}
+            </RowBetween>
+
+            <LightCard>
+              <AutoColumn gap="md">
+                <RowBetween>
+                  <RowFixed>
+                    {/* <CurrencyLogo currency={currency0} /> */}
+                    <ThemedText.DeprecatedLabel ml="8px">
+                      {currencies[Field.CURRENCY_A]?.symbol}
+                    </ThemedText.DeprecatedLabel>
+                  </RowFixed>
+                  <RowFixed>
+                    <ThemedText.DeprecatedLabel mr="8px">
+                      {parsedAmounts[Field.CURRENCY_A]?.toSignificant(6)}
+                    </ThemedText.DeprecatedLabel>
+                  </RowFixed>
+                </RowBetween>
+                <RowBetween>
+                  <RowFixed>
+                    {/* <CurrencyLogo currency={currency1} /> */}
+                    <ThemedText.DeprecatedLabel ml="8px">
+                      {currencies[Field.CURRENCY_A]?.symbol}
+                    </ThemedText.DeprecatedLabel>
+                  </RowFixed>
+                  <RowFixed>
+                    <ThemedText.DeprecatedLabel mr="8px">
+                      {parsedAmounts[Field.CURRENCY_B]?.toSignificant(6)}
+                    </ThemedText.DeprecatedLabel>
+                  </RowFixed>
+                </RowBetween>
+                <Break />
+                <RowBetween>
+                  <ThemedText.DeprecatedLabel>
+                    <Trans>Fee tier</Trans>
+                  </ThemedText.DeprecatedLabel>
+                  <ThemedText.DeprecatedLabel>
+                    {/* <Trans>{position?.pool?.fee / BIPS_BASE}%</Trans> */}
+                  </ThemedText.DeprecatedLabel>
+                </RowBetween>
+              </AutoColumn>
+            </LightCard>
+
+            <AutoColumn gap="md">
+              <RowBetween>
+                {/* {title ? <ThemedText.DeprecatedMain>{title}</ThemedText.DeprecatedMain> : <div />}
+          <RateToggle
+            currencyA={sorted ? currency0 : currency1}
+            currencyB={sorted ? currency1 : currency0}
+            handleRateToggle={handleRateChange}
+          /> */}
+              </RowBetween>
+
+              <RowBetween>
+                <LightCard width="48%" padding="8px">
+                  <AutoColumn gap="4px" justify="center">
+                    <ThemedText.DeprecatedMain fontSize="12px">
+                      <Trans>Min price</Trans>
+                    </ThemedText.DeprecatedMain>
+                    <ThemedText.DeprecatedMediumHeader textAlign="center">
+                      {/* {formatTickPrice({
+                  price: priceLower,
+                  atLimit: ticksAtLimit,
+                  direction: Bound.LOWER,
+                })} */}
+                      {leftRangeTypedValue}
+                    </ThemedText.DeprecatedMediumHeader>
+                    <ThemedText.DeprecatedMain textAlign="center" fontSize="12px">
+                      {/* <Trans>
+                  {quoteCurrency.symbol} per {baseCurrency.symbol}
+                </Trans> */}
+                    </ThemedText.DeprecatedMain>
+                    <ThemedText.DeprecatedSmall textAlign="center" color={theme.neutral3} style={{ marginTop: '4px' }}>
+                      <Trans>Your position will be 100% composed of {baseCurrency?.symbol} at this price</Trans>
+                    </ThemedText.DeprecatedSmall>
+                  </AutoColumn>
+                </LightCard>
+
+                <LightCard width="48%" padding="8px">
+                  <AutoColumn gap="4px" justify="center">
+                    <ThemedText.DeprecatedMain fontSize="12px">
+                      <Trans>Max price</Trans>
+                    </ThemedText.DeprecatedMain>
+                    <ThemedText.DeprecatedMediumHeader textAlign="center">
+                      {/* {formatTickPrice({
+                  price: priceUpper,
+                  atLimit: ticksAtLimit,
+                  direction: Bound.UPPER,
+                })} */}
+                      {rightRangeTypedValue}
+                    </ThemedText.DeprecatedMediumHeader>
+                    <ThemedText.DeprecatedMain textAlign="center" fontSize="12px">
+                      {/* <Trans>
+                  {quoteCurrency.symbol} per {baseCurrency.symbol}
+                </Trans> */}
+                    </ThemedText.DeprecatedMain>
+                    <ThemedText.DeprecatedSmall textAlign="center" color={theme.neutral3} style={{ marginTop: '4px' }}>
+                      <Trans>Your position will be 100% composed of {quoteCurrency?.symbol} at this price</Trans>
+                    </ThemedText.DeprecatedSmall>
+                  </AutoColumn>
+                </LightCard>
+              </RowBetween>
+              <LightCard padding="12px ">
+                <AutoColumn gap="4px" justify="center">
+                  <ThemedText.DeprecatedMain fontSize="12px">
+                    <Trans>Current price</Trans>
+                  </ThemedText.DeprecatedMain>
+                  {/* <ThemedText.DeprecatedMediumHeader>{`${price.toSignificant(5)} `}</ThemedText.DeprecatedMediumHeader> */}
+                  <ThemedText.DeprecatedMain textAlign="center" fontSize="12px">
+                    {/* <Trans>
+                {quoteCurrency.symbol} per {baseCurrency.symbol}
+              </Trans> */}
+                  </ThemedText.DeprecatedMain>
+                </AutoColumn>
+              </LightCard>
+            </AutoColumn>
+          </AutoColumn>
+        </AutoColumn>
+      </Wrapper>
+    )
+  }
 
   return (
     <>
@@ -369,18 +511,7 @@ export default function AddLiquidity() {
             <ConfirmationModalContent
               title={<Trans>Add Liquidity</Trans>}
               onDismiss={handleDismissConfirmation}
-              topContent={() => (
-                // <Review
-                //   parsedAmounts={parsedAmounts}
-                //   position={position}
-                //   existingPosition={existingPosition}
-                //   priceLower={priceLower}
-                //   priceUpper={priceUpper}
-                //   outOfRange={outOfRange}
-                //   ticksAtLimit={ticksAtLimit}
-                // />
-                <></>
-              )}
+              topContent={reviewContent}
               bottomContent={() => (
                 <ButtonPrimary style={{ marginTop: '1rem' }} onClick={onAdd}>
                   <Text fontWeight={535} fontSize={20}>
@@ -481,7 +612,7 @@ export default function AddLiquidity() {
                         <Trans>Set price range</Trans>
                       </ThemedText.DeprecatedLabel>
 
-                      {baseCurrency && quoteCurrency && (
+                      {/*  {baseCurrency && quoteCurrency && (
                         <RowFixed gap="8px">
                           <RateToggle
                             currencyA={baseCurrency}
@@ -504,7 +635,7 @@ export default function AddLiquidity() {
                             // }}
                           />
                         </RowFixed>
-                      )}
+                      )} */}
                     </RowBetween>
 
                     <RangeSelector

@@ -1,12 +1,10 @@
 // import { BigNumberish } from 'starknet/dist/utils/number'
 import { validateAndParseAddress, Abi, uint256, Contract, AccountInterface, BigNumberish } from 'starknet'
-import { BigNumber } from '@ethersproject/bignumber'
 import { ZERO_ADDRESS } from '../constants'
 import { JSBI, Percent, Token, CurrencyAmount, Currency, ETHER } from '@jediswap/sdk'
 import { LPTokenAddressMap, TokenAddressMap } from '../state/lists/hooks'
 import isZero from './isZero'
 import { Connector } from '@starknet-react/core'
-import { ChainId } from '@jediswap/sdk'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(addr: string | null | undefined): string | false {
@@ -51,6 +49,16 @@ export function escapeRegExp(string: string): string {
 export function isTokenOnList(defaultTokens: TokenAddressMap | LPTokenAddressMap, currency?: Currency): boolean {
   if (currency === ETHER) return true
   return Boolean(currency instanceof Token && defaultTokens[currency.chainId]?.[currency.address])
+}
+
+export function calculateSlippageAmount(value: CurrencyAmount, slippage: number): [JSBI, JSBI] {
+  if (slippage < 0 || slippage > 10000) {
+    throw Error(`Unexpected slippage value: ${slippage}`)
+  }
+  return [
+    JSBI.divide(JSBI.multiply(value.raw, JSBI.BigInt(10000 - slippage)), JSBI.BigInt(10000)),
+    JSBI.divide(JSBI.multiply(value.raw, JSBI.BigInt(10000 + slippage)), JSBI.BigInt(10000)),
+  ]
 }
 
 export const parsedAmountToUint256Args = (amount: JSBI): { [k: string]: BigNumberish; type: 'struct' } => {
