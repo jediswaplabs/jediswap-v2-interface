@@ -66,7 +66,7 @@ import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { Dots } from '../Pool/styled'
 import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useBalances } from 'hooks/starknet-react'
 import { useDerivedMintInfo, useMintActionHandlers, useMintState } from 'state/mint/hooks'
 import { useBalance, useContractWrite, useNetwork } from '@starknet-react/core'
 import PairPrice from 'components/PairPrice'
@@ -734,9 +734,7 @@ export default function AddLiquidity() {
                       showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
                       currency={currencies[Field.CURRENCY_A] ?? null}
                       id="add-liquidity-input-tokena"
-                      // fiatValue={currencyAFiat}
                       showCommonBases
-                      // locked={depositADisabled}
                     />
 
                     <CurrencyInputPanel
@@ -746,11 +744,9 @@ export default function AddLiquidity() {
                         onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
                       }}
                       showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
-                      // fiatValue={currencyBFiat}
                       currency={currencies[Field.CURRENCY_B] ?? null}
                       id="add-liquidity-input-tokenb"
                       showCommonBases
-                      // locked={depositBDisabled}
                     />
                   </AutoColumn>
                 </DynamicSection>

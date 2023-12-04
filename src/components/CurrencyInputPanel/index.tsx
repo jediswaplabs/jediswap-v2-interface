@@ -23,7 +23,8 @@ import { Input as NumericalInput } from '../NumericalInput'
 import { RowBetween, RowFixed } from '../Row'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 import { FiatValue } from './FiatValue'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useBalances } from 'hooks/starknet-react'
+import { Field } from 'state/mint/actions'
 
 const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${flexColumnNoWrap};
@@ -173,7 +174,7 @@ interface CurrencyInputPanelProps {
   showMaxButton: boolean
   label?: ReactNode
   onCurrencySelect?: (currency: Currency) => void
-  currency?: Currency | null
+  currency: Currency | null
   hideBalance?: boolean
   pair?: Pair | null
   hideInput?: boolean
@@ -210,7 +211,9 @@ export default function CurrencyInputPanel({
   ...rest
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
-  const { account } = useAccountDetails()
+  const { account, address } = useAccountDetails()
+  const { balances } = useBalances()
+  const currencyBalance = currency && currency.symbol ? balances[currency.symbol]?.balance?.formatted : null
   const selectedCurrencyBalance = {}
   const theme = useTheme()
 
@@ -296,10 +299,7 @@ export default function CurrencyInputPanel({
                         fontSize={14}
                         style={{ display: 'inline', cursor: 'pointer' }}
                       >
-                        {/* {Boolean(!hideBalance && currency && selectedCurrencyBalance) &&
-                          (renderBalance?.(selectedCurrencyBalance as CurrencyAmount<Currency>) || (
-                            <Trans>Balance: {formatCurrencyAmount(selectedCurrencyBalance, 4)}</Trans>
-                          ))} */}
+                        {address && currencyBalance ? <>Balance: {currencyBalance}</> : null}
                       </ThemedText.DeprecatedBody>
                       {Boolean(showMaxButton && selectedCurrencyBalance) && (
                         <TraceEvent

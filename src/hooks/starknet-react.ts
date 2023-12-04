@@ -1,7 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { Connector, useAccount, useBalance, useConnect, useProvider } from '@starknet-react/core'
 import { AccountInterface, constants } from 'starknet'
-import { ChainId } from '@jediswap/sdk'
+import { ChainId, Token, WETH } from '@jediswap/sdk'
+import { useAllTokens } from './Tokens'
+
+// Define the type for the balances object
+interface TokenBalance {
+  balance: any // Replace 'any' with the correct type of balance
+  error: any // Replace 'any' with the correct type of error
+  isLoading: any // Replace 'any' with the correct type of isLoading
+}
 
 declare enum StarknetChainId {
   SN_MAIN = '0x534e5f4d41494e',
@@ -57,15 +65,37 @@ export const useConnectors = () => {
 }
 
 export const useBalances = () => {
-  const { address } = useAccount()
-  const {
-    data: balance,
-    error,
-    isLoading,
-  } = useBalance({
-    address,
-    watch: true,
+  const { address, chainId } = useAccountDetails()
+  interface TokensMap {
+    [address: string]: Token
+  }
+
+  const allTokens: TokensMap = Object.assign({ [WETH[chainId].address]: WETH[chainId] }, useAllTokens(chainId))
+  const tokenAddresses = Object.keys(allTokens)
+  const balances: Record<string, TokenBalance> = {} // Object to store token balances
+
+  // if (!address) return
+
+  // Loop through each token address and fetch its balance
+  tokenAddresses.forEach(async (tokenAddress) => {
+    const {
+      data: balance,
+      error,
+      isLoading,
+    } = useBalance({
+      token: tokenAddress,
+      address,
+      watch: true,
+    })
+
+    const tokenInfo = allTokens[tokenAddress]
+
+    if (tokenInfo && tokenInfo.symbol) {
+      const symbol = tokenInfo.symbol
+      // Store the balance in the balances object
+      balances[symbol] = { balance, error, isLoading }
+    }
   })
 
-  return { balance }
+  return { balances }
 }
