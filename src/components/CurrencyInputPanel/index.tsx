@@ -18,13 +18,13 @@ import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
 // import { useCurrencyBalance } from '../../state/connection/hooks'
 import { ButtonGray } from '../Button'
 import DoubleCurrencyLogo from '../DoubleLogo'
-import CurrencyLogo from '../Logo/CurrencyLogo'
 import { Input as NumericalInput } from '../NumericalInput'
 import { RowBetween, RowFixed } from '../Row'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
 import { FiatValue } from './FiatValue'
 import { useAccountDetails, useBalances } from 'hooks/starknet-react'
 import { Field } from 'state/mint/actions'
+import CurrencyLogo from 'components/CurrencyLogo'
 
 const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${flexColumnNoWrap};
@@ -260,7 +260,7 @@ export default function CurrencyInputPanel({
                           <DoubleCurrencyLogo currency0={pair.token0} currency1={pair.token1} size={24} margin={true} />
                         </span>
                       ) : (
-                        currency && <CurrencyLogo style={{ marginRight: '0.5rem' }} currency={currency} size="24px" />
+                        currency && <CurrencyLogo currency={currency} size={24} />
                       )}
                       {pair ? (
                         <StyledTokenName className="pair-name-container">

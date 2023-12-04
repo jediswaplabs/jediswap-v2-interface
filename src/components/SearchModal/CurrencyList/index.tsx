@@ -17,7 +17,7 @@ import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { ThemedText } from 'theme/components'
 import { useIsUserAddedToken } from '../../../hooks/Tokens'
 import Column, { AutoColumn } from '../../Column'
-import CurrencyLogo from '../../Logo/CurrencyLogo'
+import CurrencyLogo from 'components/CurrencyLogo'
 import Row, { RowFixed } from '../../Row'
 import { MouseoverTooltip } from '../../Tooltip'
 import { LoadingRows, MenuItem } from '../styled'
@@ -160,11 +160,7 @@ export function CurrencyRow({
       selected={otherSelected}
     >
       <Column>
-        {/* <CurrencyLogo
-            currency={currency}
-            size="36px"
-            style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}
-          /> */}
+        <CurrencyLogo currency={currency} size={36} />
       </Column>
       <AutoColumn>
         <Row>

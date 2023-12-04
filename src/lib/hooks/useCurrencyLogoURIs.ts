@@ -83,7 +83,7 @@ export default function useCurrencyLogoURIs(
     | null
     | undefined
 ): string[] {
-  const locations = useHttpLocations(currency?.logoURI)
+  const locations = useHttpLocations(currency?.logoURI || undefined)
   return useMemo(() => {
     const logoURIs = [...[]]
     // if (currency) {

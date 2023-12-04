@@ -83,6 +83,7 @@ import { Break } from 'components/earn/styled'
 const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>`
   padding: ${({ $hasExistingPosition }) => ($hasExistingPosition ? '10px' : 0)};
   max-width: 640px;
+  min-width: 586.85px;
 `
 
 export default function AddLiquidity() {
