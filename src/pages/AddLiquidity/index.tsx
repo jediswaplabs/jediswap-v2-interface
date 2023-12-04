@@ -78,6 +78,8 @@ import { Call, CallData, RawArgs } from 'starknet'
 import { useRouterContract } from 'hooks/useContractV2'
 import { useUserSlippageTolerance } from 'state/user/hooks'
 import { Break } from 'components/earn/styled'
+import DoubleCurrencyLogo from 'components/DoubleLogo'
+import CurrencyLogo from 'components/CurrencyLogo'
 // const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
 const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>`
@@ -131,7 +133,7 @@ export default function AddLiquidity() {
       : currencyB
 
   // mint state
-  const { independentField, typedValue, otherTypedValue } = useMintState()
+  const { independentField, typedValue, startPriceTypedValue } = useMintState()
 
   const {
     dependentField,
@@ -368,14 +370,13 @@ export default function AddLiquidity() {
           <AutoColumn gap="md" style={{ marginTop: '0.5rem' }}>
             <RowBetween style={{ marginBottom: '0.5rem' }}>
               <RowFixed>
-                {/* <DoubleCurrencyLogo
-            currency0={currency0 ?? undefined}
-            currency1={currency1 ?? undefined}
-            size={24}
-            margin={true}
-          /> */}
+                <DoubleCurrencyLogo
+                  currency0={currencies[Field.CURRENCY_A]}
+                  currency1={currencies[Field.CURRENCY_B]}
+                  size={24}
+                />
                 <ThemedText.DeprecatedLabel ml="10px" fontSize="24px">
-                  {currencies[Field.CURRENCY_A]?.symbol} / {currencies[Field.CURRENCY_A]?.symbol}
+                  {currencies[Field.CURRENCY_A]?.symbol} / {currencies[Field.CURRENCY_B]?.symbol}
                 </ThemedText.DeprecatedLabel>
               </RowFixed>
               {/* <RangeBadge removed={removed} inRange={inRange} /> */}
@@ -385,7 +386,7 @@ export default function AddLiquidity() {
               <AutoColumn gap="md">
                 <RowBetween>
                   <RowFixed>
-                    {/* <CurrencyLogo currency={currency0} /> */}
+                    <CurrencyLogo currency={currencies[Field.CURRENCY_A]} style={{ marginRight: '8px' }} />
                     <ThemedText.DeprecatedLabel ml="8px">
                       {currencies[Field.CURRENCY_A]?.symbol}
                     </ThemedText.DeprecatedLabel>
@@ -398,9 +399,9 @@ export default function AddLiquidity() {
                 </RowBetween>
                 <RowBetween>
                   <RowFixed>
-                    {/* <CurrencyLogo currency={currency1} /> */}
+                    <CurrencyLogo currency={currencies[Field.CURRENCY_B]} style={{ marginRight: '8px' }} />
                     <ThemedText.DeprecatedLabel ml="8px">
-                      {currencies[Field.CURRENCY_A]?.symbol}
+                      {currencies[Field.CURRENCY_B]?.symbol}
                     </ThemedText.DeprecatedLabel>
                   </RowFixed>
                   <RowFixed>
@@ -718,9 +719,7 @@ export default function AddLiquidity() {
                 </>
               )}
               <div>
-                <DynamicSection
-                //  disabled={invalidRange || (noLiquidity && !startPriceTypedValue)}
-                >
+                <DynamicSection disabled={!feeAmount}>
                   <AutoColumn gap="md">
                     <ThemedText.DeprecatedLabel>
                       {hasExistingPosition ? <Trans>Add more liquidity</Trans> : <Trans>Deposit amounts</Trans>}

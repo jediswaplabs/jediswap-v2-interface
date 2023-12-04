@@ -1,5 +1,12 @@
 import { createReducer } from '@reduxjs/toolkit'
-import { Field, resetMintState, setFullRange, typeInput, typeLeftRangeInput, typeRightRangeInput } from './actions'
+import {
+  Field,
+  resetMintState,
+  typeInput,
+  typeLeftRangeInput,
+  typeRightRangeInput,
+  typeStartPriceInput,
+} from './actions'
 
 export type FullRange = true
 
@@ -31,6 +38,12 @@ export default createReducer<MintState>(initialState, (builder) =>
     //     rightRangeTypedValue: true,
     //   }
     // })
+    .addCase(typeStartPriceInput, (state, { payload: { typedValue } }) => {
+      return {
+        ...state,
+        startPriceTypedValue: typedValue,
+      }
+    })
     .addCase(typeLeftRangeInput, (state, { payload: { typedValue } }) => {
       return {
         ...state,

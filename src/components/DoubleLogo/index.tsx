@@ -1,7 +1,7 @@
-import { Currency } from '@uniswap/sdk-core'
+import { Currency } from '@jediswap/sdk'
 import styled from 'styled-components'
 
-import CurrencyLogo from '../Logo/CurrencyLogo'
+import CurrencyLogo from '../CurrencyLogo'
 
 const Wrapper = styled.div<{ margin: boolean; sizeraw: number }>`
   position: relative;
@@ -35,12 +35,12 @@ export default function DoubleCurrencyLogo({
     <Wrapper sizeraw={size} margin={margin}>
       {currency0 && (
         <HigherLogoWrapper>
-          <CurrencyLogo currency={currency0} size={`${size}px`} />
+          <CurrencyLogo currency={currency0} size={size} />
         </HigherLogoWrapper>
       )}
       {currency1 && (
         <CoveredLogoWapper sizeraw={size}>
-          <CurrencyLogo currency={currency1} size={`${size}px`} />
+          <CurrencyLogo currency={currency1} size={size} />
         </CoveredLogoWapper>
       )}
     </Wrapper>

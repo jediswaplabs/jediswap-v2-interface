@@ -1,6 +1,5 @@
 import { Currency, ETHER, Token } from '@jediswap/sdk'
 import React, { useMemo } from 'react'
-import { num } from 'starknet'
 import styled from 'styled-components'
 
 import EthereumLogo from '../../assets/images/ethereum-logo.png'
