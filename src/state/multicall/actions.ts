@@ -1,7 +1,7 @@
 import { FunctionAbi, Calldata } from 'starknet'
 import { createAction } from '@reduxjs/toolkit'
-import { isAddress } from '../../utils'
 import { ChainId } from '@jediswap/sdk'
+import { isAddress } from 'utils/getContract'
 
 export interface Call {
   address: string

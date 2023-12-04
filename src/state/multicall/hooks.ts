@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Abi, number, FunctionAbi, validateAndParseAddress, hash, RawArgs, Contract } from 'starknet'
+import { Abi, num, FunctionAbi, validateAndParseAddress, hash, RawArgs, Contract } from 'starknet'
 import { BigNumber } from '@ethersproject/bignumber'
 import { AppDispatch, AppState } from '../index'
 import {
@@ -99,7 +99,7 @@ function useCallsData(calls: (Call | undefined)[], methodAbi?: FunctionAbi, opti
       calls.map<CallResult>((call) => {
         if (!chainId || !call) return INVALID_RESULT
 
-        const result = callResults[1]?.[toCallKey(call)]
+        const result = callResults[chainId]?.[toCallKey(call)]
         let data
         if (result?.data && result?.data !== '0x') {
           // if (number.isHex(result.data)) {
@@ -149,7 +149,7 @@ function toCallState(
   let result: Result | undefined = undefined
   if (success && data) {
     try {
-      result = number.isHex(data) ? [data] : JSON.parse(data)
+      result = num.isHex(data) ? [data] : JSON.parse(data)
     } catch (error) {
       console.debug('Result data parsing failed', data)
       return {

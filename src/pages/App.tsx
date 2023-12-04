@@ -95,11 +95,11 @@ export default function App() {
 
   const isHeaderTransparent = !scrolledState
 
-  // const fetchAllPairs = useFetchAllPairsCallback()
+  const fetchAllPairs = useFetchAllPairsCallback()
 
-  // useEffect(() => {
-  //   fetchAllPairs()
-  // }, [fetchAllPairs])
+  useEffect(() => {
+    fetchAllPairs()
+  }, [fetchAllPairs])
 
   // const { data, isLoading, isError } = useBlockNumber({
   //   blockIdentifier: 'latest' as BlockNumber,

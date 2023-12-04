@@ -22,6 +22,13 @@ import { useV3Positions } from 'hooks/useV3Positions'
 import { HideSmall, ThemedText } from 'theme/components'
 import CTACards from './CTACards'
 import { LoadingRows } from './styled'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { getLiquidityToken, useTrackedTokenPairs } from 'state/user/hooks'
+import { useTokenBalancesWithLoadingIndicator } from 'state/wallet/hooks'
+import { PairState, usePairs } from 'data/Reserves'
+import { Pair } from '@jediswap/sdk'
+import FullPositionCard from 'components/PositionCard'
+import { useAllPairs } from 'state/pairs/hooks'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 68px 8px 0px;
@@ -187,33 +194,59 @@ function WrongNetworkCard() {
 }
 
 export default function Pool() {
-  const { account, chainId } = useWeb3React()
+  const { address, account, chainId } = useAccountDetails()
+
+  // fetch the user's balances of all tracked V2 LP tokens
+  const trackedTokenPairs = useTrackedTokenPairs()
+
+  const tokenPairsWithLiquidityTokens = useMemo(
+    () => trackedTokenPairs.map((tokens) => ({ liquidityToken: getLiquidityToken(tokens), tokens })),
+    [trackedTokenPairs]
+  )
+
+  const liquidityTokens = useMemo(
+    () => tokenPairsWithLiquidityTokens.map((tpwlt) => tpwlt.liquidityToken),
+    [tokenPairsWithLiquidityTokens]
+  )
+
+  const allPairs = useAllPairs()
+
+  const validatedLiquidityTokens = useMemo(
+    () => liquidityTokens.map((token) => (allPairs.includes(token.address) ? token : undefined)),
+    [allPairs, liquidityTokens]
+  )
+
+  const [pairsBalances, fetchingPairBalances] = useTokenBalancesWithLoadingIndicator(
+    address ?? undefined,
+    validatedLiquidityTokens
+  )
+
+  // fetch the reserves for all V2 pools in which the user has a balance
+  const liquidityTokensWithBalances = useMemo(
+    () =>
+      tokenPairsWithLiquidityTokens.filter(
+        ({ liquidityToken }) => liquidityToken && pairsBalances[liquidityToken.address]?.greaterThan('0')
+      ),
+    [tokenPairsWithLiquidityTokens, pairsBalances]
+  )
+
+  const pairs = usePairs(liquidityTokensWithBalances.map(({ tokens }) => tokens))
+  const pairIsLoading =
+    fetchingPairBalances ||
+    pairs?.length < liquidityTokensWithBalances.length ||
+    pairs?.some(([pairState]) => pairState === PairState.LOADING) ||
+    pairs?.some((pair) => !pair)
+
+  const allPairsWithLiquidity = pairs
+    .map(([, pair]) => pair)
+    .filter((tokenPair): tokenPair is Pair => Boolean(tokenPair))
+  console.log('🚀 ~ file: index.tsx:243 ~ Pool ~ allPairsWithLiquidity:', allPairsWithLiquidity)
+
   const networkSupportsV2 = useNetworkSupportsV2()
   const toggleWalletDrawer = useToggleAccountDrawer()
 
   const theme = useTheme()
-  // const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
-
-  // const { positions, loading: positionsLoading } = useV3Positions(account)
-
-  // const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
-  //   (acc, p) => {
-  //     acc[p.liquidity?.isZero() ? 1 : 0].push(p)
-  //     return acc
-  //   },
-  //   [[], []]
-  // ) ?? [[], []]
-
-  // const userSelectedPositionSet = useMemo(
-  //   () => [...openPositions, ...(userHideClosedPositions ? [] : closedPositions)],
-  //   [closedPositions, openPositions, userHideClosedPositions]
-  // )
-
   const filteredPositions = [...[]]
-
-  // if (!isSupportedChain(chainId)) {
-  //   return <WrongNetworkCard />
-  // }
 
   const showConnectAWallet = Boolean(!account)
 
@@ -250,6 +283,8 @@ export default function Pool() {
     },
   ]
 
+  console.log(allPairsWithLiquidity?.length)
+
   return (
     <Trace page={InterfacePageName.POOL_PAGE} shouldLogImpression>
       <PageWrapper>
@@ -280,18 +315,25 @@ export default function Pool() {
               </ButtonRow>
             </TitleRow>
 
-            {/* <MainContentWrapper>
-              {positionsLoading ? (
+            <MainContentWrapper>
+              {showConnectAWallet ? (
+                <ButtonPrimary
+                  style={{ marginTop: '2em', marginBottom: '2em', padding: '8px 16px' }}
+                  onClick={toggleWalletDrawer}
+                >
+                  <Trans>Connect a wallet</Trans>
+                </ButtonPrimary>
+              ) : pairIsLoading ? (
                 <PositionsLoadingPlaceholder />
-              ) : filteredPositions && closedPositions && filteredPositions.length > 0 ? (
-                <PositionList
-                  positions={filteredPositions}
-                  setUserHideClosedPositions={setUserHideClosedPositions}
-                  userHideClosedPositions={userHideClosedPositions}
-                />
+              ) : allPairsWithLiquidity?.length > 0 ? (
+                <>
+                  {allPairsWithLiquidity.map((v2Pair) => (
+                    <FullPositionCard key={v2Pair.liquidityToken.address} pair={v2Pair} />
+                  ))}
+                </>
               ) : (
                 <ErrorContainer>
-                  <ThemedText.BodyPrimary color={theme.neutral3} textAlign="center">
+                  {/* <ThemedText.BodyPrimary color={theme.neutral3} textAlign="center">
                     <InboxIcon strokeWidth={1} style={{ marginTop: '2em' }} />
                     <div>
                       <Trans>Your active V3 liquidity positions will appear here.</Trans>
@@ -304,25 +346,10 @@ export default function Pool() {
                     >
                       <Trans>Show closed positions</Trans>
                     </ButtonText>
-                  )}
-                  {showConnectAWallet && (
-                    <TraceEvent
-                      events={[BrowserEvent.onClick]}
-                      name={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
-                      properties={{ received_swap_quote: false }}
-                      element={InterfaceElementName.CONNECT_WALLET_BUTTON}
-                    >
-                      <ButtonPrimary
-                        style={{ marginTop: '2em', marginBottom: '2em', padding: '8px 16px' }}
-                        onClick={toggleWalletDrawer}
-                      >
-                        <Trans>Connect a wallet</Trans>
-                      </ButtonPrimary>
-                    </TraceEvent>
-                  )}
+                  )} */}
                 </ErrorContainer>
               )}
-            </MainContentWrapper> */}
+            </MainContentWrapper>
             <HideSmall>
               <CTACards />
             </HideSmall>

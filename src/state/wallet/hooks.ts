@@ -3,13 +3,13 @@ import { Abi, uint256 } from 'starknet'
 import { Currency, CurrencyAmount, ETHER, JSBI, Token, TokenAmount, WETH } from '@jediswap/sdk'
 import ERC20_ABI from '../../constants/abis/erc20.json'
 import { useAllTokens } from '../../hooks/Tokens'
-import { isAddress } from '../../utils'
 import { useAddressNormalizer } from '../../hooks/useAddressNormalizer'
 import { useTokenContract } from '../../hooks/useContract'
 import { useMultipleContractSingleData, useSingleCallResult } from '../multicall/hooks'
 import { ChainId } from '@jediswap/sdk'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { DEFAULT_CHAIN_ID } from 'constants/tokens'
+import { isAddress } from 'utils/getContract'
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
@@ -54,9 +54,9 @@ import { DEFAULT_CHAIN_ID } from 'constants/tokens'
  */
 
 export function useToken0Balance(uncheckedAddress?: string): CurrencyAmount | undefined {
-  const { account, chainId } = useAccountDetails()
+  const { chainId } = useAccountDetails()
 
-  const tokenContract = useTokenContract('0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7')
+  const tokenContract = useTokenContract(WETH[chainId ?? DEFAULT_CHAIN_ID]?.address)
 
   const address = useAddressNormalizer(uncheckedAddress)
 
