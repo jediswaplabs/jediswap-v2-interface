@@ -131,7 +131,7 @@ const Collection = () => {
   const setMarketCount = useCollectionFilters((state) => state.setMarketCount)
   const isBagExpanded = useBag((state) => state.bagExpanded)
   const setBagExpanded = useBag((state) => state.setBagExpanded)
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const screenSize = useScreenSize()
 
   const { data: collectionStats, loading } = useCollection(contractAddress as string)

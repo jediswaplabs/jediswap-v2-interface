@@ -50,7 +50,7 @@ const IconWrapper = styled.div`
 `
 
 export default function CTACards() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const { infoLink } = getChainInfoOrDefault(chainId)
 
   return (

@@ -51,7 +51,7 @@ import { ClickableText, MaxButton, Wrapper } from '../Pool/styled'
 const DEFAULT_REMOVE_LIQUIDITY_SLIPPAGE_TOLERANCE = new Percent(5, 100)
 
 export default function RemoveLiquidityWrapper() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const { currencyIdA, currencyIdB } = useParams<{ currencyIdA: string; currencyIdB: string }>()
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
   if (isSupportedChain(chainId) && currencyA !== currencyB) {
@@ -64,7 +64,7 @@ function RemoveLiquidity() {
   const navigate = useNavigate()
   const { currencyIdA, currencyIdB } = useParams<{ currencyIdA: string; currencyIdB: string }>()
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
-  const { account, chainId, provider } = useWeb3React()
+  const { account, chainId, provider } = useAccountDetails()
   const [tokenA, tokenB] = useMemo(() => [currencyA?.wrapped, currencyB?.wrapped], [currencyA, currencyB])
 
   const theme = useTheme()

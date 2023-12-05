@@ -95,7 +95,7 @@ type BridgeInfo = Record<
 >
 
 export function useUnsupportedTokens(): { [address: string]: Token } {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const listsByUrl = useAllLists()
   const unsupportedTokensMap = useUnsupportedTokenList()
   const unsupportedTokens = useTokensFromMap(unsupportedTokensMap, chainId)
@@ -141,7 +141,7 @@ export function useUnsupportedTokens(): { [address: string]: Token } {
 export function useSearchInactiveTokenLists(search: string | undefined, minResults = 10): WrappedTokenInfo[] {
   const lists = useAllLists()
   const inactiveUrls = DEFAULT_INACTIVE_LIST_URLS
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const activeTokens = useDefaultActiveTokens(chainId)
   return useMemo(() => {
     if (!search || search.trim().length === 0) return []
@@ -185,13 +185,13 @@ export function useIsUserAddedToken(currency: Currency | undefined | null): bool
 // null if loading or null was passed
 // otherwise returns the token
 export function useToken(tokenAddress?: string | null): Token | null | undefined {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const tokens = useDefaultActiveTokens(chainId)
   return useTokenFromMapOrNetwork(tokens, tokenAddress)
 }
 
 export function useCurrency(currencyId: Maybe<string>, chainId?: ChainId): Currency | undefined {
-  const { chainId: connectedChainId } = useWeb3React()
+  const { chainId: connectedChainId } = useAccountDetails()
   const tokens = useDefaultActiveTokens(chainId ?? connectedChainId)
   return useCurrencyFromMap(tokens, chainId ?? connectedChainId, currencyId)
 }

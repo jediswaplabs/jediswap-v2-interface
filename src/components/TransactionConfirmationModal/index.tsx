@@ -94,7 +94,7 @@ function TransactionSubmittedContent({
 }) {
   const theme = useTheme()
 
-  const { connector } = useWeb3React()
+  const { connector } = useAccountDetails()
 
   const token = currencyToAdd?.wrapped
   const logoURL = useCurrencyLogoURIs(token)[0]
@@ -317,7 +317,7 @@ export default function TransactionConfirmationModal({
   reviewContent,
   currencyToAdd,
 }: ConfirmationModalProps) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   if (!chainId) {
     return null

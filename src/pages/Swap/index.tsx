@@ -141,7 +141,7 @@ function largerPercentValue(a?: Percent, b?: Percent) {
 }
 
 export default function SwapPage({ className }: { className?: string }) {
-  const { chainId: connectedChainId } = useWeb3React()
+  const { chainId: connectedChainId } = useAccountDetails()
   const loadedUrlParams = useDefaultsFromURLSearch()
 
   const supportedChainId = asSupportedChain(connectedChainId)
@@ -162,7 +162,7 @@ export default function SwapPage({ className }: { className?: string }) {
 /**
  * The swap component displays the swap interface, manages state for the swap, and triggers onchain swaps.
  *
- * In most cases, chainId should refer to the connected chain, i.e. `useWeb3React().chainId`.
+ * In most cases, chainId should refer to the connected chain, i.e. `useAccountDetails().chainId`.
  * However if this component is being used in a context that displays information from a different, unconnected
  * chain (e.g. the TDP), then chainId should refer to the unconnected chain.
  */
@@ -182,7 +182,7 @@ export function Swap({
   disableTokenInputs?: boolean
 }) {
   const connectionReady = useConnectionReady()
-  const { account, chainId: connectedChainId, connector } = useWeb3React()
+  const { account, chainId: connectedChainId, connector } = useAccountDetails()
 
   // token warning stuff
   const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId)

@@ -137,7 +137,7 @@ export function useV3DerivedMintInfo(
   invertPrice: boolean
   ticksAtLimit: { [bound in Bound]?: boolean | undefined }
 } {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
 
   const { independentField, typedValue, leftRangeTypedValue, rightRangeTypedValue, startPriceTypedValue } =
     useV3MintState()

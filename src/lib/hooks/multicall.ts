@@ -36,7 +36,7 @@ export function useSingleContractMultipleData(
 }
 
 function useCallContext() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const latestBlock = useBlockNumber()
   return { chainId, latestBlock }
 }

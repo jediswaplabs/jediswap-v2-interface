@@ -282,7 +282,7 @@ export function PendingModalContent({
   swapError,
   onRetryUniswapXSignature,
 }: PendingModalContentProps) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   const swapStatus = useSwapTransactionStatus(swapResult)
   const order = useOrder(swapResult?.type === TradeFillType.UniswapX ? swapResult.response.orderHash : '')

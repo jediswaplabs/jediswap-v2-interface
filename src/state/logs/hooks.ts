@@ -31,7 +31,7 @@ interface UseLogsResult {
  * The filter parameter should _always_ be memoized, or else will trigger constant refetching
  */
 export function useLogs(filter: Filter | undefined): UseLogsResult {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const blockNumber = useBlockNumber()
 
   const logs = useAppSelector((state) => state.logs)

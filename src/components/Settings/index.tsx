@@ -108,7 +108,7 @@ export default function SettingsTab({
   trade?: InterfaceTrade
   hideRoutingSettings?: boolean
 }) {
-  const { chainId: connectedChainId } = useWeb3React()
+  const { chainId: connectedChainId } = useAccountDetails()
   const node = useRef<HTMLDivElement | null>(null)
   const isOpen = useModalIsOpen(ApplicationModal.SETTINGS)
 

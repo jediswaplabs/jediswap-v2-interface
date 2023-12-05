@@ -16,7 +16,7 @@ import { updateSignature } from './reducer'
 import { SignatureType, UniswapXOrderDetails } from './types'
 
 export default function Updater() {
-  const { provider } = useWeb3React()
+  const { provider } = useAccountDetails()
   const addPopup = useAddPopup()
   const signatures = useAllSignatures()
 

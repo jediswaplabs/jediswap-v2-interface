@@ -30,7 +30,7 @@ export function useDerivedBurnInfo(
   }
   error?: ReactNode
 } {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
 
   const { independentField, typedValue } = useBurnState()
 

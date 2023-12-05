@@ -41,7 +41,7 @@ interface QueueModalProps {
 }
 
 export default function QueueModal({ isOpen, onDismiss, proposalId }: QueueModalProps) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const queueCallback = useQueueCallback()
 
   // monitor call to help UI loading state

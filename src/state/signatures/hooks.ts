@@ -9,7 +9,7 @@ import { addSignature } from './reducer'
 import { SignatureDetails, SignatureType, UniswapXOrderDetails } from './types'
 
 export function useAllSignatures(): { [id: string]: SignatureDetails } {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
   const signatures = useAppSelector((state) => state.signatures) ?? {}
   if (!account || !signatures[account]) return {}
   return signatures[account]

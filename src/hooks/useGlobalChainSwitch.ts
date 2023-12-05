@@ -4,7 +4,7 @@ import { chainIdToBackendName } from 'graphql/data/util'
 import { useEffect, useRef } from 'react'
 
 export const useOnGlobalChainSwitch = (callback: (chain: Chain) => void) => {
-  const { chainId: connectedChainId } = useWeb3React()
+  const { chainId: connectedChainId } = useAccountDetails()
   const globalChainName = chainIdToBackendName(connectedChainId)
   const prevGlobalChainRef = useRef(globalChainName)
   useEffect(() => {

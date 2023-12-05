@@ -103,7 +103,7 @@ export function Table<D extends Record<string, unknown>>({
   ...props
 }: TableProps<D>) {
   const theme = useTheme()
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const { width } = useWindowSize()
   const isMobile = useIsMobile()
 

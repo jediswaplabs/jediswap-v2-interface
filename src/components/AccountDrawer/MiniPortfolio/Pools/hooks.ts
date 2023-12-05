@@ -28,7 +28,7 @@ function useContractMultichain<T extends BaseContract>(
   ABI: any,
   chainIds?: ChainId[],
 ): ContractMap<T> {
-  const { chainId: walletChainId, provider: walletProvider } = useWeb3React();
+  const { chainId: walletChainId, provider: walletProvider } = useAccountDetails();
 
   const networkProviders = useFallbackProviderEnabled() ? RPC_PROVIDERS : DEPRECATED_RPC_PROVIDERS;
 

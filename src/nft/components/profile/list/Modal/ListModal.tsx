@@ -45,7 +45,7 @@ const ListModalWrapper = styled.div`
 `
 
 export const ListModal = ({ overlayClick }: { overlayClick: () => void }) => {
-  const { provider, chainId } = useWeb3React()
+  const { provider, chainId } = useAccountDetails()
   const signer = provider?.getSigner()
   const trace = useTrace({ modal: InterfaceModalName.NFT_LISTING })
   const { formatCurrencyAmount } = useFormatter()

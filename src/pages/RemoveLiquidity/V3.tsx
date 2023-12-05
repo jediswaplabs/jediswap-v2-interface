@@ -48,7 +48,7 @@ const DEFAULT_REMOVE_V3_LIQUIDITY_SLIPPAGE_TOLERANCE = new Percent(5, 100)
 
 // redirect invalid tokenIds
 export default function RemoveLiquidityV3() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const { tokenId } = useParams<{ tokenId: string }>()
   const location = useLocation()
   const parsedTokenId = useMemo(() => {
@@ -71,7 +71,7 @@ export default function RemoveLiquidityV3() {
 function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { position } = useV3PositionFromTokenId(tokenId)
   const theme = useTheme()
-  const { account, chainId, provider } = useWeb3React()
+  const { account, chainId, provider } = useAccountDetails()
   const trace = useTrace()
 
   // flag for receiving WETH

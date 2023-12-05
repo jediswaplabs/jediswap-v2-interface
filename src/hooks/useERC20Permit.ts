@@ -114,7 +114,7 @@ export function useERC20Permit(
   state: UseERC20PermitState
   gatherPermitSignature: null | (() => Promise<void>)
 } {
-  const { account, chainId, provider } = useWeb3React()
+  const { account, chainId, provider } = useAccountDetails()
   const tokenAddress = currencyAmount?.currency?.isToken ? currencyAmount.currency.address : undefined
   const eip2612Contract = useEIP2612Contract(tokenAddress)
   const isArgentWallet = useIsArgentWallet()

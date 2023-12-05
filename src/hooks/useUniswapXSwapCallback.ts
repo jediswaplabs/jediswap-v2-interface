@@ -58,7 +58,7 @@ export function useUniswapXSwapCallback({
   fiatValues: { amountIn?: number; amountOut?: number; feeUsd?: number }
   allowedSlippage: Percent
 }) {
-  const { account, provider, connector } = useWeb3React()
+  const { account, provider, connector } = useAccountDetails()
   const analyticsContext = useTrace()
 
   const { data } = useCachedPortfolioBalancesQuery({ account })

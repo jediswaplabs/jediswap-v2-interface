@@ -101,7 +101,7 @@ const DEFAULT_MS_BEFORE_WARNING = ms(`10m`)
 const NETWORK_HEALTH_CHECK_MS = ms(`10s`)
 
 export default function Polling() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const blockNumber = useBlockNumber()
   const [isMounting, setIsMounting] = useState(false)
   const [isHover, setIsHover] = useState(false)

@@ -50,7 +50,7 @@ interface UpdaterProps {
 }
 
 export default function Updater({ pendingTransactions, onCheck, onReceipt }: UpdaterProps): null {
-  const { account, chainId, provider } = useWeb3React()
+  const { account, chainId, provider } = useAccountDetails()
 
   const lastBlockNumber = useBlockNumber()
   const fastForwardBlockNumber = useFastForwardBlockNumber()

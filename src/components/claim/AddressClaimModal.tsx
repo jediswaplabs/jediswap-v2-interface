@@ -45,7 +45,7 @@ const ConfirmedIcon = styled(ColumnCenter)`
 `
 
 export default function AddressClaimModal({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   // state for smart contract input
   const [typed, setTyped] = useState('')

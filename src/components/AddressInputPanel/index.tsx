@@ -87,7 +87,7 @@ export default function AddressInputPanel({
   // triggers whenever the typed value changes
   onChange: (value: string) => void
 }) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const theme = useTheme()
 
   const { address, loading, name } = useENS(value)

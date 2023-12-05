@@ -8,7 +8,7 @@ import { useAppDispatch } from 'state/hooks'
 import { updateChainId } from './reducer'
 
 export default function Updater(): null {
-  const { chainId, provider } = useWeb3React()
+  const { chainId, provider } = useAccountDetails()
   const dispatch = useAppDispatch()
   const windowVisible = useIsWindowVisible()
 

@@ -10,7 +10,7 @@ import { isHistoricalLog, keyToFilter } from './utils'
 export default function Updater(): null {
   const dispatch = useAppDispatch()
   const state = useAppSelector((state) => state.logs)
-  const { chainId, provider } = useWeb3React()
+  const { chainId, provider } = useAccountDetails()
 
   const blockNumber = useBlockNumber()
 

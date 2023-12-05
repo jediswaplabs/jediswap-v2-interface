@@ -69,7 +69,7 @@ export function useDebouncedTrade(
   method?: QuoteMethod
   swapQuoteLatency?: number
 } {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const autoRouterSupported = useAutoRouterSupported()
   const isWindowVisible = useIsWindowVisible()
 

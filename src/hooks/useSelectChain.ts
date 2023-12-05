@@ -12,7 +12,7 @@ import { useSwitchChain } from './useSwitchChain'
 
 export default function useSelectChain() {
   const dispatch = useAppDispatch()
-  const { connector } = useWeb3React()
+  const { connector } = useAccountDetails()
   const switchChain = useSwitchChain()
   const [searchParams, setSearchParams] = useSearchParams()
 

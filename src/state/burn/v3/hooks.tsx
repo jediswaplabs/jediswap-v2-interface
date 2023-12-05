@@ -30,7 +30,7 @@ export function useDerivedV3BurnInfo(
   outOfRange: boolean
   error?: ReactNode
 } {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
   const { percent } = useBurnV3State()
 
   const token0 = useToken(position?.token0)

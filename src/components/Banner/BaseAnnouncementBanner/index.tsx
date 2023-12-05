@@ -14,7 +14,7 @@ import { isIOS, isMobileSafari } from 'utils/userAgent'
 import { BannerButton, BaseBackgroundImage, ButtonRow, PopupContainer, StyledXButton } from './styled'
 
 export default function BaseWalletBanner() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const [hideBaseWalletBanner, toggleHideBaseWalletBanner] = useHideBaseWalletBanner()
   const location = useLocation()
   const isLandingScreen = location.search === '?intro=true' || location.pathname === '/'

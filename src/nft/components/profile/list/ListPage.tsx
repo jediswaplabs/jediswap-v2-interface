@@ -184,7 +184,7 @@ const EthValueWrapper = styled.span<{ totalEthListingValue: boolean }>`
 
 export const ListPage = () => {
   const { setProfilePageState: setSellPageState } = useProfilePageState()
-  const { provider, chainId } = useWeb3React()
+  const { provider, chainId } = useAccountDetails()
   const isMobile = useIsMobile()
   const trace = useTrace({ modal: InterfaceModalName.NFT_LISTING })
   const { formatCurrencyAmount } = useFormatter()

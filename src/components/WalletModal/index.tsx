@@ -47,7 +47,7 @@ const PrivacyPolicyWrapper = styled.div`
 `
 
 export default function WalletModal({ openSettings }: { openSettings: () => void }) {
-  const { connector, chainId } = useWeb3React()
+  const { connector, chainId } = useAccountDetails()
   const { connect } = useConnectors()
   const { activationState } = useActivationState()
   const fallbackProviderEnabled = useFallbackProviderEnabled()

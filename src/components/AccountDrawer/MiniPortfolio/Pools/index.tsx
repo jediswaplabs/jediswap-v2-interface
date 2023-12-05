@@ -124,7 +124,7 @@ function PositionListItem({ positionInfo }: { positionInfo: PositionInfo }) {
 
   const navigate = useNavigate();
   const toggleWalletDrawer = useToggleAccountDrawer();
-  const { chainId: walletChainId, connector } = useWeb3React();
+  const { chainId: walletChainId, connector } = useAccountDetails();
   const switchChain = useSwitchChain();
   const onClick = useCallback(async () => {
     if (walletChainId !== chainId) { await switchChain(connector, chainId); }

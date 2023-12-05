@@ -370,7 +370,7 @@ export function PositionPageUnsupportedContent() {
 }
 
 export default function PositionPage() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   if (isSupportedChain(chainId)) {
     return <PositionPageContent />
   }
@@ -393,7 +393,7 @@ function parseTokenId(tokenId: string | undefined): BigNumber | undefined {
 
 function PositionPageContent() {
   const { tokenId: tokenIdFromUrl } = useParams<{ tokenId?: string }>()
-  const { chainId, account, provider } = useWeb3React()
+  const { chainId, account, provider } = useAccountDetails()
   const theme = useTheme()
   const { formatTickPrice } = useFormatter()
 

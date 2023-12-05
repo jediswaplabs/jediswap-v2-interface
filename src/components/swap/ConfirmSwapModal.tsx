@@ -110,7 +110,7 @@ function useConfirmModalState({
     return steps
   }, [allowance, trade])
 
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const trace = useTrace()
   const maximumAmountIn = useMaxAmountIn(trade, allowedSlippage)
 
@@ -289,7 +289,7 @@ export default function ConfirmSwapModal({
   fiatValueInput: { data?: number; isLoading: boolean }
   fiatValueOutput: { data?: number; isLoading: boolean }
 }) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const doesTradeDiffer = originalTrade && tradeMeaningfullyDiffers(trade, originalTrade, allowedSlippage)
   const { startSwapFlow, onCancel, confirmModalState, approvalError, pendingModalSteps, wrapTxHash } =
     useConfirmModalState({

@@ -7,7 +7,7 @@ import { useTokenBalance } from 'state/connection/hooks'
 const SOCKS = new Token(ChainId.MAINNET, SOCKS_CONTROLLER_ADDRESSES[ChainId.MAINNET], 0)
 
 export function useHasSocks(): boolean | undefined {
-  const { account, chainId } = useWeb3React()
+  const { account, chainId } = useAccountDetails()
 
   const balance = useTokenBalance(account ?? undefined, chainId === ChainId.MAINNET ? SOCKS : undefined)
 

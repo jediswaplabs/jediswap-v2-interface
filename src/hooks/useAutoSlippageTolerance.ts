@@ -74,7 +74,7 @@ const MAX_AUTO_SLIPPAGE_TOLERANCE = new Percent(5, 100) // 5%
  * Auto slippage is only relevant for Classic swaps because UniswapX slippage is determined by the backend service
  */
 export default function useClassicAutoSlippageTolerance(trade?: ClassicTrade): Percent {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const onL2 = chainId && L2_CHAIN_IDS.includes(chainId)
   const outputDollarValue = useStablecoinValue(trade?.outputAmount)
   const nativeGasPrice = useGasPrice()

@@ -28,7 +28,7 @@ export function toSerializableReceipt(receipt: TransactionReceipt): Serializable
 
 export default function Updater() {
   const analyticsContext = useTrace()
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const addPopup = useAddPopup()
   // speed up popup dismisall time if on L2
   const isL2 = Boolean(chainId && L2_CHAIN_IDS.includes(chainId))

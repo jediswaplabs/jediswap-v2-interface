@@ -15,7 +15,7 @@ import { acceptListUpdate } from './actions'
 import { shouldAcceptVersionUpdate } from './utils'
 
 export default function Updater(): null {
-  const { provider } = useWeb3React()
+  const { provider } = useAccountDetails()
   const dispatch = useAppDispatch()
   const isWindowVisible = useIsWindowVisible()
 

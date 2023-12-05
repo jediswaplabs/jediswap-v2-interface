@@ -11,7 +11,7 @@ export function usePurchaseAssets(): (
   assetsToBuy: UpdatedGenieAsset[],
   purchasingWithErc20?: boolean
 ) => Promise<void> {
-  const { provider } = useWeb3React()
+  const { provider } = useAccountDetails()
   const sendTransaction = useSendTransaction((state) => state.sendTransaction)
   const setTransactionResponse = useTransactionResponse((state) => state.setTransactionResponse)
 

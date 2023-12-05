@@ -21,7 +21,7 @@ function getParsedChainId(parsedQs?: ParsedQs) {
 }
 
 export default function useSyncChainQuery() {
-  const { chainId, isActive, account } = useWeb3React()
+  const { chainId, isActive, account } = useAccountDetails()
   const parsedQs = useParsedQueryString()
   const chainIdRef = useRef(chainId)
   const accountRef = useRef(account)

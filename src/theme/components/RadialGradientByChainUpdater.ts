@@ -35,7 +35,7 @@ function setDefaultBackground(backgroundRadialGradientElement: HTMLElement) {
 }
 
 export default function RadialGradientByChainUpdater(): null {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const isNftPage = useIsNftPage()
 
   // manage background color

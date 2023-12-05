@@ -89,7 +89,7 @@ const EmptyProposals = styled.div`
 
 export default function Pool() {
   const theme = useTheme()
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
   const networkSupportsV2 = useNetworkSupportsV2()
 
   // fetch the user's balances of all tracked V2 LP tokens

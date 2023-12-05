@@ -75,7 +75,7 @@ const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>
 `
 
 export default function AddLiquidityWrapper() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   if (isSupportedChain(chainId)) {
     return <AddLiquidity />
   }
@@ -95,7 +95,7 @@ function AddLiquidity() {
     feeAmount?: string
     tokenId?: string
   }>()
-  const { account, chainId, provider } = useWeb3React()
+  const { account, chainId, provider } = useAccountDetails()
   const theme = useTheme()
   const trace = useTrace()
 

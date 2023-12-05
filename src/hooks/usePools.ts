@@ -85,7 +85,7 @@ export enum PoolState {
 export function usePools(
   poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][]
 ): [PoolState, Pool | null][] {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   const poolTokens: ([Token, Token, FeeAmount] | undefined)[] = useMemo(() => {
     if (!chainId) return new Array(poolKeys.length)

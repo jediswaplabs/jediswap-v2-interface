@@ -24,7 +24,7 @@ function getUniqueAddressesFromPositions(positions: PositionDetails[]): string[]
  * The hope is that this approach removes the cheapest version of the attack without punishing non-malicious url symbols
  */
 export function useFilterPossiblyMaliciousPositions(positions: PositionDetails[]): PositionDetails[] {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const activeTokensList = useDefaultActiveTokens(chainId)
 
   const nonListPositionTokenAddresses = useMemo(

@@ -29,7 +29,7 @@ export default function PopupItem({
     }
   }, [popKey, removeAfterMs, removePopup])
 
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   switch (content.type) {
     case PopupType.Transaction: {

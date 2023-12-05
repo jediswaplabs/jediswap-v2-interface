@@ -62,7 +62,7 @@ const StyledNetworkLabel = styled.div`
 `
 
 export default function BalanceSummary({ token }: { token: Currency }) {
-  const { account, chainId } = useWeb3React()
+  const { account, chainId } = useAccountDetails()
   const theme = useTheme()
   const { label, color } = getChainInfo(asSupportedChain(chainId) ?? ChainId.MAINNET)
   const balance = useCurrencyBalance(account, token)

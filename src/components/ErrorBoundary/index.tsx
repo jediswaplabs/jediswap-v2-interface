@@ -218,7 +218,7 @@ const updateServiceWorkerInBackground = async () => {
 }
 
 export default function ErrorBoundary({ children }: PropsWithChildren): JSX.Element {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   return (
     <Sentry.ErrorBoundary
       fallback={({ error, eventId }) => <Fallback error={error} eventId={eventId} />}

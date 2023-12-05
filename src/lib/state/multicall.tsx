@@ -31,7 +31,7 @@ function getBlocksPerFetchForChainId(chainId: string | undefined): number {
 }
 
 export function MulticallUpdater() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const latestBlockNumber = useBlockNumber()
   const latestMainnetBlockNumber = useMainnetBlockNumber()
   const contract = useInterfaceMulticall()

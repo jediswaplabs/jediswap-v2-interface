@@ -145,7 +145,7 @@ export function useUserHideClosedPositions(): [boolean, (newHideClosedPositions:
 }
 
 export function useUserTransactionTTL(): [number, (slippage: number) => void] {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const dispatch = useAppDispatch()
   const userDeadline = useAppSelector((state) => state.user.userDeadline)
   const onL2 = false
@@ -228,7 +228,7 @@ export function useUserOptedOutOfUniswapX(): boolean {
  * Returns all the pairs of tokens that are tracked by the user for the current chain ID.
  */
 export function useTrackedTokenPairs(): [Token, Token][] {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const tokens = useDefaultActiveTokens(chainId)
 
   // pinned pairs
