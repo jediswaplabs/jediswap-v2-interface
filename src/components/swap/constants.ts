@@ -1,18 +1,20 @@
 // @ts-nocheck
-import { InjectedConnector } from '@starknet-react/core';
+import { Connector } from '@starknet-react/core';
 
 import { LDO, USDT as USDT_MAINNET } from 'constants/tokens';
 import { argentX, braavosWallet, argentWebWallet } from '../../connectors';
 import ARGENTX_ICON from '../../assets/wallets/argentx.png';
 import EMAIL_ICON from '../../assets/images/mail.png';
 import BRAAVOS_ICON from '../../assets/wallets/Braavos.svg';
+import { WebWalletConnector } from '@argent/starknet-react-webwallet-connector'
+
 
 // List of tokens that require existing allowance to be reset before approving the new amount (mainnet only).
 // See the `approve` function here: https://etherscan.io/address/0xdAC17F958D2ee523a2206206994597C13D831ec7#code
 export const RESET_APPROVAL_TOKENS = [USDT_MAINNET, LDO];
 
 export interface WalletInfo {
-  connector?: InjectedConnector
+  connector?: Connector
   name: string
   icon: string
   description: string

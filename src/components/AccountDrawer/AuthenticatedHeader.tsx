@@ -25,6 +25,7 @@ import { useToggleAccountDrawer } from '.';
 import IconButton, { IconHoverText, IconWithConfirmTextButton } from './IconButton';
 import MiniPortfolio from './MiniPortfolio';
 import { portfolioFadeInAnimation } from './MiniPortfolio/PortfolioRow';
+import { useDisconnect } from '@starknet-react/core';
 
 const AuthenticatedHeaderWrapper = styled.div`
   padding: 20px 16px;
@@ -91,11 +92,12 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
   const { ENSName } = useENSName(account);
   const dispatch = useAppDispatch();
   const { formatNumber, formatDelta } = useFormatter();
+  const { disconnect } = useDisconnect();
 
   const connection = getConnection(connector);
-  const disconnect = useCallback(() => {
-    if (connector && connector.deactivate) {
-      connector.deactivate();
+  const disconnectWallet = useCallback(() => {
+    if (connector) {
+      disconnect();
     }
     connector.resetState();
     dispatch(updateSelectedWallet({ wallet: undefined }));
@@ -133,6 +135,8 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
   const percentChange = portfolio?.tokensTotalDenominatedValueChange?.percentage?.value;
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false);
 
+  const addressShort = account ? `${account.slice(0, 6)}...${account.slice(-4)}` : null
+
   return (
     <AuthenticatedHeaderWrapper>
       <HeaderWrapper>
@@ -141,7 +145,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           {account && (
             <AccountNamesWrapper>
               <ThemedText.SubHeader>
-                <CopyText toCopy={ENSName ?? account}>{ENSName ?? shortenAddress(account)}</CopyText>
+                <CopyText toCopy={ENSName ?? account}>{ENSName ?? addressShort}</CopyText>
               </ThemedText.SubHeader>
               {/* Displays smaller view of account if ENS name was rendered above */}
               {ENSName && (
@@ -161,7 +165,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           />
           <IconWithConfirmTextButton
             data-testid="wallet-disconnect"
-            onConfirm={disconnect}
+            onConfirm={disconnectWallet}
             onShowConfirm={setShowDisconnectConfirm}
             Icon={Power}
             text="Disconnect"
@@ -169,7 +173,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           />
         </IconContainer>
       </HeaderWrapper>
-      <PortfolioDrawerContainer>
+      {/*  <PortfolioDrawerContainer>
         {totalBalance !== undefined ? (
           <FadeInColumn gap="xs">
             <ThemedText.HeadlineLarge fontWeight={535} data-testid="portfolio-total-balance">
@@ -199,7 +203,17 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           </Column>
         )}
         <MiniPortfolio account={account} />
-      </PortfolioDrawerContainer>
+        {isUnclaimed && (
+          <UNIButton onClick={openClaimModal} size={ButtonSize.medium} emphasis={ButtonEmphasis.medium}>
+            <Trans>Claim</Trans> {unclaimedAmount?.toFixed(0, { groupSeparator: ',' } ?? '-')} <Trans>reward</Trans>
+          </UNIButton>
+        )}
+        {isClaimAvailable && (
+          <UNIButton size={ButtonSize.medium} emphasis={ButtonEmphasis.medium} onClick={openNftModal}>
+            <Trans>Claim Uniswap NFT Airdrop</Trans>
+          </UNIButton>
+        )}
+      </PortfolioDrawerContainer> */}
     </AuthenticatedHeaderWrapper>
   );
 }

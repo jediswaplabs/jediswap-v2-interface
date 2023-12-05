@@ -16,6 +16,7 @@ import ConnectionErrorView from './ConnectionErrorView'
 import Option from './Option'
 import PrivacyPolicyNotice from './PrivacyPolicyNotice'
 import { SUPPORTED_WALLETS, WalletInfo } from '../swap/constants'
+import { useConnectors } from 'hooks/starknet-react'
 
 const Wrapper = styled.div`
   ${flexColumnNoWrap};
@@ -47,7 +48,7 @@ const PrivacyPolicyWrapper = styled.div`
 
 export default function WalletModal({ openSettings }: { openSettings: () => void }) {
   const { connector, chainId } = useWeb3React()
-
+  const { connect } = useConnectors()
   const { activationState } = useActivationState()
   const fallbackProviderEnabled = useFallbackProviderEnabled()
   // Keep the network connector in sync with any active user connector to prevent chain-switching on wallet disconnection.
@@ -74,17 +75,16 @@ export default function WalletModal({ openSettings }: { openSettings: () => void
           <OptionGrid data-testid="option-grid">
             {Object.keys(SUPPORTED_WALLETS).map((key) => {
               const option = SUPPORTED_WALLETS[key]
-              // if (option.connector === connector)
               return (
                 <BorderWrapper key={key}>
                   <Option
                     id={`connect-${key}`}
-                    clickable={false}
+                    clickable={true}
                     color={option.color}
                     header={option.name}
                     subheader={option.subHeader}
                     icon={option.icon}
-                    // connection={connector}
+                    connector={option.connector}
                   />
                 </BorderWrapper>
               )
