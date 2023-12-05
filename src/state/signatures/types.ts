@@ -10,7 +10,7 @@ interface BaseSignatureFields {
   type: SignatureType
   id: string
   addedTime: number
-  chainId: number
+  chainId: string
   expiry: number
   offerer: string
 }

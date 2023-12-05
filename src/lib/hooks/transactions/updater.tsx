@@ -1,5 +1,5 @@
 import { TransactionReceipt } from '@ethersproject/abstract-provider'
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import useBlockNumber, { useFastForwardBlockNumber } from 'lib/hooks/useBlockNumber'
@@ -34,7 +34,7 @@ export function shouldCheck(lastBlockNumber: number, tx: Transaction): boolean {
   }
 }
 
-const RETRY_OPTIONS_BY_CHAIN_ID: { [chainId: number]: RetryOptions } = {
+const RETRY_OPTIONS_BY_CHAIN_ID: { [chainId: string]: RetryOptions } = {
   [ChainId.ARBITRUM_ONE]: { n: 10, minWait: 250, maxWait: 1000 },
   [ChainId.ARBITRUM_GOERLI]: { n: 10, minWait: 250, maxWait: 1000 },
   [ChainId.OPTIMISM]: { n: 10, minWait: 250, maxWait: 1000 },
@@ -45,8 +45,8 @@ const DEFAULT_RETRY_OPTIONS: RetryOptions = { n: 1, minWait: 0, maxWait: 0 }
 
 interface UpdaterProps {
   pendingTransactions: { [hash: string]: TransactionDetails }
-  onCheck: (tx: { chainId: number; hash: string; blockNumber: number }) => void
-  onReceipt: (tx: { chainId: number; hash: string; receipt: TransactionReceipt }) => void
+  onCheck: (tx: { chainId: string; hash: string; blockNumber: number }) => void
+  onReceipt: (tx: { chainId: string; hash: string; receipt: TransactionReceipt }) => void
 }
 
 export default function Updater({ pendingTransactions, onCheck, onReceipt }: UpdaterProps): null {

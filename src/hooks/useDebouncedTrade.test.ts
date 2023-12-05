@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react'
-import { CurrencyAmount, TradeType } from '@uniswap/sdk-core'
+import { CurrencyAmount, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { DAI, USDC_MAINNET } from 'constants/tokens'
 import { RouterPreference, TradeState } from 'state/routing/types'
 import { usePreviewTrade } from 'state/routing/usePreviewTrade'

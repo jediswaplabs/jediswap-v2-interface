@@ -1,6 +1,6 @@
 import { Protocol } from '@uniswap/router-sdk'
-import { Currency, Percent } from '@uniswap/sdk-core'
-import { FeeAmount } from '@uniswap/v3-sdk'
+import { Currency, Percent } from '@vnaysn/jediswap-sdk-core'
+import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
 import { DAI, USDC_MAINNET, WBTC } from 'constants/tokens'
 import { render } from 'test-utils/render'
 import { RoutingDiagramEntry } from 'utils/getRoutingDiagramEntries'

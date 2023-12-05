@@ -5,7 +5,7 @@ import {
   GOVERNANCE_BRAVO_ADDRESSES,
   TIMELOCK_ADDRESSES,
   UNI_ADDRESSES,
-} from '@uniswap/sdk-core'
+} from '@vnaysn/jediswap-sdk-core'
 
 export const COMMON_CONTRACT_NAMES: Record<number, { [address: string]: string }> = {
   [ChainId.MAINNET]: {
@@ -24,7 +24,7 @@ export const COMMON_CONTRACT_NAMES: Record<number, { [address: string]: string }
 export const DEFAULT_AVERAGE_BLOCK_TIME_IN_SECS = 12
 
 // Block time here is slightly higher (~1s) than average in order to avoid ongoing proposals past the displayed time
-export const AVERAGE_BLOCK_TIME_IN_SECS: { [chainId: number]: number } = {
+export const AVERAGE_BLOCK_TIME_IN_SECS: { [chainId: string]: number } = {
   1: DEFAULT_AVERAGE_BLOCK_TIME_IN_SECS,
 }
 

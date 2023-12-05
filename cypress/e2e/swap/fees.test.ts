@@ -1,4 +1,4 @@
-import { CurrencyAmount } from '@uniswap/sdk-core'
+import { CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { FeatureFlag } from 'featureFlags'
 
 import { USDC_MAINNET } from '../../../src/constants/tokens'

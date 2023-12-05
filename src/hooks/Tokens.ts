@@ -1,4 +1,4 @@
-import { ChainId, Currency, Token } from '@uniswap/sdk-core'
+import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import { getChainInfo } from 'constants/chainInfo'
 import { DEFAULT_INACTIVE_LIST_URLS, DEFAULT_LIST_OF_LISTS } from 'constants/lists'
@@ -102,7 +102,7 @@ export function useUnsupportedTokens(): { [address: string]: Token } {
 
   // checks the default L2 lists to see if `bridgeInfo` has an L1 address value that is unsupported
   const l2InferredBlockedTokens: typeof unsupportedTokens = useMemo(() => {
-    if (!chainId || !isL2ChainId(chainId)) {
+    if (!chainId) {
       return {}
     }
 

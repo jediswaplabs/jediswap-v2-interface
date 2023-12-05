@@ -1,4 +1,4 @@
-import { ChainId, CurrencyAmount } from '@uniswap/sdk-core'
+import { ChainId, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { CyHttpMessages } from 'cypress/types/net-stubbing'
 import { FeatureFlag } from 'featureFlags'
 

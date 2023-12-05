@@ -1,4 +1,4 @@
-import { ChainId, Token, TradeType as MockTradeType } from '@uniswap/sdk-core';
+import { ChainId, Token, TradeType as MockTradeType } from '@vnaysn/jediswap-sdk-core';
 import { PERMIT2_ADDRESS } from '@uniswap/universal-router-sdk';
 
 import { DAI as MockDAI, nativeOnChain, USDC_MAINNET as MockUSDC_MAINNET, USDT as MockUSDT } from 'constants/tokens';

@@ -15,7 +15,7 @@ import reducer, {
   UserState,
 } from './reducer'
 
-function buildSerializedPair(token0Address: string, token1Address: string, chainId: number) {
+function buildSerializedPair(token0Address: string, token1Address: string, chainId: string) {
   return {
     token0: {
       chainId,

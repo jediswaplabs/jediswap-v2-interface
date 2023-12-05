@@ -1,4 +1,4 @@
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import useHttpLocations from 'hooks/useHttpLocations'
 import { useMemo } from 'react'
 import { isAddress } from 'utils'
@@ -77,7 +77,7 @@ export default function useCurrencyLogoURIs(
         isNative?: boolean
         isToken?: boolean
         address?: string
-        chainId: number
+        chainId: string
         logoURI?: string | null
       }
     | null

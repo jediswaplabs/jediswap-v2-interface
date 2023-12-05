@@ -1,4 +1,4 @@
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
 import { useFallbackProviderEnabled } from 'featureFlags/flags/fallbackProvider'
@@ -45,7 +45,7 @@ export function BlockNumberProvider({ children }: { children: ReactNode }) {
   }>({})
   const activeBlock = chainId === activeChainId ? block : undefined
 
-  const onChainBlock = useCallback((chainId: number, block: number) => {
+  const onChainBlock = useCallback((chainId: string, block: number) => {
     setChainBlock((chainBlock) => {
       if (chainBlock.chainId === chainId) {
         if (!chainBlock.block || chainBlock.block < block) {

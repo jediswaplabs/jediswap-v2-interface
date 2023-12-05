@@ -43,12 +43,12 @@ export default function Updater() {
 
   const dispatch = useAppDispatch()
   const onCheck = useCallback(
-    ({ chainId, hash, blockNumber }: { chainId: number; hash: string; blockNumber: number }) =>
+    ({ chainId, hash, blockNumber }: { chainId: string; hash: string; blockNumber: number }) =>
       dispatch(checkedTransaction({ chainId, hash, blockNumber })),
     [dispatch]
   )
   const onReceipt = useCallback(
-    ({ chainId, hash, receipt }: { chainId: number; hash: string; receipt: TransactionReceipt }) => {
+    ({ chainId, hash, receipt }: { chainId: string; hash: string; receipt: TransactionReceipt }) => {
       dispatch(
         finalizeTransaction({
           chainId,
@@ -56,7 +56,6 @@ export default function Updater() {
           receipt: toSerializableReceipt(receipt),
         })
       )
-
 
       addPopup(
         {

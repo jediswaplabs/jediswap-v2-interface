@@ -1,9 +1,9 @@
-import { ChainId } from '@uniswap/sdk-core';
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
-import { Currency, TokenStandard } from 'graphql/data/types-and-hooks';
-import { CHAIN_ID_TO_BACKEND_NAME } from 'graphql/data/util';
-import { render, screen } from 'test-utils/render';
-import { LoadedRow } from './TokenRow';
+import { Currency, TokenStandard } from 'graphql/data/types-and-hooks'
+import { CHAIN_ID_TO_BACKEND_NAME } from 'graphql/data/util'
+import { render, screen } from 'test-utils/render'
+import { LoadedRow } from './TokenRow'
 
 const sparklineData = [
   {
@@ -24,7 +24,7 @@ const sparklineData = [
     timestamp: 1685978135,
     value: 6.475616487384449,
   },
-];
+]
 
 const market = {
   __typename: 'TokenMarket' as const,
@@ -53,14 +53,14 @@ const market = {
     value: 444744703.2546387,
     currency: Currency.Usd,
   },
-};
+}
 
 const project = {
   __typename: 'TokenProject' as const,
   id: 'VG9rZW5Qcm9qZWN0OkVUSEVSRVVNXzB4YTBiODY5OTFjNjIxOGIzNmMxZDE5ZDRhMmU5ZWIwY2UzNjA2ZWI0OA==',
   logoUrl:
     'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png',
-};
+}
 
 describe('LoadedRow.tsx', () => {
   it('renders a row', () => {
@@ -81,13 +81,13 @@ describe('LoadedRow.tsx', () => {
         }}
         sparklineMap={{ '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': sparklineData }}
         sortRank={2}
-      />,
-    );
-    expect(asFragment()).toMatchSnapshot();
-  });
+      />
+    )
+    expect(asFragment()).toMatchSnapshot()
+  })
 
   it('should render "-" as the price when it receives a 0 value', () => {
-    const newMarket = { ...market, price: { ...market.price, value: 0 } };
+    const newMarket = { ...market, price: { ...market.price, value: 0 } }
     render(
       <LoadedRow
         tokenListIndex={0}
@@ -105,8 +105,8 @@ describe('LoadedRow.tsx', () => {
         }}
         sparklineMap={{ '0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48': sparklineData }}
         sortRank={2}
-      />,
-    );
-    expect(screen.getByText('-')).toBeInTheDocument();
-  });
-});
+      />
+    )
+    expect(screen.getByText('-')).toBeInTheDocument()
+  })
+})

@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro';
 import { InterfacePageName, NFTEventName } from '@uniswap/analytics-events';
-import { ChainId } from '@uniswap/sdk-core';
+import { ChainId } from '@vnaysn/jediswap-sdk-core';
 import { MouseEvent, ReactNode, useMemo, useState } from 'react';
 import styled from 'styled-components';
 

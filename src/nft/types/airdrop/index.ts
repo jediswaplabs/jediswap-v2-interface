@@ -9,6 +9,6 @@ export interface Rewards {
   tokenAddress: string
   merkleProof: Array<string>
   rewardType: Airdrop
-  chainId: number
+  chainId: string
   index: number
 }

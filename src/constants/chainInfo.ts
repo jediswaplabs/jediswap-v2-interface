@@ -1,4 +1,4 @@
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import ms from 'ms'
 import { darkTheme } from 'theme/colors'
 
@@ -53,7 +53,7 @@ export interface L2ChainInfo extends BaseChainInfo {
   readonly defaultListUrl: string
 }
 
-type ChainInfoMap = { readonly [chainId: number]: L1ChainInfo | L2ChainInfo } & {
+type ChainInfoMap = { readonly [chainId: string]: L1ChainInfo | L2ChainInfo } & {
   readonly [chainId in SupportedL2ChainId]: L2ChainInfo
 } & { readonly [chainId in SupportedL1ChainId]: L1ChainInfo }
 
@@ -265,6 +265,6 @@ export function getChainInfo(
 }
 
 const MAINNET_INFO = CHAIN_INFO[ChainId.MAINNET]
-export function getChainInfoOrDefault(chainId: number | undefined, featureFlags?: Record<number, boolean>) {
+export function getChainInfoOrDefault(chainId: string | undefined, featureFlags?: Record<number, boolean>) {
   return getChainInfo(chainId, featureFlags) ?? MAINNET_INFO
 }

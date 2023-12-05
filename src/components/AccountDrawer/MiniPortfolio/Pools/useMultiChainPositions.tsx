@@ -1,6 +1,6 @@
-import { ChainId, CurrencyAmount, Token, V3_CORE_FACTORY_ADDRESSES } from '@uniswap/sdk-core'
+import { ChainId, CurrencyAmount, Token, V3_CORE_FACTORY_ADDRESSES } from '@vnaysn/jediswap-sdk-core'
 import IUniswapV3PoolStateJSON from '@uniswap/v3-core/artifacts/contracts/interfaces/pool/IUniswapV3PoolState.sol/IUniswapV3PoolState.json'
-import { computePoolAddress, Pool, Position } from '@uniswap/v3-sdk'
+import { computePoolAddress, Pool, Position } from '@vnaysn/jediswap-sdk-v3'
 import { DEFAULT_ERC20_DECIMALS } from 'constants/tokens'
 import { BigNumber } from 'ethers/lib/ethers'
 import { Interface } from 'ethers/lib/utils'
@@ -78,7 +78,7 @@ export default function useMultiChainPositions(account: string, chains = DEFAULT
   const { priceMap, pricesLoading } = usePoolPriceMap(positions)
 
   const fetchPositionFees = useCallback(
-    async (pm: NonfungiblePositionManager, positionIds: BigNumber[], chainId: number) => {
+    async (pm: NonfungiblePositionManager, positionIds: BigNumber[], chainId: string) => {
       const callData = positionIds.map((id) =>
         pm.interface.encodeFunctionData('collect', [
           { tokenId: id, recipient: account, amount0Max: MAX_UINT128, amount1Max: MAX_UINT128 },

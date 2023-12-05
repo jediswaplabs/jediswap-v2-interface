@@ -1,7 +1,7 @@
 import { Interface } from '@ethersproject/abi'
 import StakingRewardsJSON from '@uniswap/liquidity-staker/build/StakingRewards.json'
-import { ChainId, CurrencyAmount, Token } from '@uniswap/sdk-core'
-import { Pair } from '@uniswap/v2-sdk'
+import { ChainId, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
+import { Pair } from '@vnaysn/jediswap-sdk-v2'
 import { useWeb3React } from '@web3-react/core'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import JSBI from 'jsbi'
@@ -15,7 +15,7 @@ const STAKING_REWARDS_INTERFACE = new Interface(StakingRewardsJSON.abi)
 export const STAKING_GENESIS = 1600387200
 
 const STAKING_REWARDS_INFO: {
-  [chainId: number]: {
+  [chainId: string]: {
     tokens: [Token, Token]
     stakingRewardAddress: string
   }[]

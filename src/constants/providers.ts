@@ -1,4 +1,4 @@
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import AppRpcProvider from 'rpc/AppRpcProvider'
 import AppStaticJsonRpcProvider from 'rpc/StaticJsonRpcProvider'
 import StaticJsonRpcProvider from 'rpc/StaticJsonRpcProvider'

@@ -1,4 +1,4 @@
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 // Breakpoints specifically for the token pages
 export const MAX_WIDTH_MEDIA_BREAKPOINT = '1200px'

@@ -1,7 +1,6 @@
-import { Percent, Token, V2_FACTORY_ADDRESSES } from '@uniswap/sdk-core'
-import { computePairAddress, Pair } from '@uniswap/v2-sdk'
+import { Percent, Token } from '@vnaysn/jediswap-sdk-core'
+import { computePairAddress, Pair } from '@vnaysn/jediswap-sdk-v2'
 import { useWeb3React } from '@web3-react/core'
-import { L2_CHAIN_IDS } from 'constants/chains'
 import { SupportedLocale } from 'constants/locales'
 import { L2_DEADLINE_FROM_NOW } from 'constants/misc'
 import JSBI from 'jsbi'
@@ -10,7 +9,6 @@ import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { RouterPreference } from 'state/routing/types'
 import { UserAddedToken } from 'types/tokens'
 
-import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from '../../constants/routing'
 import { useDefaultActiveTokens } from '../../hooks/Tokens'
 import {
   addSerializedPair,
@@ -23,6 +21,7 @@ import {
   updateUserSlippageTolerance,
 } from './reducer'
 import { SerializedPair, SerializedToken, SlippageTolerance } from './types'
+import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from 'constants/tokens'
 
 export function serializeToken(token: Token): SerializedToken {
   return {
@@ -149,7 +148,7 @@ export function useUserTransactionTTL(): [number, (slippage: number) => void] {
   const { chainId } = useWeb3React()
   const dispatch = useAppDispatch()
   const userDeadline = useAppSelector((state) => state.user.userDeadline)
-  const onL2 = Boolean(chainId && L2_CHAIN_IDS.includes(chainId))
+  const onL2 = false
   const deadline = onL2 ? L2_DEADLINE_FROM_NOW : userDeadline
 
   const setUserDeadline = useCallback(
@@ -172,7 +171,7 @@ export function useAddUserToken(): (token: Token) => void {
   )
 }
 
-function useUserAddedTokensOnChain(chainId: number | undefined | null): Token[] {
+function useUserAddedTokensOnChain(chainId: string | undefined | null): Token[] {
   const serializedTokensMap = useAppSelector(({ user: { tokens } }) => tokens)
 
   return useMemo(() => {
@@ -185,7 +184,7 @@ function useUserAddedTokensOnChain(chainId: number | undefined | null): Token[] 
 }
 
 export function useUserAddedTokens(): Token[] {
-  return useUserAddedTokensOnChain(useWeb3React().chainId)
+  return []
 }
 
 function serializePair(pair: Pair): SerializedPair {
@@ -223,25 +222,6 @@ export function useUserDisabledUniswapX(): boolean {
 
 export function useUserOptedOutOfUniswapX(): boolean {
   return useAppSelector((state) => state.user.optedOutOfUniswapX) ?? false
-}
-
-/**
- * Given two tokens return the liquidity token that represents its liquidity shares
- * @param tokenA one of the two tokens
- * @param tokenB the other token
- */
-export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
-  if (tokenA.chainId !== tokenB.chainId) throw new Error('Not matching chain IDs')
-  if (tokenA.equals(tokenB)) throw new Error('Tokens cannot be equal')
-  if (!V2_FACTORY_ADDRESSES[tokenA.chainId]) throw new Error('No V2 factory address on this chain')
-
-  return new Token(
-    tokenA.chainId,
-    computePairAddress({ factoryAddress: V2_FACTORY_ADDRESSES[tokenA.chainId], tokenA, tokenB }),
-    18,
-    'UNI-V2',
-    'Uniswap V2'
-  )
 }
 
 /**

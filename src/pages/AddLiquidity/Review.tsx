@@ -1,18 +1,20 @@
-import { Currency, CurrencyAmount, Price } from '@uniswap/sdk-core';
-import { Position } from '@uniswap/v3-sdk';
-import styled from 'styled-components';
+import { Currency, CurrencyAmount, Price } from '@vnaysn/jediswap-sdk-core'
+import { Position } from '@vnaysn/jediswap-sdk-v3'
+import styled from 'styled-components'
 
-import { AutoColumn } from 'components/Column';
-import { PositionPreview } from 'components/PositionPreview';
-import { Bound, Field } from '../../state/mint/v3/actions';
+import { AutoColumn } from 'components/Column'
+import { PositionPreview } from 'components/PositionPreview'
+import { Bound, Field } from '../../state/mint/v3/actions'
 
 const Wrapper = styled.div`
   padding-top: 12px;
-`;
+`
 
-export function Review({ position,
+export function Review({
+  position,
   outOfRange,
-  ticksAtLimit }: {
+  ticksAtLimit,
+}: {
   position?: Position
   existingPosition?: Position
   parsedAmounts: { [field in Field]?: CurrencyAmount<Currency> }
@@ -34,5 +36,5 @@ export function Review({ position,
         ) : null}
       </AutoColumn>
     </Wrapper>
-  );
+  )
 }

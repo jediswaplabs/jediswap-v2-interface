@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro';
-import { Position } from '@uniswap/v3-sdk';
+import { Position } from '@vnaysn/jediswap-sdk-v3';
 import { useWeb3React } from '@web3-react/core';
 import { useCallback, useMemo, useReducer } from 'react';
 import { useNavigate } from 'react-router-dom';

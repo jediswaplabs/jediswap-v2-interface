@@ -155,8 +155,8 @@
     "yarn-deduplicate": "^6.0.0"
   },
   "dependencies": {
-    "@argent/starknet-react-webwallet-connector": "^6.4.2",
     "@apollo/client": "^3.7.2",
+    "@argent/starknet-react-webwallet-connector": "^6.4.2",
     "@coinbase/wallet-sdk": "^3.6.4",
     "@fontsource/ibm-plex-mono": "^4.5.1",
     "@fontsource/inter": "^4.5.1",
@@ -166,6 +166,7 @@
     "@graphql-codegen/typescript-operations": "^3.0.2",
     "@graphql-codegen/typescript-react-apollo": "^3.3.7",
     "@graphql-codegen/typescript-resolvers": "^3.2.1",
+    "@jediswap/sdk": "^2.3.5",
     "@juggle/resize-observer": "^3.4.0",
     "@lingui/core": "^4.3.0",
     "@lingui/macro": "^4.3.0",
@@ -214,6 +215,9 @@
     "@visx/react-spring": "^2.12.2",
     "@visx/responsive": "^2.10.0",
     "@visx/shape": "^2.11.1",
+    "@vnaysn/jediswap-sdk-core": "^6.0.0",
+    "@vnaysn/jediswap-sdk-v2": "^3.2.3",
+    "@vnaysn/jediswap-sdk-v3": "^3.10.0",
     "@web3-react/coinbase-wallet": "^8.2.3",
     "@web3-react/core": "^8.2.3",
     "@web3-react/eip1193": "^8.2.3",

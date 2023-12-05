@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { splitSignature } from '@ethersproject/bytes'
-import { ChainId, Currency, CurrencyAmount } from '@uniswap/sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { useWeb3React } from '@web3-react/core'
 import JSBI from 'jsbi'
 import { useSingleCallResult } from 'lib/hooks/multicall'
@@ -27,7 +27,7 @@ export interface PermitInfo {
 
 // todo: read this information from extensions on token lists or elsewhere (permit registry?)
 const PERMITTABLE_TOKENS: {
-  [chainId: number]: {
+  [chainId: string]: {
     [checksummedTokenAddress: string]: PermitInfo
   }
 } = {
@@ -60,7 +60,7 @@ interface BaseSignatureData {
   nonce: number
   owner: string
   spender: string
-  chainId: number
+  chainId: string
   tokenAddress: string
   permitType: PermitType
 }

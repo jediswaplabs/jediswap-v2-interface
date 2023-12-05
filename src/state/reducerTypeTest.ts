@@ -1,4 +1,4 @@
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { TokenList } from '@uniswap/token-lists'
 import { ConnectionType } from 'connection/types'
 import { SupportedLocale } from 'constants/locales'
@@ -77,12 +77,12 @@ interface ExpectedUserState {
   userSlippageToleranceHasBeenMigratedToAuto: boolean
   userDeadline: number
   tokens: {
-    [chainId: number]: {
+    [chainId: string]: {
       [address: string]: SerializedToken
     }
   }
   pairs: {
-    [chainId: number]: {
+    [chainId: string]: {
       [key: string]: SerializedPair
     }
   }
@@ -97,7 +97,7 @@ interface ExpectedUserState {
 assert<Equals<UserState, ExpectedUserState>>()
 
 interface ExpectedTransactionState {
-  [chainId: number]: {
+  [chainId: string]: {
     [txHash: string]: TransactionDetails
   }
 }
@@ -119,7 +119,7 @@ interface ExpectedListsState {
 assert<Equals<ListsState, ExpectedListsState>>()
 
 interface ExpectedApplicationState {
-  readonly chainId: number | null
+  readonly chainId: string | null
   readonly fiatOnramp: { available: boolean; availabilityChecked: boolean }
   readonly openModal: ApplicationModal | null
   readonly popupList: PopupList
@@ -169,7 +169,7 @@ interface ExpectedBurnV3State {
 assert<Equals<BurnV3State, ExpectedBurnV3State>>()
 
 interface ExpectedLogsState {
-  [chainId: number]: {
+  [chainId: string]: {
     [filterKey: string]: {
       listeners: number
       fetchingBlockNumber?: number

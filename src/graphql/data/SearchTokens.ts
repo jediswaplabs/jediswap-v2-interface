@@ -83,7 +83,7 @@ function searchTokenSortFunction(
   return (b.market?.volume24H?.value ?? 0) - (a.market?.volume24H?.value ?? 0);
 }
 
-export function useSearchTokens(searchQuery: string, chainId: number) {
+export function useSearchTokens(searchQuery: string, chainId: string) {
   const { data, loading, error } = useSearchTokensQuery({
     variables: {
       searchQuery,

@@ -1,4 +1,4 @@
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { UNI } from 'constants/tokens'
 
 import { getTestSelector } from '../utils'
