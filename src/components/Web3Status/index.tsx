@@ -45,10 +45,9 @@ const Web3StatusConnected = styled(Web3StatusGeneric)<{
 }>`
   font-family: 'Avenir LT Std';
   background-color: ${({ theme }) => theme.surface5};
-  border: 2px solid ${({ theme }) => theme.white};
+  border: none;
   color: ${({ theme }) => theme.white};
   padding: 10px 24px;
-
   :hover,
   :focus {
     border: 2px solid ${({ theme }) => theme.white};
@@ -81,8 +80,6 @@ const StyledConnectButton = styled(ThemeButton)`
   font-family: 'Avenir LT Std';
   width: 200px;
   line-height: 18px;
-  font-weight: 800;
-  border: 2px solid ${({ theme }) => theme.white};
   :hover,
   :focus {
     background: ${({ theme }) => theme.brandedGradientReversed};
