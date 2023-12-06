@@ -26,7 +26,6 @@ import { useV2Pairs } from '../../hooks/useV2Pairs'
 import { useTokenBalancesWithLoadingIndicator } from '../../state/connection/hooks'
 import { useStakingInfo } from '../../state/stake/hooks'
 import { toV2LiquidityToken, useTrackedTokenPairs } from '../../state/user/hooks'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 640px;
@@ -90,7 +89,7 @@ const EmptyProposals = styled.div`
 
 export default function Pool() {
   const theme = useTheme()
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
   const networkSupportsV2 = useNetworkSupportsV2()
 
   // fetch the user's balances of all tracked V2 LP tokens

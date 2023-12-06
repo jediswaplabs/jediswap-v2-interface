@@ -19,7 +19,6 @@ import { flexRowNoWrap } from 'theme/styles'
 import { shortenAddress } from 'utils'
 import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
 import { RowBetween } from '../Row'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 const Web3StatusGeneric = styled(ButtonSecondary)`
   ${flexRowNoWrap};

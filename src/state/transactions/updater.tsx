@@ -12,7 +12,6 @@ import { useAddPopup } from '../application/hooks'
 import { isPendingTx } from './hooks'
 import { checkedTransaction, finalizeTransaction } from './reducer'
 import { SerializableTransactionReceipt, TransactionDetails, TransactionType } from './types'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 export function toSerializableReceipt(receipt: TransactionReceipt): SerializableTransactionReceipt {
   return {

@@ -10,7 +10,6 @@ import AuthenticatedHeader from './AuthenticatedHeader'
 import LanguageMenu from './LanguageMenu'
 import LocalCurrencyMenu from './LocalCurrencyMenu'
 import SettingsMenu from './SettingsMenu'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 const DefaultMenuWrap = styled(Column)`
   width: 100%;
@@ -25,7 +24,7 @@ enum MenuState {
 }
 
 function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
-  // const { account } = useAccountDetails()
+  // const { address: account } = useAccountDetails()
   const { address } = useAccountDetails()
   const isAuthenticated = !!address
 

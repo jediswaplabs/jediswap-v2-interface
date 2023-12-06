@@ -12,7 +12,6 @@ import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { TradeFillType } from 'state/routing/types'
 import { addTransaction, cancelTransaction, removeTransaction } from './reducer'
 import { TransactionDetails, TransactionInfo, TransactionType } from './types'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 // helper that can take a ethers library transaction response and add it to the list of transactions
 export function useTransactionAdder(): (
@@ -20,7 +19,7 @@ export function useTransactionAdder(): (
   info: TransactionInfo,
   deadline?: number
 ) => void {
-  const { chainId, account } = useAccountDetails()
+  const { chainId, address: account } = useAccountDetails()
   const dispatch = useAppDispatch()
 
   return useCallback(
@@ -43,7 +42,7 @@ export function useTransactionAdder(): (
 }
 
 export function useTransactionRemover() {
-  const { chainId, account } = useAccountDetails()
+  const { chainId, address: account } = useAccountDetails()
   const dispatch = useAppDispatch()
 
   return useCallback(
@@ -168,7 +167,7 @@ export function isPendingTx(tx: TransactionDetails): boolean {
 
 export function usePendingTransactions(): TransactionDetails[] {
   const allTransactions = useAllTransactions()
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
 
   return useMemo(
     () => Object.values(allTransactions).filter((tx) => tx.from === account && isPendingTx(tx)),

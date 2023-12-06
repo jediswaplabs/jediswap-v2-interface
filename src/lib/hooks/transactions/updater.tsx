@@ -45,7 +45,7 @@ interface UpdaterProps {
 }
 
 export default function Updater({ pendingTransactions, onCheck, onReceipt }: UpdaterProps): null {
-  const { account, chainId } = useAccountDetails()
+  const { address: account, chainId } = useAccountDetails()
   const { provider } = useProvider()
 
   const lastBlockNumber = useBlockNumber()

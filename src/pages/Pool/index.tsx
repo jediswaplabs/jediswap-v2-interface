@@ -25,7 +25,6 @@ import CTACards from './CTACards'
 import { LoadingRows } from './styled'
 import WalletIcon from '../../assets/wallets/Wallet.png'
 import NoPositionsIcon from '../../assets/images/noPosition.png'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;

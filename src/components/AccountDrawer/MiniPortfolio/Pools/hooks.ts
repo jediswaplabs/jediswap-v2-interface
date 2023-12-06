@@ -2,7 +2,6 @@ import { ChainId, Token } from '@vnaysn/jediswap-sdk-core'
 import type { AddressMap } from '@uniswap/smart-order-router'
 import MulticallJSON from '@uniswap/v3-periphery/artifacts/contracts/lens/UniswapInterfaceMulticall.sol/UniswapInterfaceMulticall.json'
 import NFTPositionManagerJSON from '@uniswap/v3-periphery/artifacts/contracts/NonfungiblePositionManager.sol/NonfungiblePositionManager.json'
-import { useAccountDetails } from 'hooks/starknet-react'
 import { BaseContract } from 'ethers/lib/ethers'
 import { useMemo } from 'react'
 

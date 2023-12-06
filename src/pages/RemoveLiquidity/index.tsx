@@ -47,7 +47,7 @@ import { calculateSlippageAmount } from '../../utils/calculateSlippageAmount'
 import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { ClickableText, MaxButton, Wrapper } from '../Pool/styled'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useProvider } from '@starknet-react/core'
 
 const DEFAULT_REMOVE_LIQUIDITY_SLIPPAGE_TOLERANCE = new Percent(5, 100)
 
@@ -65,7 +65,8 @@ function RemoveLiquidity() {
   const navigate = useNavigate()
   const { currencyIdA, currencyIdB } = useParams<{ currencyIdA: string; currencyIdB: string }>()
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
-  const { account, chainId, provider } = useAccountDetails()
+  const { address: account, chainId } = useAccountDetails()
+  const { provider } = useProvider()
   const [tokenA, tokenB] = useMemo(() => [currencyA?.wrapped, currencyB?.wrapped], [currencyA, currencyB])
 
   const theme = useTheme()

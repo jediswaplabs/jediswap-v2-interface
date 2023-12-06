@@ -13,7 +13,7 @@ import { useContract } from './useContract'
 const FEE_ON_TRANSFER_DETECTOR_ADDRESS = '0x19C97dc2a25845C7f9d1d519c8C2d4809c58b43f'
 
 function useFeeOnTransferDetectorContract(): FeeOnTransferDetector | null {
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
   const contract = useContract<FeeOnTransferDetector>(FEE_ON_TRANSFER_DETECTOR_ADDRESS, FOT_DETECTOR_ABI)
 
   useEffect(() => {

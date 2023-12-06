@@ -12,7 +12,6 @@ import { unwrappedToken } from 'utils/unwrappedToken'
 
 import { AppState } from '../../reducer'
 import { selectPercent } from './actions'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 export function useBurnV3State(): AppState['burnV3'] {
   return useAppSelector((state) => state.burnV3)
@@ -31,7 +30,7 @@ export function useDerivedV3BurnInfo(
   outOfRange: boolean
   error?: ReactNode
 } {
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
   const { percent } = useBurnV3State()
 
   const token0 = useToken(position?.token0)

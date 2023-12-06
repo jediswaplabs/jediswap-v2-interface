@@ -6,7 +6,6 @@ import { useEffect, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from '../hooks'
 import { fetchedLogs, fetchedLogsError, fetchingLogs } from './slice'
 import { isHistoricalLog, keyToFilter } from './utils'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 export default function Updater(): null {
   const dispatch = useAppDispatch()

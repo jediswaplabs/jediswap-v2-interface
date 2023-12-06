@@ -6,7 +6,6 @@ import { AutoColumn } from 'components/Column'
 import { getChainInfoOrDefault } from 'constants/chainInfo'
 import { ThemedText, ExternalLink } from 'theme/components'
 import ExternalLinkIcon from '../../assets/images/ExternalLinkIcon.png'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 const CTASection = styled.section`
   display: flex;
@@ -52,7 +51,7 @@ const IconWrapper = styled.div`
 
 export default function CTACards() {
   const { chainId } = useAccountDetails()
-  const { infoLink } = getChainInfoOrDefault(chainId)
+  // const { infoLink } = getChainInfoOrDefault(chainId)
 
   return (
     <CTASection>

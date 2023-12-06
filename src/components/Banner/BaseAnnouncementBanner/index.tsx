@@ -12,7 +12,6 @@ import { openDownloadApp, openWalletMicrosite } from 'utils/openDownloadApp'
 import { isIOS, isMobileSafari } from 'utils/userAgent'
 
 import { BannerButton, BaseBackgroundImage, ButtonRow, PopupContainer, StyledXButton } from './styled'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 export default function BaseWalletBanner() {
   const { chainId } = useAccountDetails()

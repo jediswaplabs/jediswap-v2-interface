@@ -1,5 +1,4 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
 import { useEffect } from 'react'
 
 import { useIsNftPage } from 'hooks/useIsNftPage'

@@ -43,7 +43,7 @@ import { calculateGasMargin } from '../../utils/calculateGasMargin'
 import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { ResponsiveHeaderText, SmallMaxButton, Wrapper } from './styled'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useProvider } from '@starknet-react/core'
 
 const DEFAULT_REMOVE_V3_LIQUIDITY_SLIPPAGE_TOLERANCE = new Percent(5, 100)
 
@@ -72,7 +72,8 @@ export default function RemoveLiquidityV3() {
 function Remove({ tokenId }: { tokenId: BigNumber }) {
   const { position } = useV3PositionFromTokenId(tokenId)
   const theme = useTheme()
-  const { account, chainId, provider } = useAccountDetails()
+  const { address: account, chainId } = useAccountDetails()
+  const { provider } = useProvider()
   const trace = useTrace()
 
   // flag for receiving WETH
@@ -143,44 +144,44 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
       value,
     }
 
-    const connectedChainId = await provider.getSigner().getChainId()
-    if (chainId !== connectedChainId) {
-      throw new WrongChainError()
-    }
+    // const connectedChainId = await provider.getSigner().getChainId()
+    // if (chainId !== connectedChainId) {
+    //   throw new WrongChainError()
+    // }
 
-    provider
-      .getSigner()
-      .estimateGas(txn)
-      .then((estimate) => {
-        const newTxn = {
-          ...txn,
-          gasLimit: calculateGasMargin(estimate),
-        }
+    // provider
+    //   .getSigner()
+    //   .estimateGas(txn)
+    //   .then((estimate) => {
+    //     const newTxn = {
+    //       ...txn,
+    //       gasLimit: calculateGasMargin(estimate),
+    //     }
 
-        return provider
-          .getSigner()
-          .sendTransaction(newTxn)
-          .then((response: TransactionResponse) => {
-            sendAnalyticsEvent(LiquidityEventName.REMOVE_LIQUIDITY_SUBMITTED, {
-              source: LiquiditySource.V3,
-              label: [liquidityValue0.currency.symbol, liquidityValue1.currency.symbol].join('/'),
-              ...trace,
-            })
-            setTxnHash(response.hash)
-            setAttemptingTxn(false)
-            addTransaction(response, {
-              type: TransactionType.REMOVE_LIQUIDITY_V3,
-              baseCurrencyId: currencyId(liquidityValue0.currency),
-              quoteCurrencyId: currencyId(liquidityValue1.currency),
-              expectedAmountBaseRaw: liquidityValue0.quotient.toString(),
-              expectedAmountQuoteRaw: liquidityValue1.quotient.toString(),
-            })
-          })
-      })
-      .catch((error) => {
-        setAttemptingTxn(false)
-        console.error(error)
-      })
+    //     return provider
+    //       .getSigner()
+    //       .sendTransaction(newTxn)
+    //       .then((response: TransactionResponse) => {
+    //         sendAnalyticsEvent(LiquidityEventName.REMOVE_LIQUIDITY_SUBMITTED, {
+    //           source: LiquiditySource.V3,
+    //           label: [liquidityValue0.currency.symbol, liquidityValue1.currency.symbol].join('/'),
+    //           ...trace,
+    //         })
+    //         setTxnHash(response.hash)
+    //         setAttemptingTxn(false)
+    //         addTransaction(response, {
+    //           type: TransactionType.REMOVE_LIQUIDITY_V3,
+    //           baseCurrencyId: currencyId(liquidityValue0.currency),
+    //           quoteCurrencyId: currencyId(liquidityValue1.currency),
+    //           expectedAmountBaseRaw: liquidityValue0.quotient.toString(),
+    //           expectedAmountQuoteRaw: liquidityValue1.quotient.toString(),
+    //         })
+    //       })
+    //   })
+    //   .catch((error) => {
+    //     setAttemptingTxn(false)
+    //     console.error(error)
+    //   })
   }, [
     positionManager,
     liquidityValue0,
@@ -277,14 +278,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     )
   }
 
-  const showCollectAsWeth = Boolean(
-    liquidityValue0?.currency &&
-      liquidityValue1?.currency &&
-      (liquidityValue0.currency.isNative ||
-        liquidityValue1.currency.isNative ||
-        WRAPPED_NATIVE_CURRENCY[liquidityValue0.currency.chainId]?.equals(liquidityValue0.currency.wrapped) ||
-        WRAPPED_NATIVE_CURRENCY[liquidityValue1.currency.chainId]?.equals(liquidityValue1.currency.wrapped))
-  )
+  const showCollectAsWeth = false
   return (
     <AutoColumn>
       <TransactionConfirmationModal

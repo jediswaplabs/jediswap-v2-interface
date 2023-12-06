@@ -29,7 +29,7 @@ const ChainSelectorRow = styled.div`
 `
 
 export const NetworkName = () => {
-  const { chainId, account } = useAccountDetails()
+  const { chainId, address: account } = useAccountDetails()
 
   const info = getChainInfo(chainId)
 

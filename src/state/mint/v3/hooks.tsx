@@ -34,7 +34,6 @@ import {
   typeStartPriceInput,
 } from './actions'
 import { tryParseTick } from './utils'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 export function useV3MintState(): AppState['mintV3'] {
   return useAppSelector((state) => state.mintV3)
@@ -138,7 +137,7 @@ export function useV3DerivedMintInfo(
   invertPrice: boolean
   ticksAtLimit: { [bound in Bound]?: boolean | undefined }
 } {
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
 
   const { independentField, typedValue, leftRangeTypedValue, rightRangeTypedValue, startPriceTypedValue } =
     useV3MintState()

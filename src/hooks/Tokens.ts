@@ -13,7 +13,6 @@ import { useAllLists, useCombinedActiveList, useCombinedTokenMapFromUrls } from 
 import { WrappedTokenInfo } from '../state/lists/wrappedTokenInfo'
 import { deserializeToken, useUserAddedTokens } from '../state/user/hooks'
 import { useUnsupportedTokenList } from './../state/lists/hooks'
-import { useAccountDetails } from './starknet-react'
 
 type Maybe<T> = T | null | undefined
 

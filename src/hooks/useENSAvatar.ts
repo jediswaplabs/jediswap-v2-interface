@@ -110,7 +110,7 @@ function useERC721Uri(
   enforceOwnership: boolean
 ): { uri?: string; loading: boolean } {
   const idArgument = useMemo(() => [id], [id])
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
   const contract = useERC721Contract(contractAddress)
   const owner = useMainnetSingleCallResult(contract, 'ownerOf', idArgument, NEVER_RELOAD)
   const uri = useMainnetSingleCallResult(contract, 'tokenURI', idArgument, NEVER_RELOAD)
@@ -128,7 +128,7 @@ function useERC1155Uri(
   id: string | undefined,
   enforceOwnership: boolean
 ): { uri?: string; loading: boolean } {
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
   const idArgument = useMemo(() => [id], [id])
   const accountArgument = useMemo(() => [account || '', id], [account, id])
   const contract = useERC1155Contract(contractAddress)

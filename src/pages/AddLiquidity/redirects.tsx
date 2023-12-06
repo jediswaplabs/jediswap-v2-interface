@@ -1,6 +1,4 @@
-import { useAccountDetails } from 'hooks/starknet-react'
 import { Navigate, useParams } from 'react-router-dom'
-
 import { WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
 import AddLiquidity from './index'
 import { useAccountDetails } from 'hooks/starknet-react'

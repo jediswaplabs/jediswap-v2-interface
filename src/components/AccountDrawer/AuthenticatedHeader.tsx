@@ -26,7 +26,6 @@ import IconButton, { IconHoverText, IconWithConfirmTextButton } from './IconButt
 import MiniPortfolio from './MiniPortfolio'
 import { portfolioFadeInAnimation } from './MiniPortfolio/PortfolioRow'
 import { useDisconnect } from '@starknet-react/core'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 const AuthenticatedHeaderWrapper = styled.div`
   padding: 20px 16px;

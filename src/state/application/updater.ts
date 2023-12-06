@@ -6,10 +6,11 @@ import { useEffect, useState } from 'react'
 import { useAppDispatch } from 'state/hooks'
 
 import { updateChainId } from './reducer'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useProvider } from '@starknet-react/core'
 
 export default function Updater(): null {
-  const { chainId, provider } = useAccountDetails()
+  const { chainId } = useAccountDetails()
+  const { provider } = useProvider()
   const dispatch = useAppDispatch()
   const windowVisible = useIsWindowVisible()
 

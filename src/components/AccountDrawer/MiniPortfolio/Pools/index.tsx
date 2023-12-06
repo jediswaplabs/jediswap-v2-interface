@@ -1,6 +1,5 @@
 import { t } from '@lingui/macro'
 import { Position } from '@vnaysn/jediswap-sdk-v3'
-import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useMemo, useReducer } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'

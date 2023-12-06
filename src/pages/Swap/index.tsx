@@ -63,7 +63,6 @@ import { computeRealizedPriceImpact, warningSeverity } from 'utils/prices'
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
 import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
-import { useAccountDetails } from 'hooks/starknet-react'
 import { UNIVERSAL_ROUTER_ADDRESS, getSwapCurrencyId } from 'constants/tokens'
 
 export const ArrowContainer = styled.div`

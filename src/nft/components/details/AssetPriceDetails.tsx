@@ -310,7 +310,7 @@ const NotForSale = ({ collectionName, collectionUrl }: { collectionName: string;
 }
 
 export const AssetPriceDetails = ({ asset, collection }: AssetPriceDetailsProps) => {
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
 
   const cheapestOrder = asset.sellorders && asset.sellorders.length > 0 ? asset.sellorders[0] : undefined
   const expirationDate = cheapestOrder?.endAt ? new Date(cheapestOrder.endAt) : undefined

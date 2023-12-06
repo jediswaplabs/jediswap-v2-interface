@@ -50,7 +50,6 @@ import { TransactionType } from '../../state/transactions/types'
 import { calculateGasMargin } from '../../utils/calculateGasMargin'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { LoadingRows } from './styled'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 const PositionPageButtonPrimary = styled(ButtonPrimary)`
   width: 228px;

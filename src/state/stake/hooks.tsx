@@ -9,7 +9,6 @@ import { NEVER_RELOAD, useMultipleContractSingleData } from 'lib/hooks/multicall
 import { useMemo } from 'react'
 
 import { DAI, USDT, WBTC } from '../../constants/tokens'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 const STAKING_REWARDS_INTERFACE = new Interface(StakingRewardsJSON.abi)
 
@@ -54,7 +53,7 @@ interface StakingInfo {
 
 // gets the staking info from the network for the active chain id
 export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
-  const { chainId, account } = useAccountDetails()
+  const { chainId, address: account } = useAccountDetails()
 
   // detect if staking is ended
   const currentBlockTimestamp = useCurrentBlockTimestamp()

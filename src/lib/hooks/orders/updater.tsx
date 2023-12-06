@@ -24,7 +24,7 @@ interface UpdaterProps {
 }
 
 export default function OrderUpdater({ pendingOrders, onOrderUpdate }: UpdaterProps): null {
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
 
   useEffect(() => {
     async function getOrderStatuses() {

@@ -269,7 +269,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
     ref
   ) => {
     const [modalOpen, setModalOpen] = useState(false)
-    const { account, chainId } = useAccountDetails()
+    const { address: account, chainId } = useAccountDetails()
     const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
     const theme = useTheme()
     const { formatCurrencyAmount } = useFormatter()

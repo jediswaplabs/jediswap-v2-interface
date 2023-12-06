@@ -28,7 +28,6 @@ import { usePairAdder } from '../../state/user/hooks'
 import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { Dots } from '../Pool/styled'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 enum Fields {
   TOKEN0 = 0,
@@ -42,7 +41,7 @@ function useQuery() {
 export default function PoolFinder() {
   const query = useQuery()
 
-  const { account, chainId } = useAccountDetails()
+  const { address: account, chainId } = useAccountDetails()
 
   const [showSearch, setShowSearch] = useState<boolean>(false)
   const [activeField, setActiveField] = useState<number>(Fields.TOKEN1)

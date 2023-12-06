@@ -22,7 +22,7 @@ function useApprovalStateForSpender(
   spender: string | undefined,
   useIsPendingApproval: (token?: Token, spender?: string) => boolean
 ): ApprovalState {
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
   const token = amountToApprove?.currency?.isToken ? amountToApprove.currency : undefined
 
   const { tokenAllowance } = useTokenAllowance(token, account ?? undefined, spender)

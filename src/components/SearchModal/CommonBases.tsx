@@ -46,7 +46,7 @@ export default function CommonBases({
   portfolioBalanceUsd?: number
 }) {
   const bases = chainId !== undefined ? COMMON_BASES[chainId] ?? [] : []
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
   const { data } = useCachedPortfolioBalancesQuery({ account })
   const portfolioBalanceUsd = data?.portfolios?.[0].tokensTotalDenominatedValue?.value
 

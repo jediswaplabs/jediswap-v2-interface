@@ -13,7 +13,6 @@ import { useCurrency } from 'hooks/Tokens'
 import { useSwitchChain } from 'hooks/useSwitchChain'
 import { BREAKPOINTS } from 'theme'
 import { currencyId } from 'utils/currencyId'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 const PoolDetailsStatsButtonsRow = styled(Row)`
   gap: 12px;
@@ -56,25 +55,25 @@ function findMatchingPosition(positions: PositionInfo[], token0?: Token, token1?
 }
 
 export function PoolDetailsStatsButtons({ chainId, token0, token1, feeTier, loading }: PoolDetailsStatsButtonsProps) {
-  const { chainId: walletChainId, connector, account } = useAccountDetails()
+  const { chainId: walletChainId, connector, address: account } = useAccountDetails()
   const { positions: userOwnedPositions } = useMultiChainPositions(account ?? '', chainId ? [chainId] : undefined)
   const position = userOwnedPositions && findMatchingPosition(userOwnedPositions, token0, token1, feeTier)
   const tokenId = position?.details.tokenId
   const switchChain = useSwitchChain()
   const navigate = useNavigate()
-  const currency0 = useCurrency(token0?.id, chainId)
-  const currency1 = useCurrency(token1?.id, chainId)
+  const currency0 = useCurrency(token0?.id, walletChainId)
+  const currency1 = useCurrency(token1?.id, walletChainId)
   const handleOnClick = async (toSwap: boolean) => {
-    if (currency0 && currency1) {
-      if (walletChainId !== chainId && chainId) {
-        await switchChain(connector, chainId)
-      }
-      navigate(
-        toSwap
-          ? `/swap?inputCurrency=${currencyId(currency0)}&outputCurrency=${currencyId(currency1)}`
-          : `/increase/${currencyId(currency0)}/${currencyId(currency1)}/${feeTier}${tokenId ? `/${tokenId}` : ''}`
-      )
-    }
+    // if (currency0 && currency1) {
+    //   if (walletChainId !== chainId && chainId) {
+    //     await switchChain(connector, chainId)
+    //   }
+    //   navigate(
+    //     toSwap
+    //       ? `/swap?inputCurrency=${currencyId(currency0)}&outputCurrency=${currencyId(currency1)}`
+    //       : `/increase/${currencyId(currency0)}/${currencyId(currency1)}/${feeTier}${tokenId ? `/${tokenId}` : ''}`
+    //   )
+    // }
   }
 
   if (loading || !currency0 || !currency1) {

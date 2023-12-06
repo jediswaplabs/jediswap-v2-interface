@@ -125,7 +125,7 @@ export function CurrencyRow({
   eventProperties: Record<string, unknown>
   balance?: CurrencyAmount<Currency>
 }) {
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
   const key = currencyKey(currency)
   const customAdded = useIsUserAddedToken(currency)
   const warning = currency.isNative ? null : checkWarning(currency.address)

@@ -49,7 +49,7 @@ export default function usePermit2Allowance(
   spender?: string,
   tradeFillType?: TradeFillType
 ): Allowance {
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
   const token = amount?.currency
 
   const { tokenAllowance, isSyncing: isApprovalSyncing } = useTokenAllowance(token, account, PERMIT2_ADDRESS)

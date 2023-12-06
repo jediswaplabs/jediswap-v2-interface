@@ -152,7 +152,7 @@ export function useMainnetInterfaceMulticall() {
 }
 
 export function useV3NFTPositionManagerContract(withSignerIfPossible?: boolean): NonfungiblePositionManager | null {
-  const { account, chainId } = useAccountDetails()
+  const { address: account, chainId } = useAccountDetails()
   const contract = useContract<NonfungiblePositionManager>(
     NONFUNGIBLE_POSITION_MANAGER_ADDRESSES,
     NFTPositionManagerABI,
