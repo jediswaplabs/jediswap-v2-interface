@@ -22,53 +22,53 @@ export function getChainUI(chainId: ChainId): ChainUI | undefined {
   switch (chainId) {
     case ChainId.MAINNET:
     case ChainId.GOERLI:
-    case ChainId.SEPOLIA:
+    case ChainId.MAINNET:
       return {
         Symbol: ethereum,
         bgColor: '#6B8AFF33',
         textColor: '#6B8AFF',
       }
-    case ChainId.POLYGON:
-    case ChainId.POLYGON_MUMBAI:
+    case ChainId.MAINNET:
+    case ChainId.MAINNET:
       return {
         Symbol: polygon,
         bgColor: '#9558FF33',
         textColor: '#9558FF',
       }
-    case ChainId.ARBITRUM_ONE:
-    case ChainId.ARBITRUM_GOERLI:
+    case ChainId.MAINNET:
+    case ChainId.MAINNET:
       return {
         Symbol: arbitrum,
         bgColor: '#00A3FF33',
         textColor: '#00A3FF',
       }
-    case ChainId.OPTIMISM:
-    case ChainId.OPTIMISM_GOERLI:
+    case ChainId.MAINNET:
+    case ChainId.MAINNET:
       return {
         Symbol: optimism,
         bgColor: '#FF042033',
         textColor: '#FF0420',
       }
-    case ChainId.CELO:
-    case ChainId.CELO_ALFAJORES:
+    case ChainId.MAINNET:
+    case ChainId.MAINNET:
       return {
         Symbol: celo,
         bgColor: '#FCFF5233',
         textColor: '#FCFF52',
       }
-    case ChainId.AVALANCHE:
+    case ChainId.MAINNET:
       return {
         Symbol: avax,
         bgColor: '#E8414233',
         textColor: '#E84142',
       }
-    case ChainId.BNB:
+    case ChainId.MAINNET:
       return {
         Symbol: bnb,
         bgColor: '#EAB20033',
         textColor: '#EAB200',
       }
-    case ChainId.BASE:
+    case ChainId.MAINNET:
       return {
         Symbol: base,
         bgColor: '#0052FF33',

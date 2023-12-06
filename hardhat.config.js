@@ -16,9 +16,9 @@ const forks = {
     blockNumber: UNIVERSAL_ROUTER_CREATION_BLOCK(ChainId.MAINNET),
     ...forkingConfig,
   },
-  [ChainId.POLYGON]: {
+  [ChainId.MAINNET]: {
     url: `https://polygon-mainnet.infura.io/v3/${process.env.REACT_APP_INFURA_KEY}`,
-    blockNumber: UNIVERSAL_ROUTER_CREATION_BLOCK(ChainId.POLYGON),
+    blockNumber: UNIVERSAL_ROUTER_CREATION_BLOCK(ChainId.MAINNET),
     ...forkingConfig,
   },
 }

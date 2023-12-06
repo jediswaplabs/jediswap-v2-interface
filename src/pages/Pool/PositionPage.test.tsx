@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { CurrencyAmount, WETH9 } from '@vnaysn/jediswap-sdk-core'
+import { CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount, Pool } from '@vnaysn/jediswap-sdk-v3'
 import { PositionDetails } from 'types/position'
 

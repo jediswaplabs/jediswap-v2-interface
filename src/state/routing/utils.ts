@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { MixedRouteSDK } from '@uniswap/router-sdk'
+import { MixedRouteSDK } from '@vnaysn/jediswap-router-sdk'
 import { Currency, CurrencyAmount, Percent, Token, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { DutchOrderInfo, DutchOrderInfoJSON } from '@uniswap/uniswapx-sdk'
 import { Pair, Route as V2Route } from '@vnaysn/jediswap-sdk-v2'
@@ -203,112 +203,7 @@ export function transformQuickRouteToTrade(args: GetQuickQuoteArgs, data: QuickR
   return new PreviewTrade({ inputAmount, outputAmount, tradeType, inputTax, outputTax })
 }
 
-export async function transformRoutesToTrade(
-  args: GetQuoteArgs,
-  data: URAQuoteResponse,
-  quoteMethod: QuoteMethod
-): Promise<TradeResult> {
-  const {
-    tradeType,
-    needsWrapIfUniswapX,
-    routerPreference,
-    account,
-    amount,
-    isUniswapXDefaultEnabled,
-    inputTax,
-    outputTax,
-  } = args
-
-  const showUniswapXTrade =
-    data.routing === URAQuoteType.DUTCH_LIMIT &&
-    (routerPreference === RouterPreference.X || (isUniswapXDefaultEnabled && routerPreference === RouterPreference.API))
-
-  const [currencyIn, currencyOut] = getTradeCurrencies(args, showUniswapXTrade)
-  const { gasUseEstimateUSD, blockNumber, routes, gasUseEstimate, swapFee } = getClassicTradeDetails(
-    currencyIn,
-    currencyOut,
-    data
-  )
-
-  // If the top-level URA quote type is DUTCH_LIMIT, then UniswapX is better for the user
-  const isUniswapXBetter = data.routing === URAQuoteType.DUTCH_LIMIT
-
-  // Some sus javascript float math but it's ok because its just an estimate for display purposes
-  const usdCostPerGas = gasUseEstimateUSD && gasUseEstimate ? gasUseEstimateUSD / gasUseEstimate : undefined
-
-  const approveInfo = await getApproveInfo(account, currencyIn, amount, usdCostPerGas)
-
-  const classicTrade = new ClassicTrade({
-    v2Routes:
-      routes
-        ?.filter((r): r is RouteResult & { routev2: NonNullable<RouteResult['routev2']> } => r.routev2 !== null)
-        .map(({ routev2, inputAmount, outputAmount }) => ({
-          routev2,
-          inputAmount,
-          outputAmount,
-        })) ?? [],
-    v3Routes:
-      routes
-        ?.filter((r): r is RouteResult & { routev3: NonNullable<RouteResult['routev3']> } => r.routev3 !== null)
-        .map(({ routev3, inputAmount, outputAmount }) => ({
-          routev3,
-          inputAmount,
-          outputAmount,
-        })) ?? [],
-    mixedRoutes:
-      routes
-        ?.filter(
-          (r): r is RouteResult & { mixedRoute: NonNullable<RouteResult['mixedRoute']> } => r.mixedRoute !== null
-        )
-        .map(({ mixedRoute, inputAmount, outputAmount }) => ({
-          mixedRoute,
-          inputAmount,
-          outputAmount,
-        })) ?? [],
-    tradeType,
-    gasUseEstimateUSD,
-    approveInfo,
-    blockNumber,
-    isUniswapXBetter,
-    requestId: data.quote.requestId,
-    quoteMethod,
-    inputTax,
-    outputTax,
-    swapFee,
-  })
-
-  // During the opt-in period, only return UniswapX quotes if the user has turned on the setting,
-  // even if it is the better quote.
-  if (isUniswapXBetter && (routerPreference === RouterPreference.X || isUniswapXDefaultEnabled)) {
-    const orderInfo = toDutchOrderInfo(data.quote.orderInfo)
-    const swapFee = getSwapFee(data.quote)
-    const wrapInfo = await getWrapInfo(needsWrapIfUniswapX, account, currencyIn.chainId, amount, usdCostPerGas)
-
-    const uniswapXTrade = new DutchOrderTrade({
-      currencyIn,
-      currenciesOut: [currencyOut],
-      orderInfo,
-      tradeType,
-      quoteId: data.quote.quoteId,
-      requestId: data.quote.requestId,
-      classicGasUseEstimateUSD: classicTrade.totalGasUseEstimateUSD,
-      wrapInfo,
-      approveInfo,
-      auctionPeriodSecs: data.quote.auctionPeriodSecs,
-      startTimeBufferSecs: data.quote.startTimeBufferSecs,
-      deadlineBufferSecs: data.quote.deadlineBufferSecs,
-      slippageTolerance: toSlippagePercent(data.quote.slippageTolerance),
-      swapFee,
-    })
-
-    return {
-      state: QuoteState.SUCCESS,
-      trade: uniswapXTrade,
-    }
-  }
-
-  return { state: QuoteState.SUCCESS, trade: classicTrade }
-}
+export async function transformRoutesToTrade(args: GetQuoteArgs, data: URAQuoteResponse, quoteMethod: QuoteMethod) {}
 
 function parseToken({ address, chainId, decimals, symbol }: ClassicQuoteData['route'][0][0]['tokenIn']): Token {
   return new Token(chainId, address, parseInt(decimals.toString()), symbol)
@@ -338,9 +233,9 @@ export function isExactInput(tradeType: TradeType): boolean {
 
 export function currencyAddressForSwapQuote(currency: Currency): string {
   if (currency.isNative) {
-    if (isPolygon(currency.chainId)) return SwapRouterNativeAssets.MATIC
-    if (isBsc(currency.chainId)) return SwapRouterNativeAssets.BNB
-    if (isAvalanche(currency.chainId)) return SwapRouterNativeAssets.AVAX
+    // if (isPolygon(currency.chainId)) return SwapRouterNativeAssets.MATIC
+    // if (isBsc(currency.chainId)) return SwapRouterNativeAssets.BNB
+    // if (isAvalanche(currency.chainId)) return SwapRouterNativeAssets.AVAX
     return SwapRouterNativeAssets.ETH
   }
 

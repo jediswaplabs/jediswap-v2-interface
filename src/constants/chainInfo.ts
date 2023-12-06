@@ -51,11 +51,11 @@ export interface L2ChainInfo extends BaseChainInfo {
  * The expectation is that all of these networks have immediate transaction confirmation.
  */
 export const L2_CHAIN_IDS = [
-  // ChainId.ARBITRUM_ONE,
-  // ChainId.ARBITRUM_GOERLI,
-  // ChainId.OPTIMISM,
-  // ChainId.OPTIMISM_GOERLI,
-  // ChainId.BASE,
+  // ChainId.MAINNET,
+  // ChainId.MAINNET,
+  // ChainId.MAINNET,
+  // ChainId.MAINNET,
+  // ChainId.MAINNET,
 ] as const
 
 export type SupportedL2ChainId = (typeof L2_CHAIN_IDS)[number]

@@ -39,8 +39,8 @@ const PERMITTABLE_TOKENS: {
   [ChainId.GOERLI]: {
     [UNI[ChainId.GOERLI].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
   },
-  [ChainId.SEPOLIA]: {
-    [UNI[ChainId.SEPOLIA].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
+  [ChainId.MAINNET]: {
+    [UNI[ChainId.MAINNET].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
   },
 }
 

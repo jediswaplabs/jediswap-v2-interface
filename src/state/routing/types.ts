@@ -1,4 +1,4 @@
-import { MixedRouteSDK, ONE, Protocol, Trade } from '@uniswap/router-sdk'
+import { MixedRouteSDK, ONE, Protocol, Trade } from '@vnaysn/jediswap-router-sdk'
 import {
   ChainId,
   Currency,
@@ -10,6 +10,9 @@ import {
   TradeType,
 } from '@vnaysn/jediswap-sdk-core'
 import { DutchOrderInfoJSON, DutchOrderTrade as IDutchOrderTrade } from '@uniswap/uniswapx-sdk'
+import { ZERO_PERCENT } from 'constants/misc'
+import { Route as V2Route } from '@vnaysn/jediswap-sdk-v2'
+import { Route as V3Route } from '@vnaysn/jediswap-sdk-v3'
 
 export enum TradeState {
   LOADING = 'loading',
@@ -199,6 +202,155 @@ export type WrapInfo = { needsWrap: true; wrapGasEstimateUSD: number } | { needs
 
 export type SwapFeeInfo = { recipient: string; percent: Percent; amount: string /* raw amount of output token */ }
 
+export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
+  public readonly fillType = TradeFillType.Classic
+  approveInfo: ApproveInfo
+  gasUseEstimateUSD?: number // gas estimate for swaps
+  blockNumber: string | null | undefined
+  requestId: string | undefined
+  quoteMethod: QuoteMethod
+  swapFee: SwapFeeInfo | undefined
+
+  constructor({
+    gasUseEstimateUSD,
+    blockNumber,
+    requestId,
+    quoteMethod,
+    approveInfo,
+    swapFee,
+    ...routes
+  }: {
+    gasUseEstimateUSD?: number
+    totalGasUseEstimateUSD?: number
+    blockNumber?: string | null
+    requestId?: string
+    quoteMethod: QuoteMethod
+    approveInfo: ApproveInfo
+    swapFee?: SwapFeeInfo
+    v2Routes: {
+      routev2: V2Route<Currency, Currency>
+      inputAmount: CurrencyAmount<Currency>
+      outputAmount: CurrencyAmount<Currency>
+    }[]
+    v3Routes: {
+      routev3: V3Route<Currency, Currency>
+      inputAmount: CurrencyAmount<Currency>
+      outputAmount: CurrencyAmount<Currency>
+    }[]
+    tradeType: TradeType
+    mixedRoutes?: {
+      mixedRoute: MixedRouteSDK<Currency, Currency>
+      inputAmount: CurrencyAmount<Currency>
+      outputAmount: CurrencyAmount<Currency>
+    }[]
+  }) {
+    super(routes)
+    this.blockNumber = blockNumber
+    this.gasUseEstimateUSD = gasUseEstimateUSD
+    this.requestId = requestId
+    this.quoteMethod = quoteMethod
+    this.approveInfo = approveInfo
+    this.swapFee = swapFee
+  }
+
+  public get executionPrice(): Price<Currency, Currency> {
+    if (this.tradeType === TradeType.EXACT_INPUT || !this.swapFee) return super.executionPrice
+
+    // Fix inaccurate price calculation for exact output trades
+    return new Price({ baseAmount: this.inputAmount, quoteAmount: this.postSwapFeeOutputAmount })
+  }
+
+  public get postSwapFeeOutputAmount(): CurrencyAmount<Currency> {
+    // Routing api already applies the swap fee to the output amount for exact-in
+    if (this.tradeType === TradeType.EXACT_INPUT) return this.outputAmount
+
+    const swapFeeAmount = CurrencyAmount.fromRawAmount(this.outputAmount.currency, this.swapFee?.amount ?? 0)
+    return this.outputAmount.subtract(swapFeeAmount)
+  }
+
+  // gas estimate for maybe approve + swap
+  public get totalGasUseEstimateUSD(): number | undefined {
+    if (this.approveInfo.needsApprove && this.gasUseEstimateUSD) {
+      return this.approveInfo.approveGasEstimateUSD + this.gasUseEstimateUSD
+    }
+
+    return this.gasUseEstimateUSD
+  }
+}
+
+export class DutchOrderTrade {
+  public readonly fillType = TradeFillType.UniswapX
+  quoteId?: string
+  requestId?: string
+  wrapInfo: WrapInfo
+  approveInfo: ApproveInfo
+  // The gas estimate of the reference classic trade, if there is one.
+  classicGasUseEstimateUSD?: number
+  auctionPeriodSecs: number
+  startTimeBufferSecs: number
+  deadlineBufferSecs: number
+  slippageTolerance: Percent
+
+  inputTax = ZERO_PERCENT
+  outputTax = ZERO_PERCENT
+  swapFee: SwapFeeInfo | undefined
+
+  constructor({
+    currencyIn,
+    currenciesOut,
+    // orderInfo,
+    tradeType,
+    quoteId,
+    requestId,
+    wrapInfo,
+    approveInfo,
+    classicGasUseEstimateUSD,
+    auctionPeriodSecs,
+    startTimeBufferSecs,
+    deadlineBufferSecs,
+    slippageTolerance,
+    swapFee,
+  }: {
+    currencyIn: Currency
+    currenciesOut: Currency[]
+    // orderInfo: DutchOrderInfo
+    tradeType: TradeType
+    quoteId?: string
+    requestId?: string
+    approveInfo: ApproveInfo
+    wrapInfo: WrapInfo
+    classicGasUseEstimateUSD?: number
+    auctionPeriodSecs: number
+    startTimeBufferSecs: number
+    deadlineBufferSecs: number
+    slippageTolerance: Percent
+    swapFee?: SwapFeeInfo
+  }) {
+    // super({ currencyIn, currenciesOut, orderInfo, tradeType })
+    this.quoteId = quoteId
+    this.requestId = requestId
+    this.approveInfo = approveInfo
+    this.wrapInfo = wrapInfo
+    this.classicGasUseEstimateUSD = classicGasUseEstimateUSD
+    this.auctionPeriodSecs = auctionPeriodSecs
+    this.deadlineBufferSecs = deadlineBufferSecs
+    this.slippageTolerance = slippageTolerance
+    this.startTimeBufferSecs = startTimeBufferSecs
+    this.swapFee = swapFee
+  }
+
+  public get totalGasUseEstimateUSD(): number {
+    if (this.wrapInfo.needsWrap && this.approveInfo.needsApprove) {
+      return this.wrapInfo.wrapGasEstimateUSD + this.approveInfo.approveGasEstimateUSD
+    }
+
+    if (this.wrapInfo.needsWrap) return this.wrapInfo.wrapGasEstimateUSD
+    if (this.approveInfo.needsApprove) return this.approveInfo.approveGasEstimateUSD
+
+    return 0
+  }
+}
+
 export class PreviewTrade {
   public readonly fillType = TradeFillType.None
   public readonly quoteMethod = QuoteMethod.QUICK_ROUTE
@@ -288,7 +440,8 @@ export class PreviewTrade {
   }
 }
 
-export type InterfaceTrade = PreviewTrade
+export type SubmittableTrade = ClassicTrade | DutchOrderTrade
+export type InterfaceTrade = SubmittableTrade | PreviewTrade
 
 export enum QuoteState {
   SUCCESS = 'Success',

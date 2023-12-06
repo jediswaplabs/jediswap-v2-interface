@@ -1,5 +1,5 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { ChainId, Token, WETH9 } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Token } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount, Pool } from '@vnaysn/jediswap-sdk-v3'
 import { USDC_MAINNET } from 'constants/tokens'
 import { useToken } from 'hooks/Tokens'

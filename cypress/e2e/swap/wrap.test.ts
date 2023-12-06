@@ -1,4 +1,4 @@
-import { ChainId, CurrencyAmount, WETH9 } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 
 import { getBalance, getTestSelector } from '../../utils'
 

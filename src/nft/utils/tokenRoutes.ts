@@ -1,4 +1,4 @@
-import { IRoute, Protocol } from '@uniswap/router-sdk'
+import { IRoute, Protocol } from '@vnaysn/jediswap-router-sdk'
 import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
 import { Pool } from '@vnaysn/jediswap-sdk-v3'

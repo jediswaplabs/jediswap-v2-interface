@@ -11,7 +11,6 @@ import useAutoRouterSupported from './useAutoRouterSupported'
 import useDebounce from './useDebounce'
 import useIsWindowVisible from './useIsWindowVisible'
 import { WETH } from 'constants/tokens'
-import { useAccountDetails } from './starknet-react'
 
 // Prevents excessive quote requests between keystrokes.
 const DEBOUNCE_TIME = 350

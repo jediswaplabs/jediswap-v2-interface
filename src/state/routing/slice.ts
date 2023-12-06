@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery, FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
-import { Protocol } from '@uniswap/router-sdk'
+import { Protocol } from '@vnaysn/jediswap-router-sdk'
 import { TradeType } from '@vnaysn/jediswap-sdk-core'
 import { sendAnalyticsEvent } from 'analytics'
 import { isUniswapXSupportedChain } from 'constants/chains'

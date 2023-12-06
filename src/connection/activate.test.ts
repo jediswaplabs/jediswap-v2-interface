@@ -67,11 +67,11 @@ it('Should call activate function on a connection', async () => {
 
   let activationCall: Promise<void> = new Promise(jest.fn())
   act(() => {
-    activationCall = result.current.tryActivation(mockConnection, onSuccess, ChainId.OPTIMISM)
+    activationCall = result.current.tryActivation(mockConnection, onSuccess, ChainId.MAINNET)
   })
 
   expect(result.current.activationState).toEqual({ status: ActivationStatus.PENDING, connection: mockConnection })
-  expect(mockConnection.overrideActivate).toHaveBeenCalledWith(ChainId.OPTIMISM)
+  expect(mockConnection.overrideActivate).toHaveBeenCalledWith(ChainId.MAINNET)
   expect(mockConnection.connector.activate).toHaveBeenCalledTimes(1)
   expect(console.debug).toHaveBeenLastCalledWith(`Connection activating: ${mockConnection.getName()}`)
   expect(onSuccess).toHaveBeenCalledTimes(0)

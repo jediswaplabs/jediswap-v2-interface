@@ -17,7 +17,7 @@ function getRpcUrl(chainId: SupportedInterfaceChain): string {
   switch (chainId) {
     case ChainId.MAINNET:
     case ChainId.GOERLI:
-    case ChainId.SEPOLIA:
+    case ChainId.MAINNET:
       return RPC_URLS[chainId][0]
     // Attempting to add a chain using an infura URL will not work, as the URL will be unreachable from the MetaMask background page.
     // MetaMask allows switching to any publicly reachable URL, but for novel chains, it will display a warning if it is not on the "Safe" list.

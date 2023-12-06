@@ -1,4 +1,4 @@
-import { MixedRoute, partitionMixedRouteByProtocol, Protocol, Trade } from '@uniswap/router-sdk'
+import { MixedRoute, partitionMixedRouteByProtocol, Protocol, Trade } from '@vnaysn/jediswap-router-sdk'
 import { Currency, CurrencyAmount, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
 import { Pool } from '@vnaysn/jediswap-sdk-v3'

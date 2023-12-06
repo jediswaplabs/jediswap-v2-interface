@@ -5,7 +5,7 @@ import ms from 'ms'
 import { useEffect } from 'react'
 
 import { AVERAGE_L1_BLOCK_TIME } from 'constants/chainInfo'
-import { NATIVE_CHAIN_ID, nativeOnChain, WRAPPED_NATIVE_CURRENCY } from 'constants/tokens'
+import { DEFAULT_CHAIN_ID, NATIVE_CHAIN_ID, nativeOnChain, WRAPPED_NATIVE_CURRENCY } from 'constants/tokens'
 import { getNativeTokenDBAddress } from 'utils/nativeTokens'
 import { Chain, ContractInput, HistoryDuration, TokenStandard } from './types-and-hooks'
 
@@ -73,38 +73,19 @@ const GQL_TESTNET_CHAINS = [Chain.EthereumGoerli, Chain.EthereumSepolia] as cons
 const UX_SUPPORTED_GQL_CHAINS = [...GQL_MAINNET_CHAINS, ...GQL_TESTNET_CHAINS] as const
 export type InterfaceGqlChain = (typeof UX_SUPPORTED_GQL_CHAINS)[number]
 
-export const CHAIN_ID_TO_BACKEND_NAME: { [key: number]: InterfaceGqlChain } = {
-  [ChainId.MAINNET]: Chain.Ethereum,
-  [ChainId.GOERLI]: Chain.EthereumGoerli,
-  [ChainId.SEPOLIA]: Chain.EthereumSepolia,
-  [ChainId.POLYGON]: Chain.Polygon,
-  [ChainId.POLYGON_MUMBAI]: Chain.Polygon,
-  [ChainId.CELO]: Chain.Celo,
-  [ChainId.CELO_ALFAJORES]: Chain.Celo,
-  [ChainId.ARBITRUM_ONE]: Chain.Arbitrum,
-  [ChainId.ARBITRUM_GOERLI]: Chain.Arbitrum,
-  [ChainId.OPTIMISM]: Chain.Optimism,
-  [ChainId.OPTIMISM_GOERLI]: Chain.Optimism,
-  [ChainId.BNB]: Chain.Bnb,
-  [ChainId.AVALANCHE]: Chain.Avalanche,
-  [ChainId.BASE]: Chain.Base,
-}
-
 export function chainIdToBackendName(chainId: string | undefined) {
-  return chainId && CHAIN_ID_TO_BACKEND_NAME[chainId]
-    ? CHAIN_ID_TO_BACKEND_NAME[chainId]
-    : CHAIN_ID_TO_BACKEND_NAME[ChainId.MAINNET]
+  return DEFAULT_CHAIN_ID
 }
 
-const GQL_CHAINS = [ChainId.MAINNET, ChainId.OPTIMISM, ChainId.POLYGON, ChainId.ARBITRUM_ONE, ChainId.CELO] as const
+const GQL_CHAINS = [ChainId.MAINNET] as const
 type GqlChainsType = (typeof GQL_CHAINS)[number]
 
-export function isGqlSupportedChain(chainId: string | undefined): chainId is GqlChainsType {
-  return !!chainId && GQL_CHAINS.includes(chainId)
+export function isGqlSupportedChain(chainId: ChainId | undefined): chainId is GqlChainsType {
+  return false
 }
-export function toContractInput(currency: Currency): ContractInput {
+export function toContractInput(currency: Currency) {
   const chain = chainIdToBackendName(currency.chainId)
-  return { chain, address: currency.isToken ? currency.address : getNativeTokenDBAddress(chain) }
+  return {}
 }
 
 export function gqlToCurrency(token: {
@@ -156,19 +137,6 @@ export function validateUrlChainParam(chainName: string | undefined) {
   return isValidBackEndChain ? URL_CHAIN_PARAM_TO_BACKEND[chainName] : Chain.Ethereum
 }
 
-const CHAIN_NAME_TO_CHAIN_ID: { [key in InterfaceGqlChain]: ChainId } = {
-  [Chain.Ethereum]: ChainId.MAINNET,
-  [Chain.EthereumGoerli]: ChainId.GOERLI,
-  [Chain.EthereumSepolia]: ChainId.SEPOLIA,
-  [Chain.Polygon]: ChainId.POLYGON,
-  [Chain.Celo]: ChainId.CELO,
-  [Chain.Optimism]: ChainId.OPTIMISM,
-  [Chain.Arbitrum]: ChainId.ARBITRUM_ONE,
-  [Chain.Bnb]: ChainId.BNB,
-  [Chain.Avalanche]: ChainId.AVALANCHE,
-  [Chain.Base]: ChainId.BASE,
-}
-
 export function isSupportedGQLChain(chain: Chain): chain is InterfaceGqlChain {
   return (UX_SUPPORTED_GQL_CHAINS as ReadonlyArray<Chain>).includes(chain)
 }
@@ -176,7 +144,7 @@ export function isSupportedGQLChain(chain: Chain): chain is InterfaceGqlChain {
 export function supportedChainIdFromGQLChain(chain: InterfaceGqlChain): ChainId
 export function supportedChainIdFromGQLChain(chain: Chain): ChainId | undefined
 export function supportedChainIdFromGQLChain(chain: Chain): ChainId | undefined {
-  return isSupportedGQLChain(chain) ? CHAIN_NAME_TO_CHAIN_ID[chain] : undefined
+  return DEFAULT_CHAIN_ID
 }
 
 export function logSentryErrorForUnsupportedChain({
@@ -204,7 +172,7 @@ export const BACKEND_SUPPORTED_CHAINS = [
   Chain.Bnb,
   Chain.Celo,
 ] as const
-export const BACKEND_NOT_YET_SUPPORTED_CHAIN_IDS = [ChainId.AVALANCHE] as const
+export const BACKEND_NOT_YET_SUPPORTED_CHAIN_IDS = [ChainId.MAINNET] as const
 
 export function getTokenDetailsURL({
   address,
@@ -227,7 +195,7 @@ export function unwrapToken<
   T extends {
     address?: string | null
   } | null
->(chainId: string, token: T): T {
+>(chainId: ChainId, token: T): T {
   if (!token?.address) {
     return token
   }

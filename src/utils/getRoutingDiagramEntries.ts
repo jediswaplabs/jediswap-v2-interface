@@ -1,4 +1,4 @@
-import { Protocol } from '@uniswap/router-sdk'
+import { Protocol } from '@vnaysn/jediswap-router-sdk'
 import { Currency, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
 import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'

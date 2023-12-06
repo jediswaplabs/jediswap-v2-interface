@@ -1,4 +1,4 @@
-import { Protocol } from '@uniswap/router-sdk'
+import { Protocol } from '@vnaysn/jediswap-router-sdk'
 import { Currency, Percent } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
 import { DAI, USDC_MAINNET, WBTC } from 'constants/tokens'

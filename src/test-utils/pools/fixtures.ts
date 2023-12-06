@@ -1,6 +1,6 @@
 import { QueryResult } from '@apollo/client'
 import { BigNumber } from '@ethersproject/bignumber'
-import { ChainId, Currency, WETH9 } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount, Pool, Position } from '@vnaysn/jediswap-sdk-v3'
 
 import { USDC_MAINNET } from 'constants/tokens'

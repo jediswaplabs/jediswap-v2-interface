@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
-import { ChainId, SUPPORTED_CHAINS } from '@vnaysn/jediswap-sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
+import { SUPPORTED_CHAINS } from 'constants/addresses'
 import type { ReactNode } from 'react'
 
 export const FEE_AMOUNT_DETAIL: Record<
@@ -10,18 +11,7 @@ export const FEE_AMOUNT_DETAIL: Record<
   [FeeAmount.LOWEST]: {
     label: '0.01',
     description: <Trans>Best for very stable pairs.</Trans>,
-    supportedChains: [
-      ChainId.ARBITRUM_ONE,
-      ChainId.BNB,
-      ChainId.CELO,
-      ChainId.CELO_ALFAJORES,
-      ChainId.MAINNET,
-      ChainId.OPTIMISM,
-      ChainId.POLYGON,
-      ChainId.POLYGON_MUMBAI,
-      ChainId.AVALANCHE,
-      ChainId.BASE,
-    ],
+    supportedChains: [ChainId.MAINNET],
   },
   [FeeAmount.LOW]: {
     label: '0.05',

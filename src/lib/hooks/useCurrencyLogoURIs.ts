@@ -16,19 +16,19 @@ export function chainIdToNetworkName(networkId: ChainId): Network {
   switch (networkId) {
     case ChainId.MAINNET:
       return 'ethereum'
-    case ChainId.ARBITRUM_ONE:
+    case ChainId.MAINNET:
       return 'arbitrum'
-    case ChainId.OPTIMISM:
+    case ChainId.MAINNET:
       return 'optimism'
-    case ChainId.POLYGON:
+    case ChainId.MAINNET:
       return 'polygon'
-    case ChainId.BNB:
+    case ChainId.MAINNET:
       return 'smartchain'
-    case ChainId.CELO:
+    case ChainId.MAINNET:
       return 'celo'
-    case ChainId.AVALANCHE:
+    case ChainId.MAINNET:
       return 'avalanchec'
-    case ChainId.BASE:
+    case ChainId.MAINNET:
       return 'base'
     default:
       return 'ethereum'
@@ -37,15 +37,15 @@ export function chainIdToNetworkName(networkId: ChainId): Network {
 
 export function getNativeLogoURI(chainId: ChainId = ChainId.MAINNET): string {
   switch (chainId) {
-    case ChainId.POLYGON:
-    case ChainId.POLYGON_MUMBAI:
+    case ChainId.MAINNET:
+    case ChainId.MAINNET:
       return MaticLogo
-    case ChainId.BNB:
+    case ChainId.MAINNET:
       return BnbLogo
-    case ChainId.CELO:
-    case ChainId.CELO_ALFAJORES:
+    case ChainId.MAINNET:
+    case ChainId.MAINNET:
       return CeloLogo
-    case ChainId.AVALANCHE:
+    case ChainId.MAINNET:
       return AvaxLogo
     default:
       return EthereumLogo
@@ -55,12 +55,12 @@ export function getNativeLogoURI(chainId: ChainId = ChainId.MAINNET): string {
 function getTokenLogoURI(address: string, chainId: ChainId = ChainId.MAINNET): string | void {
   const networkName = chainIdToNetworkName(chainId)
   const networksWithUrls = [
-    ChainId.ARBITRUM_ONE,
     ChainId.MAINNET,
-    ChainId.OPTIMISM,
-    ChainId.BNB,
-    ChainId.AVALANCHE,
-    ChainId.BASE,
+    ChainId.MAINNET,
+    ChainId.MAINNET,
+    ChainId.MAINNET,
+    ChainId.MAINNET,
+    ChainId.MAINNET,
   ]
   if (isCelo(chainId) && address === nativeOnChain(chainId).wrapped.address) {
     return CeloLogo
