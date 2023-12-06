@@ -1,5 +1,5 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
 import { useFallbackProviderEnabled } from 'featureFlags/flags/fallbackProvider'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
@@ -37,7 +37,7 @@ export function useMainnetBlockNumber(): number | undefined {
 }
 
 export function BlockNumberProvider({ children }: { children: ReactNode }) {
-  const { chainId: activeChainId, provider } = useWeb3React()
+  const { chainId: activeChainId, provider } = useAccountDetails()
   const [{ chainId, block, mainnetBlock }, setChainBlock] = useState<{
     chainId?: string
     block?: number

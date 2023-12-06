@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useState } from 'react'
 import styled from 'styled-components'
 
@@ -89,7 +89,7 @@ const PortfolioDrawerContainer = styled(Column)`
 `
 
 export default function AuthenticatedHeader({ account, openSettings }: { account: string; openSettings: () => void }) {
-  const { connector } = useWeb3React()
+  const { connector } = useAccountDetails()
   const { ENSName } = useENSName(account)
   const dispatch = useAppDispatch()
   const { formatNumber, formatDelta } = useFormatter()

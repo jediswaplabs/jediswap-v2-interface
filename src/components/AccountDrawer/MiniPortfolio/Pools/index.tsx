@@ -1,6 +1,6 @@
 import { t } from '@lingui/macro'
 import { Position } from '@vnaysn/jediswap-sdk-v3'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useMemo, useReducer } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
@@ -129,7 +129,7 @@ function PositionListItem({ positionInfo }: { positionInfo: PositionInfo }) {
 
   const navigate = useNavigate()
   const toggleWalletDrawer = useToggleAccountDrawer()
-  const { chainId: walletChainId, connector } = useWeb3React()
+  const { chainId: walletChainId, connector } = useAccountDetails()
   const switchChain = useSwitchChain()
   const onClick = useCallback(async () => {
     // if (walletChainId !== chainId) { await switchChain(connector, chainId); }

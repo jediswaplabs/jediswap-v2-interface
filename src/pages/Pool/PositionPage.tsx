@@ -5,7 +5,7 @@ import { Trans } from '@lingui/macro'
 import { InterfacePageName, LiquidityEventName, LiquiditySource } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount, Fraction, Percent, Price, Token } from '@vnaysn/jediswap-sdk-core'
 import { NonfungiblePositionManager, Pool, Position } from '@vnaysn/jediswap-sdk-v3'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { PropsWithChildren, useCallback, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import styled, { useTheme } from 'styled-components'
@@ -371,7 +371,7 @@ export function PositionPageUnsupportedContent() {
 }
 
 export default function PositionPage() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   if (isSupportedChain(chainId)) {
     return <PositionPageContent />
   }
@@ -394,7 +394,7 @@ function parseTokenId(tokenId: string | undefined): BigNumber | undefined {
 
 function PositionPageContent() {
   const { tokenId: tokenIdFromUrl } = useParams<{ tokenId?: string }>()
-  const { chainId, account, provider } = useWeb3React()
+  const { chainId, account, provider } = useAccountDetails()
   const theme = useTheme()
   const { formatTickPrice } = useFormatter()
 

@@ -1,6 +1,6 @@
 import { t, Trans } from '@lingui/macro'
 import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { ReactNode, useCallback, useState } from 'react'
 import { AlertCircle, ArrowUpCircle, CheckCircle } from 'react-feather'
 import styled, { useTheme } from 'styled-components'
@@ -94,7 +94,7 @@ function TransactionSubmittedContent({
 }) {
   const theme = useTheme()
 
-  const { connector } = useWeb3React()
+  const { connector } = useAccountDetails()
 
   const token = currencyToAdd?.wrapped
   const logoURL = useCurrencyLogoURIs(token)[0]
@@ -317,7 +317,7 @@ export default function TransactionConfirmationModal({
   reviewContent,
   currencyToAdd,
 }: ConfirmationModalProps) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   if (!chainId) {
     return null

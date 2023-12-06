@@ -1,5 +1,5 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useEffect } from 'react'
 
 import { useIsNftPage } from 'hooks/useIsNftPage'
@@ -36,7 +36,7 @@ function setDefaultBackground(backgroundRadialGradientElement: HTMLElement) {
 }
 
 export default function RadialGradientByChainUpdater(): null {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const isNftPage = useIsNftPage()
 
   // manage background color

@@ -1,4 +1,4 @@
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import styled from 'styled-components'
 
 import { Gas } from 'components/Icons/Gas'
@@ -20,7 +20,7 @@ const StyledGasIcon = styled(Gas)`
 `
 
 export default function GasEstimateTooltip({ trade, loading }: { trade?: SubmittableTrade; loading: boolean }) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const { formatNumber } = useFormatter()
 
   if (!trade || !chainId || !SUPPORTED_GAS_ESTIMATE_CHAIN_IDS.includes(chainId)) {

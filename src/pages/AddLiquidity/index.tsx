@@ -4,7 +4,7 @@ import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES, Percent } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@vnaysn/jediswap-sdk-v3'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -76,7 +76,7 @@ const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>
 `
 
 export default function AddLiquidityWrapper() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   if (isSupportedChain(chainId)) {
     return <AddLiquidity />
   }
@@ -96,7 +96,7 @@ function AddLiquidity() {
     feeAmount?: string
     tokenId?: string
   }>()
-  const { account, chainId, provider } = useWeb3React()
+  const { account, chainId, provider } = useAccountDetails()
   const theme = useTheme()
   const trace = useTrace()
 

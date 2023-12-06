@@ -5,7 +5,7 @@ import * as Sentry from '@sentry/react'
 import { CustomUserProperties, SwapEventName } from '@uniswap/analytics-events'
 import { Percent } from '@vnaysn/jediswap-sdk-core'
 import { DutchOrder, DutchOrderBuilder } from '@uniswap/uniswapx-sdk'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback } from 'react'
 
 import { sendAnalyticsEvent, useTrace } from 'analytics'
@@ -58,7 +58,7 @@ export function useUniswapXSwapCallback({
   fiatValues: { amountIn?: number; amountOut?: number; feeUsd?: number }
   allowedSlippage: Percent
 }) {
-  const { account, provider, connector } = useWeb3React()
+  const { account, provider, connector } = useAccountDetails()
   const analyticsContext = useTrace()
 
   const { data } = useCachedPortfolioBalancesQuery({ account })

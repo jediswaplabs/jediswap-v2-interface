@@ -2,7 +2,7 @@
 
 import { Trans } from '@lingui/macro'
 import { ChainId, Currency, CurrencyAmount, Percent, Token } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import { ReactNode, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { ArrowDown } from 'react-feather'
@@ -160,7 +160,7 @@ export default function SwapPage({ className }: { className?: string }) {
 /**
  * The swap component displays the swap interface, manages state for the swap, and triggers onchain swaps.
  *
- * In most cases, chainId should refer to the connected chain, i.e. `useWeb3React().chainId`.
+ * In most cases, chainId should refer to the connected chain, i.e. `useAccountDetails().chainId`.
  * However if this component is being used in a context that displays information from a different, unconnected
  * chain (e.g. the TDP), then chainId should refer to the unconnected chain.
  */
@@ -180,7 +180,7 @@ export function Swap({
   disableTokenInputs?: boolean
 }) {
   const connectionReady = useConnectionReady()
-  const { account, chainId: connectedChainId, connector } = useWeb3React()
+  const { account, chainId: connectedChainId, connector } = useAccountDetails()
 
   // token warning stuff
   const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId)

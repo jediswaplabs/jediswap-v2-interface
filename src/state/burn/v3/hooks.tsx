@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Currency, CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
 import { Position } from '@vnaysn/jediswap-sdk-v3'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useToken } from 'hooks/Tokens'
 import { usePool } from 'hooks/usePools'
 import { useV3PositionFees } from 'hooks/useV3PositionFees'
@@ -31,7 +31,7 @@ export function useDerivedV3BurnInfo(
   outOfRange: boolean
   error?: ReactNode
 } {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
   const { percent } = useBurnV3State()
 
   const token0 = useToken(position?.token0)

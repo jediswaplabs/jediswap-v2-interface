@@ -1,11 +1,11 @@
 import { Currency } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useMemo } from 'react'
 import { useCombinedActiveList } from 'state/lists/hooks'
 
 /** Returns a WrappedTokenInfo from the active token lists when possible, or the passed token otherwise. */
 export function useTokenInfoFromActiveList(currency: Currency) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const activeList = useCombinedActiveList()
 
   return useMemo(() => {

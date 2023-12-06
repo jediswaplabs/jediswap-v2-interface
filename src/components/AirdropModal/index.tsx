@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import type { TransactionResponse } from '@ethersproject/providers'
 import { UNISWAP_NFT_AIRDROP_CLAIM_ADDRESS } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import uniswapNftAirdropClaim from 'abis/uniswap-nft-airdrop-claim.json'
 import airdropBackgroundv2 from 'assets/images/airdopBackground.png'
 import { ButtonEmphasis, ButtonSize, ThemeButton } from 'components/Button'
@@ -181,7 +181,7 @@ enum RewardAmounts {
 }
 
 const AirdropModal = () => {
-  const { account, provider } = useWeb3React()
+  const { account, provider } = useAccountDetails()
   const [claim, setClaim] = useState<Rewards>()
   const [isClaimed, setIsClaimed] = useState(false)
   const [hash, setHash] = useState('')

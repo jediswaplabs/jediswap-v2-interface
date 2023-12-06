@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo'
 import { getChainInfo } from 'constants/chainInfo'
 import { asSupportedChain } from 'constants/chains'
@@ -62,7 +62,7 @@ const StyledNetworkLabel = styled.div`
 `
 
 export default function BalanceSummary({ token }: { token: Currency }) {
-  const { account, chainId } = useWeb3React()
+  const { account, chainId } = useAccountDetails()
   const theme = useTheme()
   const { label, color } = getChainInfo(asSupportedChain(chainId) ?? ChainId.MAINNET)
   const balance = useCurrencyBalance(account, token)

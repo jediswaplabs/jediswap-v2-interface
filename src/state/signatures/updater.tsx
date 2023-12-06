@@ -1,5 +1,5 @@
 import { TradeType } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { DEFAULT_TXN_DISMISS_MS, L2_TXN_DISMISS_MS } from 'constants/misc'
 import { UniswapXBackendOrder, UniswapXOrderStatus } from 'lib/hooks/orders/types'
 import OrderUpdater from 'lib/hooks/orders/updater'
@@ -17,7 +17,7 @@ import { SignatureType, UniswapXOrderDetails } from './types'
 import { useAccountDetails } from 'hooks/starknet-react'
 
 export default function Updater() {
-  const { provider } = useWeb3React()
+  const { provider } = useAccountDetails()
   const addPopup = useAddPopup()
   const signatures = useAllSignatures()
 

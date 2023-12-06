@@ -1,6 +1,6 @@
 /* @ts-nocheck */
 /* eslint-disable */
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import styled from 'styled-components'
 
@@ -25,8 +25,8 @@ enum MenuState {
 }
 
 function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
-  // const { account } = useWeb3React()
-  const { address } = useWeb3React()
+  // const { account } = useAccountDetails()
+  const { address } = useAccountDetails()
   const isAuthenticated = !!address
 
   const [menu, setMenu] = useState<MenuState>(MenuState.DEFAULT)

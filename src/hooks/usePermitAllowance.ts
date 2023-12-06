@@ -1,6 +1,6 @@
 import { AllowanceTransfer, MaxAllowanceTransferAmount, PERMIT2_ADDRESS, PermitSingle } from '@uniswap/permit2-sdk'
 import { CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import PERMIT2_ABI from 'abis/permit2.json'
 import { Permit2 } from 'abis/types'
 import { useContract } from 'hooks/useContract'
@@ -56,7 +56,7 @@ export function useUpdatePermitAllowance(
   nonce: number | undefined,
   onPermitSignature: (signature: PermitSignature) => void
 ) {
-  const { account, chainId, provider } = useWeb3React()
+  const { account, chainId, provider } = useAccountDetails()
   return useCallback(async () => {
     try {
       if (!chainId) throw new Error('missing chainId')

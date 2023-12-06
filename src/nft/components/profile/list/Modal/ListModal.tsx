@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { InterfaceModalName, NFTEventName } from '@uniswap/analytics-events'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { sendAnalyticsEvent, Trace, useTrace } from 'analytics'
 import { useStablecoinValue } from 'hooks/useStablecoinPrice'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
@@ -45,7 +45,7 @@ const ListModalWrapper = styled.div`
 `
 
 export const ListModal = ({ overlayClick }: { overlayClick: () => void }) => {
-  const { provider, chainId } = useWeb3React()
+  const { provider, chainId } = useAccountDetails()
   const signer = provider?.getSigner()
   const trace = useTrace({ modal: InterfaceModalName.NFT_LISTING })
   const { formatCurrencyAmount } = useFormatter()

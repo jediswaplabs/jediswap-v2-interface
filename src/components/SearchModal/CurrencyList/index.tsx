@@ -1,6 +1,6 @@
 import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
 import { Check } from 'react-feather'
 import { FixedSizeList } from 'react-window'
@@ -125,7 +125,7 @@ export function CurrencyRow({
   eventProperties: Record<string, unknown>
   balance?: CurrencyAmount<Currency>
 }) {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
   const key = currencyKey(currency)
   const customAdded = useIsUserAddedToken(currency)
   const warning = currency.isNative ? null : checkWarning(currency.address)

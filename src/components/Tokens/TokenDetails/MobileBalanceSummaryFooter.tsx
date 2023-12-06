@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { Currency } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { NATIVE_CHAIN_ID } from 'constants/tokens'
 import { CHAIN_ID_TO_BACKEND_NAME } from 'graphql/data/util'
 import { useStablecoinValue } from 'hooks/useStablecoinPrice'
@@ -82,7 +82,7 @@ const SwapButton = styled(StyledInternalLink)`
 `
 
 export default function MobileBalanceSummaryFooter({ token }: { token: Currency }) {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
   const balance = useCurrencyBalance(account, token)
   const { formatCurrencyAmount } = useFormatter()
   const formattedBalance = formatCurrencyAmount({

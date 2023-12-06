@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { InterfaceElementName } from '@uniswap/analytics-events'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { ReactComponent as AppleLogo } from 'assets/svg/apple_logo.svg'
 import baseLogoUrl from 'assets/svg/base_background_icon.svg'
 import { useScreenSize } from 'hooks/useScreenSize'
@@ -15,7 +15,7 @@ import { BannerButton, BaseBackgroundImage, ButtonRow, PopupContainer, StyledXBu
 import { useAccountDetails } from 'hooks/starknet-react'
 
 export default function BaseWalletBanner() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const [hideBaseWalletBanner, toggleHideBaseWalletBanner] = useHideBaseWalletBanner()
   const location = useLocation()
   const isLandingScreen = location.search === '?intro=true' || location.pathname === '/'

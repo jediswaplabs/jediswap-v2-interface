@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useEffect } from 'react'
 import { Heart, X } from 'react-feather'
 import styled, { keyframes } from 'styled-components'
@@ -54,7 +54,7 @@ const UniToken = styled.img`
 `
 
 export default function ClaimPopup() {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
 
   // dont store these in persisted state yet
   const showClaimPopup: boolean = useShowClaimPopup()

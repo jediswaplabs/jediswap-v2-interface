@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { ButtonPrimary } from 'components/Button'
 import { getChainInfo } from 'constants/chainInfo'
 import useSelectChain from 'hooks/useSelectChain'
@@ -46,7 +46,7 @@ export default function InvalidTokenDetails({
   pageChainId: ChainId
   isInvalidAddress?: boolean
 }) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const navigate = useNavigate()
   const selectChain = useSelectChain()
 

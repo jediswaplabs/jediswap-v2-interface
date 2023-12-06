@@ -1,5 +1,5 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import useBlockNumber, { useMainnetBlockNumber } from 'lib/hooks/useBlockNumber'
 import multicall from 'lib/state/multicall'
 import { SkipFirst } from 'types/tuple'
@@ -36,7 +36,7 @@ export function useSingleContractMultipleData(
 }
 
 function useCallContext() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const latestBlock = useBlockNumber()
   return { chainId, latestBlock }
 }

@@ -1,6 +1,6 @@
 import { createMulticall, ListenerOptions } from '@uniswap/redux-multicall'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useInterfaceMulticall, useMainnetInterfaceMulticall } from 'hooks/useContract'
 import useBlockNumber, { useMainnetBlockNumber } from 'lib/hooks/useBlockNumber'
 import { useMemo } from 'react'
@@ -17,21 +17,13 @@ export default multicall
 function getBlocksPerFetchForChainId(chainId: string | undefined): number {
   // TODO(WEB-2437): See if these numbers need to be updated
   switch (chainId) {
-    case ChainId.ARBITRUM_ONE:
-    case ChainId.OPTIMISM:
-      return 15
-    case ChainId.AVALANCHE:
-    case ChainId.BNB:
-    case ChainId.CELO:
-    case ChainId.CELO_ALFAJORES:
-      return 5
     default:
       return 1
   }
 }
 
 export function MulticallUpdater() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const latestBlockNumber = useBlockNumber()
   const latestMainnetBlockNumber = useMainnetBlockNumber()
   const contract = useInterfaceMulticall()
@@ -51,7 +43,7 @@ export function MulticallUpdater() {
 
   return (
     <>
-      <multicall.Updater
+      {/* <multicall.Updater
         chainId={ChainId.MAINNET}
         latestBlockNumber={latestMainnetBlockNumber}
         contract={mainnetContract}
@@ -64,7 +56,7 @@ export function MulticallUpdater() {
           contract={contract}
           listenerOptions={listenerOptions}
         />
-      )}
+      )} */}
     </>
   )
 }

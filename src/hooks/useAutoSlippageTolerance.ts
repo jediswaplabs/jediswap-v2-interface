@@ -2,7 +2,7 @@ import { MixedRoute, partitionMixedRouteByProtocol, Protocol, Trade } from '@uni
 import { Currency, CurrencyAmount, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
 import { Pool } from '@vnaysn/jediswap-sdk-v3'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { SUPPORTED_GAS_ESTIMATE_CHAIN_IDS } from 'constants/chains'
 import { L2_CHAIN_IDS } from 'constants/chains'
 import JSBI from 'jsbi'
@@ -74,7 +74,7 @@ const MAX_AUTO_SLIPPAGE_TOLERANCE = new Percent(5, 100) // 5%
  * Auto slippage is only relevant for Classic swaps because UniswapX slippage is determined by the backend service
  */
 export default function useClassicAutoSlippageTolerance(trade?: ClassicTrade): Percent {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const onL2 = chainId && L2_CHAIN_IDS.includes(chainId)
   const outputDollarValue = useStablecoinValue(trade?.outputAmount)
   const nativeGasPrice = useGasPrice()

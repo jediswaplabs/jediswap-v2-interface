@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Currency, CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import ms from 'ms'
 import { darken } from 'polished'
 import { forwardRef, ReactNode, useCallback, useEffect, useState } from 'react'
@@ -269,7 +269,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
     ref
   ) => {
     const [modalOpen, setModalOpen] = useState(false)
-    const { account, chainId } = useWeb3React()
+    const { account, chainId } = useAccountDetails()
     const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
     const theme = useTheme()
     const { formatCurrencyAmount } = useFormatter()

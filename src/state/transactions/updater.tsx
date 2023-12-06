@@ -1,5 +1,5 @@
 import { TransactionReceipt } from '@ethersproject/abstract-provider'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useTrace } from 'analytics'
 import { DEFAULT_TXN_DISMISS_MS, L2_TXN_DISMISS_MS } from 'constants/misc'
 import LibUpdater from 'lib/hooks/transactions/updater'
@@ -29,7 +29,7 @@ export function toSerializableReceipt(receipt: TransactionReceipt): Serializable
 
 export default function Updater() {
   const analyticsContext = useTrace()
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const addPopup = useAddPopup()
   // speed up popup dismisall time if on L2
   const isL2 = false

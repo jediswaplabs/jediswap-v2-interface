@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { Percent } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useMemo, useRef } from 'react'
 import { X } from 'react-feather'
 import styled from 'styled-components'
@@ -108,7 +108,7 @@ export default function SettingsTab({
   trade?: InterfaceTrade
   hideRoutingSettings?: boolean
 }) {
-  const { chainId: connectedChainId } = useWeb3React()
+  const { chainId: connectedChainId } = useAccountDetails()
   const node = useRef<HTMLDivElement | null>(null)
   const isOpen = useModalIsOpen(ApplicationModal.SETTINGS)
 

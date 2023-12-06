@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { InterfacePageName } from '@uniswap/analytics-events'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
@@ -75,7 +75,7 @@ function useRelevantToken(
   pageChainId: number,
   tokenQueryData: TokenQueryData | undefined
 ) {
-  const { chainId: activeChainId } = useWeb3React()
+  const { chainId: activeChainId } = useAccountDetails()
   const queryToken = useMemo(() => {
     if (!address) {
       return undefined
@@ -122,7 +122,7 @@ export default function TokenDetails({
     [urlAddress]
   )
 
-  const { chainId: connectedChainId } = useWeb3React()
+  const { chainId: connectedChainId } = useAccountDetails()
   const pageChainId = supportedChainIdFromGQLChain(chain)
   const tokenQueryData = tokenQuery.token
   const crossChainMap = useMemo(

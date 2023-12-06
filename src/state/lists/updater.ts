@@ -1,5 +1,5 @@
 import { getVersionUpgrade, VersionUpgrade } from '@uniswap/token-lists'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { DEFAULT_LIST_OF_LISTS, UNSUPPORTED_LIST_URLS } from 'constants/lists'
 import TokenSafetyLookupTable from 'constants/tokenSafetyLookup'
 import { useStateRehydrated } from 'hooks/useStateRehydrated'
@@ -16,7 +16,7 @@ import { shouldAcceptVersionUpdate } from './utils'
 import { useAccountDetails } from 'hooks/starknet-react'
 
 export default function Updater(): null {
-  const { provider } = useWeb3React()
+  const { provider } = useAccountDetails()
   const dispatch = useAppDispatch()
   const isWindowVisible = useIsWindowVisible()
 

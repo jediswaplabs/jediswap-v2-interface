@@ -2,7 +2,7 @@ import { Interface } from '@ethersproject/abi'
 import StakingRewardsJSON from '@uniswap/liquidity-staker/build/StakingRewards.json'
 import { ChainId, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import JSBI from 'jsbi'
 import { NEVER_RELOAD, useMultipleContractSingleData } from 'lib/hooks/multicall'
@@ -54,7 +54,7 @@ interface StakingInfo {
 
 // gets the staking info from the network for the active chain id
 export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
-  const { chainId, account } = useWeb3React()
+  const { chainId, account } = useAccountDetails()
 
   // detect if staking is ended
   const currentBlockTimestamp = useCurrentBlockTimestamp()

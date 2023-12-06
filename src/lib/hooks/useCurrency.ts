@@ -2,7 +2,7 @@ import { arrayify } from '@ethersproject/bytes'
 import { parseBytes32String } from '@ethersproject/strings'
 import { InterfaceEventName } from '@uniswap/analytics-events'
 import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { sendAnalyticsEvent } from 'analytics'
 import { asSupportedChain, isSupportedChain } from 'constants/chains'
 import { useBytes32TokenContract, useTokenContract } from 'hooks/useContract'
@@ -35,7 +35,7 @@ const UNKNOWN_TOKEN_NAME = 'Unknown Token'
  * Returns undefined if tokenAddress is invalid or token does not exist.
  */
 export function useTokenFromActiveNetwork(tokenAddress: string | undefined): Token | null | undefined {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   const formattedAddress = isAddress(tokenAddress)
   const tokenContract = useTokenContract(formattedAddress ? formattedAddress : undefined, false)

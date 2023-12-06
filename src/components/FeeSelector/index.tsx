@@ -3,7 +3,7 @@ import { Trans } from '@lingui/macro'
 import { FeePoolSelectAction, LiquidityEventName } from '@uniswap/analytics-events'
 import { Currency } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Box } from 'rebass'
 import styled, { keyframes } from 'styled-components'
@@ -62,7 +62,7 @@ export default function FeeSelector({
   currencyA?: Currency
   currencyB?: Currency
 }) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const trace = useTrace()
 
   const { isLoading, isError, largestUsageFeeTier, distributions } = useFeeTierDistribution(currencyA, currencyB)

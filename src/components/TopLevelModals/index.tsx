@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { UkDisclaimerModal } from 'components/NavBar/UkDisclaimerModal'
 
 import { OffchainActivityModal } from 'components/AccountDrawer/MiniPortfolio/Activity/OffchainActivityModal'
@@ -20,7 +20,7 @@ export default function TopLevelModals() {
   const addressClaimOpen = useModalIsOpen(ApplicationModal.ADDRESS_CLAIM)
   const addressClaimToggle = useToggleModal(ApplicationModal.ADDRESS_CLAIM)
   const blockedAccountModalOpen = useModalIsOpen(ApplicationModal.BLOCKED_ACCOUNT)
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
   useAccountRiskCheck(account)
   const accountBlocked = Boolean(blockedAccountModalOpen && account)
   const shouldShowDevFlags = isDevelopmentEnv() || isStagingEnv()

@@ -1,4 +1,4 @@
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 // import { asSupportedChain } from 'constants/chains'
 import useDebounce from 'hooks/useDebounce'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
@@ -9,7 +9,7 @@ import { updateChainId } from './reducer'
 import { useAccountDetails } from 'hooks/starknet-react'
 
 export default function Updater(): null {
-  const { chainId, provider } = useWeb3React()
+  const { chainId, provider } = useAccountDetails()
   const dispatch = useAppDispatch()
   const windowVisible = useIsWindowVisible()
 

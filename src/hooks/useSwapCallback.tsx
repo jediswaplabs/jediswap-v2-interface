@@ -2,7 +2,7 @@
 import { Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { FlatFeeOptions } from '@uniswap/universal-router-sdk'
 import { FeeOptions } from '@vnaysn/jediswap-sdk-v3'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { BigNumber } from 'ethers/lib/ethers'
 import { useCallback } from 'react'
 
@@ -52,7 +52,7 @@ export function useSwapCallback(
 
   const addTransaction = useTransactionAdder()
   const addOrder = useAddOrder()
-  const { account, chainId } = useWeb3React()
+  const { account, chainId } = useAccountDetails()
 
   const uniswapXSwapCallback = useUniswapXSwapCallback({
     trade: isUniswapXTrade(trade) ? trade : undefined,

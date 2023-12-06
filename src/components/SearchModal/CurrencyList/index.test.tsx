@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react'
 import { Currency, CurrencyAmount as mockCurrencyAmount, Token as mockToken } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import * as mockJSBI from 'jsbi'
 
 import { DAI, USDC_MAINNET, WBTC } from 'constants/tokens'

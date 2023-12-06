@@ -1,4 +1,4 @@
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useEffect } from 'react'
 import styled from 'styled-components'
 
@@ -47,7 +47,7 @@ const PrivacyPolicyWrapper = styled.div`
 `
 
 export default function WalletModal({ openSettings }: { openSettings: () => void }) {
-  const { connector, chainId } = useWeb3React()
+  const { connector, chainId } = useAccountDetails()
   const { connect } = useConnectors()
   const { activationState } = useActivationState()
   const fallbackProviderEnabled = useFallbackProviderEnabled()

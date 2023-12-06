@@ -1,4 +1,4 @@
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useMemo } from 'react'
 
 import { useNftRouteLazyQuery } from 'graphql/data/types-and-hooks'
@@ -11,7 +11,7 @@ import { usePurchaseAssets } from './usePurchaseAssets'
 import { useTokenInput } from './useTokenInput'
 
 export function useFetchAssets(): () => Promise<void> {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
 
   const {
     itemsInBag: uncheckedItemsInBag,

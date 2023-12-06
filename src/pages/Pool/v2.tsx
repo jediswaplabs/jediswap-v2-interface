@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { InterfacePageName } from '@uniswap/analytics-events'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import { useMemo } from 'react'
 import { ChevronsRight } from 'react-feather'
@@ -90,7 +90,7 @@ const EmptyProposals = styled.div`
 
 export default function Pool() {
   const theme = useTheme()
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
   const networkSupportsV2 = useNetworkSupportsV2()
 
   // fetch the user's balances of all tracked V2 LP tokens

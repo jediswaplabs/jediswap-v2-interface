@@ -1,7 +1,7 @@
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { isSupportedChain } from 'constants/chains'
 
 export default function useAutoRouterSupported(): boolean {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   return isSupportedChain(chainId)
 }

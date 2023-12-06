@@ -1,7 +1,7 @@
 import { isAddress } from '@ethersproject/address'
 import { Trans } from '@lingui/macro'
 import { CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useState } from 'react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
@@ -45,7 +45,7 @@ const ConfirmedIcon = styled(ColumnCenter)`
 `
 
 export default function AddressClaimModal({ isOpen, onDismiss }: { isOpen: boolean; onDismiss: () => void }) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   // state for smart contract input
   const [typed, setTyped] = useState('')

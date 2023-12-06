@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { getChainInfoOrDefault, L2ChainInfo } from 'constants/chainInfo'
 import { AlertTriangle } from 'react-feather'
 import styled from 'styled-components'
@@ -50,7 +50,7 @@ const Wrapper = styled.div`
 `
 
 export function ChainConnectivityWarning() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const info = getChainInfoOrDefault(chainId)
   const label = info?.label
 

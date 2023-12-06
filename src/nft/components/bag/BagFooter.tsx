@@ -3,7 +3,7 @@ import { formatEther, parseEther } from '@ethersproject/units'
 import { t, Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, NFTEventName } from '@uniswap/analytics-events'
 import { ChainId, Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { sendAnalyticsEvent, TraceEvent } from 'analytics'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import Column from 'components/Column'
@@ -268,7 +268,7 @@ interface BagFooterProps {
 export const BagFooter = ({ setModalIsOpen, eventProperties }: BagFooterProps) => {
   const toggleWalletDrawer = useToggleAccountDrawer()
   const theme = useTheme()
-  const { account, chainId, connector } = useWeb3React()
+  const { account, chainId, connector } = useAccountDetails()
   const connected = Boolean(account && chainId)
   const totalEthPrice = useBagTotalEthPrice()
   const { inputCurrency } = useTokenInput(({ inputCurrency }) => ({ inputCurrency }))

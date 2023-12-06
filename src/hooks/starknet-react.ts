@@ -64,7 +64,7 @@ export const useConnectors = () => {
 }
 
 // export const useBalances = () => {
-//   const { address, chainId } = useWeb3React()
+//   const { address, chainId } = useAccountDetails()
 //   interface TokensMap {
 //     [address: string]: Token
 //   }

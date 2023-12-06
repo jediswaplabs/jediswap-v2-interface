@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useState } from 'react'
 import { ArrowUpCircle, X } from 'react-feather'
 import styled, { useTheme } from 'styled-components'
@@ -41,7 +41,7 @@ interface QueueModalProps {
 }
 
 export default function QueueModal({ isOpen, onDismiss, proposalId }: QueueModalProps) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const queueCallback = useQueueCallback()
 
   // monitor call to help UI loading state

@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { t, Trans } from '@lingui/macro'
 import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { ReactNode, useMemo, useRef } from 'react'
 import styled, { css } from 'styled-components'
 
@@ -282,7 +282,7 @@ export function PendingModalContent({
   swapError,
   onRetryUniswapXSignature,
 }: PendingModalContentProps) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   const swapStatus = useSwapTransactionStatus(swapResult)
   const order = useOrder(swapResult?.type === TradeFillType.UniswapX ? swapResult.response.orderHash : '')

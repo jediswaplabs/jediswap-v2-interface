@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { CurrencyAmount, Percent, Token } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import { transparentize } from 'polished'
 import { useState } from 'react'
@@ -42,7 +42,7 @@ interface PositionCardProps {
 }
 
 export default function V2PositionCard({ pair, border, stakedBalance }: PositionCardProps) {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
 
   const currency0 = unwrappedToken(pair.token0)
   const currency1 = unwrappedToken(pair.token1)

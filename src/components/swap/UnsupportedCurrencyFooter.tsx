@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { Currency } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { ButtonEmpty } from 'components/Button'
 import Card, { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -53,7 +53,7 @@ export default function UnsupportedCurrencyFooter({
   show: boolean
   currencies: (Currency | undefined | null)[]
 }) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const [showDetails, setShowDetails] = useState(false)
 
   const tokens =

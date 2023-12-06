@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import styled from 'styled-components'
 
 import { AutoColumn } from 'components/Column'
@@ -51,7 +51,7 @@ const IconWrapper = styled.div`
 `
 
 export default function CTACards() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const { infoLink } = getChainInfoOrDefault(chainId)
 
   return (

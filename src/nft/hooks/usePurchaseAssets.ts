@@ -1,4 +1,4 @@
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { RouteResponse, UpdatedGenieAsset } from 'nft/types'
 import { useCallback } from 'react'
 
@@ -11,7 +11,7 @@ export function usePurchaseAssets(): (
   assetsToBuy: UpdatedGenieAsset[],
   purchasingWithErc20?: boolean
 ) => Promise<void> {
-  const { provider } = useWeb3React()
+  const { provider } = useAccountDetails()
   const sendTransaction = useSendTransaction((state) => state.sendTransaction)
   const setTransactionResponse = useTransactionResponse((state) => state.setTransactionResponse)
 

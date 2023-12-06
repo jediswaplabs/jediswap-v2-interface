@@ -2,7 +2,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import type { TransactionResponse } from '@ethersproject/providers'
 import { ChainId, SUPPORTED_CHAINS, Token } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useMemo } from 'react'
 
 import { getTransactionStatus } from 'components/AccountDrawer/MiniPortfolio/Activity/parseLocal'
@@ -20,7 +20,7 @@ export function useTransactionAdder(): (
   info: TransactionInfo,
   deadline?: number
 ) => void {
-  const { chainId, account } = useWeb3React()
+  const { chainId, account } = useAccountDetails()
   const dispatch = useAppDispatch()
 
   return useCallback(
@@ -43,7 +43,7 @@ export function useTransactionAdder(): (
 }
 
 export function useTransactionRemover() {
-  const { chainId, account } = useWeb3React()
+  const { chainId, account } = useAccountDetails()
   const dispatch = useAppDispatch()
 
   return useCallback(
@@ -81,7 +81,7 @@ export function useMultichainTransactions(): [TransactionDetails, ChainId][] {
 
 // returns all the transactions for the current chain
 function useAllTransactions(): { [txHash: string]: TransactionDetails } {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   const state = useAppSelector((state) => state.transactions)
 
@@ -168,7 +168,7 @@ export function isPendingTx(tx: TransactionDetails): boolean {
 
 export function usePendingTransactions(): TransactionDetails[] {
   const allTransactions = useAllTransactions()
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
 
   return useMemo(
     () => Object.values(allTransactions).filter((tx) => tx.from === account && isPendingTx(tx)),

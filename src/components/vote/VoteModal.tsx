@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useState } from 'react'
 import { ArrowUpCircle, X } from 'react-feather'
 import styled, { useTheme } from 'styled-components'
@@ -44,7 +44,7 @@ interface VoteModalProps {
 }
 
 export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }: VoteModalProps) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const voteCallback = useVoteCallback()
   const { votes: availableVotes } = useUserVotes()
 

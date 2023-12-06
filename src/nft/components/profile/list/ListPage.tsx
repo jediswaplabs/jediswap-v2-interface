@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { InterfaceModalName, NFTEventName } from '@uniswap/analytics-events'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { sendAnalyticsEvent, useTrace } from 'analytics'
 import Column from 'components/Column'
 import Row from 'components/Row'
@@ -184,7 +184,7 @@ const EthValueWrapper = styled.span<{ totalEthListingValue: boolean }>`
 
 export const ListPage = () => {
   const { setProfilePageState: setSellPageState } = useProfilePageState()
-  const { provider, chainId } = useWeb3React()
+  const { provider, chainId } = useAccountDetails()
   const isMobile = useIsMobile()
   const trace = useTrace({ modal: InterfaceModalName.NFT_LISTING })
   const { formatCurrencyAmount } = useFormatter()

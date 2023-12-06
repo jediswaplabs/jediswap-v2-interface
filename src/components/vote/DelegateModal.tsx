@@ -1,6 +1,6 @@
 import { isAddress } from '@ethersproject/address'
 import { Trans } from '@lingui/macro'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
 import styled from 'styled-components'
@@ -42,7 +42,7 @@ interface VoteModalProps {
 }
 
 export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalProps) {
-  const { account, chainId } = useWeb3React()
+  const { account, chainId } = useAccountDetails()
 
   // state for delegate input
   const [usingDelegate, setUsingDelegate] = useState(false)

@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 // eslint-disable-next-line no-restricted-imports
 import { t } from '@lingui/macro'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { ChangeEvent, ReactNode, useCallback } from 'react'
 import styled, { useTheme } from 'styled-components'
 import { ExternalLink, ThemedText } from 'theme/components'
@@ -88,7 +88,7 @@ export default function AddressInputPanel({
   // triggers whenever the typed value changes
   onChange: (value: string) => void
 }) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const theme = useTheme()
 
   const { address, loading, name } = useENS(value)

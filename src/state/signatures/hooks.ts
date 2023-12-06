@@ -1,5 +1,5 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { UniswapXOrderStatus } from 'lib/hooks/orders/types'
 import { useCallback, useMemo } from 'react'
 import { useDispatch } from 'react-redux'
@@ -10,7 +10,7 @@ import { SignatureDetails, SignatureType, UniswapXOrderDetails } from './types'
 import { useAccountDetails } from 'hooks/starknet-react'
 
 export function useAllSignatures(): { [id: string]: SignatureDetails } {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
   const signatures = useAppSelector((state) => state.signatures) ?? {}
   if (!account || !signatures[account]) return {}
   return signatures[account]

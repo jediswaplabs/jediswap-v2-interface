@@ -1,4 +1,4 @@
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useRef } from 'react'
 import styled from 'styled-components'
 
@@ -29,7 +29,7 @@ const ChainSelectorRow = styled.div`
 `
 
 export const NetworkName = () => {
-  const { chainId, account } = useWeb3React()
+  const { chainId, account } = useAccountDetails()
 
   const info = getChainInfo(chainId)
 

@@ -1,5 +1,5 @@
 import { ChainId, Currency, CurrencyAmount, Price, Token, TradeType } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { useMemo, useRef } from 'react'
 import { ClassicTrade, INTERNAL_ROUTER_PREFERENCE_PRICE } from 'state/routing/types'
@@ -95,7 +95,7 @@ export function useStablecoinValue(currencyAmount: CurrencyAmount<Currency> | un
  * @returns CurrencyAmount where currency is stablecoin on active chain
  */
 export function useStablecoinAmountFromFiatValue(fiatValue: number | null | undefined) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const stablecoin = chainId ? STABLECOIN_AMOUNT_OUT[chainId]?.currency : undefined
 
   return useMemo(() => {

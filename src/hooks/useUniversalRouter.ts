@@ -6,7 +6,7 @@ import { CustomUserProperties, SwapEventName } from '@uniswap/analytics-events'
 import { Percent } from '@vnaysn/jediswap-sdk-core'
 import { FlatFeeOptions, SwapRouter, UNIVERSAL_ROUTER_ADDRESS } from '@uniswap/universal-router-sdk'
 import { FeeOptions, toHex } from '@vnaysn/jediswap-sdk-v3'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback } from 'react'
 
 import { sendAnalyticsEvent, useTrace } from 'analytics'
@@ -55,7 +55,7 @@ export function useUniversalRouterSwapCallback(
   fiatValues: { amountIn?: number; amountOut?: number; feeUsd?: number },
   options: SwapOptions
 ) {
-  const { account, chainId, provider, connector } = useWeb3React()
+  const { account, chainId, provider, connector } = useAccountDetails()
   const analyticsContext = useTrace()
   const blockNumber = useBlockNumber()
   const isAutoSlippage = useUserSlippageTolerance()[0] === 'auto'

@@ -1,5 +1,5 @@
 import { BrowserEvent, InterfaceElementName, NFTEventName } from '@uniswap/analytics-events'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { TraceEvent } from 'analytics'
 import { ArrowChangeDown } from 'components/Icons/ArrowChangeDown'
 import { ArrowChangeUp } from 'components/Icons/ArrowChangeUp'
@@ -103,7 +103,7 @@ export function Table<D extends Record<string, unknown>>({
   ...props
 }: TableProps<D>) {
   const theme = useTheme()
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const { width } = useWindowSize()
   const isMobile = useIsMobile()
 

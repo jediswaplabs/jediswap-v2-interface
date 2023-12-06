@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import styled from 'styled-components'
 import { ThemedText } from 'theme/components'
 
@@ -37,7 +37,7 @@ const EmptyState = ({ HeaderContent, SubHeaderContent }: EmptyStateProps) => (
 )
 
 export default function ProposalEmptyState() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   if (chainId && chainId !== ChainId.MAINNET) {
     return (
       <EmptyState

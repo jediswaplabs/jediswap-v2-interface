@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ChainId, Currency, CurrencyAmount, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useConnectionReady } from 'connection/eagerlyConnect'
 import { useFotAdjustmentsEnabled } from 'featureFlags/flags/fotAdjustments'
 import useAutoSlippageTolerance from 'hooks/useAutoSlippageTolerance'
@@ -100,7 +100,7 @@ export type SwapInfo = {
 
 // from the current swap inputs, compute the best trade and return it.
 export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefined): SwapInfo {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
 
   const {
     independentField,
@@ -298,7 +298,7 @@ export function queryParametersToSwapState(parsedQs: ParsedQs): SwapState {
 
 // updates the swap state to use the defaults for a given network
 export function useDefaultsFromURLSearch(): SwapState {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const dispatch = useAppDispatch()
   const parsedQs = useParsedQueryString()
 

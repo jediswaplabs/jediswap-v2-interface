@@ -1,6 +1,6 @@
 import { ChainId, Currency, V3_CORE_FACTORY_ADDRESSES } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount, nearestUsableTick, Pool, TICK_SPACINGS, tickToPrice } from '@vnaysn/jediswap-sdk-v3'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import ms from 'ms'
 import { useEffect, useMemo, useState } from 'react'
@@ -47,7 +47,7 @@ function useTicksFromTickLens(
   // Find nearest valid tick for pool in case tick is not initialized.
   const activeTick = pool?.tickCurrent && tickSpacing ? nearestUsableTick(pool?.tickCurrent, tickSpacing) : undefined
 
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   const poolAddress =
     currencyA && currencyB && feeAmount && poolState === PoolState.EXISTS
@@ -139,7 +139,7 @@ function useTicksFromSubgraph(
   feeAmount: FeeAmount | undefined,
   skip = 0
 ) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const poolAddress =
     currencyA && currencyB && feeAmount
       ? Pool.getAddress(

@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { PERMIT2_ADDRESS } from '@uniswap/permit2-sdk'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { USDC_MAINNET } from 'constants/tokens'
 import store from 'state'
 import { mocked } from 'test-utils/mocked'

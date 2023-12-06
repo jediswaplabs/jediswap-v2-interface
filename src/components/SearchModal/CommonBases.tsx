@@ -1,5 +1,5 @@
 import { Currency } from '@vnaysn/jediswap-sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
@@ -46,7 +46,7 @@ export default function CommonBases({
   portfolioBalanceUsd?: number
 }) {
   const bases = chainId !== undefined ? COMMON_BASES[chainId] ?? [] : []
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
   const { data } = useCachedPortfolioBalancesQuery({ account })
   const portfolioBalanceUsd = data?.portfolios?.[0].tokensTotalDenominatedValue?.value
 

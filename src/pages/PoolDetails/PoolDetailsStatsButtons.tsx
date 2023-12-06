@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
 
@@ -56,7 +56,7 @@ function findMatchingPosition(positions: PositionInfo[], token0?: Token, token1?
 }
 
 export function PoolDetailsStatsButtons({ chainId, token0, token1, feeTier, loading }: PoolDetailsStatsButtonsProps) {
-  const { chainId: walletChainId, connector, account } = useWeb3React()
+  const { chainId: walletChainId, connector, account } = useAccountDetails()
   const { positions: userOwnedPositions } = useMultiChainPositions(account ?? '', chainId ? [chainId] : undefined)
   const position = userOwnedPositions && findMatchingPosition(userOwnedPositions, token0, token1, feeTier)
   const tokenId = position?.details.tokenId

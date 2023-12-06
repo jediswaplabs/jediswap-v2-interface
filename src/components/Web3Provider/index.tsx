@@ -27,7 +27,7 @@ export default function Web3Provider({ children }: { children: ReactNode }) {
 
 /** A component to run hooks under the Web3ReactProvider context. */
 function Updater() {
-  const { account, chainId, connector, provider } = useWeb3React()
+  const { account, chainId, connector, provider } = useAccountDetails()
   const { pathname } = useLocation()
   const currentPage = getCurrentPageFromLocation(pathname)
   const analyticsContext = useTrace()

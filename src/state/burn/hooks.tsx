@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Currency, CurrencyAmount, Percent, Token } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { ReactNode, useCallback } from 'react'
@@ -31,7 +31,7 @@ export function useDerivedBurnInfo(
   }
   error?: ReactNode
 } {
-  const { account } = useWeb3React()
+  const { account } = useAccountDetails()
 
   const { independentField, typedValue } = useBurnState()
 
