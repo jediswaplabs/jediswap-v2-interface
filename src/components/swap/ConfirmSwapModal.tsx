@@ -35,7 +35,7 @@ import { SignatureExpiredError } from 'utils/errors'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { formatSwapPriceUpdatedEventProperties } from 'utils/loggingFormatters'
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
-import { tradeMeaningfullyDiffers } from 'utils/tradeMeaningFullyDiffer'
+// import { tradeMeaningfullyDiffers } from 'utils/tradeMeaningFullyDiffer'
 import { ConfirmationModalContent } from '../TransactionConfirmationModal'
 import { RESET_APPROVAL_TOKENS } from './constants'
 import { PendingConfirmModalState, PendingModalContent } from './PendingModalContent'
@@ -290,7 +290,7 @@ export default function ConfirmSwapModal({
   fiatValueOutput: { data?: number; isLoading: boolean }
 }) {
   const { chainId } = useAccountDetails()
-  const doesTradeDiffer = originalTrade && tradeMeaningfullyDiffers(trade, originalTrade, allowedSlippage)
+  const doesTradeDiffer = false
   const { startSwapFlow, onCancel, confirmModalState, approvalError, pendingModalSteps, wrapTxHash } =
     useConfirmModalState({
       trade,

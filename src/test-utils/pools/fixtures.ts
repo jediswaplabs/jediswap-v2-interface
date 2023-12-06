@@ -3,7 +3,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount, Pool, Position } from '@vnaysn/jediswap-sdk-v3'
 
-import { USDC_MAINNET } from 'constants/tokens'
+import { USDC_MAINNET, WETH } from 'constants/tokens'
 import { Chain, Exact, TokenProjectQuery } from 'graphql/data/types-and-hooks'
 import { Token } from 'graphql/thegraph/types-and-hooks'
 import { PoolData } from 'graphql/thegraph/PoolData'
@@ -47,7 +47,7 @@ export const owner = '0xf5b6bb25f5beaea03dd014c6ef9fa9f3926bf36c'
 
 const pool = new Pool(
   USDC_MAINNET,
-  WETH9[ChainId.MAINNET],
+  WETH[ChainId.MAINNET],
   FeeAmount.MEDIUM,
   '1851127709498178402383049949138810',
   '7076437181775065414',
@@ -65,7 +65,7 @@ const details = {
   tokenId: BigNumber.from('0'),
   operator: '0x0',
   token0: USDC_MAINNET.address,
-  token1: WETH9[ChainId.MAINNET].address,
+  token1: WETH[ChainId.MAINNET].address,
   fee: FeeAmount.MEDIUM,
   tickLower: -100,
   tickUpper: 100,

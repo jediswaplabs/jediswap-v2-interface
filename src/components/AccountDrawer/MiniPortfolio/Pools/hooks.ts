@@ -18,7 +18,7 @@ import { PositionInfo } from './cache'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { MULTICALL_ADDRESSES, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/tokens'
 
-type ContractMap<T extends BaseContract> = { [key: number]: T }
+type ContractMap<T extends BaseContract> = { [key: string]: T }
 
 // Constructs a chain-to-contract map, using the wallet's provider when available
 function useContractMultichain<T extends BaseContract>(addressMap: AddressMap, ABI: any, chainIds?: ChainId[]) {
@@ -49,8 +49,8 @@ export function usePoolPriceMap(positions: PositionInfo[] | undefined) {
     }
     // Avoids fetching duplicate tokens by placing in map
     const contractMap = positions.reduce((acc: { [key: string]: ContractInput }, { pool: { token0, token1 } }) => {
-      acc[currencyKey(token0)] = toContractInput(token0)
-      acc[currencyKey(token1)] = toContractInput(token1)
+      // acc[currencyKey(token0)] = toContractInput(token0)
+      // acc[currencyKey(token1)] = toContractInput(token1)
       return acc
     }, {})
     return Object.values(contractMap)

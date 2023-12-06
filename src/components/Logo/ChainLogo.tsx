@@ -3,7 +3,7 @@ import { CSSProperties, FunctionComponent } from 'react'
 import { useTheme } from 'styled-components'
 
 import { getChainInfo } from 'constants/chainInfo'
-import { isSupportedChain, SupportedInterfaceChain } from 'constants/chains'
+import { isSupportedChain } from 'constants/chains'
 import { ReactComponent as arbitrum } from './ChainSymbols/arbitrum.svg'
 import { ReactComponent as avax } from './ChainSymbols/avax.svg'
 import { ReactComponent as base } from './ChainSymbols/base.svg'
@@ -17,7 +17,6 @@ import { ReactComponent as polygon } from './ChainSymbols/polygon.svg'
 type SVG = FunctionComponent<React.SVGProps<SVGSVGElement>>
 type ChainUI = { Symbol: SVG; bgColor: string; textColor: string }
 
-export function getChainUI(chainId: SupportedInterfaceChain): ChainUI
 export function getChainUI(chainId: ChainId): ChainUI | undefined {
   switch (chainId) {
     case ChainId.MAINNET:
@@ -104,13 +103,13 @@ export function ChainLogo({
   }
   const { label } = getChainInfo(chainId)
 
-  const { Symbol, bgColor } = getChainUI(chainId)
-  return (
-    <svg width={size} height={size} className={className} style={style} aria-labelledby="titleID" data-testid={testId}>
-      <title id="titleID">{`${label} logo`}</title>
-      <rect rx={borderRadius} fill={surface2} width={size} height={size} />
-      <rect rx={borderRadius} fill={bgColor} width={size} height={size} />
-      <Symbol width={size} height={size} />
-    </svg>
-  )
+  // const { Symbol, bgColor } = getChainUI(chainId)
+  // return (
+  //   <svg width={size} height={size} className={className} style={style} aria-labelledby="titleID" data-testid={testId}>
+  //     <title id="titleID">{`${label} logo`}</title>
+  //     <rect rx={borderRadius} fill={surface2} width={size} height={size} />
+  //     <rect rx={borderRadius} fill={bgColor} width={size} height={size} />
+  //     <Symbol width={size} height={size} />
+  //   </svg>
+  // )
 }
