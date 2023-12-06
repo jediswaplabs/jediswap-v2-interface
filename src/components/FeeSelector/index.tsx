@@ -62,7 +62,7 @@ export default function FeeSelector({
   currencyA?: Currency
   currencyB?: Currency
 }) {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const trace = useTrace()
 
   const { isLoading, isError, largestUsageFeeTier, distributions } = useFeeTierDistribution(currencyA, currencyB)

@@ -8,7 +8,8 @@ import JSBI from 'jsbi'
 import { NEVER_RELOAD, useMultipleContractSingleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
 
-import { DAI, UNI, USDC_MAINNET, USDT, WBTC, WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
+import { DAI, USDT, WBTC } from '../../constants/tokens'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const STAKING_REWARDS_INTERFACE = new Interface(StakingRewardsJSON.abi)
 
@@ -20,24 +21,7 @@ const STAKING_REWARDS_INFO: {
     stakingRewardAddress: string
   }[]
 } = {
-  1: [
-    {
-      tokens: [WRAPPED_NATIVE_CURRENCY[ChainId.MAINNET] as Token, DAI],
-      stakingRewardAddress: '0xa1484C3aa22a66C62b77E0AE78E15258bd0cB711',
-    },
-    {
-      tokens: [WRAPPED_NATIVE_CURRENCY[ChainId.MAINNET] as Token, USDC_MAINNET],
-      stakingRewardAddress: '0x7FBa4B8Dc5E7616e59622806932DBea72537A56b',
-    },
-    {
-      tokens: [WRAPPED_NATIVE_CURRENCY[ChainId.MAINNET] as Token, USDT],
-      stakingRewardAddress: '0x6C3e4cb2E96B01F4b866965A91ed4437839A121a',
-    },
-    {
-      tokens: [WRAPPED_NATIVE_CURRENCY[ChainId.MAINNET] as Token, WBTC],
-      stakingRewardAddress: '0xCA35e32e7926b96A9988f61d510E038108d8068e',
-    },
-  ],
+  1: [],
 }
 
 interface StakingInfo {
@@ -70,7 +54,7 @@ interface StakingInfo {
 
 // gets the staking info from the network for the active chain id
 export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
-  const { chainId, account } = useAccountDetails()
+  const { chainId, account } = useWeb3React()
 
   // detect if staking is ended
   const currentBlockTimestamp = useCurrentBlockTimestamp()
@@ -90,7 +74,7 @@ export function useStakingInfo(pairToFilterBy?: Pair | null): StakingInfo[] {
     [chainId, pairToFilterBy]
   )
 
-  const uni = chainId ? UNI[chainId] : undefined
+  const uni = undefined
 
   const rewardsAddresses = useMemo(() => info.map(({ stakingRewardAddress }) => stakingRewardAddress), [info])
 

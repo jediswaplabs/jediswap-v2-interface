@@ -104,11 +104,11 @@ export default function SettingsTab({
   hideRoutingSettings = false,
 }: {
   autoSlippage: Percent
-  chainId?: number
+  chainId?: string
   trade?: InterfaceTrade
   hideRoutingSettings?: boolean
 }) {
-  const { chainId: connectedChainId } = useAccountDetails()
+  const { chainId: connectedChainId } = useWeb3React()
   const node = useRef<HTMLDivElement | null>(null)
   const isOpen = useModalIsOpen(ApplicationModal.SETTINGS)
 

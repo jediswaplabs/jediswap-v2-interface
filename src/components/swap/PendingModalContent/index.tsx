@@ -120,7 +120,7 @@ interface ContentArgs {
   tokenApprovalPending: boolean
   revocationPending: boolean
   swapResult?: SwapResult
-  chainId?: number
+  chainId?: string
   order?: UniswapXOrderDetails
   swapError?: Error | string
   onRetryUniswapXSignature?: () => void
@@ -282,7 +282,7 @@ export function PendingModalContent({
   swapError,
   onRetryUniswapXSignature,
 }: PendingModalContentProps) {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
 
   const swapStatus = useSwapTransactionStatus(swapResult)
   const order = useOrder(swapResult?.type === TradeFillType.UniswapX ? swapResult.response.orderHash : '')

@@ -1,22 +1,22 @@
-import { Trans } from '@lingui/macro';
-import { ReactNode, useMemo } from 'react';
-import { Text } from 'rebass';
-import styled, { css, useTheme } from 'styled-components';
+import { Trans } from '@lingui/macro'
+import { ReactNode, useMemo } from 'react'
+import { Text } from 'rebass'
+import styled, { css, useTheme } from 'styled-components'
 
-import Column from 'components/Column';
-import CurrencyLogo from 'components/Logo/CurrencyLogo';
-import Row from 'components/Row';
-import { LoadingBubble } from 'components/Tokens/loading';
-import { DeltaArrow } from 'components/Tokens/TokenDetails/Delta';
-import { PoolData } from 'graphql/thegraph/PoolData';
-import { useCurrency } from 'hooks/Tokens';
-import { useColor } from 'hooks/useColor';
-import { useScreenSize } from 'hooks/useScreenSize';
-import { BREAKPOINTS } from 'theme';
-import { colors } from 'theme/colors';
-import { ThemedText } from 'theme/components';
-import { NumberType, useFormatter } from 'utils/formatNumbers';
-import { DetailBubble } from './shared';
+import Column from 'components/Column'
+import CurrencyLogo from 'components/Logo/CurrencyLogo'
+import Row from 'components/Row'
+import { LoadingBubble } from 'components/Tokens/loading'
+import { DeltaArrow } from 'components/Tokens/TokenDetails/Delta'
+import { PoolData } from 'graphql/thegraph/PoolData'
+import { useCurrency } from 'hooks/Tokens'
+import { useColor } from 'hooks/useColor'
+import { useScreenSize } from 'hooks/useScreenSize'
+import { BREAKPOINTS } from 'theme'
+import { colors } from 'theme/colors'
+import { ThemedText } from 'theme/components'
+import { NumberType, useFormatter } from 'utils/formatNumbers'
+import { DetailBubble } from './shared'
 
 const HeaderText = styled(Text)`
   font-weight: 485;
@@ -25,7 +25,7 @@ const HeaderText = styled(Text)`
   @media (max-width: ${BREAKPOINTS.lg - 1}px) {
     width: 100%;
   }
-`;
+`
 
 const StatsWrapper = styled(Column)`
   gap: 24px;
@@ -41,7 +41,7 @@ const StatsWrapper = styled(Column)`
     padding: 20px 0px;
     justify-content: space-between;
   }
-`;
+`
 
 const StatItemColumn = styled(Column)`
   gap: 8px;
@@ -51,7 +51,7 @@ const StatItemColumn = styled(Column)`
   @media (max-width: ${BREAKPOINTS.sm}px) {
     min-width: 150px;
   }
-`;
+`
 
 const PoolBalanceSymbols = styled(Row)`
   justify-content: space-between;
@@ -59,7 +59,7 @@ const PoolBalanceSymbols = styled(Row)`
   @media (max-width: ${BREAKPOINTS.lg - 1}px) {
     flex-direction: column;
   }
-`;
+`
 
 const PoolBalanceTokenNames = styled(Row)`
   font-weight: 485;
@@ -72,63 +72,63 @@ const PoolBalanceTokenNames = styled(Row)`
     line-height: 28px;
     width: 100%;
   }
-`;
+`
 
 const leftBarChartStyles = css`
   border-top-left-radius: 5px;
   border-bottom-left-radius: 5px;
   border-right: 1px solid ${({ theme }) => theme.surface2};
-`;
+`
 
 const rightBarChartStyles = css`
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   border-left: 1px solid ${({ theme }) => theme.surface2};
-`;
+`
 
 const BalanceChartSide = styled.div<{ percent: number; $color: string; isLeft: boolean }>`
   height: 8px;
   width: ${({ percent }) => percent * 100}%;
   background: ${({ $color }) => $color};
   ${({ isLeft }) => (isLeft ? leftBarChartStyles : rightBarChartStyles)}
-`;
+`
 
 const StatSectionBubble = styled(LoadingBubble)`
   width: 180px;
   height: 40px;
-`;
+`
 
 const StatHeaderBubble = styled(LoadingBubble)`
   width: 116px;
   height: 24px;
   border-radius: 8px;
-`;
+`
 
 interface PoolDetailsStatsProps {
   poolData?: PoolData
   isReversed?: boolean
-  chainId?: number
+  chainId?: string
   loading?: boolean
 }
 
 export function PoolDetailsStats({ poolData, isReversed, chainId, loading }: PoolDetailsStatsProps) {
-  const isScreenSize = useScreenSize();
-  const screenIsNotLarge = isScreenSize.lg;
-  const { formatNumber } = useFormatter();
-  const theme = useTheme();
+  const isScreenSize = useScreenSize()
+  const screenIsNotLarge = isScreenSize.lg
+  const { formatNumber } = useFormatter()
+  const theme = useTheme()
 
-  const currency0 = useCurrency(poolData?.token0?.id, chainId) ?? undefined;
-  const currency1 = useCurrency(poolData?.token1?.id, chainId) ?? undefined;
+  const currency0 = useCurrency(poolData?.token0?.id, chainId) ?? undefined
+  const currency1 = useCurrency(poolData?.token1?.id, chainId) ?? undefined
 
-  const color0 = useColor(currency0?.wrapped, theme.surface2, theme.darkMode);
-  let color1 = useColor(currency1?.wrapped, theme.surface2, theme.darkMode);
+  const color0 = useColor(currency0?.wrapped, theme.surface2, theme.darkMode)
+  let color1 = useColor(currency1?.wrapped, theme.surface2, theme.darkMode)
   if (color0 === color1 && color0 === theme.accent1) {
-    color1 = colors.blue400;
+    color1 = colors.blue400
   }
 
   const [token0, token1] = useMemo(() => {
     if (poolData) {
-      const fullWidth = poolData?.tvlToken0 / poolData?.token0Price + poolData?.tvlToken1;
+      const fullWidth = poolData?.tvlToken0 / poolData?.token0Price + poolData?.tvlToken1
       const token0FullData = {
         ...poolData?.token0,
         price: poolData?.token0Price,
@@ -136,7 +136,7 @@ export function PoolDetailsStats({ poolData, isReversed, chainId, loading }: Poo
         color: color0,
         percent: poolData?.tvlToken0 / poolData?.token0Price / fullWidth,
         currency: currency0,
-      };
+      }
       const token1FullData = {
         ...poolData?.token1,
         price: poolData?.token1Price,
@@ -144,11 +144,11 @@ export function PoolDetailsStats({ poolData, isReversed, chainId, loading }: Poo
         color: color1,
         percent: poolData?.tvlToken1 / fullWidth,
         currency: currency1,
-      };
-      return isReversed ? [token1FullData, token0FullData] : [token0FullData, token1FullData];
+      }
+      return isReversed ? [token1FullData, token0FullData] : [token0FullData, token1FullData]
     }
-    return [undefined, undefined];
-  }, [color0, color1, currency0, currency1, isReversed, poolData]);
+    return [undefined, undefined]
+  }, [color0, color1, currency0, currency1, isReversed, poolData])
 
   if (loading || !token0 || !token1 || !poolData) {
     return (
@@ -163,7 +163,7 @@ export function PoolDetailsStats({ poolData, isReversed, chainId, loading }: Poo
           </Column>
         ))}
       </StatsWrapper>
-    );
+    )
   }
 
   return (
@@ -210,7 +210,7 @@ export function PoolDetailsStats({ poolData, isReversed, chainId, loading }: Poo
       <StatItem title={<Trans>24H volume</Trans>} value={poolData.volumeUSD} delta={poolData.volumeUSDChange} />
       <StatItem title={<Trans>24H fees</Trans>} value={poolData.volumeUSD * (poolData.feeTier / 1000000)} />
     </StatsWrapper>
-  );
+  )
 }
 
 const StatsTextContainer = styled(Row)`
@@ -223,7 +223,7 @@ const StatsTextContainer = styled(Row)`
     gap: 0px;
     align-items: flex-start;
   }
-`;
+`
 
 const StatItemText = styled(Text)`
   color: ${({ theme }) => theme.neutral1};
@@ -235,10 +235,10 @@ const StatItemText = styled(Text)`
     font-size: 20px;
     line-height: 28px;
   }
-`;
+`
 
 function StatItem({ title, value, delta }: { title: ReactNode; value: number; delta?: number }) {
-  const { formatNumber, formatDelta } = useFormatter();
+  const { formatNumber, formatDelta } = useFormatter()
 
   return (
     <StatItemColumn>
@@ -258,5 +258,5 @@ function StatItem({ title, value, delta }: { title: ReactNode; value: number; de
         )}
       </StatsTextContainer>
     </StatItemColumn>
-  );
+  )
 }

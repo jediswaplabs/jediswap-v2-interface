@@ -40,7 +40,7 @@ const StyledTextButton = styled(ButtonText)`
 `
 
 export default function SwapBuyFiatButton() {
-  const { account } = useAccountDetails()
+  const { account } = useWeb3React()
   const openFiatOnRampModal = useOpenModal(ApplicationModal.FIAT_ONRAMP)
   const shouldShowBuyFiatButton = useIsNotOriginCountry('GB')
   const [checkFiatRegionAvailability, setCheckFiatRegionAvailability] = useState(false)

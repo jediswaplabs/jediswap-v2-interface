@@ -29,7 +29,7 @@ const ChainSelectorRow = styled.div`
 `
 
 export const NetworkName = () => {
-  const { chainId, account } = useAccountDetails()
+  const { chainId, account } = useWeb3React()
 
   const info = getChainInfo(chainId)
 

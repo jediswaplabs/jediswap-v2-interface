@@ -49,7 +49,7 @@ interface Token {
 }
 
 interface PoolDetailsHeaderProps {
-  chainId?: number
+  chainId?: string
   poolAddress?: string
   token0?: Token
   token1?: Token

@@ -46,7 +46,7 @@ export default function InvalidTokenDetails({
   pageChainId: ChainId
   isInvalidAddress?: boolean
 }) {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const navigate = useNavigate()
   const selectChain = useSelectChain()
 

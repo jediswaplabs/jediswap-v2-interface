@@ -66,6 +66,7 @@ import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { Dots } from '../Pool/styled'
 import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -75,7 +76,7 @@ const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>
 `
 
 export default function AddLiquidityWrapper() {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   if (isSupportedChain(chainId)) {
     return <AddLiquidity />
   }
@@ -95,7 +96,7 @@ function AddLiquidity() {
     feeAmount?: string
     tokenId?: string
   }>()
-  const { account, chainId, provider } = useAccountDetails()
+  const { account, chainId, provider } = useWeb3React()
   const theme = useTheme()
   const trace = useTrace()
 

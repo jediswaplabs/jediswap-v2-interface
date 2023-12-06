@@ -25,7 +25,7 @@ export default function SwapHeader({
   trade,
 }: {
   autoSlippage: Percent
-  chainId?: number
+  chainId?: string
   trade?: InterfaceTrade
 }) {
   return (

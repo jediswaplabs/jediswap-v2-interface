@@ -25,6 +25,7 @@ import CTACards from './CTACards'
 import { LoadingRows } from './styled'
 import WalletIcon from '../../assets/wallets/Wallet.png'
 import NoPositionsIcon from '../../assets/images/noPosition.png'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -297,7 +298,7 @@ function WrongNetworkCard() {
 }
 
 export default function Pool() {
-  const { account, chainId } = useAccountDetails()
+  const { address, chainId } = useAccountDetails()
   const [isWalletConnected, setIsWalletConnected] = useState(true)
   const networkSupportsV2 = useNetworkSupportsV2()
   const toggleWalletDrawer = useToggleAccountDrawer()
@@ -305,7 +306,7 @@ export default function Pool() {
   const theme = useTheme()
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
 
-  const { positions, loading: positionsLoading } = useV3Positions(account)
+  const { positions, loading: positionsLoading } = useV3Positions(address)
 
   const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
     (acc, p) => {
@@ -326,7 +327,7 @@ export default function Pool() {
     return <WrongNetworkCard />
   }
 
-  const showConnectAWallet = Boolean(!account)
+  const showConnectAWallet = Boolean(!address)
 
   const menuItems = [
     {

@@ -22,6 +22,7 @@ import {
 } from './reducer'
 import { SerializedPair, SerializedToken, SlippageTolerance } from './types'
 import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from 'constants/tokens'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 export function serializeToken(token: Token): SerializedToken {
   return {
@@ -145,7 +146,7 @@ export function useUserHideClosedPositions(): [boolean, (newHideClosedPositions:
 }
 
 export function useUserTransactionTTL(): [number, (slippage: number) => void] {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const dispatch = useAppDispatch()
   const userDeadline = useAppSelector((state) => state.user.userDeadline)
   const onL2 = false

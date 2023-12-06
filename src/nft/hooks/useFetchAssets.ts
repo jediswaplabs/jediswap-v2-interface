@@ -11,7 +11,7 @@ import { usePurchaseAssets } from './usePurchaseAssets'
 import { useTokenInput } from './useTokenInput'
 
 export function useFetchAssets(): () => Promise<void> {
-  const { account } = useAccountDetails()
+  const { account } = useWeb3React()
 
   const {
     itemsInBag: uncheckedItemsInBag,

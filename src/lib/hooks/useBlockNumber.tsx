@@ -37,9 +37,9 @@ export function useMainnetBlockNumber(): number | undefined {
 }
 
 export function BlockNumberProvider({ children }: { children: ReactNode }) {
-  const { chainId: activeChainId, provider } = useAccountDetails()
+  const { chainId: activeChainId, provider } = useWeb3React()
   const [{ chainId, block, mainnetBlock }, setChainBlock] = useState<{
-    chainId?: number
+    chainId?: string
     block?: number
     mainnetBlock?: number
   }>({})

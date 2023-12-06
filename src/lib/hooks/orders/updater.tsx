@@ -24,7 +24,7 @@ interface UpdaterProps {
 }
 
 export default function OrderUpdater({ pendingOrders, onOrderUpdate }: UpdaterProps): null {
-  const { account } = useAccountDetails()
+  const { account } = useWeb3React()
 
   useEffect(() => {
     async function getOrderStatuses() {

@@ -57,7 +57,7 @@ export class WalletConnectV2 extends WalletConnect {
     })
   }
 
-  activate(chainId?: number) {
+  activate(chainId?: string) {
     sendAnalyticsEvent(this.ANALYTICS_EVENT)
     return super.activate(chainId)
   }

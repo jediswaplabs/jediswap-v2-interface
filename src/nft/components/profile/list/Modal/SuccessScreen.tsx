@@ -78,7 +78,7 @@ const TweetRow = styled(Row)`
 export const SuccessScreen = ({ overlayClick }: { overlayClick: () => void }) => {
   const theme = useTheme()
   const sellAssets = useSellAsset((state) => state.sellAssets)
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const nativeCurrency = useNativeCurrency(chainId)
   const { formatCurrencyAmount } = useFormatter()
 

@@ -50,6 +50,7 @@ import { TransactionType } from '../../state/transactions/types'
 import { calculateGasMargin } from '../../utils/calculateGasMargin'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { LoadingRows } from './styled'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const PositionPageButtonPrimary = styled(ButtonPrimary)`
   width: 228px;
@@ -216,7 +217,7 @@ const ExternalTokenLink = ({ children, chainId, address }: PropsWithChildren<{ c
   <ExternalLink href={getExplorerLink(chainId, address, ExplorerDataType.TOKEN)}>{children}</ExternalLink>
 )
 
-function LinkedCurrency({ chainId, currency }: { chainId?: number; currency?: Currency }) {
+function LinkedCurrency({ chainId, currency }: { chainId?: string; currency?: Currency }) {
   const address = (currency as Token)?.address
 
   if (typeof chainId === 'number' && address) {
@@ -370,7 +371,7 @@ export function PositionPageUnsupportedContent() {
 }
 
 export default function PositionPage() {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   if (isSupportedChain(chainId)) {
     return <PositionPageContent />
   }
@@ -393,7 +394,7 @@ function parseTokenId(tokenId: string | undefined): BigNumber | undefined {
 
 function PositionPageContent() {
   const { tokenId: tokenIdFromUrl } = useParams<{ tokenId?: string }>()
-  const { chainId, account, provider } = useAccountDetails()
+  const { chainId, account, provider } = useWeb3React()
   const theme = useTheme()
   const { formatTickPrice } = useFormatter()
 

@@ -13,7 +13,7 @@ gql`
   }
 `
 
-export function getURAddress(chainId?: number, nftURAddress?: string): string | undefined {
+export function getURAddress(chainId?: string, nftURAddress?: string): string | undefined {
   if (!chainId) {
     return undefined
   }

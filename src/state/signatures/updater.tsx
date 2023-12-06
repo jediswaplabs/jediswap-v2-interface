@@ -14,9 +14,10 @@ import { useAddPopup } from '../application/hooks'
 import { useAllSignatures } from './hooks'
 import { updateSignature } from './reducer'
 import { SignatureType, UniswapXOrderDetails } from './types'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 export default function Updater() {
-  const { provider } = useAccountDetails()
+  const { provider } = useWeb3React()
   const addPopup = useAddPopup()
   const signatures = useAllSignatures()
 

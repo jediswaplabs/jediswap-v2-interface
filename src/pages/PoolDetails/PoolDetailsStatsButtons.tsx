@@ -13,6 +13,7 @@ import { useCurrency } from 'hooks/Tokens'
 import { useSwitchChain } from 'hooks/useSwitchChain'
 import { BREAKPOINTS } from 'theme'
 import { currencyId } from 'utils/currencyId'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const PoolDetailsStatsButtonsRow = styled(Row)`
   gap: 12px;
@@ -35,7 +36,7 @@ const ButtonBubble = styled(LoadingBubble)`
 `
 
 interface PoolDetailsStatsButtonsProps {
-  chainId?: number
+  chainId?: string
   token0?: Token
   token1?: Token
   feeTier?: number
@@ -55,7 +56,7 @@ function findMatchingPosition(positions: PositionInfo[], token0?: Token, token1?
 }
 
 export function PoolDetailsStatsButtons({ chainId, token0, token1, feeTier, loading }: PoolDetailsStatsButtonsProps) {
-  const { chainId: walletChainId, connector, account } = useAccountDetails()
+  const { chainId: walletChainId, connector, account } = useWeb3React()
   const { positions: userOwnedPositions } = useMultiChainPositions(account ?? '', chainId ? [chainId] : undefined)
   const position = userOwnedPositions && findMatchingPosition(userOwnedPositions, token0, token1, feeTier)
   const tokenId = position?.details.tokenId

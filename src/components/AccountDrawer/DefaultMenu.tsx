@@ -25,8 +25,8 @@ enum MenuState {
 }
 
 function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
-  // const { account } = useAccountDetails()
-  const { address } = useAccountDetails()
+  // const { account } = useWeb3React()
+  const { address } = useWeb3React()
   const isAuthenticated = !!address
 
   const [menu, setMenu] = useState<MenuState>(MenuState.DEFAULT)

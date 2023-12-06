@@ -52,7 +52,7 @@ export function useSwapCallback(
 
   const addTransaction = useTransactionAdder()
   const addOrder = useAddOrder()
-  const { account, chainId } = useAccountDetails()
+  const { account, chainId } = useWeb3React()
 
   const uniswapXSwapCallback = useUniswapXSwapCallback({
     trade: isUniswapXTrade(trade) ? trade : undefined,

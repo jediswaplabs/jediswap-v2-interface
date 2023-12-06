@@ -38,7 +38,7 @@ export default function CommonBases({
   searchQuery,
   isAddressSearch,
 }: {
-  chainId?: number
+  chainId?: string
   selectedCurrency?: Currency | null
   onSelect: (currency: Currency) => void
   searchQuery: string
@@ -46,7 +46,7 @@ export default function CommonBases({
   portfolioBalanceUsd?: number
 }) {
   const bases = chainId !== undefined ? COMMON_BASES[chainId] ?? [] : []
-  const { account } = useAccountDetails()
+  const { account } = useWeb3React()
   const { data } = useCachedPortfolioBalancesQuery({ account })
   const portfolioBalanceUsd = data?.portfolios?.[0].tokensTotalDenominatedValue?.value
 

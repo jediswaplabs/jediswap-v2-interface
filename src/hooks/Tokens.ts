@@ -13,6 +13,7 @@ import { useAllLists, useCombinedActiveList, useCombinedTokenMapFromUrls } from 
 import { WrappedTokenInfo } from '../state/lists/wrappedTokenInfo'
 import { deserializeToken, useUserAddedTokens } from '../state/user/hooks'
 import { useUnsupportedTokenList } from './../state/lists/hooks'
+import { useAccountDetails } from './starknet-react'
 
 type Maybe<T> = T | null | undefined
 
@@ -30,7 +31,7 @@ function useTokensFromMap(tokenMap: TokenAddressMap, chainId: Maybe<ChainId>): {
 }
 
 // TODO(WEB-2347): after disallowing unchecked index access, refactor ChainTokenMap to not use ?'s
-export type ChainTokenMap = { [chainId in number]?: { [address in string]?: Token } }
+export type ChainTokenMap = { [chainId in string]?: { [address in string]?: Token } }
 /** Returns tokens from all token lists on all chains, combined with user added tokens */
 export function useAllTokensMultichain(): ChainTokenMap {
   const allTokensFromLists = useCombinedTokenMapFromUrls(DEFAULT_LIST_OF_LISTS)
@@ -112,14 +113,14 @@ export function useUnsupportedTokens(): { [address: string]: Token } {
 
     const listUrl = getChainInfo(chainId).defaultListUrl
 
-    const list = listsByUrl[listUrl]?.current
+    const list = listUrl && listsByUrl[listUrl]?.current
     if (!list) {
       return {}
     }
 
     const unsupportedSet = new Set(Object.keys(unsupportedTokens))
 
-    return list.tokens.reduce((acc, tokenInfo) => {
+    return list.tokens.reduce((acc: any, tokenInfo: any) => {
       const bridgeInfo = tokenInfo.extensions?.bridgeInfo as unknown as BridgeInfo
       if (
         bridgeInfo &&

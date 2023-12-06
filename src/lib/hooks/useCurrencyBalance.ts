@@ -17,7 +17,7 @@ import { isAddress } from '../../utils'
 export function useNativeCurrencyBalances(uncheckedAddresses?: (string | undefined)[]): {
   [address: string]: CurrencyAmount<Currency> | undefined
 } {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const multicallContract = useInterfaceMulticall()
 
   const validAddressInputs: [string][] = useMemo(
@@ -56,7 +56,7 @@ export function useTokenBalancesWithLoadingIndicator(
   address?: string,
   tokens?: (Token | undefined)[]
 ): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
-  const { chainId } = useAccountDetails() // we cannot fetch balances cross-chain
+  const { chainId } = useWeb3React() // we cannot fetch balances cross-chain
   const validatedTokens: Token[] = useMemo(
     () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId) ?? [],
     [chainId, tokens]
@@ -117,7 +117,7 @@ export function useCurrencyBalances(
     [currencies]
   )
 
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const tokenBalances = useTokenBalances(account, tokens)
   const containsETH: boolean = useMemo(() => currencies?.some((currency) => currency?.isNative) ?? false, [currencies])
   const ethBalance = useNativeCurrencyBalances(useMemo(() => (containsETH ? [account] : []), [containsETH, account]))

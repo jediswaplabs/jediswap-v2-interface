@@ -2,7 +2,6 @@
 
 import { Trans } from '@lingui/macro'
 import { ChainId, Currency, CurrencyAmount, Percent, Token } from '@vnaysn/jediswap-sdk-core'
-import { UNIVERSAL_ROUTER_ADDRESS } from '@uniswap/universal-router-sdk'
 import { useWeb3React } from '@web3-react/core'
 import JSBI from 'jsbi'
 import { ReactNode, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
@@ -38,8 +37,7 @@ import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import TokenSafetyModal from 'components/TokenSafety/TokenSafetyModal'
 import { useConnectionReady } from 'connection/eagerlyConnect'
 import { getChainInfo } from 'constants/chainInfo'
-import { asSupportedChain, isSupportedChain } from 'constants/chains'
-import { getSwapCurrencyId, TOKEN_SHORTHANDS } from 'constants/tokens'
+import { isSupportedChain } from 'constants/chains'
 import { useUniswapXDefaultEnabled } from 'featureFlags/flags/uniswapXDefault'
 import { useCurrency, useDefaultActiveTokens } from 'hooks/Tokens'
 import { useIsSwapUnsupported } from 'hooks/useIsSwapUnsupported'
@@ -65,6 +63,8 @@ import { computeRealizedPriceImpact, warningSeverity } from 'utils/prices'
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
 import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { UNIVERSAL_ROUTER_ADDRESS, getSwapCurrencyId } from 'constants/tokens'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -144,16 +144,14 @@ export default function SwapPage({ className }: { className?: string }) {
   const { chainId: connectedChainId } = useAccountDetails()
   const loadedUrlParams = useDefaultsFromURLSearch()
 
-  const supportedChainId = asSupportedChain(connectedChainId)
-
   return (
     <PageWrapper>
       <Swap
         className={className}
-        chainId={supportedChainId ?? ChainId.MAINNET}
+        chainId={ChainId.MAINNET}
         initialInputCurrencyId={loadedUrlParams?.[Field.INPUT]?.currencyId}
         initialOutputCurrencyId={loadedUrlParams?.[Field.OUTPUT]?.currencyId}
-        disableTokenInputs={supportedChainId === undefined}
+        // disableTokenInputs={supportedChainId === undefined}
       />
     </PageWrapper>
   )
@@ -162,7 +160,7 @@ export default function SwapPage({ className }: { className?: string }) {
 /**
  * The swap component displays the swap interface, manages state for the swap, and triggers onchain swaps.
  *
- * In most cases, chainId should refer to the connected chain, i.e. `useAccountDetails().chainId`.
+ * In most cases, chainId should refer to the connected chain, i.e. `useWeb3React().chainId`.
  * However if this component is being used in a context that displays information from a different, unconnected
  * chain (e.g. the TDP), then chainId should refer to the unconnected chain.
  */
@@ -182,7 +180,7 @@ export function Swap({
   disableTokenInputs?: boolean
 }) {
   const connectionReady = useConnectionReady()
-  const { account, chainId: connectedChainId, connector } = useAccountDetails()
+  const { account, chainId: connectedChainId, connector } = useWeb3React()
 
   // token warning stuff
   const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId)
@@ -216,14 +214,14 @@ export function Swap({
         .filter((token: Token) => !(token.address in defaultTokens))
         .filter((token: Token) => {
           // Any token addresses that are loaded from the shorthands map do not need to show the import URL
-          const supported = asSupportedChain(chainId)
-          if (!supported) {
-            return true
-          }
-          return !Object.keys(TOKEN_SHORTHANDS).some((shorthand) => {
-            const shorthandTokenAddress = TOKEN_SHORTHANDS[shorthand][supported]
-            return shorthandTokenAddress && shorthandTokenAddress === token.address
-          })
+          // const supported = asSupportedChain(chainId)
+          // if (!supported) {
+          //   return true
+          // }
+          // return !Object.keys(TOKEN_SHORTHANDS).some((shorthand) => {
+          //   const shorthandTokenAddress = TOKEN_SHORTHANDS[shorthand][supported]
+          //   return shorthandTokenAddress && shorthandTokenAddress === token.address
+          // })
         }),
     [chainId, defaultTokens, urlLoadedTokens]
   )
@@ -426,7 +424,7 @@ export function Swap({
       (parsedAmounts[Field.INPUT]?.currency.isToken
         ? (parsedAmounts[Field.INPUT] as CurrencyAmount<Token>)
         : undefined),
-    isSupportedChain(chainId) ? UNIVERSAL_ROUTER_ADDRESS(chainId) : undefined,
+    undefined,
     trade?.fillType
   )
 
@@ -517,7 +515,7 @@ export function Swap({
       return { priceImpactSeverity: 0, largerPriceImpact: undefined }
     }
 
-    const marketPriceImpact = trade?.priceImpact ? computeRealizedPriceImpact(trade) : undefined
+    const marketPriceImpact = undefined
     const newLargerPriceImpact = largerPercentValue(marketPriceImpact, preTaxStablecoinPriceImpact)
     return { priceImpactSeverity: warningSeverity(newLargerPriceImpact), newLargerPriceImpact }
   }, [preTaxStablecoinPriceImpact, trade])

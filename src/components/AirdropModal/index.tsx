@@ -181,7 +181,7 @@ enum RewardAmounts {
 }
 
 const AirdropModal = () => {
-  const { account, provider } = useAccountDetails()
+  const { account, provider } = useWeb3React()
   const [claim, setClaim] = useState<Rewards>()
   const [isClaimed, setIsClaimed] = useState(false)
   const [hash, setHash] = useState('')

@@ -3,11 +3,12 @@ import { Navigate, useParams } from 'react-router-dom'
 
 import { WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
 import AddLiquidity from './index'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 export default function RedirectDuplicateTokenIds() {
   const { currencyIdA, currencyIdB } = useParams<{ currencyIdA: string; currencyIdB: string; feeAmount?: string }>()
 
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
 
   // prevent weth + eth
   const isETHOrWETHA =

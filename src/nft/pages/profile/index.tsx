@@ -65,7 +65,7 @@ export default function Profile() {
   const resetSellAssets = useSellAsset((state) => state.reset)
   const clearCollectionFilters = useWalletCollections((state) => state.clearCollectionFilters)
 
-  const { account } = useAccountDetails()
+  const { account } = useWeb3React()
   const accountRef = useRef(account)
   const toggleWalletDrawer = useToggleAccountDrawer()
 

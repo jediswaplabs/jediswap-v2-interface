@@ -33,7 +33,7 @@ export default function PrefetchBalancesWrapper({
   shouldFetchOnAccountUpdate,
   className,
 }: PropsWithChildren<{ shouldFetchOnAccountUpdate: boolean; className?: string }>) {
-  const { account } = useAccountDetails()
+  const { account } = useWeb3React()
   const [prefetchPortfolioBalances] = usePortfolioBalancesLazyQuery()
 
   // Use an atom to track unfetched state to avoid duplicating fetches if this component appears multiple times on the page.

@@ -50,7 +50,7 @@ const Wrapper = styled.div`
 `
 
 export function ChainConnectivityWarning() {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const info = getChainInfoOrDefault(chainId)
   const label = info?.label
 

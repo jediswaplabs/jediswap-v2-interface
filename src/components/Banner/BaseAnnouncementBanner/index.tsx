@@ -12,14 +12,15 @@ import { openDownloadApp, openWalletMicrosite } from 'utils/openDownloadApp'
 import { isIOS, isMobileSafari } from 'utils/userAgent'
 
 import { BannerButton, BaseBackgroundImage, ButtonRow, PopupContainer, StyledXButton } from './styled'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 export default function BaseWalletBanner() {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const [hideBaseWalletBanner, toggleHideBaseWalletBanner] = useHideBaseWalletBanner()
   const location = useLocation()
   const isLandingScreen = location.search === '?intro=true' || location.pathname === '/'
 
-  const shouldDisplay = Boolean(!hideBaseWalletBanner && !isLandingScreen && chainId === ChainId.BASE)
+  const shouldDisplay = false
 
   const screenSize = useScreenSize()
 

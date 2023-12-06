@@ -1,5 +1,5 @@
 import { validateAndParseAddress, constants } from 'starknet'
-import { ChainId, Percent, Token } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency, NativeCurrency, Percent, Token } from '@vnaysn/jediswap-sdk-core'
 
 // import { fortmatic, injected, portis, walletconnect, walletlink, argentX } from '../connectors'
 import { argentX, braavosWallet, argentWebWallet } from '../connectors'
@@ -11,6 +11,26 @@ import { WebWalletConnector } from '@argent/starknet-react-webwallet-connector'
 import JSBI from 'jsbi'
 
 export const DEFAULT_CHAIN_ID = ChainId.MAINNET
+export const NONFUNGIBLE_POSITION_MANAGER_ADDRESSES = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
+export const MULTICALL_ADDRESSES = '0x1F98415757620B543A52E61c46B32eB19261F984'
+export const UNIVERSAL_ROUTER_ADDRESS = '0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD'
+
+export const NATIVE_CHAIN_ID = 'NATIVE'
+
+const cachedNativeCurrency: { [chainId: string]: NativeCurrency | Token } = {}
+export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {
+  if (cachedNativeCurrency[chainId]) return cachedNativeCurrency[chainId]
+  let nativeCurrency: NativeCurrency | Token
+
+  return (cachedNativeCurrency[chainId] = WETH[chainId])
+}
+
+export function getSwapCurrencyId(currency: Currency): string {
+  if (currency.isToken) {
+    return currency.address
+  }
+  return NATIVE_CHAIN_ID
+}
 
 export const domainURL = (chainId: ChainId) => {
   return chainId === ChainId.MAINNET

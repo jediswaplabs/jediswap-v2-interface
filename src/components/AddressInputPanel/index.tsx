@@ -11,6 +11,7 @@ import useENS from '../../hooks/useENS'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { AutoColumn } from '../Column'
 import { RowBetween } from '../Row'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const InputPanel = styled.div`
   ${flexColumnNoWrap};
@@ -87,7 +88,7 @@ export default function AddressInputPanel({
   // triggers whenever the typed value changes
   onChange: (value: string) => void
 }) {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const theme = useTheme()
 
   const { address, loading, name } = useENS(value)

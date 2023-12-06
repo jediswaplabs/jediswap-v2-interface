@@ -12,6 +12,7 @@ import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { TradeFillType } from 'state/routing/types'
 import { addTransaction, cancelTransaction, removeTransaction } from './reducer'
 import { TransactionDetails, TransactionInfo, TransactionType } from './types'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 // helper that can take a ethers library transaction response and add it to the list of transactions
 export function useTransactionAdder(): (
@@ -19,7 +20,7 @@ export function useTransactionAdder(): (
   info: TransactionInfo,
   deadline?: number
 ) => void {
-  const { chainId, account } = useAccountDetails()
+  const { chainId, account } = useWeb3React()
   const dispatch = useAppDispatch()
 
   return useCallback(
@@ -42,7 +43,7 @@ export function useTransactionAdder(): (
 }
 
 export function useTransactionRemover() {
-  const { chainId, account } = useAccountDetails()
+  const { chainId, account } = useWeb3React()
   const dispatch = useAppDispatch()
 
   return useCallback(
@@ -80,7 +81,7 @@ export function useMultichainTransactions(): [TransactionDetails, ChainId][] {
 
 // returns all the transactions for the current chain
 function useAllTransactions(): { [txHash: string]: TransactionDetails } {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
 
   const state = useAppSelector((state) => state.transactions)
 
@@ -167,7 +168,7 @@ export function isPendingTx(tx: TransactionDetails): boolean {
 
 export function usePendingTransactions(): TransactionDetails[] {
   const allTransactions = useAllTransactions()
-  const { account } = useAccountDetails()
+  const { account } = useWeb3React()
 
   return useMemo(
     () => Object.values(allTransactions).filter((tx) => tx.from === account && isPendingTx(tx)),

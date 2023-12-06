@@ -1,4 +1,4 @@
-import { Currency, Token } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { Tags, TokenInfo, TokenList } from '@uniswap/token-lists'
 
 import { isAddress } from '../../utils'
@@ -32,7 +32,7 @@ export class WrappedTokenInfo implements Token {
     return this._checksummedAddress
   }
 
-  public get chainId(): number {
+  public get chainId(): ChainId {
     return this.tokenInfo.chainId
   }
 

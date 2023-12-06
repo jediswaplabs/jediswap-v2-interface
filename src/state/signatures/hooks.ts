@@ -7,9 +7,10 @@ import { useAppSelector } from 'state/hooks'
 
 import { addSignature } from './reducer'
 import { SignatureDetails, SignatureType, UniswapXOrderDetails } from './types'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 export function useAllSignatures(): { [id: string]: SignatureDetails } {
-  const { account } = useAccountDetails()
+  const { account } = useWeb3React()
   const signatures = useAppSelector((state) => state.signatures) ?? {}
   if (!account || !signatures[account]) return {}
   return signatures[account]

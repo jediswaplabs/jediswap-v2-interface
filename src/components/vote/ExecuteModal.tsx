@@ -41,7 +41,7 @@ interface ExecuteModalProps {
 }
 
 export default function ExecuteModal({ isOpen, onDismiss, proposalId }: ExecuteModalProps) {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const executeCallback = useExecuteCallback()
 
   // monitor call to help UI loading state

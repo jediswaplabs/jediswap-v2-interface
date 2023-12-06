@@ -5,7 +5,7 @@ import { useCombinedActiveList } from 'state/lists/hooks'
 
 /** Returns a WrappedTokenInfo from the active token lists when possible, or the passed token otherwise. */
 export function useTokenInfoFromActiveList(currency: Currency) {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const activeList = useCombinedActiveList()
 
   return useMemo(() => {

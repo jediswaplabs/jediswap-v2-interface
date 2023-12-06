@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { nativeOnChain } from 'constants/tokens'
 import { Chain, useTokenSpotPriceQuery } from 'graphql/data/types-and-hooks'
 import { chainIdToBackendName, isGqlSupportedChain, PollingInterval } from 'graphql/data/util'
-import { ClassicTrade, INTERNAL_ROUTER_PREFERENCE_PRICE, TradeState } from 'state/routing/types'
+import { INTERNAL_ROUTER_PREFERENCE_PRICE, TradeState } from 'state/routing/types'
 import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade'
 import { getNativeTokenDBAddress } from 'utils/nativeTokens'
 import useStablecoinPrice from './useStablecoinPrice'
@@ -14,10 +14,6 @@ import useStablecoinPrice from './useStablecoinPrice'
 // The amount is large enough to filter low liquidity pairs.
 const ETH_AMOUNT_OUT: { [chainId: string]: CurrencyAmount<Currency> } = {
   [ChainId.MAINNET]: CurrencyAmount.fromRawAmount(nativeOnChain(ChainId.MAINNET), 50e18),
-  [ChainId.ARBITRUM_ONE]: CurrencyAmount.fromRawAmount(nativeOnChain(ChainId.ARBITRUM_ONE), 10e18),
-  [ChainId.OPTIMISM]: CurrencyAmount.fromRawAmount(nativeOnChain(ChainId.OPTIMISM), 10e18),
-  [ChainId.POLYGON]: CurrencyAmount.fromRawAmount(nativeOnChain(ChainId.POLYGON), 10_000e18),
-  [ChainId.CELO]: CurrencyAmount.fromRawAmount(nativeOnChain(ChainId.CELO), 10e18),
 }
 
 function useETHPrice(currency?: Currency): {
@@ -27,7 +23,7 @@ function useETHPrice(currency?: Currency): {
   const chainId = currency?.chainId
   const isSupported = currency && isGqlSupportedChain(chainId)
 
-  const amountOut = isSupported ? ETH_AMOUNT_OUT[chainId] : undefined
+  const amountOut = isSupported && chainId ? ETH_AMOUNT_OUT[chainId] : undefined
   const { trade, state } = useRoutingAPITrade(
     !isSupported /* skip */,
     TradeType.EXACT_OUTPUT,
@@ -41,23 +37,16 @@ function useETHPrice(currency?: Currency): {
       return { data: undefined, isLoading: false }
     }
 
-    if (currency?.wrapped.equals(nativeOnChain(chainId).wrapped)) {
-      return {
-        data: new Price(currency, currency, '1', '1'),
-        isLoading: false,
-      }
-    }
-
     if (!trade || state === TradeState.LOADING) {
       return { data: undefined, isLoading: state === TradeState.LOADING }
     }
 
     // if initial quoting fails, we may end up with a DutchOrderTrade
-    if (trade && trade instanceof ClassicTrade) {
-      const { numerator, denominator } = trade.routes[0].midPrice
-      const price = new Price(currency, nativeOnChain(chainId), denominator, numerator)
-      return { data: price, isLoading: false }
-    }
+    // if (trade && trade instanceof ClassicTrade) {
+    //   const { numerator, denominator } = trade.routes[0].midPrice
+    //   const price = new Price(currency, nativeOnChain(chainId), denominator, numerator)
+    //   return { data: price, isLoading: false }
+    // }
 
     return { data: undefined, isLoading: false }
   }, [chainId, currency, isSupported, state, trade])

@@ -7,11 +7,12 @@ import { useCallback, useMemo } from 'react'
 import { PopupType } from 'state/application/reducer'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 
-import { L2_CHAIN_IDS } from '../../constants/chains'
+// import { L2_CHAIN_IDS } from '../../constants/chains'
 import { useAddPopup } from '../application/hooks'
 import { isPendingTx } from './hooks'
 import { checkedTransaction, finalizeTransaction } from './reducer'
 import { SerializableTransactionReceipt, TransactionDetails, TransactionType } from './types'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 export function toSerializableReceipt(receipt: TransactionReceipt): SerializableTransactionReceipt {
   return {
@@ -28,10 +29,10 @@ export function toSerializableReceipt(receipt: TransactionReceipt): Serializable
 
 export default function Updater() {
   const analyticsContext = useTrace()
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const addPopup = useAddPopup()
   // speed up popup dismisall time if on L2
-  const isL2 = Boolean(chainId && L2_CHAIN_IDS.includes(chainId))
+  const isL2 = false
   const transactions = useAppSelector((state) => state.transactions)
   const pendingTransactions = useMemo(() => {
     if (!chainId || !transactions[chainId]) return {}

@@ -6,6 +6,7 @@ import { useEffect, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from '../hooks'
 import { addListener, removeListener } from './slice'
 import { filterToKey, isHistoricalLog, Log } from './utils'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 enum LogsState {
   // The filter is invalid

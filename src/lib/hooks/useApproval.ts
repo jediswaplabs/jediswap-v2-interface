@@ -22,7 +22,7 @@ function useApprovalStateForSpender(
   spender: string | undefined,
   useIsPendingApproval: (token?: Token, spender?: string) => boolean
 ): ApprovalState {
-  const { account } = useAccountDetails()
+  const { account } = useWeb3React()
   const token = amountToApprove?.currency?.isToken ? amountToApprove.currency : undefined
 
   const { tokenAllowance } = useTokenAllowance(token, account ?? undefined, spender)
@@ -54,7 +54,7 @@ export function useApproval(
     | undefined
   >
 ] {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const token = amountToApprove?.currency?.isToken ? amountToApprove.currency : undefined
 
   // check the current approval status

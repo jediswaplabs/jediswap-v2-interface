@@ -130,7 +130,7 @@ export default function OptionV2({
   console.log('🚀 ~ file: OptionV2.tsx:84 ~ OptionV2 ~ connector:', connector)
   const { activationState, tryActivation } = useActivationState()
   const toggleAccountDrawer = useToggleAccountDrawer()
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const { connect } = useConnectors()
   // const activate = () => tryActivation(connection, toggleAccountDrawer, chainId)
 

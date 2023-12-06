@@ -54,7 +54,7 @@ const UniToken = styled.img`
 `
 
 export default function ClaimPopup() {
-  const { account } = useAccountDetails()
+  const { account } = useWeb3React()
 
   // dont store these in persisted state yet
   const showClaimPopup: boolean = useShowClaimPopup()

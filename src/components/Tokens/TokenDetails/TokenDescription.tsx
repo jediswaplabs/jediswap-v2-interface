@@ -77,7 +77,7 @@ export function TokenDescription({
   showCopy = false,
 }: {
   tokenAddress: string
-  chainId?: number
+  chainId?: ChainId
   showCopy?: boolean
 }) {
   const currency = useCurrency(tokenAddress, chainId)

@@ -13,9 +13,10 @@ import { useFetchListCallback } from '../../hooks/useFetchListCallback'
 import useIsWindowVisible from '../../hooks/useIsWindowVisible'
 import { acceptListUpdate } from './actions'
 import { shouldAcceptVersionUpdate } from './utils'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 export default function Updater(): null {
-  const { provider } = useAccountDetails()
+  const { provider } = useWeb3React()
   const dispatch = useAppDispatch()
   const isWindowVisible = useIsWindowVisible()
 

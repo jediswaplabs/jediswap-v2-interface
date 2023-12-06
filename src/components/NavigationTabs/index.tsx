@@ -80,7 +80,7 @@ export function AddRemoveTabs({
   showBackLink?: boolean
   children?: ReactNode
 }) {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const theme = useTheme()
   // reset states on back
   const dispatch = useAppDispatch()

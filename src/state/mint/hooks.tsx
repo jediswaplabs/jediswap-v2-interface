@@ -12,6 +12,7 @@ import { PairState, useV2Pair } from '../../hooks/useV2Pairs'
 import { useCurrencyBalances } from '../connection/hooks'
 import { AppState } from '../reducer'
 import { Field, typeInput } from './actions'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const ZERO = JSBI.BigInt(0)
 
@@ -61,7 +62,7 @@ export function useDerivedMintInfo(
   poolTokenPercentage?: Percent
   error?: ReactNode
 } {
-  const { account } = useAccountDetails()
+  const { account } = useWeb3React()
 
   const { independentField, typedValue, otherTypedValue } = useMintState()
 

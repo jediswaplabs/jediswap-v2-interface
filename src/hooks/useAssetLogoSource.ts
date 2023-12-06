@@ -40,7 +40,7 @@ function prioritizeLogoSources(uris: string[]) {
 
 function getInitialUrl(
   address?: string | null,
-  chainId?: number | null,
+  chainId?: string | null,
   isNative?: boolean,
   backupImg?: string | null
 ) {
@@ -62,7 +62,7 @@ function getInitialUrl(
 
 export default function useAssetLogoSource(
   address?: string | null,
-  chainId?: number | null,
+  chainId?: string | null,
   isNative?: boolean,
   backupImg?: string | null
 ): [string | undefined, () => void] {

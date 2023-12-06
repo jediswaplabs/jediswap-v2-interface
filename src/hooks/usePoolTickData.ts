@@ -47,7 +47,7 @@ function useTicksFromTickLens(
   // Find nearest valid tick for pool in case tick is not initialized.
   const activeTick = pool?.tickCurrent && tickSpacing ? nearestUsableTick(pool?.tickCurrent, tickSpacing) : undefined
 
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
 
   const poolAddress =
     currencyA && currencyB && feeAmount && poolState === PoolState.EXISTS
@@ -139,7 +139,7 @@ function useTicksFromSubgraph(
   feeAmount: FeeAmount | undefined,
   skip = 0
 ) {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const poolAddress =
     currencyA && currencyB && feeAmount
       ? Pool.getAddress(

@@ -86,7 +86,7 @@ const tokenCacheAtom = atomWithStorage<{ [key: string]: SerializedToken | undefi
 function useTokenCache() {
   const [cache, setCache] = useAtom(tokenCacheAtom)
   const get = useCallback(
-    (chainId: string, address: string) => {
+    (chainId: ChainId, address: string) => {
       const entry = cache[buildCurrencyKey(chainId, address)]
       return entry ? deserializeToken(entry) : undefined
     },

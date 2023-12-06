@@ -44,7 +44,7 @@ interface VoteModalProps {
 }
 
 export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }: VoteModalProps) {
-  const { chainId } = useAccountDetails()
+  const { chainId } = useWeb3React()
   const voteCallback = useVoteCallback()
   const { votes: availableVotes } = useUserVotes()
 

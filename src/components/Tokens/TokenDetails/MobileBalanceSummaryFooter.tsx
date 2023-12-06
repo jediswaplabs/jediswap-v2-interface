@@ -82,7 +82,7 @@ const SwapButton = styled(StyledInternalLink)`
 `
 
 export default function MobileBalanceSummaryFooter({ token }: { token: Currency }) {
-  const { account } = useAccountDetails()
+  const { account } = useWeb3React()
   const balance = useCurrencyBalance(account, token)
   const { formatCurrencyAmount } = useFormatter()
   const formattedBalance = formatCurrencyAmount({

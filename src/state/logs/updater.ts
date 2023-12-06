@@ -6,11 +6,12 @@ import { useEffect, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from '../hooks'
 import { fetchedLogs, fetchedLogsError, fetchingLogs } from './slice'
 import { isHistoricalLog, keyToFilter } from './utils'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 export default function Updater(): null {
   const dispatch = useAppDispatch()
   const state = useAppSelector((state) => state.logs)
-  const { chainId, provider } = useAccountDetails()
+  const { chainId } = useAccountDetails()
 
   const blockNumber = useBlockNumber()
 
@@ -34,7 +35,7 @@ export default function Updater(): null {
   }, [blockNumber, chainId, state])
 
   useEffect(() => {
-    if (!provider || !chainId || typeof blockNumber !== 'number' || filtersNeedFetch.length === 0) return
+    if (!chainId || typeof blockNumber !== 'number' || filtersNeedFetch.length === 0) return
 
     dispatch(fetchingLogs({ chainId, filters: filtersNeedFetch, blockNumber }))
     filtersNeedFetch.forEach((filter) => {
@@ -43,33 +44,33 @@ export default function Updater(): null {
       let toBlock = filter.toBlock ?? blockNumber
       if (typeof fromBlock === 'string') fromBlock = Number.parseInt(fromBlock)
       if (typeof toBlock === 'string') toBlock = Number.parseInt(toBlock)
-      provider
-        .getLogs({
-          ...filter,
-          fromBlock,
-          toBlock,
-        })
-        .then((logs) => {
-          dispatch(
-            fetchedLogs({
-              chainId,
-              filter,
-              results: { logs, blockNumber },
-            })
-          )
-        })
-        .catch((error) => {
-          console.error('Failed to get logs', filter, error)
-          dispatch(
-            fetchedLogsError({
-              chainId,
-              filter,
-              blockNumber,
-            })
-          )
-        })
+      // provider
+      //   .getLogs({
+      //     ...filter,
+      //     fromBlock,
+      //     toBlock,
+      //   })
+      //   .then((logs) => {
+      //     dispatch(
+      //       fetchedLogs({
+      //         chainId,
+      //         filter,
+      //         results: { logs, blockNumber },
+      //       })
+      //     )
+      //   })
+      //   .catch((error) => {
+      //     console.error('Failed to get logs', filter, error)
+      //     dispatch(
+      //       fetchedLogsError({
+      //         chainId,
+      //         filter,
+      //         blockNumber,
+      //       })
+      //     )
+      //   })
     })
-  }, [blockNumber, chainId, dispatch, filtersNeedFetch, provider])
+  }, [blockNumber, chainId, dispatch, filtersNeedFetch])
 
   return null
 }

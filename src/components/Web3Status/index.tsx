@@ -90,10 +90,10 @@ function Web3StatusInner() {
   const switchingChain = useAppSelector((state) => state.wallets.switchingChain)
   const ignoreWhileSwitchingChain = useCallback(() => !switchingChain, [switchingChain])
   const connectionReady = useConnectionReady()
-  const activeWeb3 = useAccountDetails()
-  const lastWeb3 = useLast(useAccountDetails(), ignoreWhileSwitchingChain)
+  const activeWeb3 = useWeb3React()
+  const lastWeb3 = useLast(useWeb3React(), ignoreWhileSwitchingChain)
   const { account, connector } = useMemo(() => (activeWeb3.account ? activeWeb3 : lastWeb3), [activeWeb3, lastWeb3])
-  const { address } = useAccountDetails()
+  const { address } = useWeb3React()
   const { ENSName, loading: ENSLoading } = useENSName(account)
   const connection = getConnection(connector)
 

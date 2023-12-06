@@ -26,6 +26,7 @@ import IconButton, { IconHoverText, IconWithConfirmTextButton } from './IconButt
 import MiniPortfolio from './MiniPortfolio'
 import { portfolioFadeInAnimation } from './MiniPortfolio/PortfolioRow'
 import { useDisconnect } from '@starknet-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const AuthenticatedHeaderWrapper = styled.div`
   padding: 20px 16px;
@@ -88,20 +89,20 @@ const PortfolioDrawerContainer = styled(Column)`
 `
 
 export default function AuthenticatedHeader({ account, openSettings }: { account: string; openSettings: () => void }) {
-  const { connector } = useAccountDetails()
+  const { connector } = useWeb3React()
   const { ENSName } = useENSName(account)
   const dispatch = useAppDispatch()
   const { formatNumber, formatDelta } = useFormatter()
   const { disconnect } = useDisconnect()
 
-  const connection = getConnection(connector)
-  const disconnectWallet = useCallback(() => {
-    if (connector) {
-      disconnect()
-    }
-    connector.resetState()
-    dispatch(updateSelectedWallet({ wallet: undefined }))
-  }, [connector, dispatch])
+  // const connection = getConnection(connector)
+  // const disconnectWallet = useCallback(() => {
+  //   if (connector) {
+  //     disconnect()
+  //   }
+  //   connector.resetState()
+  //   dispatch(updateSelectedWallet({ wallet: undefined }))
+  // }, [connector, dispatch])
 
   const toggleWalletDrawer = useToggleAccountDrawer()
 
@@ -143,7 +144,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
     <AuthenticatedHeaderWrapper>
       <HeaderWrapper>
         <StatusWrapper>
-          <StatusIcon account={account} connection={connection} size={40} />
+          {/* <StatusIcon account={account} connection={connection} size={40} /> */}
           {account && (
             <AccountNamesWrapper>
               <ThemedText.SubHeader>
@@ -165,14 +166,14 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
             onClick={openSettings}
             Icon={Settings}
           />
-          <IconWithConfirmTextButton
+          {/* <IconWithConfirmTextButton
             data-testid="wallet-disconnect"
             onConfirm={disconnectWallet}
             onShowConfirm={setShowDisconnectConfirm}
             Icon={Power}
             text="Disconnect"
             dismissOnHoverOut
-          />
+          /> */}
         </IconContainer>
       </HeaderWrapper>
       {/*  <PortfolioDrawerContainer>

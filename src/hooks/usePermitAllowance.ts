@@ -56,7 +56,7 @@ export function useUpdatePermitAllowance(
   nonce: number | undefined,
   onPermitSignature: (signature: PermitSignature) => void
 ) {
-  const { account, chainId, provider } = useAccountDetails()
+  const { account, chainId, provider } = useWeb3React()
   return useCallback(async () => {
     try {
       if (!chainId) throw new Error('missing chainId')

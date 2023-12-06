@@ -75,7 +75,7 @@ function useRelevantToken(
   pageChainId: number,
   tokenQueryData: TokenQueryData | undefined
 ) {
-  const { chainId: activeChainId } = useAccountDetails()
+  const { chainId: activeChainId } = useWeb3React()
   const queryToken = useMemo(() => {
     if (!address) {
       return undefined
@@ -122,7 +122,7 @@ export default function TokenDetails({
     [urlAddress]
   )
 
-  const { chainId: connectedChainId } = useAccountDetails()
+  const { chainId: connectedChainId } = useWeb3React()
   const pageChainId = supportedChainIdFromGQLChain(chain)
   const tokenQueryData = tokenQuery.token
   const crossChainMap = useMemo(
