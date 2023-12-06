@@ -37,8 +37,12 @@ export function useV3ManagerContracts(chainIds: ChainId[]): ContractMap<Nonfungi
   )
 }
 
-export function useInterfaceMulticallContracts(chainIds: ChainId[]): ContractMap<UniswapInterfaceMulticall> {
-  return useContractMultichain<UniswapInterfaceMulticall>(MULTICALL_ADDRESSES, MulticallJSON.abi, chainIds)
+export function useInterfaceMulticallContracts(chainIds: ChainId[]): ContractMap<NonfungiblePositionManager> {
+  return useContractMultichain<NonfungiblePositionManager>(
+    NONFUNGIBLE_POSITION_MANAGER_ADDRESSES,
+    NFTPositionManagerJSON.abi,
+    chainIds
+  )
 }
 
 type PriceMap = { [key: CurrencyKey]: number | undefined }

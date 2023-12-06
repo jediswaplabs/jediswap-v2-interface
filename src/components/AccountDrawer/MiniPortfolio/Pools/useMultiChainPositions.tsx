@@ -1,4 +1,4 @@
-import { ChainId, CurrencyAmount, Token, V3_CORE_FACTORY_ADDRESSES } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
 import IUniswapV3PoolStateJSON from '@uniswap/v3-core/artifacts/contracts/interfaces/pool/IUniswapV3PoolState.sol/IUniswapV3PoolState.json'
 import { computePoolAddress, Pool, Position } from '@vnaysn/jediswap-sdk-v3'
 import { DEFAULT_ERC20_DECIMALS } from 'constants/tokens'
@@ -13,6 +13,7 @@ import { currencyKey } from 'utils/currencyKey'
 import { PositionInfo, useCachedPositions, useGetCachedTokens, usePoolAddressCache } from './cache'
 import { Call, DEFAULT_GAS_LIMIT } from './getTokensAsync'
 import { useInterfaceMulticallContracts, usePoolPriceMap, useV3ManagerContracts } from './hooks'
+import { V3_CORE_FACTORY_ADDRESSES } from 'constants/addresses'
 
 function createPositionInfo(
   owner: string,

@@ -4,14 +4,14 @@ import { InterfaceEventName } from '@uniswap/analytics-events'
 import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { sendAnalyticsEvent } from 'analytics'
-import { asSupportedChain, isSupportedChain } from 'constants/chains'
+import { isSupportedChain } from 'constants/chains'
 import { useBytes32TokenContract, useTokenContract } from 'hooks/useContract'
 import { NEVER_RELOAD, useSingleCallResult } from 'lib/hooks/multicall'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
 import { useEffect, useMemo } from 'react'
 
-import { DEFAULT_ERC20_DECIMALS } from '../../constants/tokens'
-import { TOKEN_SHORTHANDS } from '../../constants/tokens'
+import { DEFAULT_CHAIN_ID, DEFAULT_ERC20_DECIMALS } from '../../constants/tokens'
+// import { TOKEN_SHORTHANDS } from '../../constants/tokens'
 import { isAddress } from '../../utils'
 
 // parse a name or symbol from a token response
@@ -116,8 +116,8 @@ export function useCurrencyFromMap(
   const nativeCurrency = useNativeCurrency(chainId)
   const isNative = Boolean(nativeCurrency && currencyId?.toUpperCase() === 'ETH')
   const shorthandMatchAddress = useMemo(() => {
-    const chain = asSupportedChain(chainId)
-    return chain && currencyId ? TOKEN_SHORTHANDS[currencyId.toUpperCase()]?.[chain] : undefined
+    const chain = DEFAULT_CHAIN_ID
+    return undefined
   }, [chainId, currencyId])
 
   const token = useTokenFromMapOrNetwork(tokens, isNative ? undefined : shorthandMatchAddress ?? currencyId)

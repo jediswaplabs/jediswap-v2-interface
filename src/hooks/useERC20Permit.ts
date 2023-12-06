@@ -9,6 +9,7 @@ import { useMemo, useState } from 'react'
 import { DAI, UNI, USDC_MAINNET } from '../constants/tokens'
 import { useEIP2612Contract } from './useContract'
 import useIsArgentWallet from './useIsArgentWallet'
+import { useProvider } from '@starknet-react/core'
 
 export enum PermitType {
   AMOUNT = 1,
@@ -114,7 +115,8 @@ export function useERC20Permit(
   state: UseERC20PermitState
   gatherPermitSignature: null | (() => Promise<void>)
 } {
-  const { account, chainId, provider } = useAccountDetails()
+  const { address: account, chainId } = useAccountDetails()
+  const { provider } = useProvider()
   const tokenAddress = currencyAmount?.currency?.isToken ? currencyAmount.currency.address : undefined
   const eip2612Contract = useEIP2612Contract(tokenAddress)
   const isArgentWallet = useIsArgentWallet()

@@ -2,7 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
-import { Currency, CurrencyAmount, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES, Percent } from '@vnaysn/jediswap-sdk-core'
+import { Currency, CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount, NonfungiblePositionManager } from '@vnaysn/jediswap-sdk-v3'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
@@ -66,6 +66,8 @@ import { Dots } from '../Pool/styled'
 import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
 import { useAccountDetails } from 'hooks/starknet-react'
+import { NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/addresses'
+import { useProvider } from '@starknet-react/core'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -95,7 +97,8 @@ function AddLiquidity() {
     feeAmount?: string
     tokenId?: string
   }>()
-  const { account, chainId, provider } = useAccountDetails()
+  const { address: account, chainId } = useAccountDetails()
+  const { provider } = useProvider()
   const theme = useTheme()
   const trace = useTrace()
 
@@ -220,103 +223,103 @@ function AddLiquidity() {
       return
     }
 
-    if (position && account && deadline) {
-      const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
-      const { calldata, value } =
-        hasExistingPosition && tokenId
-          ? NonfungiblePositionManager.addCallParameters(position, {
-              tokenId,
-              slippageTolerance: allowedSlippage,
-              deadline: deadline.toString(),
-              useNative,
-            })
-          : NonfungiblePositionManager.addCallParameters(position, {
-              slippageTolerance: allowedSlippage,
-              recipient: account,
-              deadline: deadline.toString(),
-              useNative,
-              createPool: noLiquidity,
-            })
+    // if (position && account && deadline) {
+    //   const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
+    //   const { calldata, value } =
+    //     hasExistingPosition && tokenId
+    //       ? NonfungiblePositionManager.addCallParameters(position, {
+    //           tokenId,
+    //           slippageTolerance: allowedSlippage,
+    //           deadline: deadline.toString(),
+    //           useNative,
+    //         })
+    //       : NonfungiblePositionManager.addCallParameters(position, {
+    //           slippageTolerance: allowedSlippage,
+    //           recipient: account,
+    //           deadline: deadline.toString(),
+    //           useNative,
+    //           createPool: noLiquidity,
+    //         })
 
-      let txn: { to: string; data: string; value: string } = {
-        to: NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
-        data: calldata,
-        value,
-      }
+    //   let txn: { to: string; data: string; value: string } = {
+    //     to: NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
+    //     data: calldata,
+    //     value,
+    //   }
 
-      if (argentWalletContract) {
-        const amountA = parsedAmounts[Field.CURRENCY_A]
-        const amountB = parsedAmounts[Field.CURRENCY_B]
-        const batch = [
-          ...(amountA && amountA.currency.isToken
-            ? [approveAmountCalldata(amountA, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
-            : []),
-          ...(amountB && amountB.currency.isToken
-            ? [approveAmountCalldata(amountB, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
-            : []),
-          {
-            to: txn.to,
-            data: txn.data,
-            value: txn.value,
-          },
-        ]
-        const data = argentWalletContract.interface.encodeFunctionData('wc_multiCall', [batch])
-        txn = {
-          to: argentWalletContract.address,
-          data,
-          value: '0x0',
-        }
-      }
+    //   if (argentWalletContract) {
+    //     const amountA = parsedAmounts[Field.CURRENCY_A]
+    //     const amountB = parsedAmounts[Field.CURRENCY_B]
+    //     const batch = [
+    //       ...(amountA && amountA.currency.isToken
+    //         ? [approveAmountCalldata(amountA, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
+    //         : []),
+    //       ...(amountB && amountB.currency.isToken
+    //         ? [approveAmountCalldata(amountB, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
+    //         : []),
+    //       {
+    //         to: txn.to,
+    //         data: txn.data,
+    //         value: txn.value,
+    //       },
+    //     ]
+    //     const data = argentWalletContract.interface.encodeFunctionData('wc_multiCall', [batch])
+    //     txn = {
+    //       to: argentWalletContract.address,
+    //       data,
+    //       value: '0x0',
+    //     }
+    //   }
 
-      const connectedChainId = await provider.getSigner().getChainId()
-      if (chainId !== connectedChainId) {
-        throw new WrongChainError()
-      }
+    // const connectedChainId = await provider.getSigner().getChainId()
+    // if (chainId !== connectedChainId) {
+    //   throw new WrongChainError()
+    // }
 
-      setAttemptingTxn(true)
+    // setAttemptingTxn(true)
 
-      provider
-        .getSigner()
-        .estimateGas(txn)
-        .then((estimate) => {
-          const newTxn = {
-            ...txn,
-            gasLimit: calculateGasMargin(estimate),
-          }
+    // provider
+    //   .getSigner()
+    //   .estimateGas(txn)
+    //   .then((estimate) => {
+    //     const newTxn = {
+    //       ...txn,
+    //       gasLimit: calculateGasMargin(estimate),
+    //     }
 
-          return provider
-            .getSigner()
-            .sendTransaction(newTxn)
-            .then((response: TransactionResponse) => {
-              setAttemptingTxn(false)
-              const transactionInfo: TransactionInfo = {
-                type: TransactionType.ADD_LIQUIDITY_V3_POOL,
-                baseCurrencyId: currencyId(baseCurrency),
-                quoteCurrencyId: currencyId(quoteCurrency),
-                createPool: Boolean(noLiquidity),
-                expectedAmountBaseRaw: parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ?? '0',
-                expectedAmountQuoteRaw: parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ?? '0',
-                feeAmount: position.pool.fee,
-              }
-              addTransaction(response, transactionInfo)
-              setTxHash(response.hash)
-              sendAnalyticsEvent(LiquidityEventName.ADD_LIQUIDITY_SUBMITTED, {
-                label: [currencies[Field.CURRENCY_A]?.symbol, currencies[Field.CURRENCY_B]?.symbol].join('/'),
-                ...trace,
-                ...transactionInfo,
-              })
-            })
-        })
-        .catch((error) => {
-          console.error('Failed to send transaction', error)
-          setAttemptingTxn(false)
-          // we only care if the error is something _other_ than the user rejected the tx
-          if (error?.code !== 4001) {
-            console.error(error)
-          }
-        })
-    } else {
-    }
+    //     return provider
+    //       .getSigner()
+    //       .sendTransaction(newTxn)
+    //       .then((response: TransactionResponse) => {
+    //         setAttemptingTxn(false)
+    //         const transactionInfo: TransactionInfo = {
+    //           type: TransactionType.ADD_LIQUIDITY_V3_POOL,
+    //           baseCurrencyId: currencyId(baseCurrency),
+    //           quoteCurrencyId: currencyId(quoteCurrency),
+    //           createPool: Boolean(noLiquidity),
+    //           expectedAmountBaseRaw: parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ?? '0',
+    //           expectedAmountQuoteRaw: parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ?? '0',
+    //           feeAmount: position.pool.fee,
+    //         }
+    //         addTransaction(response, transactionInfo)
+    //         setTxHash(response.hash)
+    //         sendAnalyticsEvent(LiquidityEventName.ADD_LIQUIDITY_SUBMITTED, {
+    //           label: [currencies[Field.CURRENCY_A]?.symbol, currencies[Field.CURRENCY_B]?.symbol].join('/'),
+    //           ...trace,
+    //           ...transactionInfo,
+    //         })
+    //       })
+    //   })
+    //   .catch((error) => {
+    //     console.error('Failed to send transaction', error)
+    //     setAttemptingTxn(false)
+    //     // we only care if the error is something _other_ than the user rejected the tx
+    //     if (error?.code !== 4001) {
+    //       console.error(error)
+    //     }
+    //   })
+    // } else {
+    // }
   }
 
   const handleCurrencySelect = useCallback(

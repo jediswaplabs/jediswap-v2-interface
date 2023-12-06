@@ -2,7 +2,6 @@ import { BigintIsh, ChainId, CurrencyAmount, Token, TradeType } from '@vnaysn/je
 // This file is lazy-loaded, so the import of smart-order-router is intentional.
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { AlphaRouter, AlphaRouterConfig } from '@uniswap/smart-order-router'
-import { asSupportedChain } from 'constants/chains'
 import { DEPRECATED_RPC_PROVIDERS } from 'constants/providers'
 import { nativeOnChain } from 'constants/tokens'
 import JSBI from 'jsbi'
@@ -14,7 +13,7 @@ export function getRouter(chainId: ChainId): AlphaRouter {
   const router = routers.get(chainId)
   if (router) return router
 
-  const supportedChainId = asSupportedChain(chainId)
+  const supportedChainId = ChainId.MAINNET
   if (supportedChainId) {
     const provider = DEPRECATED_RPC_PROVIDERS[supportedChainId]
     const router = new AlphaRouter({ chainId, provider })
@@ -33,8 +32,8 @@ async function getQuote(
     amount: amountRaw,
   }: {
     tradeType: TradeType
-    tokenIn: { address: string; chainId: string; decimals: number; symbol?: string }
-    tokenOut: { address: string; chainId: string; decimals: number; symbol?: string }
+    tokenIn: { address: string; chainId: ChainId; decimals: number; symbol?: string }
+    tokenOut: { address: string; chainId: ChainId; decimals: number; symbol?: string }
     amount: BigintIsh
   },
   router: AlphaRouter,

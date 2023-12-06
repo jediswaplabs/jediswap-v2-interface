@@ -7,13 +7,13 @@ import {
   walletConnectV2Connection,
 } from 'connection'
 import { getChainInfo } from 'constants/chainInfo'
-import { isSupportedChain, SupportedInterfaceChain } from 'constants/chains'
+import { isSupportedChain } from 'constants/chains'
 import { FALLBACK_URLS, RPC_URLS } from 'constants/networks'
 import { useCallback } from 'react'
 import { useAppDispatch } from 'state/hooks'
 import { endSwitchingChain, startSwitchingChain } from 'state/wallets/reducer'
 
-function getRpcUrl(chainId: SupportedInterfaceChain): string {
+function getRpcUrl(chainId: ChainId): string {
   switch (chainId) {
     case ChainId.MAINNET:
     case ChainId.GOERLI:

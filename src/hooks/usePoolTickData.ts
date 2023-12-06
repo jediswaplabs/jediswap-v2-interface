@@ -1,4 +1,4 @@
-import { ChainId, Currency, V3_CORE_FACTORY_ADDRESSES } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount, nearestUsableTick, Pool, TICK_SPACINGS, tickToPrice } from '@vnaysn/jediswap-sdk-v3'
 import { useAccountDetails } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
@@ -13,6 +13,7 @@ import { useSingleContractMultipleData } from 'lib/hooks/multicall'
 import computeSurroundingTicks from 'utils/computeSurroundingTicks'
 import { useTickLens } from './useContract'
 import { PoolState, usePool } from './usePools'
+import { V3_CORE_FACTORY_ADDRESSES } from 'constants/addresses'
 
 const PRICE_FIXED_DIGITS = 8
 const CHAIN_IDS_MISSING_SUBGRAPH_DATA = [ChainId.MAINNET, ChainId.MAINNET]

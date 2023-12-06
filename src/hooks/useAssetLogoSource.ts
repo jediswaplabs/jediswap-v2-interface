@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { isAddress } from 'utils'
 
 import celoLogo from '../assets/svg/celo_logo.svg'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const BAD_SRCS: { [tokenAddress: string]: true } = {}
 
@@ -40,7 +41,7 @@ function prioritizeLogoSources(uris: string[]) {
 
 function getInitialUrl(
   address?: string | null,
-  chainId?: string | null,
+  chainId?: ChainId | null,
   isNative?: boolean,
   backupImg?: string | null
 ) {
@@ -49,7 +50,7 @@ function getInitialUrl(
   const networkName = chainId ? chainIdToNetworkName(chainId) : 'ethereum'
   const checksummedAddress = isAddress(address)
 
-  if (chainId && isCelo(chainId) && address === nativeOnChain(chainId).wrapped.address) {
+  if (chainId && address === nativeOnChain(chainId).wrapped.address) {
     return celoLogo
   }
 
@@ -62,7 +63,7 @@ function getInitialUrl(
 
 export default function useAssetLogoSource(
   address?: string | null,
-  chainId?: string | null,
+  chainId?: ChainId | null,
   isNative?: boolean,
   backupImg?: string | null
 ): [string | undefined, () => void] {

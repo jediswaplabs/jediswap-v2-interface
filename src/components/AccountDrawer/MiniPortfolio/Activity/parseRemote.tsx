@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 
 import UniswapXBolt from 'assets/svg/bolt.svg'
 import moonpayLogoSrc from 'assets/svg/moonpay.svg'
-import { NONFUNGIBLE_POSITION_MANAGER_ADDRESSES, nativeOnChain } from 'constants/tokens'
+import { nativeOnChain } from 'constants/tokens'
 import {
   ActivityType,
   AssetActivityPartsFragment,

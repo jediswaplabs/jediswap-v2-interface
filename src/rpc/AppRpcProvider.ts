@@ -1,6 +1,6 @@
 import { Network } from '@ethersproject/networks'
 import { JsonRpcProvider, Provider } from '@ethersproject/providers'
-import { SupportedInterfaceChain } from 'constants/chains'
+import { ChainId } from 'constants/chains'
 
 import AppStaticJsonRpcProvider from './StaticJsonRpcProvider'
 
@@ -53,7 +53,7 @@ export default class AppRpcProvider extends AppStaticJsonRpcProvider {
   providerEvaluations: ReadonlyArray<FallbackProviderEvaluation>
   readonly evaluationIntervalMs: number
 
-  constructor(chainId: SupportedInterfaceChain, providers: JsonRpcProvider[], evaluationIntervalMs = 30000) {
+  constructor(chainId: ChainId, providers: JsonRpcProvider[], evaluationIntervalMs = 30000) {
     if (providers.length === 0) throw new Error('providers array empty')
     providers.forEach((provider, i) => {
       if (!Provider.isProvider(provider)) throw new Error(`invalid provider ${i}`)

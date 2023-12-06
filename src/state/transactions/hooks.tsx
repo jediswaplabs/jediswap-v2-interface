@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { BigNumber } from '@ethersproject/bignumber'
 import type { TransactionResponse } from '@ethersproject/providers'
-import { ChainId, SUPPORTED_CHAINS, Token } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Token } from '@vnaysn/jediswap-sdk-core'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useMemo } from 'react'
 

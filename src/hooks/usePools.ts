@@ -1,5 +1,5 @@
 import { Interface } from '@ethersproject/abi'
-import { BigintIsh, Currency, Token, V3_CORE_FACTORY_ADDRESSES } from '@vnaysn/jediswap-sdk-core'
+import { BigintIsh, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import IUniswapV3PoolStateJSON from '@uniswap/v3-core/artifacts/contracts/interfaces/pool/IUniswapV3PoolState.sol/IUniswapV3PoolState.json'
 import { computePoolAddress } from '@vnaysn/jediswap-sdk-v3'
 import { FeeAmount, Pool } from '@vnaysn/jediswap-sdk-v3'
@@ -9,6 +9,7 @@ import { useMultipleContractSingleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
 
 import { IUniswapV3PoolStateInterface } from '../types/v3/IUniswapV3PoolState'
+import { V3_CORE_FACTORY_ADDRESSES } from 'constants/addresses'
 
 const POOL_STATE_INTERFACE = new Interface(IUniswapV3PoolStateJSON.abi) as IUniswapV3PoolStateInterface
 

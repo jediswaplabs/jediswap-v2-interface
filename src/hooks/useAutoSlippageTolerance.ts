@@ -4,7 +4,6 @@ import { Pair } from '@vnaysn/jediswap-sdk-v2'
 import { Pool } from '@vnaysn/jediswap-sdk-v3'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { SUPPORTED_GAS_ESTIMATE_CHAIN_IDS } from 'constants/chains'
-import { L2_CHAIN_IDS } from 'constants/chains'
 import JSBI from 'jsbi'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
 import { useMemo } from 'react'
@@ -12,6 +11,7 @@ import { ClassicTrade } from 'state/routing/types'
 
 import useGasPrice from './useGasPrice'
 import useStablecoinPrice, { useStablecoinAmountFromFiatValue, useStablecoinValue } from './useStablecoinPrice'
+import { L2_CHAIN_IDS } from 'constants/chainInfo'
 
 const DEFAULT_AUTO_SLIPPAGE = new Percent(5, 1000) // 0.5%
 
@@ -75,7 +75,7 @@ const MAX_AUTO_SLIPPAGE_TOLERANCE = new Percent(5, 100) // 5%
  */
 export default function useClassicAutoSlippageTolerance(trade?: ClassicTrade): Percent {
   const { chainId } = useAccountDetails()
-  const onL2 = chainId && L2_CHAIN_IDS.includes(chainId)
+  const onL2 = false
   const outputDollarValue = useStablecoinValue(trade?.outputAmount)
   const nativeGasPrice = useGasPrice()
 
@@ -99,8 +99,7 @@ export default function useClassicAutoSlippageTolerance(trade?: ClassicTrade): P
     // if valid estimate from api and using api trade, use gas estimate from api
     // NOTE - dont use gas estimate for L2s yet - need to verify accuracy
     // if not, use local heuristic
-    const dollarCostToUse =
-      chainId && SUPPORTED_GAS_ESTIMATE_CHAIN_IDS.includes(chainId) && gasEstimateUSD ? gasEstimateUSD : dollarGasCost
+    const dollarCostToUse = dollarGasCost
 
     if (outputDollarValue && dollarCostToUse) {
       // optimize for highest possible slippage without getting MEV'd

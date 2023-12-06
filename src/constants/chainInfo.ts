@@ -50,13 +50,7 @@ export interface L2ChainInfo extends BaseChainInfo {
  * Controls some L2 specific behavior, e.g. slippage tolerance, special UI behavior.
  * The expectation is that all of these networks have immediate transaction confirmation.
  */
-export const L2_CHAIN_IDS = [
-  // ChainId.MAINNET,
-  // ChainId.MAINNET,
-  // ChainId.MAINNET,
-  // ChainId.MAINNET,
-  // ChainId.MAINNET,
-] as const
+export const L2_CHAIN_IDS = [ChainId.MAINNET] as const
 
 export type SupportedL2ChainId = (typeof L2_CHAIN_IDS)[number]
 

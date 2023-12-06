@@ -2,12 +2,6 @@ import { validateAndParseAddress, constants } from 'starknet'
 import { ChainId, Currency, NativeCurrency, Percent, Token } from '@vnaysn/jediswap-sdk-core'
 
 // import { fortmatic, injected, portis, walletconnect, walletlink, argentX } from '../connectors'
-import { argentX, braavosWallet, argentWebWallet } from '../connectors'
-import ARGENTX_ICON from '../assets/images/argentx.png'
-import EMAIL_ICON from '../assets/images/mail.png'
-import BRAAVOS_ICON from '../assets/svg/Braavos.svg'
-import { InjectedConnector } from '@starknet-react/core'
-import { WebWalletConnector } from '@argent/starknet-react-webwallet-connector'
 import JSBI from 'jsbi'
 
 export const DEFAULT_CHAIN_ID = ChainId.MAINNET
@@ -17,6 +11,7 @@ export const UNIVERSAL_ROUTER_ADDRESS = '0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7
 export const isAvalanche = false
 export const isBsc = false
 export const isPolygon = false
+export const isCelo = false
 
 export const NATIVE_CHAIN_ID = 'NATIVE'
 
@@ -263,116 +258,6 @@ export const BASES_TO_BUILD_ZAPPER_LIST_AGAINST: ChainTokenList = {
 }
 
 export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {}
-
-export interface WalletInfo {
-  connector?: InjectedConnector | WebWalletConnector
-  name: string
-  icon: string
-  description: string
-  href: string | null
-  color: string
-  primary?: true
-  mobile?: true
-  mobileOnly?: true
-  size?: number
-  id: string
-}
-
-export const SUPPORTED_WALLETS: { [key: string]: WalletInfo } = {
-  argentX: {
-    connector: argentX,
-    name: 'Argent-X',
-    icon: ARGENTX_ICON,
-    description: 'Starknet Browser Wallet',
-    href: null,
-    color: '#FF875B',
-    mobile: true,
-    id: 'argentX',
-  },
-  argentWebWallet: {
-    connector: argentWebWallet,
-    name: 'Continue with email',
-    icon: EMAIL_ICON,
-    description: 'Starknet Browser Wallet',
-    href: null,
-    color: '#FF875B',
-    mobile: true,
-    id: 'argentWebWallet',
-  },
-  braavos: {
-    connector: braavosWallet,
-    name: 'Braavos',
-    icon: BRAAVOS_ICON,
-    description: 'Braavos Wallet for Starknet',
-    href: null,
-    color: '#E0B137',
-    size: 30,
-    mobile: true,
-    id: 'braavos',
-  },
-
-  // INJECTED: {
-  //   connector: injected,
-  //   name: 'Injected',
-  //   iconName: 'arrow-right.svg',
-  //   description: 'Injected web3 provider.',
-  //   href: null,
-  //   color: '#010101',
-  //   primary: true
-  // },
-  // METAMASK: {
-  //   connector: injected,
-  //   name: 'MetaMask',
-  //   iconName: 'metamask.png',
-  //   description: 'Easy-to-use browser extension.',
-  //   href: null,
-  //   color: '#E8831D'
-  // },
-  // WALLET_CONNECT: {
-  //   connector: walletconnect,
-  //   name: 'WalletConnect',
-  //   iconName: 'walletConnectIcon.svg',
-  //   description: 'Connect to Trust Wallet, Rainbow Wallet and more...',
-  //   href: null,
-  //   color: '#4196FC',
-  //   mobile: true
-  // },
-  // WALLET_LINK: {
-  //   connector: walletlink,
-  //   name: 'Coinbase Wallet',
-  //   iconName: 'coinbaseWalletIcon.svg',
-  //   description: 'Use Coinbase Wallet app on mobile device',
-  //   href: null,
-  //   color: '#315CF5'
-  // },
-  // COINBASE_LINK: {
-  //   name: 'Open in Coinbase Wallet',
-  //   iconName: 'coinbaseWalletIcon.svg',
-  //   description: 'Open in Coinbase Wallet app.',
-  //   href: 'https://go.cb-w.com/mtUDhEZPy1',
-  //   color: '#315CF5',
-  //   mobile: true,
-  //   mobileOnly: true
-  // },
-  // FORTMATIC: {
-  //   connector: fortmatic,
-  //   name: 'Fortmatic',
-  //   iconName: 'fortmaticIcon.png',
-  //   description: 'Login using Fortmatic hosted wallet',
-  //   href: null,
-  //   color: '#6748FF',
-  //   mobile: true
-  // },
-  // Portis: {
-  //   connector: portis,
-  //   name: 'Portis',
-  //   iconName: 'portisIcon.png',
-  //   description: 'Login using Portis hosted wallet',
-  //   href: null,
-  //   color: '#4A6C9B',
-  //   mobile: true
-  // },
-}
 
 export const NetworkContextName = 'NETWORK'
 

@@ -5,7 +5,7 @@ import { StaticJsonRpcProvider } from '@ethersproject/providers'
 import { isPlain } from '@reduxjs/toolkit'
 
 import { AVERAGE_L1_BLOCK_TIME } from '../constants/chainInfo'
-import { CHAIN_IDS_TO_NAMES, SupportedInterfaceChain } from '../constants/chains'
+import { CHAIN_IDS_TO_NAMES, ChainId } from '../constants/chains'
 
 export default class AppStaticJsonRpcProvider extends StaticJsonRpcProvider {
   private _blockCache = new Map<string, Promise<any>>()
@@ -18,7 +18,7 @@ export default class AppStaticJsonRpcProvider extends StaticJsonRpcProvider {
     return this._blockCache
   }
 
-  constructor(chainId: SupportedInterfaceChain, url: string) {
+  constructor(chainId: ChainId, url: string) {
     // Including networkish allows ethers to skip the initial detectNetwork call.
     super(url, /* networkish= */ { chainId, name: CHAIN_IDS_TO_NAMES[chainId] })
 

@@ -3,7 +3,6 @@ import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo'
 import { getChainInfo } from 'constants/chainInfo'
-import { asSupportedChain } from 'constants/chains'
 import { useStablecoinValue } from 'hooks/useStablecoinPrice'
 import useCurrencyBalance from 'lib/hooks/useCurrencyBalance'
 import { useMemo } from 'react'
@@ -64,7 +63,7 @@ const StyledNetworkLabel = styled.div`
 export default function BalanceSummary({ token }: { token: Currency }) {
   const { address: account, chainId } = useAccountDetails()
   const theme = useTheme()
-  const { label, color } = getChainInfo(asSupportedChain(chainId) ?? ChainId.MAINNET)
+  const { label, color } = getChainInfo(ChainId.MAINNET)
   const balance = useCurrencyBalance(account, token)
   const { formatCurrencyAmount } = useFormatter()
   const formattedBalance = formatCurrencyAmount({
