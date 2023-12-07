@@ -1,6 +1,6 @@
 import { TradeType } from '@vnaysn/jediswap-sdk-core'
 
-import { VoteOption } from '../governance/types'
+// import { VoteOption } from '../governance/types'
 
 export interface SerializableTransactionReceipt {
   to: string
@@ -50,13 +50,13 @@ interface BaseTransactionInfo {
   type: TransactionType
 }
 
-export interface VoteTransactionInfo extends BaseTransactionInfo {
-  type: TransactionType.VOTE
-  governorAddress: string
-  proposalId: number
-  decision: VoteOption
-  reason: string
-}
+// export interface VoteTransactionInfo extends BaseTransactionInfo {
+//   type: TransactionType.VOTE
+//   governorAddress: string
+//   proposalId: number
+//   decision: VoteOption
+//   reason: string
+// }
 
 export interface QueueTransactionInfo extends BaseTransactionInfo {
   type: TransactionType.QUEUE
@@ -185,7 +185,7 @@ export type TransactionInfo =
   | ExactOutputSwapTransactionInfo
   | ExactInputSwapTransactionInfo
   | ClaimTransactionInfo
-  | VoteTransactionInfo
+  // | VoteTransactionInfo
   | QueueTransactionInfo
   | ExecuteTransactionInfo
   | DelegateTransactionInfo

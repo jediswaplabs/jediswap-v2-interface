@@ -8,8 +8,8 @@ import { ExternalLink } from 'theme/components'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 
 import Circle from '../../assets/images/blue-loader.svg'
-import { useUserVotes, useVoteCallback } from '../../state/governance/hooks'
-import { VoteOption } from '../../state/governance/types'
+// import { useUserVotes, useVoteCallback } from '../../state/governance/hooks'
+// import { VoteOption } from '../../state/governance/types'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { ButtonPrimary } from '../Button'
 import { AutoColumn, ColumnCenter } from '../Column'
@@ -39,14 +39,14 @@ const ConfirmedIcon = styled(ColumnCenter)`
 interface VoteModalProps {
   isOpen: boolean
   onDismiss: () => void
-  voteOption?: VoteOption
+  // voteOption?: VoteOption
   proposalId?: string // id for the proposal to vote on
 }
 
-export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }: VoteModalProps) {
+export default function VoteModal({ isOpen, onDismiss, proposalId }: VoteModalProps) {
   const { chainId } = useAccountDetails()
-  const voteCallback = useVoteCallback()
-  const { votes: availableVotes } = useUserVotes()
+  // const voteCallback = useVoteCallback()
+  // const { votes: availableVotes } = useUserVotes()
 
   // monitor call to help UI loading state
   const [hash, setHash] = useState<string | undefined>()
@@ -66,24 +66,24 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }:
     setAttempting(true)
 
     // if callback not returned properly ignore
-    if (!voteCallback || voteOption === undefined) return
+    // if (!voteCallback || voteOption === undefined) return
 
-    // try delegation and store hash
-    const hash = await voteCallback(proposalId, voteOption)?.catch((error) => {
-      setAttempting(false)
-      console.log(error)
-    })
+    // // try delegation and store hash
+    // const hash = await voteCallback(proposalId, voteOption)?.catch((error) => {
+    //   setAttempting(false)
+    //   console.log(error)
+    // })
 
-    if (hash) {
-      setHash(hash)
-    }
+    // if (hash) {
+    //   setHash(hash)
+    // }
   }
 
   return (
     <Modal isOpen={isOpen} onDismiss={wrappedOnDismiss} maxHeight={90}>
       {!attempting && !hash && (
         <ContentWrapper gap="lg">
-          <AutoColumn gap="lg" justify="center">
+          {/* <AutoColumn gap="lg" justify="center">
             <RowBetween>
               <ThemedText.DeprecatedMediumHeader fontWeight={535}>
                 {voteOption === VoteOption.Against ? (
@@ -110,7 +110,7 @@ export default function VoteModal({ isOpen, onDismiss, proposalId, voteOption }:
                 )}
               </ThemedText.DeprecatedMediumHeader>
             </ButtonPrimary>
-          </AutoColumn>
+          </AutoColumn> */}
         </ContentWrapper>
       )}
       {attempting && !hash && (

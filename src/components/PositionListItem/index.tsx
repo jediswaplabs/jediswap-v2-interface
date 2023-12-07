@@ -181,25 +181,25 @@ export function getPriceOrderingFromPositionForUI(position?: Position): {
 
   // if token0 is a dollar-stable asset, set it as the quote token
   const stables = [DAI, USDC_MAINNET, USDT]
-  if (stables.some((stable) => stable.equals(token0))) {
-    return {
-      priceLower: position.token0PriceUpper.invert(),
-      priceUpper: position.token0PriceLower.invert(),
-      quote: token0,
-      base: token1,
-    }
-  }
+  // if (stables.some((stable) => stable.equals(token0))) {
+  //   return {
+  //     priceLower: position.token0PriceUpper.invert(),
+  //     priceUpper: position.token0PriceLower.invert(),
+  //     quote: token0,
+  //     base: token1,
+  //   }
+  // }
 
-  // if token1 is an ETH-/BTC-stable asset, set it as the base token
-  const bases = [...Object.values(WRAPPED_NATIVE_CURRENCY), WBTC]
-  if (bases.some((base) => base && base.equals(token1))) {
-    return {
-      priceLower: position.token0PriceUpper.invert(),
-      priceUpper: position.token0PriceLower.invert(),
-      quote: token0,
-      base: token1,
-    }
-  }
+  // // if token1 is an ETH-/BTC-stable asset, set it as the base token
+  // const bases = [...Object.values(WRAPPED_NATIVE_CURRENCY), WBTC]
+  // if (bases.some((base) => base && base.equals(token1))) {
+  //   return {
+  //     priceLower: position.token0PriceUpper.invert(),
+  //     priceUpper: position.token0PriceLower.invert(),
+  //     quote: token0,
+  //     base: token1,
+  //   }
+  // }
 
   // if both prices are below 1, invert
   if (position.token0PriceUpper.lessThan(1)) {

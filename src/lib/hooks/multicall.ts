@@ -15,24 +15,24 @@ export function useMultipleContractSingleData(
   ...args: SkipFirstTwoParams<typeof multicall.hooks.useMultipleContractSingleData>
 ) {
   const { chainId, latestBlock } = useCallContext()
-  return multicall.hooks.useMultipleContractSingleData(chainId, latestBlock, ...args)
+  return multicall.hooks.useMultipleContractSingleData(1, latestBlock, ...args)
 }
 
 export function useSingleCallResult(...args: SkipFirstTwoParams<typeof multicall.hooks.useSingleCallResult>) {
   const { chainId, latestBlock } = useCallContext()
-  return multicall.hooks.useSingleCallResult(chainId, latestBlock, ...args)
+  return multicall.hooks.useSingleCallResult(1, latestBlock, ...args)
 }
 
 export function useMainnetSingleCallResult(...args: SkipFirstTwoParams<typeof multicall.hooks.useSingleCallResult>) {
   const latestMainnetBlock = useMainnetBlockNumber()
-  return multicall.hooks.useSingleCallResult(ChainId.MAINNET, latestMainnetBlock, ...args)
+  return multicall.hooks.useSingleCallResult(1, latestMainnetBlock, ...args)
 }
 
 export function useSingleContractMultipleData(
   ...args: SkipFirstTwoParams<typeof multicall.hooks.useSingleContractMultipleData>
 ) {
   const { chainId, latestBlock } = useCallContext()
-  return multicall.hooks.useSingleContractMultipleData(chainId, latestBlock, ...args)
+  return multicall.hooks.useSingleContractMultipleData(1, latestBlock, ...args)
 }
 
 function useCallContext() {

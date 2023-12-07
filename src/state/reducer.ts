@@ -13,7 +13,7 @@ import { customCreateMigrate, migrations } from './migrations'
 import mint from './mint/reducer'
 import mintV3 from './mint/v3/reducer'
 import { quickRouteApi } from './routing/quickRouteSlice'
-import { routingApi } from './routing/slice'
+// import { routingApi } from './routing/slice'
 import signatures from './signatures/reducer'
 import transactions from './transactions/reducer'
 import user from './user/reducer'
@@ -35,7 +35,7 @@ const appReducer = combineReducers({
   burnV3,
   multicall: multicall.reducer,
   logs,
-  [routingApi.reducerPath]: routingApi.reducer,
+  // [routingApi.reducerPath]: routingApi.reducer,
   [quickRouteApi.reducerPath]: quickRouteApi.reducer,
   ...persistedReducers,
 })

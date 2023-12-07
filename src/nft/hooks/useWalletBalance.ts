@@ -12,20 +12,13 @@ interface WalletBalanceProps {
 }
 
 export function useWalletBalance(): WalletBalanceProps {
-  const { account: address, provider } = useAccountDetails()
-  const balanceString = useNativeCurrencyBalances(address ? [address] : [])?.[address ?? '']?.toSignificant(3) || '0'
+  const { account: address } = useAccountDetails()
+  // const balanceString = useNativeCurrencyBalances(address ? [address] : [])?.[address ?? '']?.toSignificant(3) || '0'
 
-  return address == null
-    ? {
-        address: '',
-        balance: '0',
-        weiBalance: parseEther('0'),
-        provider: undefined,
-      }
-    : {
-        address,
-        balance: balanceString,
-        weiBalance: parseEther(balanceString),
-        provider,
-      }
+  return {
+    address: '',
+    balance: '0',
+    weiBalance: parseEther('0'),
+    provider: undefined,
+  }
 }

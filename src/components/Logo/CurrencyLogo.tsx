@@ -1,5 +1,5 @@
 import { Currency } from '@vnaysn/jediswap-sdk-core'
-import { TokenInfo } from '@uniswap/token-lists'
+import {} from '@uniswap/token-lists'
 
 import AssetLogo, { AssetLogoBaseProps } from './AssetLogo'
 
@@ -14,7 +14,7 @@ export default function CurrencyLogo(
       chainId={props.currency?.chainId}
       address={props.currency?.wrapped.address}
       symbol={props.symbol ?? props.currency?.symbol}
-      backupImg={(props.currency as TokenInfo)?.logoURI}
+      // backupImg={(props.currency as Token)?.logoURI}
       {...props}
     />
   )

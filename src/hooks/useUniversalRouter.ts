@@ -4,7 +4,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { t } from '@lingui/macro'
 import { CustomUserProperties, SwapEventName } from '@uniswap/analytics-events'
 import { Percent } from '@vnaysn/jediswap-sdk-core'
-import { FlatFeeOptions, SwapRouter, UNIVERSAL_ROUTER_ADDRESS } from '@uniswap/universal-router-sdk'
+import { FlatFeeOptions, SwapRouter } from '@vnaysn/jediswap-router-sdk'
 import { FeeOptions, toHex } from '@vnaysn/jediswap-sdk-v3'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback } from 'react'
@@ -22,6 +22,7 @@ import isZero from 'utils/isZero'
 import { didUserReject, swapErrorToUserReadableMessage } from 'utils/swapErrorToUserReadableMessage'
 import { getWalletMeta } from 'utils/walletMeta'
 import { PermitSignature } from './usePermitAllowance'
+import { UNIVERSAL_ROUTER_ADDRESS } from 'constants/tokens'
 
 /** Thrown when gas estimation fails. This class of error usually requires an emulator to determine the root cause. */
 class GasEstimationError extends Error {
@@ -95,7 +96,7 @@ export function useUniversalRouterSwapCallback(
 
       const tx = {
         from: account,
-        to: UNIVERSAL_ROUTER_ADDRESS(chainId),
+        to: UNIVERSAL_ROUTER_ADDRESS,
         data,
         // TODO(https://github.com/Uniswap/universal-router-sdk/issues/113): universal-router-sdk returns a non-hexlified value.
         ...(value && !isZero(value) ? { value: toHex(value) } : {}),

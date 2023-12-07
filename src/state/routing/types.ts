@@ -278,79 +278,6 @@ export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
   }
 }
 
-export class DutchOrderTrade {
-  public readonly fillType = TradeFillType.UniswapX
-  quoteId?: string
-  requestId?: string
-  wrapInfo: WrapInfo
-  approveInfo: ApproveInfo
-  // The gas estimate of the reference classic trade, if there is one.
-  classicGasUseEstimateUSD?: number
-  auctionPeriodSecs: number
-  startTimeBufferSecs: number
-  deadlineBufferSecs: number
-  slippageTolerance: Percent
-
-  inputTax = ZERO_PERCENT
-  outputTax = ZERO_PERCENT
-  swapFee: SwapFeeInfo | undefined
-
-  constructor({
-    currencyIn,
-    currenciesOut,
-    // orderInfo,
-    tradeType,
-    quoteId,
-    requestId,
-    wrapInfo,
-    approveInfo,
-    classicGasUseEstimateUSD,
-    auctionPeriodSecs,
-    startTimeBufferSecs,
-    deadlineBufferSecs,
-    slippageTolerance,
-    swapFee,
-  }: {
-    currencyIn: Currency
-    currenciesOut: Currency[]
-    // orderInfo: DutchOrderInfo
-    tradeType: TradeType
-    quoteId?: string
-    requestId?: string
-    approveInfo: ApproveInfo
-    wrapInfo: WrapInfo
-    classicGasUseEstimateUSD?: number
-    auctionPeriodSecs: number
-    startTimeBufferSecs: number
-    deadlineBufferSecs: number
-    slippageTolerance: Percent
-    swapFee?: SwapFeeInfo
-  }) {
-    // super({ currencyIn, currenciesOut, orderInfo, tradeType })
-    this.quoteId = quoteId
-    this.requestId = requestId
-    this.approveInfo = approveInfo
-    this.wrapInfo = wrapInfo
-    this.classicGasUseEstimateUSD = classicGasUseEstimateUSD
-    this.auctionPeriodSecs = auctionPeriodSecs
-    this.deadlineBufferSecs = deadlineBufferSecs
-    this.slippageTolerance = slippageTolerance
-    this.startTimeBufferSecs = startTimeBufferSecs
-    this.swapFee = swapFee
-  }
-
-  public get totalGasUseEstimateUSD(): number {
-    if (this.wrapInfo.needsWrap && this.approveInfo.needsApprove) {
-      return this.wrapInfo.wrapGasEstimateUSD + this.approveInfo.approveGasEstimateUSD
-    }
-
-    if (this.wrapInfo.needsWrap) return this.wrapInfo.wrapGasEstimateUSD
-    if (this.approveInfo.needsApprove) return this.approveInfo.approveGasEstimateUSD
-
-    return 0
-  }
-}
-
 export class PreviewTrade {
   public readonly fillType = TradeFillType.None
   public readonly quoteMethod = QuoteMethod.QUICK_ROUTE
@@ -440,7 +367,7 @@ export class PreviewTrade {
   }
 }
 
-export type SubmittableTrade = ClassicTrade | DutchOrderTrade
+export type SubmittableTrade = ClassicTrade
 export type InterfaceTrade = SubmittableTrade | PreviewTrade
 
 export enum QuoteState {

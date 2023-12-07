@@ -6460,6 +6460,15 @@
     "@uniswap/v2-core" "1.0.1"
     "@uniswap/v3-core" "1.0.0"
 
+"@uniswap/universal-router@1.5.1":
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/@uniswap/universal-router/-/universal-router-1.5.1.tgz#2ce832485eb85093b0cb94a53be20661e1aece70"
+  integrity sha512-+htTC/nHQXKfY/c+9C1XHMRs7Jz0bX9LQfYn9Hb7WZKZ/YHWhOsCZQylYhksieLYTRam5sQheow747hOZ+QpZQ==
+  dependencies:
+    "@openzeppelin/contracts" "4.7.0"
+    "@uniswap/v2-core" "1.0.1"
+    "@uniswap/v3-core" "1.0.0"
+
 "@uniswap/v2-core@1.0.0":
   version "1.0.0"
   resolved "https://registry.npmjs.org/@uniswap/v2-core/-/v2-core-1.0.0.tgz"
@@ -6926,6 +6935,24 @@
     "@vnaysn/jediswap-sdk-core" "^9.0.0"
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
+
+"@vnaysn/jediswap-universal-router-sdk@^2.0.1":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@vnaysn/jediswap-universal-router-sdk/-/jediswap-universal-router-sdk-2.0.1.tgz#847332af284c52c22e4459aa457ab93c737b4951"
+  integrity sha512-2BgS4aZDdKkU1wZ/gP1gKOTvu4m0Nb65cOZ594ZjrN9K+95jw+odmdK0Vb0M933yhubCQ2RfWfzlei//L6MwlQ==
+  dependencies:
+    "@uniswap/permit2-sdk" "^1.2.0"
+    "@uniswap/router-sdk" "^1.6.0"
+    "@uniswap/sdk-core" "^4.0.0"
+    "@uniswap/universal-router" "1.5.1"
+    "@uniswap/v2-sdk" "^3.2.0"
+    "@uniswap/v3-sdk" "^3.10.0"
+    "@vnaysn/jediswap-router-sdk" "^2.0.0"
+    "@vnaysn/jediswap-sdk-core" "^9.0.0"
+    "@vnaysn/jediswap-sdk-v2" "^6.0.0"
+    "@vnaysn/jediswap-sdk-v3" "^6.0.0"
+    bignumber.js "^9.0.2"
+    ethers "^5.3.1"
 
 "@wagmi/chains@1.2.0":
   version "1.2.0"

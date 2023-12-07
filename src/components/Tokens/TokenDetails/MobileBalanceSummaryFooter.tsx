@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { Currency } from '@vnaysn/jediswap-sdk-core'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import { CHAIN_ID_TO_BACKEND_NAME } from 'graphql/data/util'
+// import { CHAIN_ID_TO_BACKEND_NAME } from 'graphql/data/util'
 import { useStablecoinValue } from 'hooks/useStablecoinPrice'
 import useCurrencyBalance from 'lib/hooks/useCurrencyBalance'
 import styled from 'styled-components'
@@ -93,7 +93,7 @@ export default function MobileBalanceSummaryFooter({ token }: { token: Currency 
     amount: useStablecoinValue(balance),
     type: NumberType.FiatTokenStats,
   })
-  const chain = CHAIN_ID_TO_BACKEND_NAME[token.chainId].toLowerCase()
+  const chain = ''
 
   return (
     <Wrapper>

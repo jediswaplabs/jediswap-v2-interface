@@ -1,8 +1,8 @@
 import { Network } from '@ethersproject/networks'
 import { JsonRpcProvider, Provider } from '@ethersproject/providers'
-import { ChainId } from 'constants/chains'
 
 import AppStaticJsonRpcProvider from './StaticJsonRpcProvider'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 function checkNetworks(networks: Array<Network>): Network | null {
   let result: Network | null = null

@@ -17,6 +17,7 @@ import { colors } from 'theme/colors'
 import { ThemedText } from 'theme/components'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { DetailBubble } from './shared'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const HeaderText = styled(Text)`
   font-weight: 485;
@@ -107,7 +108,7 @@ const StatHeaderBubble = styled(LoadingBubble)`
 interface PoolDetailsStatsProps {
   poolData?: PoolData
   isReversed?: boolean
-  chainId?: string
+  chainId?: ChainId
   loading?: boolean
 }
 

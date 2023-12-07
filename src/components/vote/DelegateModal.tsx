@@ -7,10 +7,10 @@ import styled from 'styled-components'
 import { ThemedText } from 'theme/components'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 
-import { UNI } from '../../constants/tokens'
+// import { UNI } from '../../constants/tokens'
 import useENS from '../../hooks/useENS'
 import { useTokenBalance } from '../../state/connection/hooks'
-import { useDelegateCallback } from '../../state/governance/hooks'
+// import { useDelegateCallback } from '../../state/governance/hooks'
 import AddressInputPanel from '../AddressInputPanel'
 import { ButtonPrimary } from '../Button'
 import { AutoColumn } from '../Column'
@@ -57,9 +57,9 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
   const { address: parsedAddress } = useENS(activeDelegate)
 
   // get the number of votes available to delegate
-  const uniBalance = useTokenBalance(account ?? undefined, chainId ? UNI[chainId] : undefined)
+  const uniBalance = useTokenBalance(account ?? undefined, undefined)
 
-  const delegateCallback = useDelegateCallback()
+  // const delegateCallback = useDelegateCallback()
 
   // monitor call to help UI loading state
   const [hash, setHash] = useState<string | undefined>()
@@ -76,17 +76,17 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
     setAttempting(true)
 
     // if callback not returned properly ignore
-    if (!delegateCallback) return
+    // if (!delegateCallback) return
 
     // try delegation and store hash
-    const hash = await delegateCallback(parsedAddress ?? undefined)?.catch((error) => {
-      setAttempting(false)
-      console.log(error)
-    })
+    // const hash = await delegateCallback(parsedAddress ?? undefined)?.catch((error) => {
+    //   setAttempting(false)
+    //   console.log(error)
+    // })
 
-    if (hash) {
-      setHash(hash)
-    }
+    // if (hash) {
+    //   setHash(hash)
+    // }
   }
 
   return (

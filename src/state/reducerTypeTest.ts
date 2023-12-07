@@ -19,7 +19,7 @@ import { Field as FieldV3 } from './mint/v3/actions'
 import { FullRange, MintState as MintV3State } from './mint/v3/reducer'
 import { AppState } from './reducer'
 import { quickRouteApi } from './routing/quickRouteSlice'
-import { routingApi } from './routing/slice'
+// import { routingApi } from './routing/slice'
 import { RouterPreference } from './routing/types'
 import { SignatureState } from './signatures/reducer'
 import { TransactionState } from './transactions/reducer'
@@ -61,7 +61,7 @@ type ExpectedAppState = CombinedState<{
   burnV3: BurnV3State
   multicall: ReturnType<typeof multicall.reducer>
   logs: LogsState
-  [routingApi.reducerPath]: ReturnType<typeof routingApi.reducer>
+  // [routingApi.reducerPath]: ReturnType<typeof routingApi.reducer>
   [quickRouteApi.reducerPath]: ReturnType<typeof quickRouteApi.reducer>
 }>
 

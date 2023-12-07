@@ -31,7 +31,7 @@ export const getPriceUpdateBasisPoints = (
 
 function getEstimatedNetworkFee(trade: InterfaceTrade) {
   if (isClassicTrade(trade)) return trade.gasUseEstimateUSD
-  if (isUniswapXTrade(trade)) return trade.classicGasUseEstimateUSD
+  // if (isUniswapXTrade(trade)) return trade.classicGasUseEstimateUSD
   return undefined
 }
 
@@ -43,7 +43,7 @@ export function formatCommonPropertiesForTrade(
   return {
     routing: trade.fillType,
     type: trade.tradeType,
-    ura_quote_id: isUniswapXTrade(trade) ? trade.quoteId : undefined,
+    ura_quote_id: undefined,
     ura_request_id: isSubmittableTrade(trade) ? trade.requestId : undefined,
     ura_quote_block_number: isClassicTrade(trade) ? trade.blockNumber : undefined,
     token_in_address: getTokenAddress(trade.inputAmount.currency),
@@ -51,7 +51,7 @@ export function formatCommonPropertiesForTrade(
     token_in_symbol: trade.inputAmount.currency.symbol,
     token_out_symbol: trade.outputAmount.currency.symbol,
     token_in_amount: formatToDecimal(trade.inputAmount, trade.inputAmount.currency.decimals),
-    token_out_amount: formatToDecimal(trade.postTaxOutputAmount, trade.outputAmount.currency.decimals),
+    token_out_amount: formatToDecimal(trade.outputAmount, trade.outputAmount.currency.decimals),
     price_impact_basis_points: isClassicTrade(trade)
       ? formatPercentInBasisPointsNumber(computeRealizedPriceImpact(trade))
       : undefined,

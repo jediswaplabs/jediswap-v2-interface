@@ -8,11 +8,11 @@ import { BIPS_BASE } from 'constants/misc'
 import { isAvalanche, isBsc, isPolygon, nativeOnChain } from 'constants/tokens'
 import { toSlippagePercent } from 'utils/slippage'
 
-import { getApproveInfo, getWrapInfo } from './gas'
+// import { getApproveInfo, getWrapInfo } from './gas'
 import {
   ClassicQuoteData,
   ClassicTrade,
-  DutchOrderTrade,
+  // DutchOrderTrade,
   GetQuickQuoteArgs,
   GetQuoteArgs,
   InterfaceTrade,
@@ -203,7 +203,9 @@ export function transformQuickRouteToTrade(args: GetQuickQuoteArgs, data: QuickR
   return new PreviewTrade({ inputAmount, outputAmount, tradeType, inputTax, outputTax })
 }
 
-export async function transformRoutesToTrade(args: GetQuoteArgs, data: URAQuoteResponse, quoteMethod: QuoteMethod) {}
+export async function transformRoutesToTrade(args: GetQuoteArgs, data: URAQuoteResponse, quoteMethod: QuoteMethod) {
+  return {}
+}
 
 function parseToken({ address, chainId, decimals, symbol }: ClassicQuoteData['route'][0][0]['tokenIn']): Token {
   return new Token(chainId, address, parseInt(decimals.toString()), symbol)
@@ -251,9 +253,9 @@ export function isPreviewTrade(trade?: InterfaceTrade): trade is PreviewTrade {
 }
 
 export function isSubmittableTrade(trade?: InterfaceTrade): trade is SubmittableTrade {
-  return trade?.fillType === TradeFillType.Classic || trade?.fillType === TradeFillType.UniswapX
+  return trade?.fillType === TradeFillType.Classic
 }
 
-export function isUniswapXTrade(trade?: InterfaceTrade): trade is DutchOrderTrade {
-  return trade?.fillType === TradeFillType.UniswapX
+export function isUniswapXTrade(trade?: InterfaceTrade) {
+  return false
 }

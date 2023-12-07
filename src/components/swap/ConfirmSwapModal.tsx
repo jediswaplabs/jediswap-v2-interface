@@ -89,17 +89,17 @@ function useConfirmModalState({
   // at the bottom of the modal, even after they complete steps 1 and 2.
   const generateRequiredSteps = useCallback(() => {
     const steps: PendingConfirmModalState[] = []
-    if (trade.fillType === TradeFillType.UniswapX && trade.wrapInfo.needsWrap) {
-      steps.push(ConfirmModalState.WRAPPING)
-    }
-    if (
-      allowance.state === AllowanceState.REQUIRED &&
-      allowance.needsSetupApproval &&
-      RESET_APPROVAL_TOKENS.some((token) => token.equals(allowance.token)) &&
-      allowance.allowedAmount.greaterThan(0)
-    ) {
-      steps.push(ConfirmModalState.RESETTING_TOKEN_ALLOWANCE)
-    }
+    // if (trade.fillType === TradeFillType.UniswapX && trade.wrapInfo.needsWrap) {
+    //   steps.push(ConfirmModalState.WRAPPING)
+    // }
+    // if (
+    //   allowance.state === AllowanceState.REQUIRED &&
+    //   allowance.needsSetupApproval &&
+    //   RESET_APPROVAL_TOKENS.some((token) => token.equals(allowance.token)) &&
+    //   allowance.allowedAmount.greaterThan(0)
+    // ) {
+    //   steps.push(ConfirmModalState.RESETTING_TOKEN_ALLOWANCE)
+    // }
     if (allowance.state === AllowanceState.REQUIRED && allowance.needsSetupApproval) {
       steps.push(ConfirmModalState.APPROVING_TOKEN)
     }

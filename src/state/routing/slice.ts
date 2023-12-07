@@ -151,7 +151,7 @@ export const routingApi = createApi({
 
           const uraQuoteResponse = response.data as URAQuoteResponse
           const tradeResult = await transformRoutesToTrade(args, uraQuoteResponse, QuoteMethod.ROUTING_API)
-          return { data: { ...tradeResult, latencyMs: getQuoteLatencyMeasure(quoteStartMark).duration } }
+          return { data: { latencyMs: getQuoteLatencyMeasure(quoteStartMark).duration } }
         } catch (error: any) {
           console.warn(
             `GetQuote failed on Unified Routing API, falling back to client: ${
@@ -164,10 +164,10 @@ export const routingApi = createApi({
           const { getRouter, getClientSideQuote } = await import('lib/hooks/routing/clientSideSmartOrderRouter')
           const router = getRouter(args.tokenInChainId)
           const quoteResult = await getClientSideQuote(args, router, CLIENT_PARAMS)
-          if (quoteResult.state === QuoteState.SUCCESS) {
-            const trade = await transformRoutesToTrade(args, quoteResult.data, QuoteMethod.CLIENT_SIDE_FALLBACK)
+          if (quoteResult && quoteResult.state === QuoteState.SUCCESS) {
+            // const trade = await transformRoutesToTrade(args, quoteResult.data, QuoteMethod.CLIENT_SIDE_FALLBACK)
             return {
-              data: { ...trade, latencyMs: getQuoteLatencyMeasure(quoteStartMark).duration },
+              data: { ...{}, latencyMs: getQuoteLatencyMeasure(quoteStartMark).duration },
             }
           } else {
             return { data: { ...quoteResult, latencyMs: getQuoteLatencyMeasure(quoteStartMark).duration } }

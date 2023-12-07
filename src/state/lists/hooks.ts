@@ -71,13 +71,7 @@ export function useCombinedActiveList(): TokenAddressMap {
 }
 
 // list of tokens not supported on interface for various reasons, used to show warnings and prevent swaps and adds
-export function useUnsupportedTokenList(): TokenAddressMap {
+export function useUnsupportedTokenList() {
   // get hard-coded broken tokens
-  const brokenListMap = useMemo(() => tokensToChainTokenMap(BROKEN_LIST), [])
-
-  // get dynamic list of unsupported tokens
-  const loadedUnsupportedListMap = useCombinedTokenMapFromUrls(UNSUPPORTED_LIST_URLS)
-
-  // format into one token address map
-  return useMemo(() => combineMaps(brokenListMap, loadedUnsupportedListMap), [brokenListMap, loadedUnsupportedListMap])
+  return [{}]
 }

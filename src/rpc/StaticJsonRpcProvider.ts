@@ -5,7 +5,8 @@ import { StaticJsonRpcProvider } from '@ethersproject/providers'
 import { isPlain } from '@reduxjs/toolkit'
 
 import { AVERAGE_L1_BLOCK_TIME } from '../constants/chainInfo'
-import { CHAIN_IDS_TO_NAMES, ChainId } from '../constants/chains'
+import { CHAIN_IDS_TO_NAMES } from '../constants/chains'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 export default class AppStaticJsonRpcProvider extends StaticJsonRpcProvider {
   private _blockCache = new Map<string, Promise<any>>()
@@ -20,7 +21,7 @@ export default class AppStaticJsonRpcProvider extends StaticJsonRpcProvider {
 
   constructor(chainId: ChainId, url: string) {
     // Including networkish allows ethers to skip the initial detectNetwork call.
-    super(url, /* networkish= */ { chainId, name: CHAIN_IDS_TO_NAMES[chainId] })
+    super(url /* networkish= */)
 
     // NB: Third-party providers (eg MetaMask) will have their own polling intervals,
     // which should be left as-is to allow operations (eg transaction confirmation) to resolve faster.
@@ -31,9 +32,6 @@ export default class AppStaticJsonRpcProvider extends StaticJsonRpcProvider {
   send(method: string, params: Array<any>): Promise<any> {
     // Only cache eth_call's.
     if (method !== 'eth_call') return super.send(method, params)
-
-    // Only cache if params are serializable.
-    if (!isPlain(params)) return super.send(method, params)
 
     const key = `call:${JSON.stringify(params)}`
     const cached = this.blockCache.get(key)

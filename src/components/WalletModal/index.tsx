@@ -53,7 +53,7 @@ export default function WalletModal({ openSettings }: { openSettings: () => void
   const fallbackProviderEnabled = useFallbackProviderEnabled()
   // Keep the network connector in sync with any active user connector to prevent chain-switching on wallet disconnection.
   useEffect(() => {
-    if (chainId && isSupportedChain(chainId) && connector !== networkConnection.connector) {
+    if (chainId && isSupportedChain(chainId)) {
       if (fallbackProviderEnabled) {
         networkConnection.connector.activate(chainId)
       } else {

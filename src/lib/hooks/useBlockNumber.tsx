@@ -4,6 +4,7 @@ import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
 import { useFallbackProviderEnabled } from 'featureFlags/flags/fallbackProvider'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { useProvider } from '@starknet-react/core'
 
 const MISSING_PROVIDER = Symbol()
 const BlockNumberContext = createContext<
@@ -37,7 +38,8 @@ export function useMainnetBlockNumber(): number | undefined {
 }
 
 export function BlockNumberProvider({ children }: { children: ReactNode }) {
-  const { chainId: activeChainId, provider } = useAccountDetails()
+  const { chainId: activeChainId } = useAccountDetails()
+  const { provider } = useProvider()
   const [{ chainId, block, mainnetBlock }, setChainBlock] = useState<{
     chainId?: string
     block?: number
@@ -73,21 +75,21 @@ export function BlockNumberProvider({ children }: { children: ReactNode }) {
         return chainBlock
       })
 
-      provider
-        .getBlockNumber()
-        .then((block) => {
-          if (!stale) onChainBlock(activeChainId, block)
-        })
-        .catch((error) => {
-          console.error(`Failed to get block number for chainId ${activeChainId}`, error)
-        })
+      // provider
+      //   .getBlockNumber()
+      //   .then((block) => {
+      //     if (!stale) onChainBlock(activeChainId, block)
+      //   })
+      //   .catch((error) => {
+      //     console.error(`Failed to get block number for chainId ${activeChainId}`, error)
+      //   })
 
-      const onBlock = (block: number) => onChainBlock(activeChainId, block)
-      provider.on('block', onBlock)
-      return () => {
-        stale = true
-        provider.removeListener('block', onBlock)
-      }
+      // const onBlock = (block: number) => onChainBlock(activeChainId, block)
+      // provider.on('block', onBlock)
+      // return () => {
+      //   stale = true
+      //   provider.removeListener('block', onBlock)
+      // }
     }
 
     return void 0

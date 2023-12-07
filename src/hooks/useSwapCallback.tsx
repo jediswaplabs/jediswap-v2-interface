@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
-import { FlatFeeOptions } from '@uniswap/universal-router-sdk'
+import { FlatFeeOptions } from '@vnaysn/jediswap-router-sdk'
 import { FeeOptions } from '@vnaysn/jediswap-sdk-v3'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { BigNumber } from 'ethers/lib/ethers'
@@ -92,13 +92,13 @@ export function useSwapCallback(
         ? {
             tradeType: TradeType.EXACT_INPUT,
             inputCurrencyAmountRaw: trade.inputAmount.quotient.toString(),
-            expectedOutputCurrencyAmountRaw: trade.postTaxOutputAmount.quotient.toString(),
+            expectedOutputCurrencyAmountRaw: trade.outputAmount.quotient.toString(),
             minimumOutputCurrencyAmountRaw: trade.minimumAmountOut(allowedSlippage).quotient.toString(),
           }
         : {
             tradeType: TradeType.EXACT_OUTPUT,
             maximumInputCurrencyAmountRaw: trade.maximumAmountIn(allowedSlippage).quotient.toString(),
-            outputCurrencyAmountRaw: trade.postTaxOutputAmount.quotient.toString(),
+            outputCurrencyAmountRaw: trade.outputAmount.quotient.toString(),
             expectedInputCurrencyAmountRaw: trade.inputAmount.quotient.toString(),
           }),
     }

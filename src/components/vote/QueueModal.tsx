@@ -7,7 +7,7 @@ import { CustomLightSpinner, ThemedText } from 'theme/components'
 import { ExternalLink } from 'theme/components'
 
 import Circle from '../../assets/images/blue-loader.svg'
-import { useQueueCallback } from '../../state/governance/hooks'
+// import { useQueueCallback } from '../../state/governance/hooks'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { ButtonPrimary } from '../Button'
 import { AutoColumn, ColumnCenter } from '../Column'
@@ -42,7 +42,7 @@ interface QueueModalProps {
 
 export default function QueueModal({ isOpen, onDismiss, proposalId }: QueueModalProps) {
   const { chainId } = useAccountDetails()
-  const queueCallback = useQueueCallback()
+  // const queueCallback = useQueueCallback()
 
   // monitor call to help UI loading state
   const [hash, setHash] = useState<string | undefined>()
@@ -62,17 +62,17 @@ export default function QueueModal({ isOpen, onDismiss, proposalId }: QueueModal
     setAttempting(true)
 
     // if callback not returned properly ignore
-    if (!queueCallback) return
+    // if (!queueCallback) return
 
-    // try delegation and store hash
-    const hash = await queueCallback(proposalId)?.catch((error) => {
-      setAttempting(false)
-      console.log(error)
-    })
+    // // try delegation and store hash
+    // const hash = await queueCallback(proposalId)?.catch((error) => {
+    //   setAttempting(false)
+    //   console.log(error)
+    // })
 
-    if (hash) {
-      setHash(hash)
-    }
+    // if (hash) {
+    //   setHash(hash)
+    // }
   }
 
   return (

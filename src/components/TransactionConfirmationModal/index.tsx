@@ -8,7 +8,6 @@ import styled, { useTheme } from 'styled-components'
 import Badge from 'components/Badge'
 import { ChainLogo } from 'components/Logo/ChainLogo'
 import { getChainInfo } from 'constants/chainInfo'
-import { SupportedL2ChainId } from 'constants/chains'
 import useCurrencyLogoURIs from 'lib/hooks/useCurrencyLogoURIs'
 import { useIsTransactionConfirmed, useTransaction } from 'state/transactions/hooks'
 import { ExternalLink, ThemedText, CloseIcon, CustomLightSpinner } from 'theme/components'
@@ -101,20 +100,20 @@ function TransactionSubmittedContent({
 
   const [success, setSuccess] = useState<boolean | undefined>()
 
-  const addToken = useCallback(() => {
-    if (!token?.symbol || !connector.watchAsset) {
-      return
-    }
-    connector
-      .watchAsset({
-        address: token.address,
-        symbol: token.symbol,
-        decimals: token.decimals,
-        image: logoURL,
-      })
-      .then(() => setSuccess(true))
-      .catch(() => setSuccess(false))
-  }, [connector, logoURL, token])
+  // const addToken = useCallback(() => {
+  //   if (!token?.symbol || !connector.watchAsset) {
+  //     return
+  //   }
+  //   connector
+  //     .watchAsset({
+  //       address: token.address,
+  //       symbol: token.symbol,
+  //       decimals: token.decimals,
+  //       image: logoURL,
+  //     })
+  //     .then(() => setSuccess(true))
+  //     .catch(() => setSuccess(false))
+  // }, [connector, logoURL, token])
 
   const explorerText = chainId === ChainId.MAINNET ? t`View on  Etherscan` : t`View on Block Explorer`
 
@@ -134,7 +133,7 @@ function TransactionSubmittedContent({
           <ThemedText.MediumHeader textAlign="center">
             <Trans>Transaction submitted</Trans>
           </ThemedText.MediumHeader>
-          {currencyToAdd && connector.watchAsset && (
+          {/* {currencyToAdd && connector.watchAsset && (
             <ButtonLight mt="12px" padding="6px 12px" width="fit-content" onClick={addToken}>
               {!success ? (
                 <RowFixed>
@@ -147,7 +146,7 @@ function TransactionSubmittedContent({
                 </RowFixed>
               )}
             </ButtonLight>
-          )}
+          )} */}
           <ButtonPrimary onClick={onDismiss} style={{ margin: '20px 0 0 0' }} data-testid="dismiss-tx-confirmation">
             <ThemedText.HeadlineSmall color={theme.deprecated_accentTextLightPrimary}>
               {inline ? <Trans>Return</Trans> : <Trans>Close</Trans>}
@@ -207,7 +206,7 @@ function L2Content({
 }: {
   onDismiss: () => void
   hash?: string
-  chainId: SupportedL2ChainId
+  chainId: ChainId
   currencyToAdd?: Currency
   pendingText: ReactNode
   inline?: boolean // not in modal

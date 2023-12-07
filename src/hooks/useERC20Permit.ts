@@ -6,7 +6,7 @@ import JSBI from 'jsbi'
 import { useSingleCallResult } from 'lib/hooks/multicall'
 import { useMemo, useState } from 'react'
 
-import { DAI, UNI, USDC_MAINNET } from '../constants/tokens'
+import { DAI, USDC_MAINNET } from '../constants/tokens'
 import { useEIP2612Contract } from './useContract'
 import useIsArgentWallet from './useIsArgentWallet'
 import { useProvider } from '@starknet-react/core'
@@ -33,15 +33,11 @@ const PERMITTABLE_TOKENS: {
   }
 } = {
   [ChainId.MAINNET]: {
-    [USDC_MAINNET.address]: { type: PermitType.AMOUNT, name: 'USD Coin', version: '2' },
-    [DAI.address]: { type: PermitType.ALLOWED, name: 'Dai Stablecoin', version: '1' },
-    [UNI[ChainId.MAINNET].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
+    // [USDC_MAINNET.address]: { type: PermitType.AMOUNT, name: 'USD Coin', version: '2' },
+    // [UNI[ChainId.MAINNET].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
   },
   [ChainId.GOERLI]: {
-    [UNI[ChainId.GOERLI].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
-  },
-  [ChainId.MAINNET]: {
-    [UNI[ChainId.MAINNET].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
+    // [UNI[ChainId.GOERLI].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
   },
 }
 
@@ -212,24 +208,24 @@ export function useERC20Permit(
           message,
         })
 
-        return provider
-          .send('eth_signTypedData_v4', [account, data])
-          .then(splitSignature)
-          .then((signature) => {
-            setSignatureData({
-              v: signature.v,
-              r: signature.r,
-              s: signature.s,
-              deadline: signatureDeadline,
-              ...(allowed ? { allowed } : { amount: value }),
-              nonce: nonceNumber,
-              chainId,
-              owner: account,
-              spender,
-              tokenAddress,
-              permitType: permitInfo.type,
-            })
-          })
+        // return provider
+        //   .send('eth_signTypedData_v4', [account, data])
+        //   .then(splitSignature)
+        //   .then((signature) => {
+        //     setSignatureData({
+        //       v: signature.v,
+        //       r: signature.r,
+        //       s: signature.s,
+        //       deadline: signatureDeadline,
+        //       ...(allowed ? { allowed } : { amount: value }),
+        //       nonce: nonceNumber,
+        //       chainId,
+        //       owner: account,
+        //       spender,
+        //       tokenAddress,
+        //       permitType: permitInfo.type,
+        //     })
+        //   })
       },
     }
   }, [

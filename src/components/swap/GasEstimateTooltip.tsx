@@ -4,7 +4,6 @@ import styled from 'styled-components'
 import { Gas } from 'components/Icons/Gas'
 import { LoadingOpacityContainer } from 'components/Loader/styled'
 import Row, { RowFixed } from 'components/Row'
-import { SUPPORTED_GAS_ESTIMATE_CHAIN_IDS } from 'constants/chains'
 import { SubmittableTrade } from 'state/routing/types'
 import { ThemedText } from 'theme/components'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
@@ -23,7 +22,7 @@ export default function GasEstimateTooltip({ trade, loading }: { trade?: Submitt
   const { chainId } = useAccountDetails()
   const { formatNumber } = useFormatter()
 
-  if (!trade || !chainId || !SUPPORTED_GAS_ESTIMATE_CHAIN_IDS.includes(chainId)) {
+  if (!trade || !chainId) {
     return null
   }
 

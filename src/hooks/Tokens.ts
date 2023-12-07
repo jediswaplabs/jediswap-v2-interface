@@ -94,49 +94,49 @@ type BridgeInfo = Record<
   }
 >
 
-export function useUnsupportedTokens(): { [address: string]: Token } {
-  const { chainId } = useAccountDetails()
-  const listsByUrl = useAllLists()
-  const unsupportedTokensMap = useUnsupportedTokenList()
-  const unsupportedTokens = useTokensFromMap(unsupportedTokensMap, chainId)
+// export function useUnsupportedTokens(): { [address: string]: Token } {
+//   const { chainId } = useAccountDetails()
+//   const listsByUrl = useAllLists()
+//   const unsupportedTokensMap = useUnsupportedTokenList()
+//   const unsupportedTokens = useTokensFromMap(unsupportedTokensMap, chainId)
 
-  // checks the default L2 lists to see if `bridgeInfo` has an L1 address value that is unsupported
-  const l2InferredBlockedTokens: typeof unsupportedTokens = useMemo(() => {
-    if (!chainId) {
-      return {}
-    }
+//   // checks the default L2 lists to see if `bridgeInfo` has an L1 address value that is unsupported
+//   const l2InferredBlockedTokens: typeof unsupportedTokens = useMemo(() => {
+//     if (!chainId) {
+//       return {}
+//     }
 
-    if (!listsByUrl) {
-      return {}
-    }
+//     if (!listsByUrl) {
+//       return {}
+//     }
 
-    const listUrl = getChainInfo(chainId).defaultListUrl
+//     const listUrl = getChainInfo(chainId).defaultListUrl
 
-    const list = listUrl && listsByUrl[listUrl]?.current
-    if (!list) {
-      return {}
-    }
+//     const list = listUrl && listsByUrl[listUrl]?.current
+//     if (!list) {
+//       return {}
+//     }
 
-    const unsupportedSet = new Set(Object.keys(unsupportedTokens))
+//     const unsupportedSet = new Set(Object.keys(unsupportedTokens))
 
-    return list.tokens.reduce((acc: any, tokenInfo: any) => {
-      const bridgeInfo = tokenInfo.extensions?.bridgeInfo as unknown as BridgeInfo
-      if (
-        bridgeInfo &&
-        bridgeInfo[ChainId.MAINNET] &&
-        bridgeInfo[ChainId.MAINNET].tokenAddress &&
-        unsupportedSet.has(bridgeInfo[ChainId.MAINNET].tokenAddress)
-      ) {
-        const address = bridgeInfo[ChainId.MAINNET].tokenAddress
-        // don't rely on decimals--it's possible that a token could be bridged w/ different decimals on the L2
-        return { ...acc, [address]: new Token(ChainId.MAINNET, address, tokenInfo.decimals) }
-      }
-      return acc
-    }, {})
-  }, [chainId, listsByUrl, unsupportedTokens])
+//     return list.tokens.reduce((acc: any, tokenInfo: any) => {
+//       const bridgeInfo = tokenInfo.extensions?.bridgeInfo as unknown as BridgeInfo
+//       if (
+//         bridgeInfo &&
+//         bridgeInfo[ChainId.MAINNET] &&
+//         bridgeInfo[ChainId.MAINNET].tokenAddress &&
+//         unsupportedSet.has(bridgeInfo[ChainId.MAINNET].tokenAddress)
+//       ) {
+//         const address = bridgeInfo[ChainId.MAINNET].tokenAddress
+//         // don't rely on decimals--it's possible that a token could be bridged w/ different decimals on the L2
+//         return { ...acc, [address]: new Token(ChainId.MAINNET, address, tokenInfo.decimals) }
+//       }
+//       return acc
+//     }, {})
+//   }, [chainId, listsByUrl, unsupportedTokens])
 
-  return { ...unsupportedTokens, ...l2InferredBlockedTokens }
-}
+//   return { ...unsupportedTokens, ...l2InferredBlockedTokens }
+// }
 
 export function useSearchInactiveTokenLists(search: string | undefined, minResults = 10): WrappedTokenInfo[] {
   const lists = useAllLists()

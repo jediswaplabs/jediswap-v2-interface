@@ -40,16 +40,7 @@ type FeeAmounts = [BigNumber, BigNumber]
 
 const MAX_UINT128 = BigNumber.from(2).pow(128).sub(1)
 
-const DEFAULT_CHAINS = [
-  ChainId.MAINNET,
-  ChainId.MAINNET,
-  ChainId.MAINNET,
-  ChainId.MAINNET,
-  ChainId.MAINNET,
-  ChainId.MAINNET,
-  ChainId.MAINNET,
-  ChainId.MAINNET,
-]
+const DEFAULT_CHAINS = [ChainId.MAINNET]
 
 type UseMultiChainPositionsData = { positions?: PositionInfo[]; loading: boolean }
 

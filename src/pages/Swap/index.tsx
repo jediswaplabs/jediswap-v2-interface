@@ -63,7 +63,7 @@ import { computeRealizedPriceImpact, warningSeverity } from 'utils/prices'
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
 import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
-import { UNIVERSAL_ROUTER_ADDRESS, getSwapCurrencyId } from 'constants/tokens'
+import { getSwapCurrencyId } from 'constants/tokens'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -314,7 +314,7 @@ export function Swap({
           }
         : {
             [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
-            [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.postTaxOutputAmount,
+            [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
           },
     [independentField, parsedAmount, showWrap, trade]
   )
@@ -347,7 +347,7 @@ export function Swap({
   )
 
   const fiatValueTradeInput = useUSDPrice(trade?.inputAmount)
-  const fiatValueTradeOutput = useUSDPrice(trade?.postTaxOutputAmount)
+  const fiatValueTradeOutput = useUSDPrice(trade?.outputAmount)
   const preTaxFiatValueTradeOutput = useUSDPrice(trade?.outputAmount)
   const [stablecoinPriceImpact, preTaxStablecoinPriceImpact] = useMemo(
     () =>

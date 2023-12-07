@@ -84,10 +84,10 @@ export function TokenDescription({
   const theme = useTheme()
   const color = useColor(currency?.wrapped, theme.surface1, theme.darkMode)
   const { data: tokenQuery } = useTokenProjectQuery({
-    variables: {
-      address: tokenAddress,
-      chain: chainIdToBackendName(chainId),
-    },
+    // variables: {
+    //   address: tokenAddress,
+    //   chain: chainIdToBackendName(chainId),
+    // },
     errorPolicy: 'all',
   })
   const tokenProject = tokenQuery?.token?.project

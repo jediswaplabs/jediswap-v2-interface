@@ -1,4 +1,5 @@
-import { ChainId, SOCKS_CONTROLLER_ADDRESSES, Token } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Token } from '@vnaysn/jediswap-sdk-core'
+import { SOCKS_CONTROLLER_ADDRESSES } from 'constants/addresses'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useMemo } from 'react'
 import { useTokenBalance } from 'state/connection/hooks'

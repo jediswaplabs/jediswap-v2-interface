@@ -17,16 +17,37 @@ import { CurrencyKey, currencyKey, currencyKeyFromGraphQL } from 'utils/currency
 import { PositionInfo } from './cache'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { MULTICALL_ADDRESSES, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/tokens'
+import { useProvider } from '@starknet-react/core'
 
 type ContractMap<T extends BaseContract> = { [key: string]: T }
 
 // Constructs a chain-to-contract map, using the wallet's provider when available
-function useContractMultichain<T extends BaseContract>(addressMap: AddressMap, ABI: any, chainIds?: ChainId[]) {
-  // const { chainId: walletChainId } = useAccountDetails()
+function useContractMultichain<T extends BaseContract>(
+  addressMap: AddressMap,
+  ABI: any,
+  chainIds?: ChainId[]
+): ContractMap<T> {
+  const { chainId: walletChainId } = useAccountDetails()
+  const { provider: walletProvider } = useProvider()
 
   const networkProviders = useFallbackProviderEnabled() ? RPC_PROVIDERS : DEPRECATED_RPC_PROVIDERS
 
-  return []
+  return useMemo(() => {
+    const relevantChains = chainIds ?? Object.keys(addressMap).filter((chainId) => isSupportedChain(chainId as ChainId))
+
+    return relevantChains.reduce((acc: ContractMap<T>, chainId) => {
+      // const provider =
+      //   walletProvider && walletChainId === chainId
+      //     ? walletProvider
+      //     : isSupportedChain(chainId as ChainId)
+      //     ? networkProviders[chainId]
+      //     : undefined
+      // if (provider) {
+      //   acc[chainId] = getContract(addressMap[chainId] ?? '', ABI, provider) as T
+      // }
+      return acc
+    }, {})
+  }, [ABI, addressMap, chainIds, networkProviders, walletChainId, walletProvider])
 }
 
 export function useV3ManagerContracts(chainIds: ChainId[]): ContractMap<NonfungiblePositionManager> {
@@ -37,12 +58,8 @@ export function useV3ManagerContracts(chainIds: ChainId[]): ContractMap<Nonfungi
   )
 }
 
-export function useInterfaceMulticallContracts(chainIds: ChainId[]): ContractMap<NonfungiblePositionManager> {
-  return useContractMultichain<NonfungiblePositionManager>(
-    NONFUNGIBLE_POSITION_MANAGER_ADDRESSES,
-    NFTPositionManagerJSON.abi,
-    chainIds
-  )
+export function useInterfaceMulticallContracts(chainIds: ChainId[]): ContractMap<UniswapInterfaceMulticall> {
+  return useContractMultichain<UniswapInterfaceMulticall>(MULTICALL_ADDRESSES, MulticallJSON.abi, chainIds)
 }
 
 type PriceMap = { [key: CurrencyKey]: number | undefined }

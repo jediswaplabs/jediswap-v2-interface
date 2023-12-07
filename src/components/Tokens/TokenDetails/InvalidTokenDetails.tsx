@@ -76,11 +76,11 @@ export default function InvalidTokenDetails({
               <Trans>This token doesn&apos;t exist on {connectedChainLabel}</Trans>
             </InvalidDetailsText>
           )}
-          <TokenExploreButton onClick={() => selectChain(pageChainId)}>
+          {/* <TokenExploreButton onClick={() => selectChain(pageChainId)}>
             <ThemedText.SubHeader>
               <Trans>Switch to {getChainInfo(pageChainId).label}</Trans>
             </ThemedText.SubHeader>
-          </TokenExploreButton>
+          </TokenExploreButton> */}
         </>
       )}
     </InvalidDetailsContainer>

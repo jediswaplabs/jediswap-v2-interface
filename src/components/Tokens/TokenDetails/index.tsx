@@ -41,6 +41,7 @@ import { SwapState } from 'state/swap/reducer'
 import { isAddress } from 'utils'
 import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
 import InvalidTokenDetails from './InvalidTokenDetails'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const TokenSymbol = styled.span`
   text-transform: uppercase;
@@ -72,7 +73,7 @@ function useOnChainToken(address: string | undefined, skip: boolean) {
 // Token will be null if still loading from on-chain, and undefined if unavailable
 function useRelevantToken(
   address: string | undefined,
-  pageChainId: number,
+  pageChainId: ChainId,
   tokenQueryData: TokenQueryData | undefined
 ) {
   const { chainId: activeChainId } = useAccountDetails()

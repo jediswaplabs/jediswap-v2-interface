@@ -42,7 +42,7 @@ export type AssetLogoBaseProps = {
   size?: string
   style?: React.CSSProperties
 }
-type AssetLogoProps = AssetLogoBaseProps & { isNative?: boolean; address?: string | null; chainId?: string }
+type AssetLogoProps = AssetLogoBaseProps & { isNative?: boolean; address?: string | null; chainId?: ChainId }
 
 const LogoContainer = styled.div`
   position: relative;

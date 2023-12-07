@@ -16,30 +16,5 @@ export default function useSelectChain() {
   const switchChain = useSwitchChain()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  return useCallback(
-    async (targetChain: ChainId) => {
-      if (!connector) return
-
-      const connection = getConnection(connector)
-
-      try {
-        await switchChain(connector, targetChain)
-        if (isSupportedChain(targetChain)) {
-          searchParams.set('chain', CHAIN_IDS_TO_NAMES[targetChain])
-          setSearchParams(searchParams)
-        }
-      } catch (error) {
-        if (!didUserReject(connection, error) && error.code !== -32002 /* request already pending */) {
-          console.error('Failed to switch networks', error)
-          dispatch(
-            addPopup({
-              content: { failedSwitchNetwork: targetChain, type: PopupType.FailedSwitchNetwork },
-              key: 'failed-network-switch',
-            })
-          )
-        }
-      }
-    },
-    [connector, dispatch, searchParams, setSearchParams, switchChain]
-  )
+  return undefined
 }

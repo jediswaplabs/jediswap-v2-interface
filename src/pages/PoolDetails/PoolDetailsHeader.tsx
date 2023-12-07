@@ -49,7 +49,7 @@ interface Token {
 }
 
 interface PoolDetailsHeaderProps {
-  chainId?: string
+  chainId?: ChainId
   poolAddress?: string
   token0?: Token
   token1?: Token
@@ -131,7 +131,7 @@ function DoubleCurrencyAndChainLogo({
   chainId,
   currencies,
 }: {
-  chainId: string
+  chainId: ChainId
   currencies: Array<Currency | undefined>
 }) {
   return (
@@ -168,7 +168,7 @@ function SquareL2Logo({ chainId }: { chainId: ChainId }) {
   )
 }
 
-function DoubleCurrencyLogo({ chainId, currencies }: { chainId: string; currencies: Array<Currency | undefined> }) {
+function DoubleCurrencyLogo({ chainId, currencies }: { chainId: ChainId; currencies: Array<Currency | undefined> }) {
   const [src, nextSrc] = useTokenLogoSource(currencies?.[0]?.wrapped.address, chainId, currencies?.[0]?.isNative)
   const [src2, nextSrc2] = useTokenLogoSource(currencies?.[1]?.wrapped.address, chainId, currencies?.[1]?.isNative)
 

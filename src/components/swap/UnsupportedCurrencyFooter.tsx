@@ -12,7 +12,7 @@ import styled from 'styled-components'
 import { CloseIcon, ExternalLink, ThemedText } from 'theme/components'
 import { Z_INDEX } from 'theme/zIndex'
 
-import { useUnsupportedTokens } from '../../hooks/Tokens'
+// import { useUnsupportedTokens } from '../../hooks/Tokens'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 
 const DetailsFooter = styled.div<{ show: boolean }>`
@@ -63,7 +63,7 @@ export default function UnsupportedCurrencyFooter({
         })
       : []
 
-  const unsupportedTokens = useUnsupportedTokens()
+  // const unsupportedTokens = useUnsupportedTokens()
 
   return (
     <DetailsFooter show={show}>
@@ -76,7 +76,7 @@ export default function UnsupportedCurrencyFooter({
               </ThemedText.DeprecatedMediumHeader>
               <CloseIcon onClick={() => setShowDetails(false)} data-testid="close-icon" />
             </RowBetween>
-            {tokens.map((token) => {
+            {/* {tokens.map((token) => {
               return (
                 token &&
                 unsupportedTokens &&
@@ -96,7 +96,7 @@ export default function UnsupportedCurrencyFooter({
                   </OutlineCard>
                 )
               )
-            })}
+            })} */}
             <AutoColumn gap="lg">
               <ThemedText.DeprecatedBody fontWeight={535}>
                 <Trans>

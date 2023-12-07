@@ -13,6 +13,7 @@ import { useCurrency } from 'hooks/Tokens'
 import { useSwitchChain } from 'hooks/useSwitchChain'
 import { BREAKPOINTS } from 'theme'
 import { currencyId } from 'utils/currencyId'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const PoolDetailsStatsButtonsRow = styled(Row)`
   gap: 12px;
@@ -35,7 +36,7 @@ const ButtonBubble = styled(LoadingBubble)`
 `
 
 interface PoolDetailsStatsButtonsProps {
-  chainId?: string
+  chainId?: ChainId
   token0?: Token
   token1?: Token
   feeTier?: number

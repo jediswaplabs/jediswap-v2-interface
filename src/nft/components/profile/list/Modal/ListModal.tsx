@@ -45,8 +45,8 @@ const ListModalWrapper = styled.div`
 `
 
 export const ListModal = ({ overlayClick }: { overlayClick: () => void }) => {
-  const { provider, chainId } = useAccountDetails()
-  const signer = provider?.getSigner()
+  const { chainId } = useAccountDetails()
+  // const signer = provider?.getSigner()
   const trace = useTrace({ modal: InterfaceModalName.NFT_LISTING })
   const { formatCurrencyAmount } = useFormatter()
   const sellAssets = useSellAsset((state) => state.sellAssets)
@@ -91,11 +91,11 @@ export const ListModal = ({ overlayClick }: { overlayClick: () => void }) => {
   )
 
   const signListings = async () => {
-    if (!signer || !provider) return
-    // sign listings
-    for (const listing of listings) {
-      await signListingRow(listing, signer, provider, getLooksRareNonce, setLooksRareNonce, setListingStatusAndCallback)
-    }
+    // if (!signer || !provider) return
+    // // sign listings
+    // for (const listing of listings) {
+    //   await signListingRow(listing, signer, provider, getLooksRareNonce, setLooksRareNonce, setListingStatusAndCallback)
+    // }
 
     sendAnalyticsEvent(NFTEventName.NFT_LISTING_COMPLETED, {
       signatures_approved: listings.filter((asset) => asset.status === ListingStatus.APPROVED),

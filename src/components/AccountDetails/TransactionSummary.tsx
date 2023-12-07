@@ -21,10 +21,10 @@ import {
   RemoveLiquidityV3TransactionInfo,
   TransactionInfo,
   TransactionType,
-  VoteTransactionInfo,
+  // VoteTransactionInfo,
   WrapTransactionInfo,
 } from '../../state/transactions/types'
-import { nativeOnChain } from '@uniswap/smart-order-router'
+// import { nativeOnChain } from '@uniswap/smart-order-router'
 
 function formatAmount(amountRaw: string, decimals: number, sigFigs: number): string {
   return new Fraction(amountRaw, JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(decimals))).toSignificant(sigFigs)
@@ -94,42 +94,42 @@ function ApprovalSummary({ info }: { info: ApproveTransactionInfo }) {
   )
 }
 
-function VoteSummary({ info }: { info: VoteTransactionInfo }) {
-  const proposalKey = `${info.governorAddress}/${info.proposalId}`
-  if (info.reason && info.reason.trim().length > 0) {
-    // switch (info.decision) {
-    //   case VoteOption.For:
-    //     return <Trans>Vote for proposal {proposalKey}</Trans>
-    //   case VoteOption.Abstain:
-    //     return <Trans>Vote to abstain on proposal {proposalKey}</Trans>
-    //   case VoteOption.Against:
-    //     return <Trans>Vote against proposal {proposalKey}</Trans>
-    // }
-  } else {
-    switch (
-      info.decision
-      //   case VoteOption.For:
-      //     return (
-      //       <Trans>
-      //         Vote for proposal {proposalKey} with reason &quot;{info.reason}&quot;
-      //       </Trans>
-      //     )
-      //   case VoteOption.Abstain:
-      //     return (
-      //       <Trans>
-      //         Vote to abstain on proposal {proposalKey} with reason &quot;{info.reason}&quot;
-      //       </Trans>
-      //     )
-      //   case VoteOption.Against:
-      //     return (
-      //       <Trans>
-      //         Vote against proposal {proposalKey} with reason &quot;{info.reason}&quot;
-      //       </Trans>
-      //     )
-    ) {
-    }
-  }
-}
+// function VoteSummary({ info }: { info: VoteTransactionInfo }) {
+//   const proposalKey = `${info.governorAddress}/${info.proposalId}`
+//   if (info.reason && info.reason.trim().length > 0) {
+//     // switch (info.decision) {
+//     //   case VoteOption.For:
+//     //     return <Trans>Vote for proposal {proposalKey}</Trans>
+//     //   case VoteOption.Abstain:
+//     //     return <Trans>Vote to abstain on proposal {proposalKey}</Trans>
+//     //   case VoteOption.Against:
+//     //     return <Trans>Vote against proposal {proposalKey}</Trans>
+//     // }
+//   } else {
+//     switch (
+//       info.decision
+//       //   case VoteOption.For:
+//       //     return (
+//       //       <Trans>
+//       //         Vote for proposal {proposalKey} with reason &quot;{info.reason}&quot;
+//       //       </Trans>
+//       //     )
+//       //   case VoteOption.Abstain:
+//       //     return (
+//       //       <Trans>
+//       //         Vote to abstain on proposal {proposalKey} with reason &quot;{info.reason}&quot;
+//       //       </Trans>
+//       //     )
+//       //   case VoteOption.Against:
+//       //     return (
+//       //       <Trans>
+//       //         Vote against proposal {proposalKey} with reason &quot;{info.reason}&quot;
+//       //       </Trans>
+//       //     )
+//     ) {
+//     }
+//   }
+// }
 
 function QueueSummary({ info }: { info: QueueTransactionInfo }) {
   const proposalKey = `${info.governorAddress}/${info.proposalId}`
@@ -147,32 +147,32 @@ function DelegateSummary({ info: { delegatee } }: { info: DelegateTransactionInf
 }
 
 function WrapSummary({ info: { chainId, currencyAmountRaw, unwrapped } }: { info: WrapTransactionInfo }) {
-  const native = chainId ? nativeOnChain(chainId) : undefined
+  // const native = chainId ? nativeOnChain(chainId) : undefined
 
   if (unwrapped) {
     return (
       <Trans>
         Unwrap{' '}
-        <FormattedCurrencyAmount
+        {/* <FormattedCurrencyAmount
           rawAmount={currencyAmountRaw}
           symbol={native?.wrapped?.symbol ?? 'WETH'}
           decimals={18}
           sigFigs={6}
         />{' '}
-        to {native?.symbol ?? 'ETH'}
+        to {native?.symbol ?? 'ETH'} */}
       </Trans>
     )
   } else {
     return (
       <Trans>
         Wrap{' '}
-        <FormattedCurrencyAmount
+        {/* <FormattedCurrencyAmount
           rawAmount={currencyAmountRaw}
           symbol={native?.symbol ?? 'ETH'}
           decimals={18}
           sigFigs={6}
         />{' '}
-        to {native?.wrapped?.symbol ?? 'WETH'}
+        to {native?.wrapped?.symbol ?? 'WETH'} */}
       </Trans>
     )
   }

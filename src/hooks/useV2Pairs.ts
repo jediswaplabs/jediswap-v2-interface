@@ -1,9 +1,10 @@
 import { Interface } from '@ethersproject/abi'
-import { Currency, CurrencyAmount, V2_FACTORY_ADDRESSES } from '@vnaysn/jediswap-sdk-core'
+import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import IUniswapV2PairJSON from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import { computePairAddress, Pair } from '@vnaysn/jediswap-sdk-v2'
 import { useMultipleContractSingleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
+import { V2_FACTORY_ADDRESSES } from 'constants/addresses'
 
 const PAIR_INTERFACE = new Interface(IUniswapV2PairJSON.abi)
 

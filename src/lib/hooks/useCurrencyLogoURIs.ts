@@ -16,20 +16,6 @@ export function chainIdToNetworkName(networkId: ChainId): Network {
   switch (networkId) {
     case ChainId.MAINNET:
       return 'ethereum'
-    case ChainId.MAINNET:
-      return 'arbitrum'
-    case ChainId.MAINNET:
-      return 'optimism'
-    case ChainId.MAINNET:
-      return 'polygon'
-    case ChainId.MAINNET:
-      return 'smartchain'
-    case ChainId.MAINNET:
-      return 'celo'
-    case ChainId.MAINNET:
-      return 'avalanchec'
-    case ChainId.MAINNET:
-      return 'base'
     default:
       return 'ethereum'
   }
@@ -62,9 +48,9 @@ function getTokenLogoURI(address: string, chainId: ChainId = ChainId.MAINNET): s
     ChainId.MAINNET,
     ChainId.MAINNET,
   ]
-  if (isCelo(chainId) && address === nativeOnChain(chainId).wrapped.address) {
-    return CeloLogo
-  }
+  // if (isCelo(chainId) && address === nativeOnChain(chainId).wrapped.address) {
+  //   return CeloLogo
+  // }
 
   if (networksWithUrls.includes(chainId)) {
     return `https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/${networkName}/assets/${address}/logo.png`
@@ -77,7 +63,7 @@ export default function useCurrencyLogoURIs(
         isNative?: boolean
         isToken?: boolean
         address?: string
-        chainId: string
+        chainId: ChainId
         logoURI?: string | null
       }
     | null

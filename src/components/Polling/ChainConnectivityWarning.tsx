@@ -52,7 +52,7 @@ const Wrapper = styled.div`
 export function ChainConnectivityWarning() {
   const { chainId } = useAccountDetails()
   const info = getChainInfoOrDefault(chainId)
-  const label = info?.label
+  // const label = info?.label
 
   return (
     <Wrapper>
@@ -63,19 +63,19 @@ export function ChainConnectivityWarning() {
         </TitleText>
       </TitleRow>
       <BodyRow>
-        {chainId === ChainId.MAINNET ? (
+        {/* {chainId === ChainId.MAINNET ? (
           <Trans>You may have lost your network connection.</Trans>
         ) : (
           <Trans>{label} might be down right now, or you may have lost your network connection.</Trans>
-        )}{' '}
-        {(info as L2ChainInfo).statusPage !== undefined && (
+        )}{' '} */}
+        {/* {(info as L2ChainInfo).statusPage !== undefined && (
           <span>
             <Trans>Check network status</Trans>{' '}
             <Link href={(info as L2ChainInfo).statusPage || ''}>
               <Trans>here.</Trans>
             </Link>
           </span>
-        )}
+        )} */}
       </BodyRow>
     </Wrapper>
   )

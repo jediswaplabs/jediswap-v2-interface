@@ -31,7 +31,6 @@ import {
   LogoContainer,
   PaperIcon,
 } from './Logos'
-import { TradeSummary } from './TradeSummary'
 import { TransitionText } from './TransitionText'
 
 export const PendingModalContainer = styled(ColumnCenter)`
@@ -139,18 +138,18 @@ function getPendingConfirmationContent({
   'swapConfirmed' | 'swapPending' | 'trade' | 'chainId' | 'swapResult' | 'swapError' | 'onRetryUniswapXSignature'
 >): PendingModalStep {
   const title = swapPending ? t`Swap submitted` : swapConfirmed ? t`Swap success!` : t`Confirm Swap`
-  const tradeSummary = trade ? <TradeSummary trade={trade} /> : null
-  if (swapPending && trade?.fillType === TradeFillType.UniswapX) {
-    return {
-      title,
-      subtitle: tradeSummary,
-      bottomLabel: (
-        <ExternalLink href="https://support.uniswap.org/hc/en-us/articles/17515415311501" color="neutral2">
-          <Trans>Learn more about swapping with UniswapX</Trans>
-        </ExternalLink>
-      ),
-    }
-  }
+  // const tradeSummary = trade ? <TradeSummary trade={trade} /> : null
+  // if (swapPending && trade?.fillType === TradeFillType.UniswapX) {
+  //   return {
+  //     title,
+  //     subtitle: tradeSummary,
+  //     bottomLabel: (
+  //       <ExternalLink href="https://support.uniswap.org/hc/en-us/articles/17515415311501" color="neutral2">
+  //         <Trans>Learn more about swapping with UniswapX</Trans>
+  //       </ExternalLink>
+  //     ),
+  //   }
+  // }
   if ((swapPending || swapConfirmed) && chainId && swapResult?.type === TradeFillType.Classic) {
     const explorerLink = (
       <ExternalLink

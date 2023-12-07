@@ -1,9 +1,9 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { UNIVERSAL_ROUTER_ADDRESS } from '@uniswap/universal-router-sdk'
 import gql from 'graphql-tag'
 
 import { isSupportedChain } from 'constants/chains'
 import { useNftUniversalRouterAddressQuery } from '../types-and-hooks'
+import { UNIVERSAL_ROUTER_ADDRESS } from 'constants/tokens'
 
 gql`
   query NftUniversalRouterAddress($chain: Chain = ETHEREUM) {
@@ -13,15 +13,16 @@ gql`
   }
 `
 
-export function getURAddress(chainId?: string, nftURAddress?: string): string | undefined {
+export function getURAddress(chainId?: ChainId, nftURAddress?: string): string | undefined {
   if (!chainId) {
     return undefined
   }
   // if mainnet and on NFT flow, use the contract address returned by GQL
-  if (chainId === ChainId.MAINNET) {
-    return nftURAddress ?? UNIVERSAL_ROUTER_ADDRESS(chainId)
-  }
-  return isSupportedChain(chainId) ? UNIVERSAL_ROUTER_ADDRESS(chainId) : undefined
+  // if (chainId === ChainId.MAINNET) {
+  //   return nftURAddress ?? UNIVERSAL_ROUTER_ADDRESS(chainId)
+  // }
+  // return isSupportedChain(chainId) ? UNIVERSAL_ROUTER_ADDRESS(chainId) : undefined
+  return undefined
 }
 
 export function useNftUniversalRouterAddress() {

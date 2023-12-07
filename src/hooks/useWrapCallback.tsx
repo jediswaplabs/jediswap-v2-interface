@@ -77,7 +77,7 @@ export default function useWrapCallback(
   if (error) throw error
 
   return useMemo(() => {
-    if (!wethContract || !chainId || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
+    if (!chainId || !inputCurrency || !outputCurrency) return NOT_APPLICABLE
     const weth = WRAPPED_NATIVE_CURRENCY[chainId]
     if (!weth) return NOT_APPLICABLE
 
@@ -93,81 +93,81 @@ export default function useWrapCallback(
       amount: inputAmount ? formatToDecimal(inputAmount, inputAmount?.currency.decimals) : undefined,
     }
 
-    if (inputCurrency.isNative && weth.equals(outputCurrency)) {
-      return {
-        wrapType: WrapType.WRAP,
-        execute:
-          sufficientBalance && inputAmount
-            ? async () => {
-                const network = await wethContract.provider.getNetwork()
-                if (
-                  network.chainId !== chainId ||
-                  wethContract.address !== WRAPPED_NATIVE_CURRENCY[network.chainId]?.address
-                ) {
-                  sendAnalyticsEvent(InterfaceEventName.WRAP_TOKEN_TXN_INVALIDATED, {
-                    ...eventProperties,
-                    contract_address: wethContract.address,
-                    contract_chain_id: network.chainId,
-                    type: WrapType.WRAP,
-                  })
-                  const error = new Error(`Invalid WETH contract
-Please file a bug detailing how this happened - https://github.com/Uniswap/interface/issues/new?labels=bug&template=bug-report.md&title=Invalid%20WETH%20contract`)
-                  setError(error)
-                  throw error
-                }
-                const txReceipt = await wethContract.deposit({ value: `0x${inputAmount.quotient.toString(16)}` })
-                addTransaction(txReceipt, {
-                  type: TransactionType.WRAP,
-                  unwrapped: false,
-                  currencyAmountRaw: inputAmount?.quotient.toString(),
-                  chainId,
-                })
-                sendAnalyticsEvent(InterfaceEventName.WRAP_TOKEN_TXN_SUBMITTED, {
-                  ...eventProperties,
-                  type: WrapType.WRAP,
-                })
-                return txReceipt.hash
-              }
-            : undefined,
-        inputError: sufficientBalance
-          ? undefined
-          : hasInputAmount
-          ? WrapInputError.INSUFFICIENT_NATIVE_BALANCE
-          : WrapInputError.ENTER_NATIVE_AMOUNT,
-      }
-    } else if (weth.equals(inputCurrency) && outputCurrency.isNative) {
-      return {
-        wrapType: WrapType.UNWRAP,
-        execute:
-          sufficientBalance && inputAmount
-            ? async () => {
-                try {
-                  const txReceipt = await wethContract.withdraw(`0x${inputAmount.quotient.toString(16)}`)
-                  addTransaction(txReceipt, {
-                    type: TransactionType.WRAP,
-                    unwrapped: true,
-                    currencyAmountRaw: inputAmount?.quotient.toString(),
-                    chainId,
-                  })
-                  sendAnalyticsEvent(InterfaceEventName.WRAP_TOKEN_TXN_SUBMITTED, {
-                    ...eventProperties,
-                    type: WrapType.UNWRAP,
-                  })
-                  return txReceipt.hash
-                } catch (error) {
-                  console.error('Could not withdraw', error)
-                  throw error
-                }
-              }
-            : undefined,
-        inputError: sufficientBalance
-          ? undefined
-          : hasInputAmount
-          ? WrapInputError.INSUFFICIENT_WRAPPED_BALANCE
-          : WrapInputError.ENTER_WRAPPED_AMOUNT,
-      }
-    } else {
-      return NOT_APPLICABLE
-    }
+    //     if (inputCurrency.isNative && weth.equals(outputCurrency)) {
+    //       return {
+    //         wrapType: WrapType.WRAP,
+    //         execute:
+    //           sufficientBalance && inputAmount
+    //             ? async () => {
+    //                 const network = await wethContract.provider.getNetwork()
+    //                 if (
+    //                   network.chainId !== chainId ||
+    //                   wethContract.address !== WRAPPED_NATIVE_CURRENCY[network.chainId]?.address
+    //                 ) {
+    //                   sendAnalyticsEvent(InterfaceEventName.WRAP_TOKEN_TXN_INVALIDATED, {
+    //                     ...eventProperties,
+    //                     contract_address: wethContract.address,
+    //                     contract_chain_id: network.chainId,
+    //                     type: WrapType.WRAP,
+    //                   })
+    //                   const error = new Error(`Invalid WETH contract
+    // Please file a bug detailing how this happened - https://github.com/Uniswap/interface/issues/new?labels=bug&template=bug-report.md&title=Invalid%20WETH%20contract`)
+    //                   setError(error)
+    //                   throw error
+    //                 }
+    //                 const txReceipt = await wethContract.deposit({ value: `0x${inputAmount.quotient.toString(16)}` })
+    //                 addTransaction(txReceipt, {
+    //                   type: TransactionType.WRAP,
+    //                   unwrapped: false,
+    //                   currencyAmountRaw: inputAmount?.quotient.toString(),
+    //                   chainId,
+    //                 })
+    //                 sendAnalyticsEvent(InterfaceEventName.WRAP_TOKEN_TXN_SUBMITTED, {
+    //                   ...eventProperties,
+    //                   type: WrapType.WRAP,
+    //                 })
+    //                 return txReceipt.hash
+    //               }
+    //             : undefined,
+    //         inputError: sufficientBalance
+    //           ? undefined
+    //           : hasInputAmount
+    //           ? WrapInputError.INSUFFICIENT_NATIVE_BALANCE
+    //           : WrapInputError.ENTER_NATIVE_AMOUNT,
+    //       }
+    //     } else if (weth.equals(inputCurrency) && outputCurrency.isNative) {
+    //       return {
+    //         wrapType: WrapType.UNWRAP,
+    //         execute:
+    //           sufficientBalance && inputAmount
+    //             ? async () => {
+    //                 try {
+    //                   const txReceipt = await wethContract.withdraw(`0x${inputAmount.quotient.toString(16)}`)
+    //                   addTransaction(txReceipt, {
+    //                     type: TransactionType.WRAP,
+    //                     unwrapped: true,
+    //                     currencyAmountRaw: inputAmount?.quotient.toString(),
+    //                     chainId,
+    //                   })
+    //                   sendAnalyticsEvent(InterfaceEventName.WRAP_TOKEN_TXN_SUBMITTED, {
+    //                     ...eventProperties,
+    //                     type: WrapType.UNWRAP,
+    //                   })
+    //                   return txReceipt.hash
+    //                 } catch (error) {
+    //                   console.error('Could not withdraw', error)
+    //                   throw error
+    //                 }
+    //               }
+    //             : undefined,
+    //         inputError: sufficientBalance
+    //           ? undefined
+    //           : hasInputAmount
+    //           ? WrapInputError.INSUFFICIENT_WRAPPED_BALANCE
+    //           : WrapInputError.ENTER_WRAPPED_AMOUNT,
+    //       }
+    //     } else {
+    return NOT_APPLICABLE
+    // }
   }, [wethContract, chainId, inputCurrency, outputCurrency, inputAmount, balance, addTransaction])
 }

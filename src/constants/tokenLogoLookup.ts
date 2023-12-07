@@ -1,6 +1,7 @@
 import store from 'state'
 
 import { DEFAULT_LIST_OF_LISTS } from './lists'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 class TokenLogoLookupTable {
   private dict: { [key: string]: string[] | undefined } = {}
@@ -29,7 +30,7 @@ class TokenLogoLookupTable {
     this.dict = dict
     this.initialized = true
   }
-  getIcons(address?: string | null, chainId: string | null = 1) {
+  getIcons(address?: string | null, chainId: string | null = ChainId.MAINNET) {
     if (!address) return undefined
 
     if (!this.initialized) {

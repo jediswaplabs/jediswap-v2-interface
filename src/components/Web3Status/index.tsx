@@ -91,10 +91,13 @@ function Web3StatusInner() {
   const connectionReady = useConnectionReady()
   const activeWeb3 = useAccountDetails()
   const lastWeb3 = useLast(useAccountDetails(), ignoreWhileSwitchingChain)
-  const { account, connector } = useMemo(() => (activeWeb3.account ? activeWeb3 : lastWeb3), [activeWeb3, lastWeb3])
+  const { address: account, connector } = useMemo(
+    () => (activeWeb3.account ? activeWeb3 : lastWeb3),
+    [activeWeb3, lastWeb3]
+  )
   const { address } = useAccountDetails()
   const { ENSName, loading: ENSLoading } = useENSName(account)
-  const connection = getConnection(connector)
+  // const connection = getConnection(connector)
 
   const [, toggleAccountDrawer] = useAccountDrawer()
   const handleWalletDropdownClick = useCallback(() => {
@@ -115,22 +118,22 @@ function Web3StatusInner() {
   )
   const isConnectionInitialized = connectionReady && !isConnectionInitializing
   // Clear the initial connection once initialized so it does not interfere with subsequent connections.
-  useEffect(() => {
-    if (isConnectionInitialized) {
-      initialConnection.current = undefined
-    }
-  }, [isConnectionInitialized])
-  // Persist the connection if it changes, so it can be used to initialize the next session's connection.
-  useEffect(() => {
-    if (account || ENSName) {
-      const meta: ConnectionMeta = {
-        type: connection.type,
-        address: account,
-        ENSName: ENSName ?? undefined,
-      }
-      setPersistedConnectionMeta(meta)
-    }
-  }, [ENSName, account, connection.type])
+  // useEffect(() => {
+  //   if (isConnectionInitialized) {
+  //     initialConnection.current = undefined
+  //   }
+  // }, [isConnectionInitialized])
+  // // Persist the connection if it changes, so it can be used to initialize the next session's connection.
+  // useEffect(() => {
+  //   if (account || ENSName) {
+  //     const meta: ConnectionMeta = {
+  //       type: connection.type,
+  //       address: account,
+  //       ENSName: ENSName ?? undefined,
+  //     }
+  //     setPersistedConnectionMeta(meta)
+  //   }
+  // }, [ENSName, account, connection.type])
 
   if (!isConnectionInitialized) {
     return (
@@ -155,9 +158,9 @@ function Web3StatusInner() {
         onClick={handleWalletDropdownClick}
         pending={hasPendingActivity}
       >
-        {!hasPendingActivity && connection && (
+        {/* {!hasPendingActivity && connection && (
           <StatusIcon account={address} size={24} connection={connection} showMiniIcons={false} />
-        )}
+        )} */}
         {hasPendingActivity ? (
           <RowBetween>
             <Text>

@@ -74,7 +74,7 @@ const UX_SUPPORTED_GQL_CHAINS = [...GQL_MAINNET_CHAINS, ...GQL_TESTNET_CHAINS] a
 export type InterfaceGqlChain = (typeof UX_SUPPORTED_GQL_CHAINS)[number]
 
 export function chainIdToBackendName(chainId: string | undefined) {
-  return DEFAULT_CHAIN_ID
+  return 'MAINNET'
 }
 
 const GQL_CHAINS = [ChainId.MAINNET] as const
