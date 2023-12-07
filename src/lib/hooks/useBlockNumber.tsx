@@ -1,10 +1,10 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { useAccountDetails } from 'hooks/starknet-react'
-import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
+// import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
 import { useFallbackProviderEnabled } from 'featureFlags/flags/fallbackProvider'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { useProvider } from '@starknet-react/core'
+import { publicProvider, useProvider } from '@starknet-react/core'
 
 const MISSING_PROVIDER = Symbol()
 const BlockNumberContext = createContext<
@@ -95,19 +95,19 @@ export function BlockNumberProvider({ children }: { children: ReactNode }) {
     return void 0
   }, [activeChainId, provider, windowVisible, onChainBlock])
 
-  const networkProviders = useFallbackProviderEnabled() ? RPC_PROVIDERS : DEPRECATED_RPC_PROVIDERS
+  const networkProviders = publicProvider()
 
-  useEffect(() => {
-    if (mainnetBlock === undefined) {
-      networkProviders[ChainId.MAINNET]
-        .getBlockNumber()
-        .then((block) => {
-          onChainBlock(ChainId.MAINNET, block)
-        })
-        // swallow errors - it's ok if this fails, as we'll try again if we activate mainnet
-        .catch(() => undefined)
-    }
-  }, [mainnetBlock, networkProviders, onChainBlock])
+  // useEffect(() => {
+  //   if (mainnetBlock === undefined) {
+  //     networkProviders[ChainId.MAINNET]
+  //       .getBlockNumber()
+  //       .then((block) => {
+  //         onChainBlock(ChainId.MAINNET, block)
+  //       })
+  //       // swallow errors - it's ok if this fails, as we'll try again if we activate mainnet
+  //       .catch(() => undefined)
+  //   }
+  // }, [mainnetBlock, networkProviders, onChainBlock])
 
   const value = useMemo(
     () => ({

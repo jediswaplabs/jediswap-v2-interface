@@ -9,7 +9,7 @@ import { useCallback, useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { useAllLists } from 'state/lists/hooks'
 
-import { useFetchListCallback } from '../../hooks/useFetchListCallback'
+// import { useFetchListCallback } from '../../hooks/useFetchListCallback'
 import useIsWindowVisible from '../../hooks/useIsWindowVisible'
 import { acceptListUpdate } from './actions'
 import { shouldAcceptVersionUpdate } from './utils'
@@ -29,15 +29,15 @@ export default function Updater(): null {
     if (rehydrated) TokenSafetyLookupTable.update(listsState)
   }, [listsState, rehydrated])
 
-  const fetchList = useFetchListCallback()
+  // const fetchList = useFetchListCallback()
   const fetchAllListsCallback = useCallback(() => {
     if (!isWindowVisible) return
     DEFAULT_LIST_OF_LISTS.forEach((url) => {
       // Skip validation on unsupported lists
       const isUnsupportedList = UNSUPPORTED_LIST_URLS.includes(url)
-      fetchList(url, isUnsupportedList).catch((error) => console.debug('interval list fetching error', error))
+      // fetchList(url, isUnsupportedList).catch((error) => console.debug('interval list fetching error', error))
     })
-  }, [fetchList, isWindowVisible])
+  }, [isWindowVisible])
 
   // fetch all lists every 10 minutes, but only after we initialize provider
   useInterval(fetchAllListsCallback, provider ? ms(`10m`) : null)
@@ -49,18 +49,18 @@ export default function Updater(): null {
     Object.keys(lists).forEach((listUrl) => {
       const list = lists[listUrl]
       if (!list.current && !list.loadingRequestId && !list.error) {
-        fetchList(listUrl).catch((error) => console.debug('list added fetching error', error))
+        // fetchList(listUrl).catch((error) => console.debug('list added fetching error', error))
       }
     })
     UNSUPPORTED_LIST_URLS.forEach((listUrl) => {
       const list = lists[listUrl]
       if (!list || (!list.current && !list.loadingRequestId && !list.error)) {
-        fetchList(listUrl, /* isUnsupportedList= */ true).catch((error) =>
-          console.debug('list added fetching error', error)
-        )
+        // fetchList(listUrl, /* isUnsupportedList= */ true).catch((error) =>
+        //   console.debug('list added fetching error', error)
+        // )
       }
     })
-  }, [dispatch, fetchList, lists, rehydrated])
+  }, [dispatch, lists, rehydrated])
 
   // automatically update lists if versions are minor/patch
   useEffect(() => {

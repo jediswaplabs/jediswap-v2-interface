@@ -3,7 +3,7 @@ import { useAccountDetails } from 'hooks/starknet-react'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { useMemo, useRef } from 'react'
 import { INTERNAL_ROUTER_PREFERENCE_PRICE } from 'state/routing/types'
-import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade'
+// import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade'
 
 import { USDC_MAINNET } from '../constants/tokens'
 
@@ -22,13 +22,13 @@ export default function useStablecoinPrice(currency?: Currency): Price<Currency,
   const amountOut = chainId ? STABLECOIN_AMOUNT_OUT[chainId] : undefined
   const stablecoin = amountOut?.currency
 
-  const { trade } = useRoutingAPITrade(
-    false /* skip */,
-    TradeType.EXACT_OUTPUT,
-    amountOut,
-    currency,
-    INTERNAL_ROUTER_PREFERENCE_PRICE
-  )
+  // const { trade } = useRoutingAPITrade(
+  //   false /* skip */,
+  //   TradeType.EXACT_OUTPUT,
+  //   amountOut,
+  //   currency,
+  //   INTERNAL_ROUTER_PREFERENCE_PRICE
+  // )
   const price = useMemo(() => {
     if (!currency || !stablecoin) {
       return undefined
@@ -46,7 +46,7 @@ export default function useStablecoinPrice(currency?: Currency): Price<Currency,
     // }
 
     return undefined
-  }, [currency, stablecoin, trade])
+  }, [currency, stablecoin])
 
   const lastPrice = useRef(price)
   if (

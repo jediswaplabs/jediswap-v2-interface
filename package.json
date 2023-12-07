@@ -213,7 +213,7 @@
     "@visx/react-spring": "^2.12.2",
     "@visx/responsive": "^2.10.0",
     "@visx/shape": "^2.11.1",
-    "@vnaysn/jediswap-router-sdk": "^2.0.0",
+    "@vnaysn/jediswap-router-sdk": "^3.0.0",
     "@vnaysn/jediswap-sdk-core": "^9.0.0",
     "@vnaysn/jediswap-sdk-v2": "^6.0.0",
     "@vnaysn/jediswap-sdk-v3": "^6.0.0",

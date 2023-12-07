@@ -1,11 +1,11 @@
-import type { TokenList } from '@uniswap/token-lists';
+import type { TokenList } from '@uniswap/token-lists'
 
-import contenthashToUri from 'lib/utils/contenthashToUri';
-import parseENSAddress from 'lib/utils/parseENSAddress';
-import uriToHttp from 'lib/utils/uriToHttp';
-import { validateTokenList } from 'utils/validateTokenList';
+import contenthashToUri from 'lib/utils/contenthashToUri'
+import parseENSAddress from 'lib/utils/parseENSAddress'
+import uriToHttp from 'lib/utils/uriToHttp'
+import { validateTokenList } from 'utils/validateTokenList'
 
-const listCache = new Map<string, TokenList>();
+const listCache = new Map<string, TokenList>()
 
 /**
  * Fetches and validates a token list.
@@ -16,69 +16,69 @@ export default async function fetchTokenList(
   listUrl: string,
   // eslint-disable-next-line no-unused-vars
   resolveENSContentHash: (ensName: string) => Promise<string>,
-  skipValidation?: boolean,
+  skipValidation?: boolean
 ): Promise<TokenList> {
-  const cached = listCache?.get(listUrl); // avoid spurious re-fetches
+  const cached = listCache?.get(listUrl) // avoid spurious re-fetches
   if (cached) {
-    return cached;
+    return cached
   }
 
-  let urls: string[];
-  const parsedENS = parseENSAddress(listUrl);
+  let urls: string[]
+  const parsedENS = parseENSAddress(listUrl)
   if (parsedENS) {
-    let contentHashUri;
+    let contentHashUri
     try {
-      contentHashUri = await resolveENSContentHash(parsedENS.ensName);
+      contentHashUri = await resolveENSContentHash(parsedENS.ensName)
     } catch (error) {
-      const message = `failed to resolve ENS name: ${parsedENS.ensName}`;
-      console.debug(message, error);
-      throw new Error(message);
+      const message = `failed to resolve ENS name: ${parsedENS.ensName}`
+      console.debug(message, error)
+      throw new Error(message)
     }
-    let translatedUri;
+    let translatedUri
     try {
-      translatedUri = contenthashToUri(contentHashUri);
+      translatedUri = contenthashToUri(contentHashUri)
     } catch (error) {
-      const message = `failed to translate contenthash to URI: ${contentHashUri}`;
-      console.debug(message, error);
-      throw new Error(message);
+      const message = `failed to translate contenthash to URI: ${contentHashUri}`
+      console.debug(message, error)
+      throw new Error(message)
     }
-    urls = uriToHttp(`${translatedUri}${parsedENS.ensPath ?? ''}`);
+    urls = uriToHttp(`${translatedUri}${parsedENS.ensPath ?? ''}`)
   } else {
-    urls = uriToHttp(listUrl);
+    urls = uriToHttp(listUrl)
   }
 
   if (urls.length === 0) {
-    throw new Error('Unrecognized list URL protocol.');
+    throw new Error('Unrecognized list URL protocol.')
   }
 
   // Try each of the derived URLs until one succeeds.
   for (let i = 0; i < urls.length; i++) {
-    const url = urls[i];
-    let response;
+    const url = urls[i]
+    let response
     try {
-      response = await fetch(url, { credentials: 'omit' });
+      response = await fetch(url, { credentials: 'omit' })
     } catch (error) {
-      console.debug(`failed to fetch list: ${listUrl} (${url})`, error);
-      continue;
+      console.debug(`failed to fetch list: ${listUrl} (${url})`, error)
+      continue
     }
 
     if (!response.ok) {
-      console.debug(`failed to fetch list ${listUrl} (${url})`, response.statusText);
-      continue;
+      console.debug(`failed to fetch list ${listUrl} (${url})`, response.statusText)
+      continue
     }
 
     try {
       // The content of the result is sometimes invalid even with a 200 status code.
       // A response can be invalid if it's not a valid JSON or if it doesn't match the TokenList schema.
-      const json = await response.json();
-      const list = skipValidation ? json : validateTokenList(json);
-      listCache?.set(listUrl, list);
-      return list;
+      const json = await response.json()
+      const list = skipValidation ? json : validateTokenList(json)
+      listCache?.set(listUrl, list)
+      return list
     } catch (error) {
-      console.debug(`failed to parse and validate list response: ${listUrl} (${url})`, error);
-      continue;
+      console.debug(`failed to parse and validate list response: ${listUrl} (${url})`, error)
+      continue
     }
   }
 
-  throw new Error(`No valid token list found at any URLs derived from ${listUrl}.`);
+  throw new Error(`No valid token list found at any URLs derived from ${listUrl}.`)
 }

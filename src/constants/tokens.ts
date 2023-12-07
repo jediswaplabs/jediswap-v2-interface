@@ -54,20 +54,8 @@ type ChainTokenList = {
 }
 
 export const WETH: { [chainId in ChainId]: Token } = {
-  [ChainId.GOERLI]: new Token(
-    ChainId.GOERLI,
-    '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
-    18,
-    'ETH',
-    'ETHER'
-  ),
-  [ChainId.MAINNET]: new Token(
-    ChainId.MAINNET,
-    '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
-    18,
-    'ETH',
-    'ETHER'
-  ),
+  [ChainId.GOERLI]: new Token(ChainId.GOERLI, '0xd0A1E359811322d97991E03f863a0C30C2cF029C', 18, 'ETH', 'ETHER'),
+  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 18, 'ETH', 'ETHER'),
 }
 
 export const WRAPPED_NATIVE_CURRENCY: { [chainId: string]: Token | undefined } = {
@@ -77,81 +65,39 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: string]: Token | undefined } =
 export const DAI = {
   [ChainId.GOERLI]: new Token(
     ChainId.GOERLI,
-    '0x03e85bfbb8e2a42b7bead9e88e9a1b19dbccf661471061807292120462396ec9',
+    '0x6B175474E89094C44Da98b954EedeAC495271d0F',
     18,
     'DAI',
     'Dai Stablecoin'
   ),
   [ChainId.MAINNET]: new Token(
     ChainId.MAINNET,
-    '0x00da114221cb83fa859dbdb4c44beeaa0bb37c7537ad5ae66fe5e0efd20e6eb3',
+    '0x6B175474E89094C44Da98b954EedeAC495271d0F',
     18,
     'DAI',
     'Dai Stablecoin'
   ),
 }
 export const USDC = {
-  [ChainId.GOERLI]: new Token(
-    ChainId.GOERLI,
-    '0x005a643907b9a4bc6a55e9069c4fd5fd1f5c79a22470690f75556c4736e34426',
-    6,
-    'USDC',
-    'USD//C'
-  ),
-  [ChainId.MAINNET]: new Token(
-    ChainId.MAINNET,
-    '0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8',
-    6,
-    'USDC',
-    'USD//C'
-  ),
+  [ChainId.GOERLI]: new Token(ChainId.GOERLI, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDC', 'USD//C'),
+  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDC', 'USD//C'),
 }
 
 export const USDT = {
-  [ChainId.GOERLI]: new Token(
-    ChainId.GOERLI,
-    '0x386e8d061177f19b3b485c20e31137e6f6bc497cc635ccdfcab96fadf5add6a',
-    6,
-    'USDT',
-    'Tether USD'
-  ),
-  [ChainId.MAINNET]: new Token(
-    ChainId.MAINNET,
-    '0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8',
-    6,
-    'USDT',
-    'Tether USD'
-  ),
+  [ChainId.GOERLI]: new Token(ChainId.GOERLI, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDT', 'Tether USD'),
+  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDT', 'Tether USD'),
 }
 
 export const WBTC = {
-  [ChainId.GOERLI]: new Token(
-    ChainId.GOERLI,
-    '0x12D537dC323c439DC65c976FAD242D5610D27cFb5f31689A0A319B8be7F3D56',
-    8,
-    'WBTC',
-    'Wrapped BTC'
-  ),
-  [ChainId.MAINNET]: new Token(
-    ChainId.MAINNET,
-    '0x03fe2B97c1Fd336e750087d68B9B867997Fd64a2661fF3CA5a7C771641E8e7Ac',
-    8,
-    'WBTC',
-    'Wrapped BTC'
-  ),
+  [ChainId.GOERLI]: new Token(ChainId.GOERLI, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 8, 'WBTC', 'Wrapped BTC'),
+  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 8, 'WBTC', 'Wrapped BTC'),
 }
 
 export const wstETH = {
-  [ChainId.GOERLI]: new Token(
-    ChainId.GOERLI,
-    '0x12D537dC323c439DC65c976FAD242D5610D27cFb5f31689A0A319B8be7F3D56',
-    18,
-    'USDT',
-    'Tether USD'
-  ),
+  [ChainId.GOERLI]: new Token(ChainId.GOERLI, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'USDT', 'Tether USD'),
   [ChainId.MAINNET]: new Token(
     ChainId.MAINNET,
-    '0x042b8F0484674Ca266ac5D08E4ac6A3fE65bd3129795def2dCA5c34ecc5f96d2',
+    '0x6B175474E89094C44Da98b954EedeAC495271d0F',
     18,
     'wstETH',
     'Wrapped stETH'

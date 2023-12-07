@@ -6896,6 +6896,20 @@
     "@vnaysn/jediswap-sdk-v2" "^6.0.0"
     "@vnaysn/jediswap-sdk-v3" "^6.0.0"
 
+"@vnaysn/jediswap-router-sdk@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@vnaysn/jediswap-router-sdk/-/jediswap-router-sdk-3.0.0.tgz#44bf322c7d63936b721f4e7862929db0b9e5719e"
+  integrity sha512-M9QshPjjC7815hKrAmj8KHTA8nQkD1Goj6Z4DY2VL9FWDvCwRY7W4p1iOXWfimPTZ6/FymzSqCVWrv96LX0P6Q==
+  dependencies:
+    "@ethersproject/abi" "^5.5.0"
+    "@jediswap/sdk" "^2.3.5"
+    "@uniswap/sdk-core" "^4.0.7"
+    "@uniswap/swap-router-contracts" "^1.1.0"
+    "@uniswap/v3-sdk" "^3.10.0"
+    "@vnaysn/jediswap-sdk-core" "^9.0.0"
+    "@vnaysn/jediswap-sdk-v2" "^6.0.0"
+    "@vnaysn/jediswap-sdk-v3" "^6.0.0"
+
 "@vnaysn/jediswap-sdk-core@^9.0.0":
   version "9.0.0"
   resolved "https://registry.yarnpkg.com/@vnaysn/jediswap-sdk-core/-/jediswap-sdk-core-9.0.0.tgz#b99cb31efa0ccda16aa853a89c10a426bd07ddef"

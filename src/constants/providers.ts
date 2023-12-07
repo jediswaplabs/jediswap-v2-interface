@@ -10,15 +10,15 @@ const providerFactory = (chainId: ChainId, i = 0) => new AppStaticJsonRpcProvide
 /**
  * These are the only JsonRpcProviders used directly by the interface.
  */
-export const RPC_PROVIDERS: { [key in ChainId]: StaticJsonRpcProvider } = {
-  [ChainId.MAINNET]: new AppRpcProvider(ChainId.MAINNET, [
-    providerFactory(ChainId.MAINNET),
-    providerFactory(ChainId.MAINNET, 1),
-  ]),
-  [ChainId.GOERLI]: providerFactory(ChainId.GOERLI),
-}
+// export const RPC_PROVIDERS: { [key in ChainId]: StaticJsonRpcProvider } = {
+//   [ChainId.MAINNET]: new AppRpcProvider(ChainId.MAINNET, [
+//     providerFactory(ChainId.MAINNET),
+//     providerFactory(ChainId.MAINNET, 1),
+//   ]),
+//   [ChainId.GOERLI]: providerFactory(ChainId.GOERLI),
+// }
 
-export const DEPRECATED_RPC_PROVIDERS: { [key in ChainId]: AppStaticJsonRpcProvider } = {
-  [ChainId.MAINNET]: providerFactory(ChainId.MAINNET),
-  [ChainId.GOERLI]: providerFactory(ChainId.GOERLI),
-}
+// export const DEPRECATED_RPC_PROVIDERS: { [key in ChainId]: AppStaticJsonRpcProvider } = {
+//   [ChainId.MAINNET]: providerFactory(ChainId.MAINNET),
+//   [ChainId.GOERLI]: providerFactory(ChainId.GOERLI),
+// }

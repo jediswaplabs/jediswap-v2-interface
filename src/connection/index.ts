@@ -14,17 +14,18 @@ import UNIWALLET_ICON from 'assets/wallets/uniswap-wallet-icon.png'
 import WALLET_CONNECT_ICON from 'assets/wallets/walletconnect-icon.svg'
 import { isMobile, isNonIOSPhone } from 'utils/userAgent'
 import { RPC_URLS } from '../constants/networks'
-import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from '../constants/providers'
+// import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from '../constants/providers'
 import { Connection, ConnectionType } from './types'
 import { getInjection, getIsCoinbaseWallet, getIsInjected, getIsMetaMaskWallet } from './utils'
 import { UniwalletConnect as UniwalletWCV2Connect, WalletConnectV2 } from './WalletConnectV2'
+import { publicProvider } from '@starknet-react/core'
 
 function onError(error: Error) {
   console.debug(`web3-react error: ${error}`)
 }
 
 const [web3Network, web3NetworkHooks] = initializeConnector<Network>(
-  (actions) => new Network({ actions, urlMap: RPC_PROVIDERS, defaultChainId: 1 })
+  (actions) => new Network({ actions, urlMap: [''], defaultChainId: 1 })
 )
 export const networkConnection: Connection = {
   getName: () => 'Network',
@@ -35,7 +36,7 @@ export const networkConnection: Connection = {
 }
 
 const [deprecatedWeb3Network, deprecatedWeb3NetworkHooks] = initializeConnector<Network>(
-  (actions) => new Network({ actions, urlMap: DEPRECATED_RPC_PROVIDERS, defaultChainId: 1 })
+  (actions) => new Network({ actions, urlMap: [''], defaultChainId: 1 })
 )
 export const deprecatedNetworkConnection: Connection = {
   getName: () => 'Network',

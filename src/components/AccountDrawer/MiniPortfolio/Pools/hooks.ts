@@ -6,7 +6,7 @@ import { BaseContract } from 'ethers/lib/ethers'
 import { useMemo } from 'react'
 
 import { isSupportedChain } from 'constants/chains'
-import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
+// import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
 import { useFallbackProviderEnabled } from 'featureFlags/flags/fallbackProvider'
 import { ContractInput, useUniswapPricesQuery } from 'graphql/data/types-and-hooks'
 import { toContractInput } from 'graphql/data/util'
@@ -17,7 +17,7 @@ import { CurrencyKey, currencyKey, currencyKeyFromGraphQL } from 'utils/currency
 import { PositionInfo } from './cache'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { MULTICALL_ADDRESSES, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/tokens'
-import { useProvider } from '@starknet-react/core'
+import { publicProvider, useProvider } from '@starknet-react/core'
 
 type ContractMap<T extends BaseContract> = { [key: string]: T }
 
@@ -30,7 +30,7 @@ function useContractMultichain<T extends BaseContract>(
   const { chainId: walletChainId } = useAccountDetails()
   const { provider: walletProvider } = useProvider()
 
-  const networkProviders = useFallbackProviderEnabled() ? RPC_PROVIDERS : DEPRECATED_RPC_PROVIDERS
+  const networkProviders = publicProvider()
 
   return useMemo(() => {
     const relevantChains = chainIds ?? Object.keys(addressMap).filter((chainId) => isSupportedChain(chainId as ChainId))

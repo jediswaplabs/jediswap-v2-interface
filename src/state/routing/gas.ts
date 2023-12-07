@@ -4,7 +4,7 @@ import ERC20_ABI from 'abis/erc20.json'
 import { Erc20, Weth } from 'abis/types'
 import WETH_ABI from 'abis/weth.json'
 // import { ChainId } from 'constants/chains'
-import { DEPRECATED_RPC_PROVIDERS } from 'constants/providers'
+// import { DEPRECATED_RPC_PROVIDERS } from 'constants/providers'
 import { WRAPPED_NATIVE_CURRENCY } from 'constants/tokens'
 import { getContract } from 'utils'
 

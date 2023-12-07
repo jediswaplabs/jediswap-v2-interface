@@ -6,7 +6,7 @@ import { updateVersion } from './global/actions'
 import { sentryEnhancer } from './logging'
 import reducer from './reducer'
 import { quickRouteApi } from './routing/quickRouteSlice'
-import { routingApi } from './routing/slice'
+// import { routingApi } from './routing/slice'
 
 export function createDefaultStore() {
   return configureStore({

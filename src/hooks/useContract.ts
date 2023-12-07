@@ -27,14 +27,14 @@ import ERC1155_ABI from 'abis/erc1155.json'
 import { ArgentWalletDetector, EnsPublicResolver, EnsRegistrar, Erc20, Erc721, Erc1155, Weth } from 'abis/types'
 import WETH_ABI from 'abis/weth.json'
 import { sendAnalyticsEvent } from 'analytics'
-import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
+// import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
 import { useFallbackProviderEnabled } from 'featureFlags/flags/fallbackProvider'
 import { useEffect, useMemo } from 'react'
 import { NonfungiblePositionManager, TickLens, UniswapInterfaceMulticall } from 'types/v3'
 import { V3Migrator } from 'types/v3/V3Migrator'
 import { getContract } from 'utils'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { useProvider } from '@starknet-react/core'
+import { publicProvider, useProvider } from '@starknet-react/core'
 import { useWeb3React } from '@web3-react/core'
 
 const { abi: IUniswapV2PairABI } = IUniswapV2PairJson
@@ -72,18 +72,19 @@ function useMainnetContract<T extends Contract = Contract>(address: string | und
   const { chainId } = useAccountDetails()
   const isMainnet = chainId === ChainId.MAINNET
   const contract = useContract(isMainnet ? address : undefined, ABI, false)
-  const providers = useFallbackProviderEnabled() ? RPC_PROVIDERS : DEPRECATED_RPC_PROVIDERS
+  const providers = publicProvider()
 
   return useMemo(() => {
     if (isMainnet) return contract
     if (!address) return null
-    const provider = providers[ChainId.MAINNET]
-    try {
-      return getContract(address, ABI, provider)
-    } catch (error) {
-      console.error('Failed to get mainnet contract', error)
-      return null
-    }
+    const { provider } = useProvider()
+    // try {
+    //   return getContract(address, ABI, provider)
+    // } catch (error) {
+    //   console.error('Failed to get mainnet contract', error)
+    //   return null
+    // }
+    return null
   }, [isMainnet, contract, address, providers, ABI]) as T
 }
 

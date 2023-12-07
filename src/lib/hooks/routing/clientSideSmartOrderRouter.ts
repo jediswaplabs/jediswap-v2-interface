@@ -2,7 +2,7 @@ import { BigintIsh, ChainId, CurrencyAmount, Token, TradeType } from '@vnaysn/je
 // This file is lazy-loaded, so the import of smart-order-router is intentional.
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { AlphaRouter, AlphaRouterConfig } from '@uniswap/smart-order-router'
-import { DEPRECATED_RPC_PROVIDERS } from 'constants/providers'
+// import { DEPRECATED_RPC_PROVIDERS } from 'constants/providers'
 import { nativeOnChain } from 'constants/tokens'
 import JSBI from 'jsbi'
 import { GetQuoteArgs, QuoteResult, QuoteState, SwapRouterNativeAssets } from 'state/routing/types'
@@ -14,12 +14,12 @@ export function getRouter(chainId: ChainId): AlphaRouter {
   if (router) return router
 
   const supportedChainId = ChainId.MAINNET
-  if (supportedChainId) {
-    const provider = DEPRECATED_RPC_PROVIDERS[supportedChainId]
-    const router = new AlphaRouter({ chainId, provider })
-    routers.set(chainId, router)
-    return router
-  }
+  // if (supportedChainId) {
+  //   const provider = DEPRECATED_RPC_PROVIDERS[supportedChainId]
+  //   const router = new AlphaRouter({ chainId, provider })
+  //   routers.set(chainId, router)
+  //   return router
+  // }
 
   throw new Error(`Router does not support this chain (chainId: ${chainId}).`)
 }

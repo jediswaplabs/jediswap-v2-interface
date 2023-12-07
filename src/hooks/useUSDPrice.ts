@@ -6,7 +6,7 @@ import { nativeOnChain } from 'constants/tokens'
 import { Chain, useTokenSpotPriceQuery } from 'graphql/data/types-and-hooks'
 import { chainIdToBackendName, isGqlSupportedChain, PollingInterval } from 'graphql/data/util'
 import { INTERNAL_ROUTER_PREFERENCE_PRICE, TradeState } from 'state/routing/types'
-import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade'
+// import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade'
 import { getNativeTokenDBAddress } from 'utils/nativeTokens'
 import useStablecoinPrice from './useStablecoinPrice'
 
@@ -24,22 +24,22 @@ function useETHPrice(currency?: Currency): {
   const isSupported = currency && isGqlSupportedChain(chainId)
 
   const amountOut = isSupported && chainId ? ETH_AMOUNT_OUT[chainId] : undefined
-  const { trade, state } = useRoutingAPITrade(
-    !isSupported /* skip */,
-    TradeType.EXACT_OUTPUT,
-    amountOut,
-    currency,
-    INTERNAL_ROUTER_PREFERENCE_PRICE
-  )
+  // const { trade, state } = useRoutingAPITrade(
+  //   !isSupported /* skip */,
+  //   TradeType.EXACT_OUTPUT,
+  //   amountOut,
+  //   currency,
+  //   INTERNAL_ROUTER_PREFERENCE_PRICE
+  // )
 
   return useMemo(() => {
     if (!isSupported) {
       return { data: undefined, isLoading: false }
     }
 
-    if (!trade || state === TradeState.LOADING) {
-      return { data: undefined, isLoading: state === TradeState.LOADING }
-    }
+    // if (!trade || state === TradeState.LOADING) {
+    //   return { data: undefined, isLoading: state === TradeState.LOADING }
+    // }
 
     // if initial quoting fails, we may end up with a DutchOrderTrade
     // if (trade && trade instanceof ClassicTrade) {
@@ -49,7 +49,7 @@ function useETHPrice(currency?: Currency): {
     // }
 
     return { data: undefined, isLoading: false }
-  }, [chainId, currency, isSupported, state, trade])
+  }, [chainId, currency, isSupported])
 }
 
 export function useUSDPrice(
