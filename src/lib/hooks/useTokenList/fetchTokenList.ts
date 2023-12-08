@@ -15,48 +15,17 @@ const listCache = new Map<string, TokenList>()
 export default async function fetchTokenList(
   listUrl: string,
   // eslint-disable-next-line no-unused-vars
-  resolveENSContentHash: (ensName: string) => Promise<string>,
+  resolveENSContentHash?: (ensName: string) => Promise<string>,
   skipValidation?: boolean
 ): Promise<TokenList> {
-  const cached = listCache?.get(listUrl) // avoid spurious re-fetches
-  if (cached) {
-    return cached
-  }
-
-  let urls: string[]
-  const parsedENS = parseENSAddress(listUrl)
-  if (parsedENS) {
-    let contentHashUri
-    try {
-      contentHashUri = await resolveENSContentHash(parsedENS.ensName)
-    } catch (error) {
-      const message = `failed to resolve ENS name: ${parsedENS.ensName}`
-      console.debug(message, error)
-      throw new Error(message)
-    }
-    let translatedUri
-    try {
-      translatedUri = contenthashToUri(contentHashUri)
-    } catch (error) {
-      const message = `failed to translate contenthash to URI: ${contentHashUri}`
-      console.debug(message, error)
-      throw new Error(message)
-    }
-    urls = uriToHttp(`${translatedUri}${parsedENS.ensPath ?? ''}`)
-  } else {
-    urls = uriToHttp(listUrl)
-  }
-
-  if (urls.length === 0) {
-    throw new Error('Unrecognized list URL protocol.')
-  }
+  const urls = uriToHttp(listUrl)
 
   // Try each of the derived URLs until one succeeds.
   for (let i = 0; i < urls.length; i++) {
     const url = urls[i]
     let response
     try {
-      response = await fetch(url, { credentials: 'omit' })
+      response = await fetch(url)
     } catch (error) {
       console.debug(`failed to fetch list: ${listUrl} (${url})`, error)
       continue
@@ -71,7 +40,7 @@ export default async function fetchTokenList(
       // The content of the result is sometimes invalid even with a 200 status code.
       // A response can be invalid if it's not a valid JSON or if it doesn't match the TokenList schema.
       const json = await response.json()
-      const list = skipValidation ? json : validateTokenList(json)
+      const list = json
       listCache?.set(listUrl, list)
       return list
     } catch (error) {

@@ -9,7 +9,7 @@ import { useCallback, useEffect } from 'react'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { useAllLists } from 'state/lists/hooks'
 
-// import { useFetchListCallback } from '../../hooks/useFetchListCallback'
+import { useFetchListCallback } from '../../hooks/useFetchListCallback'
 import useIsWindowVisible from '../../hooks/useIsWindowVisible'
 import { acceptListUpdate } from './actions'
 import { shouldAcceptVersionUpdate } from './utils'
@@ -29,13 +29,13 @@ export default function Updater(): null {
     if (rehydrated) TokenSafetyLookupTable.update(listsState)
   }, [listsState, rehydrated])
 
-  // const fetchList = useFetchListCallback()
+  const fetchList = useFetchListCallback()
   const fetchAllListsCallback = useCallback(() => {
     if (!isWindowVisible) return
     DEFAULT_LIST_OF_LISTS.forEach((url) => {
       // Skip validation on unsupported lists
-      const isUnsupportedList = UNSUPPORTED_LIST_URLS.includes(url)
-      // fetchList(url, isUnsupportedList).catch((error) => console.debug('interval list fetching error', error))
+      // const isUnsupportedList = false;
+      fetchList(url).catch((error) => console.debug('interval list fetching error', error))
     })
   }, [isWindowVisible])
 
