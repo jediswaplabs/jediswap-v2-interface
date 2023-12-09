@@ -46,7 +46,7 @@ export function useNativeCurrencyBalances(uncheckedAddresses?: (string | undefin
   )
 }
 
-const ERC20Interface = new Interface(ERC20ABI) as Erc20Interface
+// const ERC20Interface = new Interface(ERC20ABI)
 const tokenBalancesGasRequirement = { gasRequired: 185_000 }
 
 /**
@@ -57,38 +57,24 @@ export function useTokenBalancesWithLoadingIndicator(
   tokens?: (Token | undefined)[]
 ): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
   const { chainId } = useAccountDetails() // we cannot fetch balances cross-chain
-  const validatedTokens: Token[] = useMemo(
-    () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId) ?? [],
-    [chainId, tokens]
-  )
+  // const validatedTokens: Token[] = useMemo(
+  //   () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId) ?? [],
+  //   [chainId, tokens]
+  // )
+  const validatedTokens: Token[] = []
   const validatedTokenAddresses = useMemo(() => validatedTokens.map((vt) => vt.address), [validatedTokens])
 
-  const balances = useMultipleContractSingleData(
-    validatedTokenAddresses,
-    ERC20Interface,
-    'balanceOf',
-    useMemo(() => [address], [address]),
-    tokenBalancesGasRequirement
-  )
+  // const balances = useMultipleContractSingleData(
+  //   validatedTokenAddresses,
+  //   ERC20Interface,
+  //   'balanceOf',
+  //   useMemo(() => [address], [address]),
+  //   tokenBalancesGasRequirement
+  // )
 
-  const anyLoading: boolean = useMemo(() => balances.some((callState) => callState.loading), [balances])
+  // const anyLoading: boolean = useMemo(() => balances.some((callState) => callState.loading), [balances])
 
-  return useMemo(
-    () => [
-      address && validatedTokens.length > 0
-        ? validatedTokens.reduce<{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }>((memo, token, i) => {
-            const value = balances?.[i]?.result?.[0]
-            const amount = value ? JSBI.BigInt(value.toString()) : undefined
-            if (amount) {
-              memo[token.address] = CurrencyAmount.fromRawAmount(token, amount)
-            }
-            return memo
-          }, {})
-        : {},
-      anyLoading,
-    ],
-    [address, validatedTokens, anyLoading, balances]
-  )
+  return useMemo(() => [{}, false], [address, validatedTokens])
 }
 
 export function useTokenBalances(
