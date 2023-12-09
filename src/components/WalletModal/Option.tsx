@@ -127,7 +127,6 @@ export default function OptionV2({
   active = false,
   id,
 }: OptionProps) {
-  console.log('🚀 ~ file: OptionV2.tsx:84 ~ OptionV2 ~ connector:', connector)
   const { activationState, tryActivation } = useActivationState()
   const toggleAccountDrawer = useToggleAccountDrawer()
   const { chainId } = useAccountDetails()

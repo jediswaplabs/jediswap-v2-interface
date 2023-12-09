@@ -1,4 +1,6 @@
 import { getAddress } from '@ethersproject/address'
+import { validateAndParseAddress } from 'starknet'
+import isZero from './isZero'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -6,6 +8,18 @@ export function isAddress(value: any): string | false {
     // Alphabetical letters must be made lowercase for getAddress to work.
     // See documentation here: https://docs.ethers.io/v5/api/utils/address/
     return getAddress(value.toLowerCase())
+  } catch {
+    return false
+  }
+}
+
+// returns the checksummed address if the address is valid, otherwise returns false
+export function isAddressValidForStarknet(addr: string | null | undefined): string | false {
+  try {
+    if (addr && !isZero(addr)) {
+      return validateAndParseAddress(addr)
+    }
+    return false
   } catch {
     return false
   }

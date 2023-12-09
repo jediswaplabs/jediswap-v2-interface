@@ -19,7 +19,6 @@ export function useFetchListCallback(): (listUrl: string) => Promise<TokenList> 
       dispatch(fetchTokenList.pending({ requestId, url: listUrl }))
       return getTokenList(listUrl)
         .then((tokenList) => {
-          console.log('🚀 ~ file: useFetchListCallback.ts:22 ~ .then ~ tokenList:', tokenList)
           dispatch(fetchTokenList.fulfilled({ url: listUrl, tokenList, requestId }))
           return tokenList
         })

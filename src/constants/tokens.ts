@@ -14,6 +14,7 @@ export const isPolygon = false
 export const isCelo = false
 
 export const NATIVE_CHAIN_ID = 'NATIVE'
+export const ZERO_ADDRESS_STARKNET = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
 const cachedNativeCurrency: { [chainId: string]: NativeCurrency | Token } = {}
 export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {

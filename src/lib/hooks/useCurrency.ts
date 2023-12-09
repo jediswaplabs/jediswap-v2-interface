@@ -13,6 +13,7 @@ import { useEffect, useMemo } from 'react'
 import { DEFAULT_CHAIN_ID, DEFAULT_ERC20_DECIMALS } from '../../constants/tokens'
 // import { TOKEN_SHORTHANDS } from '../../constants/tokens'
 import { isAddress } from '../../utils'
+import { isAddressValidForStarknet } from 'utils/addresses'
 
 // parse a name or symbol from a token response
 const BYTES32_REGEX = /^0x[a-fA-F0-9]{64}$/
@@ -81,24 +82,9 @@ type TokenMap = { [address: string]: Token }
  * Returns undefined if tokenAddress is invalid or token does not exist.
  */
 export function useTokenFromMapOrNetwork(tokens: TokenMap, tokenAddress?: string | null): Token | undefined {
-  const address = isAddress(tokenAddress)
+  const address = isAddressValidForStarknet(tokenAddress)
   const token: Token | undefined = address ? tokens[address] : undefined
   const tokenFromNetwork = useTokenFromActiveNetwork(token ? undefined : address ? address : undefined)
-
-  useEffect(() => {
-    if (tokenFromNetwork) {
-      sendAnalyticsEvent(InterfaceEventName.WALLET_PROVIDER_USED, {
-        source: 'useTokenFromActiveNetwork',
-        token: {
-          name: tokenFromNetwork?.name,
-          symbol: tokenFromNetwork?.symbol,
-          address: tokenFromNetwork?.address,
-          isNative: tokenFromNetwork?.isNative,
-          chainId: tokenFromNetwork?.chainId,
-        },
-      })
-    }
-  }, [tokenFromNetwork])
 
   return tokenFromNetwork ?? token
 }

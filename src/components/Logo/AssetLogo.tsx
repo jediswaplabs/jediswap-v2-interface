@@ -1,7 +1,8 @@
-import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
 import useTokenLogoSource from 'hooks/useAssetLogoSource'
 import React, { useState } from 'react'
 import styled from 'styled-components'
+import EthereumLogo from 'assets/images/ethereum-logo.png'
 
 export const MissingImageLogo = styled.div<{ size?: string }>`
   --size: ${({ size }) => size};
@@ -42,7 +43,12 @@ export type AssetLogoBaseProps = {
   size?: string
   style?: React.CSSProperties
 }
-type AssetLogoProps = AssetLogoBaseProps & { isNative?: boolean; address?: string | null; chainId?: ChainId }
+type AssetLogoProps = AssetLogoBaseProps & {
+  currency?: Currency
+  isNative?: boolean
+  address?: string | null
+  chainId?: ChainId
+}
 
 const LogoContainer = styled.div`
   position: relative;
@@ -53,6 +59,7 @@ const LogoContainer = styled.div`
  * Renders an image by prioritizing a list of sources, and then eventually a fallback triangle alert
  */
 export default function AssetLogo({
+  currency,
   isNative,
   address,
   chainId = ChainId.MAINNET,
@@ -68,12 +75,14 @@ export default function AssetLogo({
     return src ? img.complete : false
   })
 
+  const logoURI = currency && currency.name === 'ETHER' ? EthereumLogo : (currency as any)?.logoURI
+
   return (
     <LogoContainer style={{ height: size, width: size, ...style }}>
-      {src ? (
+      {logoURI ? (
         <LogoImageWrapper size={size} imgLoaded={imgLoaded}>
           <LogoImage
-            src={src}
+            src={logoURI}
             alt={`${symbol ?? 'token'} logo`}
             size={size}
             onLoad={() => void setImgLoaded(true)}

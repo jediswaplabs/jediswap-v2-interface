@@ -114,6 +114,7 @@ interface ExpectedListsState {
     }
   }
   readonly lastInitializedDefaultListOfLists?: string[]
+  readonly selectedListUrl: string | undefined
 }
 
 assert<Equals<ListsState, ExpectedListsState>>()

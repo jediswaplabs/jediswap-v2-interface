@@ -266,7 +266,7 @@ export function CurrencySearch({
             onKeyDown={handleEnter}
           />
         </Row>
-        {showCommonBases && (
+        {/* {showCommonBases && (
           <CommonBases
             chainId={chainId}
             onSelect={handleCurrencySelect}
@@ -274,7 +274,7 @@ export function CurrencySearch({
             searchQuery={searchQuery}
             isAddressSearch={isAddressSearch}
           />
-        )}
+        )} */}
       </PaddedColumn>
       <ThemedSeparator />
       {searchToken && !searchTokenIsAdded ? (

@@ -128,8 +128,8 @@ export function CurrencyRow({
   const { address: account } = useAccountDetails()
   const key = currencyKey(currency)
   const customAdded = useIsUserAddedToken(currency)
-  const warning = currency.isNative ? null : checkWarning(currency.address)
-  const isBlockedToken = !!warning && !warning.canProceed
+  const warning = null
+  const isBlockedToken = false
   const blockedTokenOpacity = '0.6'
   const { data } = useCachedPortfolioBalancesQuery({ account })
   const portfolioBalanceUsd = data?.portfolios?.[0].tokensTotalDenominatedValue?.value
@@ -162,9 +162,6 @@ export function CurrencyRow({
         <AutoColumn style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}>
           <Row>
             <CurrencyName title={currency.name}>{currency.name}</CurrencyName>
-            <WarningContainer>
-              <TokenSafetyIcon warning={warning} />
-            </WarningContainer>
           </Row>
           <ThemedText.LabelMicro ml="0px">{currency.symbol}</ThemedText.LabelMicro>
         </AutoColumn>
