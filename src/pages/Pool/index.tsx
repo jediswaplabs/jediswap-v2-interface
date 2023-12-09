@@ -16,7 +16,7 @@ import PositionList from 'components/PositionList'
 import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { isSupportedChain } from 'constants/chains'
-import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
+// import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
 import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
 import { useV3Positions } from 'hooks/useV3Positions'
 import { useUserHideClosedPositions } from 'state/user/hooks'
@@ -320,7 +320,7 @@ export default function Pool() {
     [closedPositions, openPositions, userHideClosedPositions]
   )
 
-  const filteredPositions = useFilterPossiblyMaliciousPositions(userSelectedPositionSet)
+  // const filteredPositions = useFilterPossiblyMaliciousPositions(userSelectedPositionSet)
 
   if (!isSupportedChain(chainId)) {
     return <WrongNetworkCard />
@@ -421,9 +421,12 @@ export default function Pool() {
               </ResponsiveButtonPrimary>
             </ButtonRow>
 
-            <MainContentWrapper isWalletConnected={isWalletConnected} filteredPositions={filteredPositions.length}>
+            <MainContentWrapper
+              isWalletConnected={isWalletConnected}
+              filteredPositions={userSelectedPositionSet.length}
+            >
               {isWalletConnected ? (
-                !filteredPositions.length && !positionsLoading ? (
+                !userSelectedPositionSet.length && !positionsLoading ? (
                   <NoPositions>
                     <IconWrapper>
                       <img src={NoPositionsIcon} alt={'Icon'} />
@@ -445,7 +448,7 @@ export default function Pool() {
                   <PositionsLoadingPlaceholder />
                 ) : (
                   <PositionList
-                    positions={filteredPositions}
+                    positions={userSelectedPositionSet}
                     setUserHideClosedPositions={setUserHideClosedPositions}
                     userHideClosedPositions={userHideClosedPositions}
                   />
@@ -486,7 +489,7 @@ export default function Pool() {
                 </ErrorContainer>
               )}
             </MainContentWrapper>
-            {filteredPositions.length ? null : <CTACards />}
+            {userSelectedPositionSet.length ? null : <CTACards />}
           </AutoColumn>
         </AutoColumn>
       </PageWrapper>

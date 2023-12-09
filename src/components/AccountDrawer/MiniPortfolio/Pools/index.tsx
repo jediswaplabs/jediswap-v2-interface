@@ -8,7 +8,7 @@ import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import Row from 'components/Row'
 import { MouseoverTooltip } from 'components/Tooltip'
 import { BIPS_BASE } from 'constants/misc'
-import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
+// import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
 import { useSwitchChain } from 'hooks/useSwitchChain'
 import { EmptyWalletModule } from 'nft/components/profile/view/EmptyWalletContent'
 import { ThemedText } from 'theme/components'
@@ -36,11 +36,10 @@ function useFilterPossiblyMaliciousPositionInfo(positions: PositionInfo[] | unde
     [positions]
   )
   const positionDetails = useMemo(() => positions?.map((position) => position.details) ?? [], [positions])
-  const filteredPositionDetails = useFilterPossiblyMaliciousPositions(positionDetails)
 
   return useMemo(
-    () => filteredPositionDetails.map((positionDetails) => tokenIdsToPositionInfo[positionDetails.tokenId.toString()]),
-    [filteredPositionDetails, tokenIdsToPositionInfo]
+    () => positionDetails.map((details) => tokenIdsToPositionInfo[details.tokenId.toString()]),
+    [positionDetails, tokenIdsToPositionInfo]
   )
 }
 

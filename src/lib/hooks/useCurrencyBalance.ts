@@ -1,4 +1,3 @@
-import { Interface } from '@ethersproject/abi'
 import { Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
 import { useAccountDetails } from 'hooks/starknet-react'
 import ERC20ABI from 'abis/erc20.json'
