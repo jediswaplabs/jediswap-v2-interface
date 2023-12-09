@@ -4,7 +4,7 @@ import { checkWarning, WARNING_LEVEL } from 'constants/tokenSafety'
 import { chainIdToNetworkName, getNativeLogoURI } from 'lib/hooks/useCurrencyLogoURIs'
 import uriToHttp from 'lib/utils/uriToHttp'
 import { useCallback, useEffect, useState } from 'react'
-import { isAddress } from 'utils'
+import { isAddressValidForStarknet } from 'utils/addresses'
 
 import celoLogo from '../assets/svg/celo_logo.svg'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
@@ -48,7 +48,7 @@ function getInitialUrl(
   if (chainId && isNative) return getNativeLogoURI(chainId)
 
   const networkName = chainId ? chainIdToNetworkName(chainId) : 'ethereum'
-  const checksummedAddress = isAddress(address)
+  const checksummedAddress = isAddressValidForStarknet(address)
 
   if (chainId && address === nativeOnChain(chainId).wrapped.address) {
     return celoLogo

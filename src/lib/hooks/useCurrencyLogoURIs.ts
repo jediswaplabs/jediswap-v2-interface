@@ -1,7 +1,7 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import useHttpLocations from 'hooks/useHttpLocations'
 import { useMemo } from 'react'
-import { isAddress } from 'utils'
+import { isAddressValidForStarknet } from 'utils/addresses'
 
 import EthereumLogo from '../../assets/images/ethereum-logo.png'
 import AvaxLogo from '../../assets/svg/avax_logo.svg'
@@ -76,7 +76,7 @@ export default function useCurrencyLogoURIs(
       if (currency.isNative || currency.address === NATIVE_CHAIN_ID) {
         logoURIs.push(getNativeLogoURI(currency.chainId))
       } else if (currency.isToken || currency.address) {
-        const checksummedAddress = isAddress(currency.address)
+        const checksummedAddress = isAddressValidForStarknet(currency.address)
         const logoURI = checksummedAddress && getTokenLogoURI(checksummedAddress, currency.chainId)
         if (logoURI) {
           logoURIs.push(logoURI)
