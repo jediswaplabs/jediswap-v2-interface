@@ -141,7 +141,7 @@ function AddLiquidity() {
     noLiquidity,
     currencies,
     errorMessage,
-    invalidPool,
+    // invalidPool,
     invalidRange,
     outOfRange,
     depositADisabled,
@@ -155,6 +155,8 @@ function AddLiquidity() {
     baseCurrency ?? undefined,
     existingPosition
   )
+
+  const invalidPool = false
 
   const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
     useV3MintActionHandlers(noLiquidity)
@@ -668,8 +670,8 @@ function AddLiquidity() {
                         disabled={!quoteCurrency || !baseCurrency}
                         feeAmount={feeAmount}
                         handleFeePoolSelect={handleFeePoolSelect}
-                        currencyA={baseCurrency ?? undefined}
-                        currencyB={quoteCurrency ?? undefined}
+                        // currencyA={baseCurrency ?? undefined}
+                        // currencyB={quoteCurrency ?? undefined}
                       />
                     </AutoColumn>{' '}
                   </>
@@ -718,7 +720,7 @@ function AddLiquidity() {
                         </RowFixed>
                       )}
                     </RowBetween>
-                    <LiquidityChartRangeInput
+                    {/* <LiquidityChartRangeInput
                       currencyA={baseCurrency ?? undefined}
                       currencyB={quoteCurrency ?? undefined}
                       feeAmount={feeAmount}
@@ -729,7 +731,7 @@ function AddLiquidity() {
                       onLeftRangeInput={onLeftRangeInput}
                       onRightRangeInput={onRightRangeInput}
                       interactive={!hasExistingPosition}
-                    />
+                    /> */}
                     <RangeSelector
                       priceLower={priceLower}
                       priceUpper={priceUpper}
@@ -856,7 +858,7 @@ function AddLiquidity() {
                   </DynamicSection>
                 </>
               )}
-              <div>
+              {/* <div>
                 <DynamicSection disabled={invalidPool || invalidRange || (noLiquidity && !startPriceTypedValue)}>
                   <AutoColumn gap="md">
                     <ThemedText.DeprecatedLabel>
@@ -892,7 +894,7 @@ function AddLiquidity() {
                     />
                   </AutoColumn>
                 </DynamicSection>
-              </div>
+              </div> */}
               <Buttons />
             </ResponsiveTwoColumns>
           </Wrapper>
