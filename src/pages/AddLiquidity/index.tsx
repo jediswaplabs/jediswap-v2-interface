@@ -138,7 +138,7 @@ function AddLiquidity() {
     parsedAmounts,
     currencyBalances,
     position,
-    noLiquidity,
+    // noLiquidity,
     currencies,
     errorMessage,
     // invalidPool,
@@ -155,8 +155,8 @@ function AddLiquidity() {
     baseCurrency ?? undefined,
     existingPosition
   )
-
   const invalidPool = false
+  const noLiquidity = false
 
   const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
     useV3MintActionHandlers(noLiquidity)
@@ -407,8 +407,14 @@ function AddLiquidity() {
   const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks
   const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks
 
-  const { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper, getSetFullRange } =
-    useRangeHopCallbacks(baseCurrency ?? undefined, quoteCurrency ?? undefined, feeAmount, tickLower, tickUpper, pool)
+  const { getSetFullRange } = useRangeHopCallbacks(
+    baseCurrency ?? undefined,
+    quoteCurrency ?? undefined,
+    feeAmount,
+    tickLower,
+    tickUpper,
+    pool
+  )
 
   // we need an existence check on parsed amounts for single-asset deposits
   const showApprovalA =
@@ -670,8 +676,6 @@ function AddLiquidity() {
                         disabled={!quoteCurrency || !baseCurrency}
                         feeAmount={feeAmount}
                         handleFeePoolSelect={handleFeePoolSelect}
-                        // currencyA={baseCurrency ?? undefined}
-                        // currencyB={quoteCurrency ?? undefined}
                       />
                     </AutoColumn>{' '}
                   </>
@@ -735,10 +739,6 @@ function AddLiquidity() {
                     <RangeSelector
                       priceLower={priceLower}
                       priceUpper={priceUpper}
-                      getDecrementLower={getDecrementLower}
-                      getIncrementLower={getIncrementLower}
-                      getDecrementUpper={getDecrementUpper}
-                      getIncrementUpper={getIncrementUpper}
                       onLeftRangeInput={onLeftRangeInput}
                       onRightRangeInput={onRightRangeInput}
                       currencyA={baseCurrency}
@@ -774,31 +774,31 @@ function AddLiquidity() {
                   </DynamicSection>
 
                   <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
-                    {!noLiquidity ? (
-                      <>
-                        {Boolean(price && baseCurrency && quoteCurrency && !noLiquidity) && (
-                          <AutoColumn gap="2px" style={{ marginTop: '0.5rem' }}>
-                            <Trans>
-                              <ThemedText.DeprecatedMain fontWeight={535} fontSize={12} color="text1">
-                                Current price:
-                              </ThemedText.DeprecatedMain>
-                              <ThemedText.DeprecatedBody fontWeight={535} fontSize={20} color="text1">
-                                {price && (
-                                  <HoverInlineText
-                                    maxCharacters={20}
-                                    text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
-                                  />
-                                )}
-                              </ThemedText.DeprecatedBody>
-                              {baseCurrency && (
-                                <ThemedText.DeprecatedBody color="text2" fontSize={12}>
-                                  {quoteCurrency?.symbol} per {baseCurrency.symbol}
-                                </ThemedText.DeprecatedBody>
-                              )}
-                            </Trans>
-                          </AutoColumn>
-                        )}
-                      </>
+                    {/* {!noLiquidity ? (
+                      <> */}
+                    {Boolean(price && baseCurrency && quoteCurrency) && (
+                      <AutoColumn gap="2px" style={{ marginTop: '0.5rem' }}>
+                        <Trans>
+                          <ThemedText.DeprecatedMain fontWeight={535} fontSize={12} color="text1">
+                            Current price:
+                          </ThemedText.DeprecatedMain>
+                          <ThemedText.DeprecatedBody fontWeight={535} fontSize={20} color="text1">
+                            {price && (
+                              <HoverInlineText
+                                maxCharacters={20}
+                                text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
+                              />
+                            )}
+                          </ThemedText.DeprecatedBody>
+                          {baseCurrency && (
+                            <ThemedText.DeprecatedBody color="text2" fontSize={12}>
+                              {quoteCurrency?.symbol} per {baseCurrency.symbol}
+                            </ThemedText.DeprecatedBody>
+                          )}
+                        </Trans>
+                      </AutoColumn>
+                    )}
+                    {/* </>
                     ) : (
                       <AutoColumn gap="md">
                         {noLiquidity && (
@@ -854,11 +854,11 @@ function AddLiquidity() {
                           </ThemedText.DeprecatedMain>
                         </RowBetween>
                       </AutoColumn>
-                    )}
+                    )} */}
                   </DynamicSection>
                 </>
               )}
-              {/* <div>
+              <div>
                 <DynamicSection disabled={invalidPool || invalidRange || (noLiquidity && !startPriceTypedValue)}>
                   <AutoColumn gap="md">
                     <ThemedText.DeprecatedLabel>
@@ -894,7 +894,7 @@ function AddLiquidity() {
                     />
                   </AutoColumn>
                 </DynamicSection>
-              </div> */}
+              </div>
               <Buttons />
             </ResponsiveTwoColumns>
           </Wrapper>
