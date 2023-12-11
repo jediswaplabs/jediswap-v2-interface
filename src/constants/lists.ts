@@ -76,4 +76,4 @@ export const DEFAULT_INACTIVE_LIST_URLS: string[] = [
   ...UNSUPPORTED_LIST_URLS,
 ]
 
-export const DEFAULT_LIST_OF_LISTS: string[] = [...DEFAULT_TOKEN_LIST_URL]
+export const DEFAULT_LIST_OF_LISTS: string[] = [DEFAULT_TOKEN_LIST_URL]
