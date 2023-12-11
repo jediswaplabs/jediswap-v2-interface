@@ -2,7 +2,7 @@ import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { darken } from 'polished'
 import { ReactNode, useCallback, useState } from 'react'
 import styled, { useTheme } from 'styled-components'
@@ -215,6 +215,7 @@ export default function CurrencyInputPanel({
   const [modalOpen, setModalOpen] = useState(false)
   const { address: account, chainId } = useAccountDetails()
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+  const { balance } = useAccountBalance(currency as Currency)
   const theme = useTheme()
 
   const handleDismissSearch = useCallback(() => {
@@ -307,16 +308,13 @@ export default function CurrencyInputPanel({
                       fontSize={14}
                       style={{ display: 'inline', cursor: 'pointer' }}
                     >
-                      {Boolean(!hideBalance && currency && selectedCurrencyBalance) &&
-                        (renderBalance?.(selectedCurrencyBalance as CurrencyAmount<Currency>) || (
-                          <Trans>Bal: {formatCurrencyAmount(selectedCurrencyBalance, 4)}</Trans>
-                        ))}
+                      {balance && <>Bal: {balance}</>}
                     </ThemedText.DeprecatedBody>
                   </RowFixed>
                 )}
-                <LoadingOpacityContainer $loading={loading}>
+                {/* <LoadingOpacityContainer $loading={loading}>
                   {fiatValue && <FiatValue fiatValue={fiatValue} />}
-                </LoadingOpacityContainer>
+                </LoadingOpacityContainer> */}
               </RowBetween>
             </FiatRow>
           )}

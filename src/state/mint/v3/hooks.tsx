@@ -50,14 +50,14 @@ export function useV3MintActionHandlers(noLiquidity: boolean | undefined): {
 
   const onFieldAInput = useCallback(
     (typedValue: string) => {
-      dispatch(typeInput({ field: Field.CURRENCY_A, typedValue, noLiquidity: noLiquidity === true }))
+      dispatch(typeInput({ field: Field.CURRENCY_A, typedValue, noLiquidity: false }))
     },
     [dispatch, noLiquidity]
   )
 
   const onFieldBInput = useCallback(
     (typedValue: string) => {
-      dispatch(typeInput({ field: Field.CURRENCY_B, typedValue, noLiquidity: noLiquidity === true }))
+      dispatch(typeInput({ field: Field.CURRENCY_B, typedValue, noLiquidity: false }))
     },
     [dispatch, noLiquidity]
   )

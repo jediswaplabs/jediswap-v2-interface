@@ -1,6 +1,6 @@
 import { publicProvider } from '@starknet-react/core'
 import { CustomUserProperties, InterfaceEventName, WalletConnectionResult } from '@uniswap/analytics-events'
-import { useWeb3React, Web3ReactHooks, Web3ReactProvider } from '@web3-react/core'
+// import { useWeb3React, Web3ReactHooks, Web3ReactProvider } from '@web3-react/core'
 import { Connector } from '@web3-react/types'
 import { sendAnalyticsEvent, user, useTrace } from 'analytics'
 import { connections, getConnection } from 'connection'
@@ -17,13 +17,13 @@ import { getCurrentPageFromLocation } from 'utils/urlRoutes'
 import { getWalletMeta } from 'utils/walletMeta'
 
 export default function Web3Provider({ children }: { children: ReactNode }) {
-  const connectors = connections.map<[Connector, Web3ReactHooks]>(({ hooks, connector }) => [connector, hooks])
+  // const connectors = connections.map<[Connector, Web3ReactHooks]>(({ hooks, connector }) => [connector, hooks])
 
   return (
-    <Web3ReactProvider connectors={connectors}>
+    <>
       <Updater />
       {children}
-    </Web3ReactProvider>
+    </>
   )
 }
 

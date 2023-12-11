@@ -49,7 +49,7 @@ export const V2_ROUTER_ADDRESSES: AddressMap = constructSameAddressMap(V2_ROUTER
 
 // Networks that share most of the same addresses i.e. Mainnet, Goerli, Optimism, Arbitrum, Polygon
 const DEFAULT_ADDRESSES: ChainAddresses = {
-  v3CoreFactoryAddress: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
+  v3CoreFactoryAddress: '0x02b4c311bccfd507869a4fbe5c237947585df701cbc4d716d0813250f194f8a2',
   multicallAddress: '0x1F98415757620B543A52E61c46B32eB19261F984',
   quoterAddress: '0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6',
   v3MigratorAddress: '0xA5644E29708357803b5A882D272c41cC0dF92B34',
@@ -162,7 +162,7 @@ export const CHAIN_TO_ADDRESSES_MAP: Record<SupportedChainsType, ChainAddresses>
 /* V3 Contract Addresses */
 export const V3_CORE_FACTORY_ADDRESSES: AddressMap = {
   ...SUPPORTED_CHAINS.reduce<AddressMap>((memo, chainId) => {
-    // memo[chainId] = CHAIN_TO_ADDRESSES_MAP[chainId].v3CoreFactoryAddress
+    memo[chainId] = CHAIN_TO_ADDRESSES_MAP[chainId].v3CoreFactoryAddress
     return memo
   }, {}),
 }

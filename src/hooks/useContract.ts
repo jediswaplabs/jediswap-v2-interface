@@ -35,7 +35,7 @@ import { V3Migrator } from 'types/v3/V3Migrator'
 import { getContract } from 'utils'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { publicProvider, useProvider } from '@starknet-react/core'
-import { useWeb3React } from '@web3-react/core'
+// import { useWeb3React } from '@web3-react/core'
 
 const { abi: IUniswapV2PairABI } = IUniswapV2PairJson
 const { abi: IUniswapV2Router02ABI } = IUniswapV2Router02Json
@@ -51,20 +51,22 @@ export function useContract<T extends Contract = Contract>(
   withSignerIfPossible = true
 ): T | null {
   const { address, chainId } = useAccountDetails()
-  const { provider } = useWeb3React()
+  // const { provider } = useWeb3React()
+  const provider = null
 
   return useMemo(() => {
-    if (!addressOrAddressMap || !ABI || !provider || !chainId) return null
-    let address: string | undefined
-    if (typeof addressOrAddressMap === 'string') address = addressOrAddressMap
-    else address = addressOrAddressMap[chainId]
-    if (!address) return null
-    try {
-      return getContract(address, ABI, provider, withSignerIfPossible && address ? address : undefined)
-    } catch (error) {
-      console.error('Failed to get contract', error)
-      return null
-    }
+    if (!addressOrAddressMap || !ABI || !provider || !chainId) return null as unknown
+    // let address: string | undefined
+    // if (typeof addressOrAddressMap === 'string') address = addressOrAddressMap
+    // else address = addressOrAddressMap[chainId]
+    // if (!address) return null
+    // try {
+    //   return getContract(address, ABI, provider, withSignerIfPossible && address ? address : undefined)
+    // } catch (error) {
+    //   console.error('Failed to get contract', error)
+    //   return null
+    // }
+    return null as unknown
   }, [addressOrAddressMap, ABI, provider, chainId, withSignerIfPossible, address]) as T
 }
 

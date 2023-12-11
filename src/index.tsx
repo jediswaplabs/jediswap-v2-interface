@@ -66,17 +66,17 @@ createRoot(container).render(
           <QueryClientProvider client={queryClient}>
             <HashRouter>
               <LanguageProvider>
-                <Web3Provider>
-                  <ApolloProvider client={apolloClient}>
-                    <BlockNumberProvider>
-                      <Updaters />
-                      <ThemeProvider>
-                        <ThemedGlobalStyle />
-                        <App />
-                      </ThemeProvider>
-                    </BlockNumberProvider>
-                  </ApolloProvider>
-                </Web3Provider>
+                {/* <Web3Provider> */}
+                <ApolloProvider client={apolloClient}>
+                  <BlockNumberProvider>
+                    <Updaters />
+                    <ThemeProvider>
+                      <ThemedGlobalStyle />
+                      <App />
+                    </ThemeProvider>
+                  </BlockNumberProvider>
+                </ApolloProvider>
+                {/* </Web3Provider> */}
               </LanguageProvider>
             </HashRouter>
           </QueryClientProvider>
