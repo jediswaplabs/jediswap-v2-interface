@@ -44,4 +44,6 @@ setupListeners(store.dispatch)
 
 store.dispatch(updateVersion())
 
+export type AppDispatch = typeof store.dispatch
+
 export default store

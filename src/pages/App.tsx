@@ -17,6 +17,7 @@ import { useRouterPreference, useUserOptedOutOfUniswapX } from 'state/user/hooks
 import { flexRowNoWrap } from 'theme/styles'
 import { Z_INDEX } from 'theme/zIndex'
 import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions'
+import useFetchAllPairsCallback from 'hooks/useFetchAllPairs'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
   display: flex;
@@ -84,6 +85,7 @@ const HeaderWrapper = styled.div<{ transparent?: boolean; bannerIsVisible?: bool
 `
 
 export default function App() {
+  const fetchAllPairs = useFetchAllPairsCallback()
   const isLoaded = useFeatureFlagsIsLoaded()
 
   const location = useLocation()
@@ -99,6 +101,10 @@ export default function App() {
     window.scrollTo(0, 0)
     setScrollY(0)
   }, [pathname])
+
+  useEffect(() => {
+    fetchAllPairs()
+  }, [fetchAllPairs])
 
   useEffect(() => {
     const scrollListener = () => {

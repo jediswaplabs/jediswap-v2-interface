@@ -10,6 +10,8 @@ import { useMemo } from 'react'
 
 import { IUniswapV3PoolStateInterface } from '../types/v3/IUniswapV3PoolState'
 import { V3_CORE_FACTORY_ADDRESSES } from 'constants/addresses'
+import { useAllPairs } from 'state/pairs/hooks'
+import { validateAndParseAddress } from 'starknet'
 
 const POOL_STATE_INTERFACE = new Interface(IUniswapV3PoolStateJSON.abi) as IUniswapV3PoolStateInterface
 
@@ -87,7 +89,7 @@ export function usePools(
   poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][]
 ): [PoolState, Pool | null][] {
   const { chainId } = useAccountDetails()
-
+  const allPairs = useAllPairs()
   const poolTokens: ([Token, Token, FeeAmount] | undefined)[] = useMemo(() => {
     if (!chainId) return new Array(poolKeys.length)
 
@@ -106,10 +108,28 @@ export function usePools(
   const poolAddresses: (string | undefined)[] = useMemo(() => {
     const v3CoreFactoryAddress = chainId && V3_CORE_FACTORY_ADDRESSES[chainId]
     if (!v3CoreFactoryAddress) return new Array(poolTokens.length)
-
     return poolTokens.map((value) => value && PoolCache.getPoolAddress(v3CoreFactoryAddress, ...value))
   }, [chainId, poolTokens])
 
+  const pairAddresses: (string | undefined)[] = useMemo(
+    () =>
+      poolTokens.map((tokens): string | undefined => {
+        if (tokens && tokens[0] && tokens[1] && tokens[2]) {
+          // Check if tokens are defined
+          const [tokenA, tokenB, feeAmount] = tokens
+          return tokenA && tokenB && !tokenA.equals(tokenB)
+            ? validateAndParseAddress(Pool.getAddress(tokenA, tokenB, feeAmount))
+            : undefined
+        }
+        return undefined
+      }),
+    [poolTokens]
+  )
+
+  const validatedPairAddress = useMemo(
+    () => pairAddresses.map((addr) => (addr && allPairs.includes(addr) ? addr : undefined)),
+    [allPairs, pairAddresses]
+  )
   const slot0s = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'slot0')
   const liquidities = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'liquidity')
 

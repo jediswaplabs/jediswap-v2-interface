@@ -12,6 +12,7 @@ import { Provider } from 'react-redux'
 import { HashRouter, useLocation } from 'react-router-dom'
 
 import { MulticallUpdater } from 'lib/state/multicall'
+import StarkMulticallUpdater from './state/multicall/updater'
 import { BlockNumberProvider } from 'lib/hooks/useBlockNumber'
 import { apolloClient } from 'graphql/data/apollo'
 import { FeatureFlagsProvider } from 'featureFlags'
@@ -45,6 +46,7 @@ function Updaters() {
       <TransactionUpdater />
       <OrderUpdater />
       <MulticallUpdater />
+      <StarkMulticallUpdater />
       <LogsUpdater />
     </>
   )
