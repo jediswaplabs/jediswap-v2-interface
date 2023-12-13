@@ -20,6 +20,8 @@ import { shortenAddress } from 'utils'
 import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
 import { RowBetween } from '../Row'
 import { useAccountDetails } from 'hooks/starknet-react'
+import ARGENTX_ICON from '../../assets/wallets/argentx.png'
+import braavosIcon from '../../assets/wallets/Braavos.svg'
 
 const Web3StatusGeneric = styled(ButtonSecondary)`
   ${flexRowNoWrap};
@@ -62,6 +64,7 @@ const Web3StatusConnecting = styled(Web3StatusConnected)`
 
 const AddressAndChevronContainer = styled.div<{ loading?: boolean }>`
   display: flex;
+  align-items: center;
   opacity: ${({ loading, theme }) => loading && theme.opacity.disabled};
 `
 
@@ -93,7 +96,7 @@ function Web3StatusInner() {
   const activeWeb3 = useWeb3React()
   const lastWeb3 = useLast(useWeb3React(), ignoreWhileSwitchingChain)
   const { account, connector } = useMemo(() => (activeWeb3.account ? activeWeb3 : lastWeb3), [activeWeb3, lastWeb3])
-  const { address } = useAccountDetails()
+  const { address, connector: conenctorInfo } = useAccountDetails()
   const { ENSName, loading: ENSLoading } = useENSName(account)
   const connection = getConnection(connector)
 
@@ -133,6 +136,25 @@ function Web3StatusInner() {
     }
   }, [ENSName, account, connection.type])
 
+  function WalletIcon() {
+    if (conenctorInfo?.id === 'argentX' || conenctorInfo?.id === 'argentWebWallet') {
+      return (
+        <IconWrapper size={20}>
+          <img src={ARGENTX_ICON} alt="ArgentX" />
+        </IconWrapper>
+      )
+    }
+
+    if (conenctorInfo?.id === 'braavos') {
+      return (
+        <IconWrapper size={20}>
+          <img src={braavosIcon} alt="myBraavos" />
+        </IconWrapper>
+      )
+    }
+    return null
+  }
+
   if (!isConnectionInitialized) {
     return (
       <Web3StatusConnecting disabled={!isConnectionInitializing} onClick={handleWalletDropdownClick}>
@@ -168,6 +190,9 @@ function Web3StatusInner() {
           </RowBetween>
         ) : (
           <AddressAndChevronContainer>
+            <IconWrapper size={20}>
+              <WalletIcon />
+            </IconWrapper>
             <Text>{ENSName ?? addressShort}</Text>
           </AddressAndChevronContainer>
         )}
