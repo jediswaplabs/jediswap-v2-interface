@@ -28,7 +28,7 @@ export default function PrivacyPolicyNotice() {
   return (
     <div>
       <Notice>New to Ethereum?</Notice>
-      <StyledLink href="https://ethereum.org/en/wallets/">
+      <StyledLink href="https://docs.jediswap.xyz/how-to-use-jediswap/how-to-set-up-a-starknet-wallet">
         <WalletInfo>Learn more about wallets</WalletInfo>
       </StyledLink>
     </div>
