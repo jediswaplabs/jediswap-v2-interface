@@ -13,6 +13,7 @@ import { useAllLists, useCombinedActiveList, useCombinedTokenMapFromUrls } from 
 import { WrappedTokenInfo } from '../state/lists/wrappedTokenInfo'
 import { deserializeToken, useUserAddedTokens } from '../state/user/hooks'
 import { useUnsupportedTokenList } from './../state/lists/hooks'
+import { WETH } from 'constants/tokens'
 
 type Maybe<T> = T | null | undefined
 
@@ -154,7 +155,7 @@ export function useSearchInactiveTokenLists(search: string | undefined, minResul
       for (const tokenInfo of list.tokens) {
         if (tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
           try {
-            const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, list)
+            const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, chainId, list)
             if (!(wrapped.address in activeTokens) && !addressSet[wrapped.address]) {
               addressSet[wrapped.address] = true
               result.push(wrapped)
@@ -191,7 +192,9 @@ export function useToken(tokenAddress?: string | null): Token | null | undefined
 }
 
 export function useCurrency(currencyId: Maybe<string>, chainId?: ChainId): Currency | undefined {
+  const isETH = currencyId?.toUpperCase() === 'ETH'
   const { chainId: connectedChainId } = useAccountDetails()
+  if (isETH) return WETH[chainId ?? connectedChainId]
   const tokens = useDefaultActiveTokens(chainId ?? connectedChainId)
   return useCurrencyFromMap(tokens, chainId ?? connectedChainId, currencyId)
 }

@@ -6,6 +6,8 @@ import JSBI from 'jsbi'
 
 export const DEFAULT_CHAIN_ID = ChainId.MAINNET
 export const NONFUNGIBLE_POSITION_MANAGER_ADDRESSES = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
+export const DEFAULT_POOL_ADDRESS = '0x0087c11c97290c2a57f579d306675280032e5261b3d4bb681c90f1cd2bf5d392'
+export const DEFAULT_POOL_HASH = '0x05a03a1ea1333da989fabaa64d771b6caf799c91db9a5e71f5bdaf0e7abf8564'
 export const MULTICALL_ADDRESSES = '0x1F98415757620B543A52E61c46B32eB19261F984'
 export const UNIVERSAL_ROUTER_ADDRESS = '0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD'
 export const isAvalanche = false
@@ -55,8 +57,20 @@ type ChainTokenList = {
 }
 
 export const WETH: { [chainId in ChainId]: Token } = {
-  [ChainId.GOERLI]: new Token(ChainId.GOERLI, '0xd0A1E359811322d97991E03f863a0C30C2cF029C', 18, 'ETH', 'ETHER'),
-  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2', 18, 'ETH', 'ETHER'),
+  [ChainId.GOERLI]: new Token(
+    ChainId.GOERLI,
+    '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+    18,
+    'ETH',
+    'ETHER'
+  ),
+  [ChainId.MAINNET]: new Token(
+    ChainId.MAINNET,
+    '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7',
+    18,
+    'ETH',
+    'ETHER'
+  ),
 }
 
 export const WRAPPED_NATIVE_CURRENCY: { [chainId: string]: Token | undefined } = {
