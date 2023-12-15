@@ -1,13 +1,13 @@
 // @ts-nocheck
-import { darken } from 'polished';
-import { forwardRef } from 'react';
-import { Check, ChevronDown } from 'react-feather';
-import { Button as RebassButton, ButtonProps as ButtonPropsOriginal } from 'rebass/styled-components';
-import styled, { DefaultTheme, useTheme } from 'styled-components';
+import { darken } from 'polished'
+import { forwardRef } from 'react'
+import { Check, ChevronDown } from 'react-feather'
+import { Button as RebassButton, ButtonProps as ButtonPropsOriginal } from 'rebass/styled-components'
+import styled, { DefaultTheme, useTheme } from 'styled-components'
 
-import { RowBetween } from '../Row';
+import { RowBetween } from '../Row'
 
-export { default as LoadingButtonSpinner } from './LoadingButtonSpinner';
+export { default as LoadingButtonSpinner } from './LoadingButtonSpinner'
 
 type ButtonProps = Omit<ButtonPropsOriginal, 'css'>
 
@@ -22,7 +22,7 @@ const ButtonOverlay = styled.div`
   top: 0;
   transition: 150ms ease background-color;
   width: 100%;
-`;
+`
 
 type BaseButtonProps = {
   padding?: string
@@ -31,7 +31,7 @@ type BaseButtonProps = {
   altDisabledStyle?: boolean
 } & ButtonProps
 
-export const BaseButton = styled(RebassButton) <BaseButtonProps>`
+export const BaseButton = styled(RebassButton)<BaseButtonProps>`
   padding: ${({ padding }) => padding ?? '16px'};
   width: ${({ width }) => width ?? '100%'};
   line-height: 24px;
@@ -66,7 +66,7 @@ export const BaseButton = styled(RebassButton) <BaseButtonProps>`
   > a {
     text-decoration: none;
   }
-`;
+`
 
 export const ButtonPrimary = styled(BaseButton<BaseThemeButtonProps>)`
   font-family: 'Avenir LT Std';
@@ -92,11 +92,13 @@ export const ButtonPrimary = styled(BaseButton<BaseThemeButtonProps>)`
   &:disabled {
     cursor: default;
     opacity: 100%;
-    background:  ${({ theme }) => theme.jediNavyBlue};
-    color: #9B9B9B;
-    box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.20) inset, 0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.30) inset, 0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.30) inset;
+    background: ${({ theme }) => theme.jediNavyBlue};
+    color: #9b9b9b;
+    box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
+      0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
+      0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset;
   }
-`;
+`
 
 export const SmallButtonPrimary = styled(ButtonPrimary)`
   width: auto;
@@ -104,7 +106,7 @@ export const SmallButtonPrimary = styled(ButtonPrimary)`
   padding: ${({ padding }) => padding ?? '8px 12px'};
 
   border-radius: 12px;
-`;
+`
 
 const BaseButtonLight = styled(BaseButton)`
   font-family: 'Avenir LT Std';
@@ -147,7 +149,7 @@ const BaseButtonLight = styled(BaseButton)`
       outline: none;
     }
   }
-`;
+`
 
 export const ButtonGray = styled(BaseButton)`
   background-color: ${({ theme }) => theme.surface1};
@@ -162,7 +164,7 @@ export const ButtonGray = styled(BaseButton)`
   &:active {
     background-color: ${({ theme, disabled }) => !disabled && darken(0.1, theme.surface2)};
   }
-`;
+`
 
 export const ButtonSecondary = styled(BaseButton)`
   border: 1px solid ${({ theme }) => theme.accent2};
@@ -170,7 +172,7 @@ export const ButtonSecondary = styled(BaseButton)`
   background-color: transparent;
   font-size: 16px;
   border-radius: 12px;
-  padding: ${({ padding }) => (padding || '10px')};
+  padding: ${({ padding }) => padding || '10px'};
 
   &:focus {
     //box-shadow: 0 0 0 1pt ${({ theme }) => theme.accent2};
@@ -190,7 +192,7 @@ export const ButtonSecondary = styled(BaseButton)`
   a:hover {
     text-decoration: none;
   }
-`;
+`
 
 export const ButtonOutlined = styled(BaseButton)`
   border: 1px solid ${({ theme }) => theme.surface3};
@@ -209,7 +211,7 @@ export const ButtonOutlined = styled(BaseButton)`
     opacity: 50%;
     cursor: auto;
   }
-`;
+`
 
 export const ButtonEmpty = styled(BaseButton)`
   background-color: transparent;
@@ -231,7 +233,7 @@ export const ButtonEmpty = styled(BaseButton)`
     opacity: 50%;
     cursor: auto;
   }
-`;
+`
 
 export const ButtonText = styled(BaseButton)`
   padding: 0;
@@ -251,7 +253,7 @@ export const ButtonText = styled(BaseButton)`
     opacity: 50%;
     cursor: auto;
   }
-`;
+`
 
 const ButtonConfirmedStyle = styled(BaseButton)`
   background-color: ${({ theme }) => theme.surface2};
@@ -264,32 +266,34 @@ const ButtonConfirmedStyle = styled(BaseButton)`
     color: ${({ theme }) => theme.neutral2};
     cursor: auto;
   }
-`;
+`
 
 const ButtonErrorStyle = styled(ButtonPrimary)`
   font-family: 'Avenir LT Std';
   color: ${({ theme }) => theme.critical};
-  
-   &:disabled {
-     color: ${({ theme }) => theme.critical};
-     cursor: auto;
-   }
-`;
 
-export function ButtonConfirmed({ confirmed,
-  altDisabledStyle,
-  ...rest }: { confirmed?: boolean; altDisabledStyle?: boolean } & ButtonProps) {
-  if (confirmed) {
-    return <ButtonConfirmedStyle {...rest} />;
+  &:disabled {
+    color: ${({ theme }) => theme.critical};
+    cursor: auto;
   }
-  return <ButtonPrimary {...rest} altDisabledStyle={altDisabledStyle} />;
+`
+
+export function ButtonConfirmed({
+  confirmed,
+  altDisabledStyle,
+  ...rest
+}: { confirmed?: boolean; altDisabledStyle?: boolean } & ButtonProps) {
+  if (confirmed) {
+    return <ButtonConfirmedStyle {...rest} />
+  }
+  return <ButtonPrimary {...rest} altDisabledStyle={altDisabledStyle} />
 }
 
 export function ButtonError({ error, ...rest }: { error?: boolean } & BaseButtonProps) {
   if (error) {
-    return <ButtonErrorStyle {...rest} disabled />;
+    return <ButtonErrorStyle {...rest} disabled />
   }
-  return <ButtonPrimary {...rest} />;
+  return <ButtonPrimary {...rest} />
 }
 
 export function ButtonDropdown({ disabled = false, children, ...rest }: { disabled?: boolean } & ButtonProps) {
@@ -300,7 +304,7 @@ export function ButtonDropdown({ disabled = false, children, ...rest }: { disabl
         <ChevronDown size={24} />
       </RowBetween>
     </ButtonPrimary>
-  );
+  )
 }
 
 export function ButtonDropdownLight({ disabled = false, children, ...rest }: { disabled?: boolean } & ButtonProps) {
@@ -311,12 +315,12 @@ export function ButtonDropdownLight({ disabled = false, children, ...rest }: { d
         <ChevronDown size={24} />
       </RowBetween>
     </ButtonOutlined>
-  );
+  )
 }
 
 const ActiveOutlined = styled(ButtonOutlined)`
   border: ${({ theme }) => `1px solid ${theme.jediBlue}`} !important ;
-`;
+`
 
 const Circle = styled.div`
   height: 17px;
@@ -326,7 +330,7 @@ const Circle = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-`;
+`
 
 const CheckboxWrapper = styled.div`
   width: 20px;
@@ -334,21 +338,21 @@ const CheckboxWrapper = styled.div`
   position: absolute;
   top: 11px;
   right: 15px;
-`;
+`
 
 const ResponsiveCheck = styled(Check)`
   size: 13px;
-`;
+`
 
 export function ButtonRadioChecked({ active = false, children, ...rest }: { active?: boolean } & ButtonProps) {
-  const theme = useTheme();
+  const theme = useTheme()
 
   if (!active) {
     return (
       <ButtonOutlined $borderRadius="12px" padding="12px 8px" {...rest}>
         <RowBetween>{children}</RowBetween>
       </ButtonOutlined>
-    );
+    )
   }
   return (
     <ActiveOutlined {...rest} padding="12px 8px" $borderRadius="12px">
@@ -361,7 +365,7 @@ export function ButtonRadioChecked({ active = false, children, ...rest }: { acti
         </CheckboxWrapper>
       </RowBetween>
     </ActiveOutlined>
-  );
+  )
 }
 
 export enum ButtonSize {
@@ -385,40 +389,39 @@ interface BaseThemeButtonProps {
 }
 
 function pickThemeButtonFontSize({ size }) {
-  console.log(size);
   switch (size) {
     case ButtonSize.large:
-      return '24px';
+      return '24px'
     case ButtonSize.medium:
-      return '20px';
+      return '20px'
     case ButtonSize.small:
-      return '16px';
+      return '16px'
     default:
-      return '16px';
+      return '16px'
   }
 }
 function pickThemeButtonLineHeight({ size }) {
   switch (size) {
     case ButtonSize.large:
-      return '24px';
+      return '24px'
     case ButtonSize.medium:
-      return '20px';
+      return '20px'
     case ButtonSize.small:
-      return '16px';
+      return '16px'
     default:
-      return '20px';
+      return '20px'
   }
 }
 function pickThemeButtonPadding({ size }) {
   switch (size) {
     case ButtonSize.large:
-      return '22px 16px';
+      return '22px 16px'
     case ButtonSize.medium:
-      return '14px 12px';
+      return '14px 12px'
     case ButtonSize.small:
-      return '10px';
+      return '10px'
     default:
-      return '10px';
+      return '10px'
   }
 }
 
@@ -440,12 +443,12 @@ const BaseThemeButton = styled.button<BaseThemeButtonProps>`
   position: relative;
   transition: 150ms ease opacity;
   user-select: none;
-  
+
   :hover,
   :focus {
     background: ${({ theme }) => theme.brandedGradientReversed};
   }
-  
+
   :active {
     background: ${({ theme }) => theme.brandedGradientReversed};
   }
@@ -466,23 +469,20 @@ const BaseThemeButton = styled.button<BaseThemeButtonProps>`
       background-color: transparent;
     }
   }
-`;
+`
 
-interface ThemeButtonProps extends React.ComponentPropsWithoutRef<'button'>, BaseThemeButtonProps { }
+interface ThemeButtonProps extends React.ComponentPropsWithoutRef<'button'>, BaseThemeButtonProps {}
 type ThemeButtonRef = HTMLButtonElement
 
-export const ThemeButton = forwardRef<ThemeButtonRef, ThemeButtonProps>((
-  { children, ...rest },
-  ref,
-) => (
+export const ThemeButton = forwardRef<ThemeButtonRef, ThemeButtonProps>(({ children, ...rest }, ref) => (
   <BaseThemeButton {...rest} ref={ref}>
     {children}
   </BaseThemeButton>
-));
+))
 
 export const ButtonLight = ({ children, ...rest }: BaseButtonProps) => (
   <BaseButtonLight {...rest}>
     <ButtonOverlay />
     {children}
   </BaseButtonLight>
-);
+)

@@ -10,10 +10,10 @@ import { useMemo } from 'react'
 import { IUniswapV3PoolStateInterface } from '../types/v3/IUniswapV3PoolState'
 import { V3_CORE_FACTORY_ADDRESSES } from 'constants/addresses'
 import { useAllPairs } from 'state/pairs/hooks'
-import { CallData, ec, hash, validateAndParseAddress } from 'starknet'
+import { CallData, ec, hash, num, validateAndParseAddress } from 'starknet'
 import { useContractRead } from '@starknet-react/core'
 import POOL_ABI from 'contracts/pool/abi.json'
-import { DEFAULT_POOL_ADDRESS, DEFAULT_POOL_HASH } from 'constants/tokens'
+import { DEFAULT_POOL_ADDRESS, DEFAULT_POOL_HASH, FACTORY_ADDRESS } from 'constants/tokens'
 
 // const POOL_STATE_INTERFACE = new Interface(IUniswapV3PoolStateJSON.abi) as IUniswapV3PoolStateInterface
 
@@ -74,17 +74,7 @@ class PoolCache {
       )
     })
     if (found) return found
-    console.log(
-      tokenA,
-      tokenB,
-      fee,
-      sqrtPriceX96,
-      liquidity,
-      tick,
-      'tokenA, tokenB, fee, sqrtPriceX96, liquidity, tick'
-    )
     const pool = new Pool(tokenA, tokenB, fee, sqrtPriceX96, liquidity, tick)
-    console.log('🚀 ~ file: usePools.ts:78 ~ PoolCache ~ pool:', pool)
     this.pools.unshift(pool)
     return pool
   }
@@ -141,12 +131,10 @@ export function usePools(
 
           const contructorCalldata = CallData.compile([tokens[0].address, tokens[1].address, feeAmount, 2])
 
-          const address = calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, 0)
-          console.log('🚀 ~ file: usePools.ts:149 ~ poolTokens.map ~ address:', address)
-          // console.log('🚀 ~ file: usePools.ts:145 ~ poolTokens.map ~ address:', address)
+          calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS)
 
           return tokenA && tokenB && !tokenA.equals(tokenB)
-            ? validateAndParseAddress(Pool.getAddress(tokenA, tokenB, feeAmount))
+            ? calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS)
             : undefined
         }
         return undefined
@@ -154,8 +142,7 @@ export function usePools(
     [poolTokens]
   )
 
-  // const slot0s = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'slot0')
-  // const liquidities = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'liquidity')
+  // if (!pairAddresses || !pairAddresses.length) return [PoolState.NOT_EXISTS, null]
 
   const {
     data: tick,
@@ -164,6 +151,14 @@ export function usePools(
     error,
   } = useContractRead({
     functionName: 'get_tick',
+    args: [],
+    abi: POOL_ABI,
+    address: DEFAULT_POOL_ADDRESS,
+    watch: true,
+  })
+
+  const { data: liquid } = useContractRead({
+    functionName: 'get_liquidity',
     args: [],
     abi: POOL_ABI,
     address: DEFAULT_POOL_ADDRESS,
@@ -179,7 +174,7 @@ export function usePools(
   })
 
   const liquidity = JSBI.BigInt('0x78c95144121d6f5222f880')
-  const sqrt = JSBI.BigInt('0x569d27eac14698dd7ad6117c')
+  const sqrt = JSBI.BigInt('2018382873588440326581633304624437')
   // const liquidity = JSBI.BigInt('253')
   return useMemo(() => {
     return poolKeys.map((_key, index) => {
