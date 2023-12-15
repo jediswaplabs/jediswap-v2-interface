@@ -52,13 +52,7 @@ function useTicksFromTickLens(
 
   const poolAddress =
     currencyA && currencyB && feeAmount && poolState === PoolState.EXISTS
-      ? Pool.getAddress(
-          currencyA?.wrapped,
-          currencyB?.wrapped,
-          feeAmount,
-          undefined,
-          chainId ? V3_CORE_FACTORY_ADDRESSES[chainId] : undefined
-        )
+      ? Pool.getAddress(currencyA?.wrapped, currencyB?.wrapped, feeAmount)
       : undefined
 
   // it is also possible to grab all tick data but it is extremely slow
@@ -142,15 +136,7 @@ function useTicksFromSubgraph(
 ) {
   const { chainId } = useAccountDetails()
   const poolAddress =
-    currencyA && currencyB && feeAmount
-      ? Pool.getAddress(
-          currencyA?.wrapped,
-          currencyB?.wrapped,
-          feeAmount,
-          undefined,
-          chainId ? V3_CORE_FACTORY_ADDRESSES[chainId] : undefined
-        )
-      : undefined
+    currencyA && currencyB && feeAmount ? Pool.getAddress(currencyA?.wrapped, currencyB?.wrapped, feeAmount) : undefined
 
   return useAllV3TicksQuery({
     variables: { poolAddress: poolAddress?.toLowerCase(), skip },
