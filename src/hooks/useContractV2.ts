@@ -2,9 +2,11 @@ import { Contract } from 'starknet'
 import { useMemo } from 'react'
 import { FACTORY_ADDRESS, FACTORY_ABI } from 'contracts/factoryAddress'
 import { useAccountDetails } from './starknet-react'
-import { DEFAULT_CHAIN_ID } from 'constants/tokens'
+import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { getContractV2 } from 'utils/getContract'
 import { MULTICALL_ABI, MULTICALL_NETWORKS } from 'contracts/multicall'
+import { NonfungiblePositionManager } from '@vnaysn/jediswap-sdk-v3'
+import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
 
 // returns null on errors
 function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
@@ -53,3 +55,9 @@ export function useMulticallContract(): Contract | null {
 
 //   return useContract(ZAP_IN_ADDRESS[chainId ?? DEFAULT_CHAIN_ID], ZAP_IN_ABI, true)
 // }
+
+export function useV3NFTPositionManagerContract(withSignerIfPossible?: boolean): NonfungiblePositionManager | null {
+  const { address: account, chainId } = useAccountDetails()
+  const contract = useContract(NONFUNGIBLE_POOL_MANAGER_ADDRESS, NFTPositionManagerABI, withSignerIfPossible)
+  return contract
+}

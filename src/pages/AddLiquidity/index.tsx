@@ -3,7 +3,7 @@ import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount, Percent, validateAndParseAddress } from '@vnaysn/jediswap-sdk-core'
-import { FeeAmount, NonfungiblePositionManager } from '@vnaysn/jediswap-sdk-v3'
+import { FeeAmount, NonfungiblePositionManager, toHex } from '@vnaysn/jediswap-sdk-v3'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -44,11 +44,11 @@ import Row, { RowBetween, RowFixed } from '../../components/Row'
 import { SwitchLocaleLink } from '../../components/SwitchLocaleLink'
 import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
 import { ZERO_PERCENT } from '../../constants/misc'
-import { WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
+import { NONFUNGIBLE_POOL_MANAGER_ADDRESS, WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
 import { useCurrency } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallback } from '../../hooks/useApproveCallback'
 import { useArgentWalletContract } from '../../hooks/useArgentWalletContract'
-import { useV3NFTPositionManagerContract } from '../../hooks/useContract'
+import { useV3NFTPositionManagerContract } from '../../hooks/useContractV2'
 import { useDerivedPositionInfo } from '../../hooks/useDerivedPositionInfo'
 import { useIsSwapUnsupported } from '../../hooks/useIsSwapUnsupported'
 import { useStablecoinValue } from '../../hooks/useStablecoinPrice'
@@ -67,8 +67,9 @@ import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/addresses'
-import { useProvider } from '@starknet-react/core'
 import { calculateSlippageAmount } from 'utils/calculateSlippageAmount'
+import { useContractWrite, useProvider } from '@starknet-react/core'
+import { Call, CallData, num } from 'starknet'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -162,6 +163,12 @@ function AddLiquidity() {
   const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
     useV3MintActionHandlers(noLiquidity)
 
+  const [mintCallData, setMintCallData] = useState<Call[]>([])
+
+  const { writeAsync, data } = useContractWrite({
+    calls: mintCallData,
+  })
+
   const isValid = !errorMessage && !invalidRange
 
   // modal and loading
@@ -215,8 +222,14 @@ function AddLiquidity() {
 
   const [allowedSlippage] = useUserSlippageTolerance() // custom from users
 
+  useEffect(() => {
+    if (mintCallData) {
+      writeAsync().then((tx) => console.log(tx))
+    }
+  }, [mintCallData])
+
   async function onAdd() {
-    if (!chainId || !provider || !account) {
+    if (!chainId || !account) {
       return
     }
 
@@ -224,15 +237,64 @@ function AddLiquidity() {
       return
     }
 
-    // const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
-    // if (!parsedAmountA || !parsedAmountB || !baseCurrency || !currencyB || !deadline) {
-    //   return
-    // }
+    if (position && account && deadline) {
+      // get amounts
+      const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
 
-    // const amountsMin = {
-    //   [Field.CURRENCY_A]: calculateSlippageAmount(parsedAmountA, noLiquidity ? 0 : allowedSlippage)[0],
-    //   [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0],
-    // }
+      // adjust for slippage
+      const minimumAmounts = position.mintAmountsWithSlippage(allowedSlippage)
+      const amount0Min = toHex(minimumAmounts.amount0)
+      const amount1Min = toHex(minimumAmounts.amount1)
+
+      let value: string = num.toHex(0)
+      const mintData = {
+        token0: position.pool.token0.address,
+        token1: position.pool.token1.address,
+        fee: position.pool.fee,
+        tickLower: position.tickLower,
+        tickUpper: position.tickUpper,
+        amount0Desired: toHex(amount0Desired),
+        amount1Desired: toHex(amount1Desired),
+        amount0Min,
+        amount1Min,
+        recipient: account,
+        deadline,
+      }
+
+      const callData = CallData.compile(mintData)
+
+      const calls = {
+        contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+        entrypoint: 'mint',
+        calldata: callData,
+      }
+
+      setMintCallData([calls])
+
+      // const { calldata, value } =
+      //   hasExistingPosition && tokenId
+      //     ? NonfungiblePositionManager.addCallParameters(position, {
+      //         tokenId,
+      //         slippageTolerance: allowedSlippage,
+      //         deadline: deadline.toString(),
+      //       })
+      //     : NonfungiblePositionManager.addCallParameters(position, {
+      //         slippageTolerance: allowedSlippage,
+      //         recipient: account,
+      //         deadline: deadline.toString(),
+      //         createPool: noLiquidity,
+      //       })
+
+      // let txn: { to: string; data: string; value: string } = {
+      //   to: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+      //   data: calldata,
+      //   value,
+      // }
+
+      setAttemptingTxn(true)
+    } else {
+      return
+    }
   }
 
   const handleCurrencySelect = useCallback(
@@ -326,12 +388,6 @@ function AddLiquidity() {
     tickUpper,
     pool
   )
-
-  // we need an existence check on parsed amounts for single-asset deposits
-  const showApprovalA =
-    !argentWalletContract && approvalA !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_A]
-  const showApprovalB =
-    !argentWalletContract && approvalB !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_B]
 
   const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${
     !depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
@@ -427,10 +483,10 @@ function AddLiquidity() {
     [usdcValueCurrencyB]
   )
 
-  const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
-  const ownsNFT =
-    addressesAreEquivalent(owner, account) || addressesAreEquivalent(existingPositionDetails?.operator, account)
-  const showOwnershipWarning = Boolean(hasExistingPosition && account && !ownsNFT)
+  // const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
+  // const ownsNFT =
+  //   addressesAreEquivalent(owner, account) || addressesAreEquivalent(existingPositionDetails?.operator, account)
+  // const showOwnershipWarning = Boolean(hasExistingPosition && account && !ownsNFT)
 
   return (
     <>
@@ -756,7 +812,6 @@ function AddLiquidity() {
             </ResponsiveTwoColumns>
           </Wrapper>
         </StyledBodyWrapper>
-        {showOwnershipWarning && <OwnershipWarning ownerAddress={owner} />}
         {addIsUnsupported && (
           <UnsupportedCurrencyFooter
             show={addIsUnsupported}
