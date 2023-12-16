@@ -31,3 +31,6 @@ export const BLOCKED_PRICE_IMPACT_NON_EXPERT: Percent = new Percent(15, 100) // 
 
 export const ZERO_PERCENT = new Percent(0)
 export const ONE_HUNDRED_PERCENT = new Percent(1)
+
+export const INITIAL_ALLOWED_SLIPPAGE = 200
+

@@ -1,8 +1,9 @@
 import { Trade } from '@vnaysn/jediswap-router-sdk'
-import { Currency, CurrencyAmount, Fraction, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
+import { Currency, CurrencyAmount, Fraction, TradeType, Percent } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
 import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
 import { DefaultTheme } from 'styled-components'
+import { Field } from '../state/swap/actions'
 
 import {
   ALLOWED_PRICE_IMPACT_HIGH,
@@ -13,6 +14,7 @@ import {
   ONE_HUNDRED_PERCENT,
   ZERO_PERCENT,
 } from '../constants/misc'
+import { basisPointsToPercent } from 'utils'
 
 const THIRTY_BIPS_FEE = new Percent(30, BIPS_BASE)
 const INPUT_FRACTION_AFTER_FEE = ONE_HUNDRED_PERCENT.subtract(THIRTY_BIPS_FEE)
@@ -20,6 +22,18 @@ const INPUT_FRACTION_AFTER_FEE = ONE_HUNDRED_PERCENT.subtract(THIRTY_BIPS_FEE)
 export function computeRealizedPriceImpact(trade: Trade<Currency, Currency, TradeType>): Percent {
   const realizedLpFeePercent = computeRealizedLPFeePercent(trade)
   return trade.priceImpact.subtract(realizedLpFeePercent)
+}
+
+// computes the minimum amount out and maximum amount in for a trade given a user specified allowed slippage in bips
+export function computeSlippageAdjustedAmounts(
+  trade: Trade<Currency, Currency, TradeType> | undefined,
+  allowedSlippage: number
+): { [field in Field]?: CurrencyAmount<Currency> } {
+  const pct = basisPointsToPercent(allowedSlippage)
+  return {
+    [Field.INPUT]: trade?.maximumAmountIn(pct as any),
+    [Field.OUTPUT]: trade?.minimumAmountOut(pct as any)
+  }
 }
 
 // computes realized lp fee as a percent

@@ -57,7 +57,7 @@ import { useV3PositionFromTokenId } from '../../hooks/useV3Positions'
 import { Bound, Field } from '../../state/mint/v3/actions'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { TransactionInfo, TransactionType } from '../../state/transactions/types'
-import { useUserSlippageToleranceWithDefault } from '../../state/user/hooks'
+import { useUserSlippageTolerance, useUserSlippageToleranceWithDefault } from '../../state/user/hooks'
 import approveAmountCalldata from '../../utils/approveAmountCalldata'
 import { calculateGasMargin } from '../../utils/calculateGasMargin'
 import { currencyId } from '../../utils/currencyId'
@@ -67,6 +67,7 @@ import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/addresses'
+import { calculateSlippageAmount } from 'utils/calculateSlippageAmount'
 import { useContractWrite, useProvider } from '@starknet-react/core'
 import { Call, CallData, num } from 'starknet'
 
@@ -207,9 +208,19 @@ function AddLiquidity() {
     {}
   )
 
-  const allowedSlippage = useUserSlippageToleranceWithDefault(
-    outOfRange ? ZERO_PERCENT : DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE
+  const argentWalletContract = useArgentWalletContract()
+
+  // check whether the user has approved the router on the tokens
+  const [approvalA, approveACallback] = useApproveCallback(
+    argentWalletContract ? undefined : parsedAmounts[Field.CURRENCY_A],
+    chainId ? NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined
   )
+  const [approvalB, approveBCallback] = useApproveCallback(
+    argentWalletContract ? undefined : parsedAmounts[Field.CURRENCY_B],
+    chainId ? NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined
+  )
+
+  const [allowedSlippage] = useUserSlippageTolerance() // custom from users
 
   useEffect(() => {
     if (mintCallData) {

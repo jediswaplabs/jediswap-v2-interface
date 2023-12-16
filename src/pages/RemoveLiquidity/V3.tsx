@@ -33,7 +33,7 @@ import useNativeCurrency from 'lib/hooks/useNativeCurrency'
 import { PositionPageUnsupportedContent } from 'pages/Pool/PositionPage'
 import { useBurnV3ActionHandlers, useBurnV3State, useDerivedV3BurnInfo } from 'state/burn/v3/hooks'
 import { useTransactionAdder } from 'state/transactions/hooks'
-import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
+import { useUserSlippageTolerance, useUserSlippageToleranceWithDefault } from 'state/user/hooks'
 import { ThemedText } from 'theme/components'
 import { WrongChainError } from 'utils/errors'
 import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
@@ -101,7 +101,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
   const [percentForSlider, onPercentSelectForSlider] = useDebouncedChangeHandler(percent, onPercentSelect)
 
   const deadline = useTransactionDeadline() // custom from users settings
-  const allowedSlippage = useUserSlippageToleranceWithDefault(DEFAULT_REMOVE_V3_LIQUIDITY_SLIPPAGE_TOLERANCE) // custom from users
+  const [allowedSlippage] = useUserSlippageTolerance() // custom from users
 
   const [showConfirm, setShowConfirm] = useState(false)
   const [attemptingTxn, setAttemptingTxn] = useState(false)
@@ -129,7 +129,7 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     const { calldata, value } = NonfungiblePositionManager.removeCallParameters(positionSDK, {
       tokenId: tokenId.toString(),
       liquidityPercentage,
-      slippageTolerance: allowedSlippage,
+      slippageTolerance: allowedSlippage as any,
       deadline: deadline.toString(),
       collectOptions: {
         expectedCurrencyOwed0: feeValue0 ?? CurrencyAmount.fromRawAmount(liquidityValue0.currency, 0),
