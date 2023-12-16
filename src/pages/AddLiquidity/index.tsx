@@ -528,14 +528,14 @@ function AddLiquidity() {
                     </AutoColumn>{' '}
                   </>
                 )}
-                {hasExistingPosition && existingPosition && (
+                {/* {hasExistingPosition && existingPosition && (
                   <PositionPreview
                     position={existingPosition}
                     title={<Trans>Selected range</Trans>}
                     inRange={!outOfRange}
                     ticksAtLimit={ticksAtLimit}
                   />
-                )}
+                )} */}
               </AutoColumn>
 
               {!hasExistingPosition && (
@@ -595,7 +595,7 @@ function AddLiquidity() {
                       ticksAtLimit={ticksAtLimit}
                     />
 
-                    {outOfRange && (
+                    {/*  {outOfRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
                         <RowBetween>
                           <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
@@ -607,9 +607,9 @@ function AddLiquidity() {
                           </ThemedText.DeprecatedYellow>
                         </RowBetween>
                       </YellowCard>
-                    )}
+                    )} */}
 
-                    {invalidRange && (
+                    {/* {invalidRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
                         <RowBetween>
                           <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
@@ -618,7 +618,7 @@ function AddLiquidity() {
                           </ThemedText.DeprecatedYellow>
                         </RowBetween>
                       </YellowCard>
-                    )}
+                    )} */}
                   </DynamicSection>
 
                   <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>

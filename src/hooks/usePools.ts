@@ -174,7 +174,7 @@ export function usePools(
   })
 
   const liquidity = JSBI.BigInt('0x78c95144121d6f5222f880')
-  const sqrt = JSBI.BigInt('2018382873588440326581633304624437')
+  const sqrt = JSBI.BigInt('0x569d27eac14698dd7ad6117c')
   // const liquidity = JSBI.BigInt('253')
   return useMemo(() => {
     return poolKeys.map((_key, index) => {
@@ -193,7 +193,6 @@ export function usePools(
       // if (slot0Loading || liquidityLoading) return [PoolState.LOADING, null]
       // if (!tick || !liquidity || !sqrtPriceX96) return [PoolState.NOT_EXISTS, null]
       // if (!slot0.sqrtPriceX96 || slot0.sqrtPriceX96.eq(0)) return [PoolState.NOT_EXISTS, null]
-
       try {
         const pool = PoolCache.getPool(token0, token1, fee, sqrt, liquidity, -21676)
         return [PoolState.EXISTS, pool]
