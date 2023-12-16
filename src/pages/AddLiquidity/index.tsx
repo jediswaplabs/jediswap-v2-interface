@@ -215,16 +215,6 @@ function AddLiquidity() {
 
   const [allowedSlippage] = useUserSlippageTolerance() // custom from users
 
-  const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
-  if (!parsedAmountA || !parsedAmountB || !baseCurrency || !currencyB || !deadline) {
-    return null
-  }
-
-  const amountsMin = {
-    [Field.CURRENCY_A]: calculateSlippageAmount(parsedAmountA, noLiquidity ? 0 : allowedSlippage)[0],
-    [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0],
-  }
-
   async function onAdd() {
     if (!chainId || !provider || !account) {
       return
@@ -233,6 +223,16 @@ function AddLiquidity() {
     if (!positionManager || !baseCurrency || !quoteCurrency) {
       return
     }
+
+    // const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
+    // if (!parsedAmountA || !parsedAmountB || !baseCurrency || !currencyB || !deadline) {
+    //   return
+    // }
+
+    // const amountsMin = {
+    //   [Field.CURRENCY_A]: calculateSlippageAmount(parsedAmountA, noLiquidity ? 0 : allowedSlippage)[0],
+    //   [Field.CURRENCY_B]: calculateSlippageAmount(parsedAmountB, noLiquidity ? 0 : allowedSlippage)[0],
+    // }
   }
 
   const handleCurrencySelect = useCallback(

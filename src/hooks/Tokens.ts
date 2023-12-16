@@ -142,7 +142,7 @@ type BridgeInfo = Record<
 export function useSearchInactiveTokenLists(search: string | undefined, minResults = 10): WrappedTokenInfo[] {
   const lists = useAllLists()
   const inactiveUrls = DEFAULT_INACTIVE_LIST_URLS
-  const { chainId } = useAccountDetails() as any
+  const { chainId } = useAccountDetails() 
   const activeTokens = useDefaultActiveTokens(chainId)
   return useMemo(() => {
     if (!search || search.trim().length === 0) return []
