@@ -35,7 +35,6 @@ import { SignatureExpiredError } from 'utils/errors'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { formatSwapPriceUpdatedEventProperties } from 'utils/loggingFormatters'
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
-// import { tradeMeaningfullyDiffers } from 'utils/tradeMeaningFullyDiffer'
 import { ConfirmationModalContent } from '../TransactionConfirmationModal'
 import { RESET_APPROVAL_TOKENS } from './constants'
 import { PendingConfirmModalState, PendingModalContent } from './PendingModalContent'
@@ -73,7 +72,7 @@ function useConfirmModalState({
   onCurrencySelection,
 }: {
   trade: InterfaceTrade
-  allowedSlippage: Percent
+  allowedSlippage: number
   onSwap: () => void
   allowance: Allowance
   doesTradeDiffer: boolean
@@ -278,7 +277,7 @@ export default function ConfirmSwapModal({
   inputCurrency?: Currency
   originalTrade?: InterfaceTrade
   swapResult?: SwapResult
-  allowedSlippage: Percent
+  allowedSlippage: number
   allowance: Allowance
   onAcceptChanges: () => void
   clearSwapState: () => void

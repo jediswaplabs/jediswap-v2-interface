@@ -14,7 +14,7 @@ import { AnyAction } from 'redux'
 import { useAppDispatch } from 'state/hooks'
 import { InterfaceTrade, TradeState } from 'state/routing/types'
 import { isClassicTrade, isSubmittableTrade, isUniswapXTrade } from 'state/routing/utils'
-import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
+import { useUserSlippageTolerance, useUserSlippageToleranceWithDefault } from 'state/user/hooks'
 
 // import { TOKEN_SHORTHANDS } from '../../constants/tokens'
 import { useCurrency } from '../../hooks/Tokens'
@@ -24,6 +24,7 @@ import { isAddress } from '../../utils'
 import { useCurrencyBalances } from '../connection/hooks'
 import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies, typeInput } from './actions'
 import { SwapState } from './reducer'
+import { computeSlippageAdjustedAmounts } from 'utils/prices'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
@@ -93,7 +94,7 @@ export type SwapInfo = {
     error?: any
     swapQuoteLatency?: number
   }
-  allowedSlippage: Percent
+  allowedSlippage: number
   autoSlippage: Percent
 }
 
@@ -168,10 +169,12 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
 
   // Uniswap interface recommended slippage amount
   const autoSlippage = uniswapXAutoSlippage ?? classicAutoSlippage
-  const classicAllowedSlippage = useUserSlippageToleranceWithDefault(autoSlippage)
+  const [allowedSlippage] = useUserSlippageTolerance()
+
+  // const classicAllowedSlippage = useUserSlippageToleranceWithDefault(autoSlippage)
 
   // slippage amount used to submit the trade
-  const allowedSlippage = uniswapXAutoSlippage ?? classicAllowedSlippage
+  // const allowedSlippage = uniswapXAutoSlippage ?? classicAllowedSlippage
 
   const connectionReady = useConnectionReady()
   const inputError = useMemo(() => {
@@ -198,8 +201,34 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
       }
     }
 
+    // const [bestTradeExactIn, bestTradeInLoading] = useTradeExactIn(
+    //   isExactIn ? parsedAmount : undefined,
+    //   outputCurrency ?? undefined
+    // )
+    // //
+    // //   '🚀 ~ file: hooks.ts ~ line 147 ~ useDerivedSwapInfo ~ bestTradeExactIn ',
+    // //   bestTradeExactIn,
+    // //   parsedAmount,
+    // //   outputCurrency
+    // // )
+    // const [bestTradeExactOut, bestTradeOutLoading] = useTradeExactOut(
+    //   inputCurrency ?? undefined,
+    //   !isExactIn ? parsedAmount : undefined
+    // )
+
+    // const trade = isExactIn ? bestTradeExactIn : bestTradeExactOut
+
+    const slippageAdjustedAmounts =
+      trade && allowedSlippage && computeSlippageAdjustedAmounts(trade.trade as any, allowedSlippage)
+
     // compare input balance to max input based on version
-    const [balanceIn, maxAmountIn] = [currencyBalances[Field.INPUT], trade?.trade?.maximumAmountIn(allowedSlippage)]
+    const [balanceIn, maxAmountIn] = [
+      currencyBalances[Field.INPUT],
+      slippageAdjustedAmounts ? slippageAdjustedAmounts[Field.INPUT] : null,
+    ]
+
+    // compare input balance to max input based on version
+    // const [balanceIn, maxAmountIn] = [currencyBalances[Field.INPUT], trade?.trade?.maximumAmountIn(allowedSlippage)]
 
     if (balanceIn && maxAmountIn && balanceIn.lessThan(maxAmountIn)) {
       inputError = <Trans>Insufficient {balanceIn.currency.symbol} balance</Trans>

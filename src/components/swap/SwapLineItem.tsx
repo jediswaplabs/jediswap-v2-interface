@@ -272,7 +272,7 @@ function ValueWrapper({ children, lineItem, labelHovered, syncing }: ValueWrappe
 export interface SwapLineItemProps {
   trade: InterfaceTrade
   syncing: boolean
-  allowedSlippage: Percent
+  allowedSlippage: number
   type: SwapLineItemType
   animatedOpacity?: SpringValue<number>
 }

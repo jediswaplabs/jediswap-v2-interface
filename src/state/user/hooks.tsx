@@ -23,6 +23,8 @@ import {
 import { SerializedPair, SerializedToken, SlippageTolerance } from './types'
 import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from 'constants/tokens'
 import { V2_FACTORY_ADDRESSES } from 'constants/addresses'
+import { useDispatch, useSelector } from 'react-redux'
+import { AppDispatch, AppState } from 'state'
 
 export function serializeToken(token: Token): SerializedToken {
   return {
@@ -94,40 +96,15 @@ export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
 /**
  * Return the user's slippage tolerance, from the redux store, and a function to update the slippage tolerance
  */
-export function useUserSlippageTolerance(): [
-  Percent | SlippageTolerance.Auto,
-  (slippageTolerance: Percent | SlippageTolerance.Auto) => void
-] {
-  const userSlippageToleranceRaw = useAppSelector((state) => {
+export function useUserSlippageTolerance(): [number, (slippage: number) => void] {
+  const dispatch = useDispatch<AppDispatch>()
+  const userSlippageTolerance = useSelector<AppState, AppState['user']['userSlippageTolerance']>((state) => {
     return state.user.userSlippageTolerance
   })
 
-  // TODO(WEB-1985): Keep `userSlippageTolerance` as Percent in Redux store and remove this conversion
-  const userSlippageTolerance = useMemo(
-    () =>
-      userSlippageToleranceRaw === SlippageTolerance.Auto
-        ? SlippageTolerance.Auto
-        : new Percent(userSlippageToleranceRaw, 10_000),
-    [userSlippageToleranceRaw]
-  )
-
-  const dispatch = useAppDispatch()
   const setUserSlippageTolerance = useCallback(
-    (userSlippageTolerance: Percent | SlippageTolerance.Auto) => {
-      let value: SlippageTolerance.Auto | number
-      try {
-        value =
-          userSlippageTolerance === SlippageTolerance.Auto
-            ? SlippageTolerance.Auto
-            : JSBI.toNumber(userSlippageTolerance.multiply(10_000).quotient)
-      } catch (error) {
-        value = SlippageTolerance.Auto
-      }
-      dispatch(
-        updateUserSlippageTolerance({
-          userSlippageTolerance: value,
-        })
-      )
+    (userSlippageTolerance: number) => {
+      dispatch(updateUserSlippageTolerance({ userSlippageTolerance }))
     },
     [dispatch]
   )
@@ -135,13 +112,29 @@ export function useUserSlippageTolerance(): [
   return [userSlippageTolerance, setUserSlippageTolerance]
 }
 
+export function useUserTransactionTTL(): [number, (slippage: number) => void] {
+  const dispatch = useDispatch<AppDispatch>()
+  const userDeadline = useSelector<AppState, AppState['user']['userDeadline']>((state) => {
+    return state.user.userDeadline
+  })
+
+  const setUserDeadline = useCallback(
+    (userDeadline: number) => {
+      dispatch(updateUserDeadline({ userDeadline }))
+    },
+    [dispatch]
+  )
+
+  return [userDeadline, setUserDeadline]
+}
+
 /**
  *Returns user slippage tolerance, replacing the auto with a default value
  * @param defaultSlippageTolerance the value to replace auto with
  */
-export function useUserSlippageToleranceWithDefault(defaultSlippageTolerance: Percent): Percent {
+export function useUserSlippageToleranceWithDefault(defaultSlippageTolerance: number): number {
   const [allowedSlippage] = useUserSlippageTolerance()
-  return allowedSlippage === SlippageTolerance.Auto ? defaultSlippageTolerance : allowedSlippage
+  return !allowedSlippage ? defaultSlippageTolerance : allowedSlippage
 }
 
 export function useUserHideClosedPositions(): [boolean, (newHideClosedPositions: boolean) => void] {
@@ -157,23 +150,6 @@ export function useUserHideClosedPositions(): [boolean, (newHideClosedPositions:
   )
 
   return [hideClosedPositions, setHideClosedPositions]
-}
-
-export function useUserTransactionTTL(): [number, (slippage: number) => void] {
-  const { chainId } = useAccountDetails()
-  const dispatch = useAppDispatch()
-  const userDeadline = useAppSelector((state) => state.user.userDeadline)
-  const onL2 = false
-  const deadline = onL2 ? L2_DEADLINE_FROM_NOW : userDeadline
-
-  const setUserDeadline = useCallback(
-    (userDeadline: number) => {
-      dispatch(updateUserDeadline({ userDeadline }))
-    },
-    [dispatch]
-  )
-
-  return [deadline, setUserDeadline]
 }
 
 export function useAddUserToken(): (token: Token) => void {

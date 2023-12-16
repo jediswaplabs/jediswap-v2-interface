@@ -45,7 +45,7 @@ function getUniversalRouterFeeFields(trade?: InterfaceTrade): UniversalRouterFee
 export function useSwapCallback(
   trade: InterfaceTrade | undefined, // trade to execute, required
   fiatValues: { amountIn?: number; amountOut?: number; feeUsd?: number }, // usd values for amount in and out, and the fee value, logged for analytics
-  allowedSlippage: Percent, // in bips
+  allowedSlippage: number, // in bips
   permitSignature: PermitSignature | undefined
 ) {
   const deadline = useTransactionDeadline()

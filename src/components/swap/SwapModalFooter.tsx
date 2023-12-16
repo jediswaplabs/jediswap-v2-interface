@@ -93,7 +93,7 @@ export default function SwapModalFooter({
 }: {
   trade: InterfaceTrade
   swapResult?: SwapResult
-  allowedSlippage: Percent
+  allowedSlippage: number
   onConfirm: () => void
   swapErrorMessage?: ReactNode
   disabledConfirm: boolean
@@ -104,7 +104,7 @@ export default function SwapModalFooter({
   isLoading: boolean
 }) {
   const transactionDeadlineSecondsSinceEpoch = useTransactionDeadline()?.toNumber() // in seconds since epoch
-  const isAutoSlippage = useUserSlippageTolerance()[0] === 'auto'
+  // const isAutoSlippage = useUserSlippageTolerance()[0] === 'auto'
   const [routerPreference] = useRouterPreference()
   const routes = isClassicTrade(trade) ? getRoutingDiagramEntries(trade) : undefined
   const theme = useTheme()
@@ -179,7 +179,7 @@ function AnimatedLineItem(props: SwapLineItemProps & { open: boolean; delay: num
   return <SwapLineItem {...props} {...animatedProps} />
 }
 
-function ExpandableLineItems(props: { trade: InterfaceTrade; allowedSlippage: Percent; open: boolean }) {
+function ExpandableLineItems(props: { trade: InterfaceTrade; allowedSlippage: number; open: boolean }) {
   const { open, trade, allowedSlippage } = props
 
   if (!trade) {

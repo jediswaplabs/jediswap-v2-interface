@@ -40,7 +40,7 @@ interface SwapDetailsProps {
   trade?: InterfaceTrade
   syncing: boolean
   loading: boolean
-  allowedSlippage: Percent
+  allowedSlippage: number
 }
 
 export default function SwapDetailsDropdown(props: SwapDetailsProps) {
