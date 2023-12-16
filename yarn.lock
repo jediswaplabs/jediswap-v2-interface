@@ -6942,6 +6942,22 @@
     tiny-invariant "^1.1.0"
     tiny-warning "^1.0.3"
 
+"@vnaysn/jediswap-sdk-v3@^12.0.0":
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/@vnaysn/jediswap-sdk-v3/-/jediswap-sdk-v3-12.0.0.tgz#7ef34f7632097e3a79aa1ee73849f0c8f213574b"
+  integrity sha512-5G1Arng0VSYATC0oGe2CmEw8DSHgfjeBXpTcT3hOK0N6B4YWQQtD7McjjCKXgu/OS8h1ZqnJckIVmQHyy4B9kg==
+  dependencies:
+    "@ethersproject/abi" "^5.0.12"
+    "@ethersproject/solidity" "^5.0.9"
+    "@uniswap/sdk-core" "^4"
+    "@uniswap/swap-router-contracts" "^1.2.1"
+    "@uniswap/v3-periphery" "^1.1.1"
+    "@uniswap/v3-staker" "1.0.0"
+    "@vnaysn/jediswap-sdk-core" "^9.3.0"
+    starknet "^5.24.3"
+    tiny-invariant "^1.1.0"
+    tiny-warning "^1.0.3"
+
 "@vnaysn/jediswap-universal-router-sdk@^6.0.0":
   version "6.0.0"
   resolved "https://registry.yarnpkg.com/@vnaysn/jediswap-universal-router-sdk/-/jediswap-universal-router-sdk-6.0.0.tgz#0003624cee581af964741dc7398ba55a5448af88"
