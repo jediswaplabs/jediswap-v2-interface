@@ -1,6 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Percent } from '@vnaysn/jediswap-sdk-core'
 import styled from 'styled-components'
+import { Trade } from '@jediswap/sdk'
 
 import { InterfaceTrade } from 'state/routing/types'
 import { ThemedText } from 'theme/components'
@@ -19,14 +20,10 @@ const HeaderButtonContainer = styled(RowFixed)`
   gap: 16px;
 `
 
-export default function SwapHeader({
-  autoSlippage,
-  chainId,
-  trade,
-}: {
-  autoSlippage: Percent
+export default function SwapHeader({ chainId,
+  trade }: {
   chainId?: string
-  trade?: InterfaceTrade
+  trade?: Trade
 }) {
   return (
     <StyledSwapHeader>
@@ -37,7 +34,7 @@ export default function SwapHeader({
         <SwapBuyFiatButton />
       </HeaderButtonContainer>
       <RowFixed>
-        <SettingsTab autoSlippage={autoSlippage} chainId={chainId} trade={trade} />
+        <SettingsTab chainId={chainId} trade={trade} />
       </RowFixed>
     </StyledSwapHeader>
   )

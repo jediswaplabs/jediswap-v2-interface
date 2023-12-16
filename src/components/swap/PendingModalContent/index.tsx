@@ -1,10 +1,10 @@
 // @ts-nocheck
 import { t, Trans } from '@lingui/macro'
 import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
 import { ReactNode, useMemo, useRef } from 'react'
 import styled, { css } from 'styled-components'
 
+import { useAccountDetails } from 'hooks/starknet-react'
 import { OrderContent } from 'components/AccountDrawer/MiniPortfolio/Activity/OffchainActivityModal'
 import Column, { ColumnCenter } from 'components/Column'
 import Row from 'components/Row'
@@ -22,15 +22,13 @@ import { SignatureExpiredError } from 'utils/errors'
 import { getExplorerLink, ExplorerDataType } from 'utils/getExplorerLink'
 import { ConfirmModalState } from '../ConfirmSwapModal'
 import { slideInAnimation, slideOutAnimation } from './animations'
-import {
-  AnimatedEntranceConfirmationIcon,
+import { AnimatedEntranceConfirmationIcon,
   AnimatedEntranceSubmittedIcon,
   AnimationType,
   CurrencyLoader,
   LoadingIndicatorOverlay,
   LogoContainer,
-  PaperIcon,
-} from './Logos'
+  PaperIcon } from './Logos'
 import { TransitionText } from './TransitionText'
 
 export const PendingModalContainer = styled(ColumnCenter)`
@@ -68,9 +66,8 @@ const StepTitleAnimationContainer = styled(Column)<{ disableEntranceAnimation?: 
   display: flex;
   flex-direction: column;
   transition: display ${({ theme }) => `${theme.transition.duration.medium} ${theme.transition.timing.inOut}`};
-  ${({ disableEntranceAnimation }) =>
-    !disableEntranceAnimation &&
-    css`
+  ${({ disableEntranceAnimation }) => !disableEntranceAnimation
+    && css`
       ${slideInAnimation}
     `}
 
@@ -125,19 +122,18 @@ interface ContentArgs {
   onRetryUniswapXSignature?: () => void
 }
 
-function getPendingConfirmationContent({
-  swapConfirmed,
+function getPendingConfirmationContent({ swapConfirmed,
   swapPending,
   trade,
   chainId,
   swapResult,
   swapError,
-  onRetryUniswapXSignature,
-}: Pick<
+  onRetryUniswapXSignature }: Pick<
   ContentArgs,
   'swapConfirmed' | 'swapPending' | 'trade' | 'chainId' | 'swapResult' | 'swapError' | 'onRetryUniswapXSignature'
 >): PendingModalStep {
   const title = swapPending ? t`Swap submitted` : swapConfirmed ? t`Swap success!` : t`Confirm Swap`
+  // TODO
   // const tradeSummary = trade ? <TradeSummary trade={trade} /> : null
   // if (swapPending && trade?.fillType === TradeFillType.UniswapX) {
   //   return {
@@ -164,13 +160,13 @@ function getPendingConfirmationContent({
       return {
         title,
         subtitle: chainId === ChainId.MAINNET ? explorerLink : tradeSummary,
-        bottomLabel: chainId === ChainId.MAINNET ? t`Transaction pending...` : explorerLink,
+        bottomLabel: chainId === ChainId.MAINNET ? t`Transaction pending...` : explorerLink
       }
     }
     return {
       title,
       subtitle: explorerLink,
-      bottomLabel: null,
+      bottomLabel: null
     }
   }
   if (swapError instanceof SignatureExpiredError) {
@@ -184,19 +180,18 @@ function getPendingConfirmationContent({
         />
       ),
       subtitle: tradeSummary,
-      bottomLabel: t`Proceed in your wallet`,
+      bottomLabel: t`Proceed in your wallet`
     }
   }
   return {
     title,
     subtitle: tradeSummary,
-    bottomLabel: t`Proceed in your wallet`,
+    bottomLabel: t`Proceed in your wallet`
   }
 }
 
 function useStepContents(args: ContentArgs): Record<PendingConfirmModalState, PendingModalStep> {
-  const {
-    wrapPending,
+  const { wrapPending,
     approvalCurrency,
     swapConfirmed,
     swapPending,
@@ -206,8 +201,7 @@ function useStepContents(args: ContentArgs): Record<PendingConfirmModalState, Pe
     swapResult,
     chainId,
     swapError,
-    onRetryUniswapXSignature,
-  } = args
+    onRetryUniswapXSignature } = args
 
   return useMemo(
     () => ({
@@ -218,12 +212,12 @@ function useStepContents(args: ContentArgs): Record<PendingConfirmModalState, Pe
             <Trans>Why is this required?</Trans>
           </ExternalLink>
         ),
-        bottomLabel: wrapPending ? t`Pending...` : t`Proceed in your wallet`,
+        bottomLabel: wrapPending ? t`Pending...` : t`Proceed in your wallet`
       },
       [ConfirmModalState.RESETTING_TOKEN_ALLOWANCE]: {
         title: t`Reset ${approvalCurrency?.symbol}`,
         subtitle: t`${approvalCurrency?.symbol} requires resetting approval when spending limits are too low.`,
-        bottomLabel: revocationPending ? t`Pending...` : t`Proceed in your wallet`,
+        bottomLabel: revocationPending ? t`Pending...` : t`Proceed in your wallet`
       },
       [ConfirmModalState.APPROVING_TOKEN]: {
         title: t`Enable spending ${approvalCurrency?.symbol ?? 'this token'} on Uniswap`,
@@ -232,7 +226,7 @@ function useStepContents(args: ContentArgs): Record<PendingConfirmModalState, Pe
             <Trans>Why is this required?</Trans>
           </ExternalLink>
         ),
-        bottomLabel: tokenApprovalPending ? t`Pending...` : t`Proceed in your wallet`,
+        bottomLabel: tokenApprovalPending ? t`Pending...` : t`Proceed in your wallet`
       },
       [ConfirmModalState.PERMITTING]: {
         title: t`Allow ${approvalCurrency?.symbol ?? 'this token'} to be used for swapping`,
@@ -241,7 +235,7 @@ function useStepContents(args: ContentArgs): Record<PendingConfirmModalState, Pe
             <Trans>Why is this required?</Trans>
           </ExternalLink>
         ),
-        bottomLabel: t`Proceed in your wallet`,
+        bottomLabel: t`Proceed in your wallet`
       },
       [ConfirmModalState.PENDING_CONFIRMATION]: getPendingConfirmationContent({
         chainId,
@@ -250,8 +244,8 @@ function useStepContents(args: ContentArgs): Record<PendingConfirmModalState, Pe
         swapResult,
         trade,
         swapError,
-        onRetryUniswapXSignature,
-      }),
+        onRetryUniswapXSignature
+      })
     }),
     [
       approvalCurrency?.symbol,
@@ -264,13 +258,12 @@ function useStepContents(args: ContentArgs): Record<PendingConfirmModalState, Pe
       trade,
       wrapPending,
       swapError,
-      onRetryUniswapXSignature,
+      onRetryUniswapXSignature
     ]
   )
 }
 
-export function PendingModalContent({
-  steps,
+export function PendingModalContent({ steps,
   currentStep,
   trade,
   swapResult,
@@ -279,8 +272,7 @@ export function PendingModalContent({
   tokenApprovalPending = false,
   revocationPending = false,
   swapError,
-  onRetryUniswapXSignature,
-}: PendingModalContentProps) {
+  onRetryUniswapXSignature }: PendingModalContentProps) {
   const { chainId } = useAccountDetails()
 
   const swapStatus = useSwapTransactionStatus(swapResult)
@@ -303,7 +295,7 @@ export function PendingModalContent({
     trade,
     chainId,
     swapError,
-    onRetryUniswapXSignature,
+    onRetryUniswapXSignature
   })
 
   const currentStepContainerRef = useRef<HTMLDivElement>(null)
@@ -344,8 +336,8 @@ export function PendingModalContent({
         {currentStep === ConfirmModalState.PENDING_CONFIRMATION && showSubmitted && <AnimatedEntranceSubmittedIcon />}
         {/* Scales in for any step that waits for an onchain transaction, while the transaction is pending. */}
         {/* On the last step, appears while waiting for the transaction to be signed too. */}
-        {((currentStep !== ConfirmModalState.PENDING_CONFIRMATION && transactionPending) ||
-          (currentStep === ConfirmModalState.PENDING_CONFIRMATION && !showSuccess && !showSubmitted)) && (
+        {((currentStep !== ConfirmModalState.PENDING_CONFIRMATION && transactionPending)
+          || (currentStep === ConfirmModalState.PENDING_CONFIRMATION && !showSuccess && !showSubmitted)) && (
           <LoadingIndicatorOverlay />
         )}
       </LogoContainer>

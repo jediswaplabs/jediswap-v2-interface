@@ -1,21 +1,23 @@
 import { Contract } from 'starknet'
 import { useMemo } from 'react'
+import { NonfungiblePositionManager } from '@vnaysn/jediswap-sdk-v3'
+
+import ERC20_ABI from '../constants/abis/erc20.json'
 import { FACTORY_ADDRESS, FACTORY_ABI } from 'contracts/factoryAddress'
 import { useAccountDetails } from './starknet-react'
 import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { getContractV2 } from 'utils/getContract'
 import { MULTICALL_ABI, MULTICALL_NETWORKS } from 'contracts/multicall'
-import { NonfungiblePositionManager } from '@vnaysn/jediswap-sdk-v3'
 import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
 
 // returns null on errors
 function useContract(address: string | undefined, ABI: any, withSignerIfPossible = true): Contract | null {
   const { account, chainId, connector } = useAccountDetails()
   return useMemo(() => {
-    if (!address || !ABI || !account) return null
+    if (!address || !ABI || !account) { return null }
 
     try {
-      const contract = getContractV2(address, ABI, account, connector) //line 26
+      const contract = getContractV2(address, ABI, account, connector) // line 26
       return contract
     } catch (error) {
       console.error('Failed to get contract', error)
@@ -24,20 +26,20 @@ function useContract(address: string | undefined, ABI: any, withSignerIfPossible
   }, [address, ABI, account, connector, chainId])
 }
 
-// export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
-//   return useContract(tokenAddress, ERC20_ABI, withSignerIfPossible)
-// }
+export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: boolean): Contract | null {
+  return useContract(tokenAddress, ERC20_ABI, withSignerIfPossible)
+}
 
 // export function usePairContract(pairAddress?: string, withSignerIfPossible?: boolean): Contract | null {
 //   return useContract(pairAddress, PAIR_ABI, withSignerIfPossible)
 // }
-//Change here
+// Change here
 export function useFactoryContract(): Contract | null {
   const { account, chainId } = useAccountDetails()
 
   return useContract(FACTORY_ADDRESS[chainId ?? DEFAULT_CHAIN_ID], FACTORY_ABI, true)
 }
-//Change Here
+// Change Here
 // export function useRouterContract(): Contract | null {
 //   const { account, chainId } = useAccountDetails()
 

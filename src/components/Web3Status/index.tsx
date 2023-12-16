@@ -1,8 +1,8 @@
 import { Trans } from '@lingui/macro'
-import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import styled from 'styled-components'
 
+import { useAccountDetails } from 'hooks/starknet-react'
 import PortfolioDrawer, { useAccountDrawer } from 'components/AccountDrawer'
 import { usePendingActivity } from 'components/AccountDrawer/MiniPortfolio/Activity/hooks'
 import Loader from 'components/Icons/LoadingSpinner'
@@ -44,7 +44,7 @@ const Web3StatusConnected = styled(Web3StatusGeneric)<{
 }>`
   font-family: 'Avenir LT Std';
   background-color: ${({ theme }) => theme.surface5};
-  border: none;
+  border: 2px solid ${({ theme }) => theme.white};
   color: ${({ theme }) => theme.white};
   padding: 10px 24px;
   :hover,

@@ -1,19 +1,18 @@
 import { useEffect, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Abi, num, FunctionAbi, validateAndParseAddress, hash, RawArgs, Contract } from 'starknet'
+import { Abi, num, FunctionAbi, validateAndParseAddress, hash, RawArgs, Contract, CallData } from 'starknet'
 import { BigNumber } from '@ethersproject/bignumber'
+import { useAccount, useBlockNumber } from '@starknet-react/core'
+
 import { AppDispatch } from '../index'
 import { AppState } from '../reducer'
-import {
-  addMulticallListeners,
+import { addMulticallListeners,
   Call,
   removeMulticallListeners,
   parseCallKey,
   toCallKey,
-  ListenerOptions,
-} from './actions'
+  ListenerOptions } from './actions'
 import { computeCallDataProps } from './utils'
-import { useAccount, useBlockNumber } from '@starknet-react/core'
 import { useAccountDetails } from 'hooks/starknet-react'
 
 export interface Result extends ReadonlyArray<any> {
@@ -31,9 +30,9 @@ function isMethodArg(x: unknown): x is MethodArg {
 
 function isValidMethodArgs(x: unknown): x is MethodArgs | undefined {
   return (
-    x === undefined ||
-    (Array.isArray(x) && x.every((xi) => isMethodArg(xi) || (Array.isArray(xi) && xi.every(isMethodArg)))) ||
-    (typeof x === 'object' && x !== null && Object.keys(x).length > 0 && Object.values(x).every((xi) => xi !== ''))
+    x === undefined
+    || (Array.isArray(x) && x.every((xi) => isMethodArg(xi) || (Array.isArray(xi) && xi.every(isMethodArg))))
+    || (typeof x === 'object' && x !== null && Object.keys(x).length > 0 && Object.values(x).every((xi) => xi !== ''))
   )
 }
 
@@ -47,7 +46,7 @@ const INVALID_RESULT: CallResult = { valid: false, blockNumber: undefined, data:
 
 // use this options object
 export const NEVER_RELOAD: ListenerOptions = {
-  blocksPerFetch: Infinity,
+  blocksPerFetch: Infinity
 }
 
 // the lowest level call for subscribing to contract data
@@ -59,20 +58,19 @@ function useCallsData(calls: (Call | undefined)[], methodAbi?: FunctionAbi, opti
   const dispatch = useDispatch<AppDispatch>()
 
   const serializedCallKeys: string = useMemo(
-    () =>
-      JSON.stringify(
-        calls
-          ?.filter((c): c is Call => Boolean(c))
-          ?.map(toCallKey)
-          ?.sort() ?? []
-      ),
+    () => JSON.stringify(
+      calls
+        ?.filter((c): c is Call => Boolean(c))
+        ?.map(toCallKey)
+        ?.sort() ?? []
+    ),
     [calls]
   )
 
   // update listeners when there is an actual change that persists for at least 100ms
   useEffect(() => {
     const callKeys: string[] = JSON.parse(serializedCallKeys)
-    if (!chainId || callKeys.length === 0) return undefined
+    if (!chainId || callKeys.length === 0) { return undefined }
     const calls = callKeys.map((key) => parseCallKey(key))
 
     dispatch(
@@ -80,7 +78,7 @@ function useCallsData(calls: (Call | undefined)[], methodAbi?: FunctionAbi, opti
         chainId,
         calls,
         options,
-        methodAbi,
+        methodAbi
       })
     )
 
@@ -89,25 +87,24 @@ function useCallsData(calls: (Call | undefined)[], methodAbi?: FunctionAbi, opti
         removeMulticallListeners({
           chainId,
           calls,
-          options,
+          options
         })
       )
     }
   }, [chainId, dispatch, methodAbi, options, serializedCallKeys])
 
   return useMemo(
-    () =>
-      calls.map<CallResult>((call) => {
-        if (!chainId || !call) return INVALID_RESULT
+    () => calls.map<CallResult>((call) => {
+      if (!chainId || !call) { return INVALID_RESULT }
 
-        const result = callResults[chainId as string]?.[toCallKey(call)]
-        let data
-        if (result?.data && result?.data !== '0x') {
-          data = result.data
-        }
+      const result = callResults[chainId as string]?.[toCallKey(call)]
+      let data
+      if (result?.data && result?.data !== '0x') {
+        data = result.data
+      }
 
-        return { valid: true, data, blockNumber: result?.blockNumber }
-      }),
+      return { valid: true, data, blockNumber: result?.blockNumber }
+    }),
     [callResults, calls, chainId]
   )
 }
@@ -133,16 +130,16 @@ function toCallState(
   // fragment: FunctionFragment | undefined,
   latestBlockNumber: number | undefined
 ): CallState {
-  if (!callResult) return INVALID_CALL_STATE
+  if (!callResult) { return INVALID_CALL_STATE }
   const { valid, data, blockNumber } = callResult
 
-  if (!valid) return INVALID_CALL_STATE
-  if (valid && !blockNumber) return LOADING_CALL_STATE
-  if (!latestBlockNumber) return LOADING_CALL_STATE
+  if (!valid) { return INVALID_CALL_STATE }
+  if (valid && !blockNumber) { return LOADING_CALL_STATE }
+  if (!latestBlockNumber) { return LOADING_CALL_STATE }
   const success = data && data.length > 2
 
   const syncing = (blockNumber ?? 0) < latestBlockNumber
-  let result: Result | undefined = undefined
+  let result: Result | undefined
   if (success && data) {
     try {
       result = num.isHex(data) ? [data] : JSON.parse(data)
@@ -153,7 +150,7 @@ function toCallState(
         loading: false,
         error: true,
         syncing,
-        result,
+        result
       }
     }
   }
@@ -161,8 +158,8 @@ function toCallState(
     valid: true,
     loading: false,
     syncing,
-    result: result,
-    error: !success,
+    result,
+    error: !success
   }
 }
 
@@ -176,19 +173,18 @@ export function useSingleContractMultipleData(
   // const selector = useMemo(() => stark.getSelectorFromName(methodName), [methodName])
 
   const calls = useMemo(
-    () =>
-      contract && methodName && callInputs && callInputs.filter((input) => typeof input !== 'undefined').length > 0
-        ? callInputs.map<Call>((inputs) => {
-            const { calldata_len, calldata } = computeCallDataProps(inputs)
+    () => (contract && methodName && callInputs && callInputs.filter((input) => typeof input !== 'undefined').length > 0
+      ? callInputs.map<Call>((inputs) => {
+        const { calldata_len, calldata } = computeCallDataProps(inputs)
 
-            return {
-              address: validateAndParseAddress(contract.address),
-              methodName,
-              calldata_len: calldata_len.toString(),
-              calldata,
-            }
-          })
-        : [],
+        return {
+          address: validateAndParseAddress(contract.address),
+          methodName,
+          calldata_len: calldata_len.toString(),
+          calldata
+        }
+      })
+      : []),
     [callInputs, contract, methodName]
   )
   const methodAbi = useValidatedMethodAbi(contract?.abi, methodName)
@@ -196,11 +192,9 @@ export function useSingleContractMultipleData(
   const results = useCallsData(calls, methodAbi, options)
 
   const { data: latestBlockNumber } = useBlockNumber({
-    refetchInterval: false,
+    refetchInterval: false
   })
-  return useMemo(() => {
-    return results.map((result) => toCallState(result, latestBlockNumber))
-  }, [results, latestBlockNumber])
+  return useMemo(() => results.map((result) => toCallState(result, latestBlockNumber)), [results, latestBlockNumber])
 }
 
 export function useMultipleContractSingleData(
@@ -211,38 +205,33 @@ export function useMultipleContractSingleData(
   options?: ListenerOptions
 ): CallState[] {
   const selector = useMemo(() => hash.getSelectorFromName(methodName), [methodName])
-  const callDataProps = useMemo(() => computeCallDataProps(callInputs), [callInputs])
-
-  const callDataLength = callDataProps?.calldata_len.toString()
-  const callData = callDataProps?.calldata
+  const callData = useMemo(() => CallData.toCalldata(callInputs), [callInputs])
+  const callDataLength = callData.length.toString()
 
   const calls = useMemo(
-    () =>
-      addresses && addresses.length > 0 && selector && isValidMethodArgs(callInputs)
-        ? addresses.map<Call | undefined>((address) => {
-            return address
-              ? {
-                  address: validateAndParseAddress(address),
-                  methodName,
-                  calldata_len: callDataLength,
-                  calldata: callData,
-                }
-              : undefined
-          })
-        : [],
+    () => (addresses && addresses.length > 0 && selector && isValidMethodArgs(callInputs)
+      ? addresses.map<Call | undefined>((address) => (address
+        ? {
+          address: validateAndParseAddress(address),
+          methodName,
+          calldata_len: callDataLength,
+          calldata: callData
+        }
+        : undefined))
+      : []),
     [addresses, callData, callDataLength, callInputs, methodName, selector]
   )
+
+  // console.log(calls, 'useMultipleContractSingleData')
 
   const methodAbi = useValidatedMethodAbi(contractInterface, methodName)
 
   const results = useCallsData(calls, methodAbi, options)
 
   const { data: latestBlockNumber } = useBlockNumber({
-    refetchInterval: false,
+    refetchInterval: false
   })
-  return useMemo(() => {
-    return results.map((result) => toCallState(result, latestBlockNumber))
-  }, [results, latestBlockNumber])
+  return useMemo(() => results.map((result) => toCallState(result, latestBlockNumber)), [results, latestBlockNumber])
 }
 
 export function useSingleCallResult(
@@ -254,37 +243,31 @@ export function useSingleCallResult(
   //   const fragment = useMemo(() => contract?.interface?.getFunction(methodName), [contract, methodName])
 
   const selector = useMemo(() => hash.getSelectorFromName(methodName), [methodName])
-  const { calldata_len, calldata } = useMemo(() => computeCallDataProps(inputs), [inputs])
-
-  const calls = useMemo<Call[]>(() => {
-    return contract && selector && isValidMethodArgs(inputs)
-      ? [
-          {
-            address: validateAndParseAddress(contract.address),
-            methodName,
-            calldata_len: calldata_len.toString(),
-            calldata,
-          },
-        ]
-      : []
-  }, [calldata, calldata_len, contract, inputs, methodName, selector])
+  const calldata = useMemo(() => CallData.toCalldata(inputs), [inputs])
+  const calls = useMemo<Call[]>(() => (contract && selector && isValidMethodArgs(inputs)
+    ? [
+      {
+        address: validateAndParseAddress(contract.address),
+        methodName,
+        calldata_len: calldata.length.toString(),
+        calldata
+      }
+    ]
+    : []), [calldata, contract, inputs, methodName, selector])
 
   const methodAbi = useValidatedMethodAbi(contract?.abi, methodName)
 
   const result = useCallsData(calls, methodAbi, options)[0]
 
   const { data: latestBlockNumber } = useBlockNumber({
-    refetchInterval: false,
+    refetchInterval: false
   })
-  return useMemo(() => {
-    return toCallState(result, latestBlockNumber)
-  }, [result, latestBlockNumber])
+  return useMemo(() => toCallState(result, latestBlockNumber), [result, latestBlockNumber])
 }
 
 export function useValidatedMethodAbi(contractAbi: Abi | undefined, methodName: string): FunctionAbi | undefined {
   return useMemo(
-    () =>
-      contractAbi?.filter((abi): abi is FunctionAbi => abi.type === 'function').find((abi) => abi.name === methodName),
+    () => contractAbi?.filter((abi): abi is FunctionAbi => abi.type === 'function').find((abi) => abi.name === methodName),
     [contractAbi, methodName]
   )
 }

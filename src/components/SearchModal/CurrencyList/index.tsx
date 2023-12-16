@@ -1,12 +1,12 @@
 import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
 import { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
 import { Check } from 'react-feather'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import { useAccountDetails } from 'hooks/starknet-react'
 import { TraceEvent } from 'analytics'
 import Loader from 'components/Icons/LoadingSpinner'
 import { useCachedPortfolioBalancesQuery } from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
@@ -23,6 +23,7 @@ import Row, { RowFixed } from '../../Row'
 import { MouseoverTooltip } from '../../Tooltip'
 import { LoadingRows, MenuItem } from '../styled'
 import { scrollbarStyle } from './index.css'
+import { useCurrencyBalance } from '../../../state/connection/hooks'
 
 function currencyKey(currency: Currency): string {
   return currency.isToken ? currency.address : 'ETHER'
@@ -106,16 +107,13 @@ function TokenTags({ currency }: { currency: Currency }) {
   )
 }
 
-export function CurrencyRow({
-  currency,
+export function CurrencyRow({ currency,
   onSelect,
   isSelected,
   otherSelected,
   style,
   showCurrencyAmount,
-  eventProperties,
-  balance,
-}: {
+  eventProperties }: {
   currency: Currency
   onSelect: (hasWarning: boolean) => void
   isSelected: boolean
@@ -123,7 +121,6 @@ export function CurrencyRow({
   style?: CSSProperties
   showCurrencyAmount?: boolean
   eventProperties: Record<string, unknown>
-  balance?: CurrencyAmount<Currency>
 }) {
   const { address: account } = useAccountDetails()
   const key = currencyKey(currency)
@@ -133,57 +130,51 @@ export function CurrencyRow({
   const blockedTokenOpacity = '0.6'
   const { data } = useCachedPortfolioBalancesQuery({ account })
   const portfolioBalanceUsd = data?.portfolios?.[0].tokensTotalDenominatedValue?.value
+  const balance = useCurrencyBalance(account ?? undefined, currency)
 
   // only show add or remove buttons if not on selected list
   return (
-    <TraceEvent
-      events={[BrowserEvent.onClick, BrowserEvent.onKeyPress]}
-      name={InterfaceEventName.TOKEN_SELECTED}
-      properties={{ is_imported_by_user: customAdded, ...eventProperties, total_balances_usd: portfolioBalanceUsd }}
-      element={InterfaceElementName.TOKEN_SELECTOR_ROW}
+    <MenuItem
+      tabIndex={0}
+      style={style}
+      className={`token-item-${key}`}
+      onKeyPress={(e) => (!isSelected && e.key === 'Enter' ? onSelect(!!warning) : null)}
+      onClick={() => (isSelected ? null : onSelect(!!warning))}
+      disabled={isSelected}
+      selected={otherSelected}
+      dim={isBlockedToken}
     >
-      <MenuItem
-        tabIndex={0}
-        style={style}
-        className={`token-item-${key}`}
-        onKeyPress={(e) => (!isSelected && e.key === 'Enter' ? onSelect(!!warning) : null)}
-        onClick={() => (isSelected ? null : onSelect(!!warning))}
-        disabled={isSelected}
-        selected={otherSelected}
-        dim={isBlockedToken}
-      >
-        <Column>
-          <CurrencyLogo
-            currency={currency}
-            size="36px"
-            style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}
-          />
-        </Column>
-        <AutoColumn style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}>
-          <Row>
-            <CurrencyName title={currency.name}>{currency.name}</CurrencyName>
-          </Row>
-          <ThemedText.LabelMicro ml="0px">{currency.symbol}</ThemedText.LabelMicro>
-        </AutoColumn>
-        <Column>
+      <Column>
+        <CurrencyLogo
+          currency={currency}
+          size="36px"
+          style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}
+        />
+      </Column>
+      <AutoColumn style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}>
+        <Row>
+          <CurrencyName title={currency.name}>{currency.name}</CurrencyName>
+        </Row>
+        <ThemedText.LabelMicro ml="0px">{currency.symbol}</ThemedText.LabelMicro>
+      </AutoColumn>
+      <Column>
+        <RowFixed style={{ justifySelf: 'flex-end' }}>
+          <TokenTags currency={currency} />
+        </RowFixed>
+      </Column>
+      {showCurrencyAmount ? (
+        <RowFixed style={{ justifySelf: 'flex-end' }}>
+          {account ? balance ? <Balance balance={balance} /> : <Loader /> : null}
+          {isSelected && <CheckIcon />}
+        </RowFixed>
+      ) : (
+        isSelected && (
           <RowFixed style={{ justifySelf: 'flex-end' }}>
-            <TokenTags currency={currency} />
+            <CheckIcon />
           </RowFixed>
-        </Column>
-        {showCurrencyAmount ? (
-          <RowFixed style={{ justifySelf: 'flex-end' }}>
-            {account ? balance ? <Balance balance={balance} /> : <Loader /> : null}
-            {isSelected && <CheckIcon />}
-          </RowFixed>
-        ) : (
-          isSelected && (
-            <RowFixed style={{ justifySelf: 'flex-end' }}>
-              <CheckIcon />
-            </RowFixed>
-          )
-        )}
-      </MenuItem>
-    </TraceEvent>
+        )
+      )}
+    </MenuItem>
   )
 }
 
@@ -209,7 +200,7 @@ export const formatAnalyticsEventProperties = (
   token_list_length: data.length,
   ...(isAddressSearch === false
     ? { search_token_symbol_input: searchQuery }
-    : { search_token_address_input: isAddressSearch }),
+    : { search_token_address_input: isAddressSearch })
 })
 
 const LoadingRow = () => (
@@ -220,8 +211,7 @@ const LoadingRow = () => (
   </LoadingRows>
 )
 
-export default function CurrencyList({
-  height,
+export default function CurrencyList({ height,
   currencies,
   otherListTokens,
   selectedCurrency,
@@ -232,8 +222,7 @@ export default function CurrencyList({
   isLoading,
   searchQuery,
   isAddressSearch,
-  balances,
-}: {
+  balances }: {
   height: number
   currencies: Currency[]
   otherListTokens?: WrappedTokenInfo[]
@@ -260,11 +249,10 @@ export default function CurrencyList({
 
       const currency = row
 
-      const balance =
-        tryParseCurrencyAmount(
-          String(balances[currency.isNative ? 'ETH' : currency.address?.toLowerCase()]?.balance ?? 0),
-          currency
-        ) ?? CurrencyAmount.fromRawAmount(currency, 0)
+      const balance = tryParseCurrencyAmount(
+        String(balances[currency.isNative ? 'ETH' : currency.address?.toLowerCase()]?.balance ?? 0),
+        currency
+      ) ?? CurrencyAmount.fromRawAmount(currency, 0)
 
       const isSelected = Boolean(currency && selectedCurrency && selectedCurrency.equals(currency))
       const otherSelected = Boolean(currency && otherCurrency && otherCurrency.equals(currency))
@@ -299,7 +287,7 @@ export default function CurrencyList({
       showCurrencyAmount,
       searchQuery,
       isAddressSearch,
-      balances,
+      balances
     ]
   )
 

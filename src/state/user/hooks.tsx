@@ -1,29 +1,27 @@
 import { Percent, Token } from '@vnaysn/jediswap-sdk-core'
 import { computePairAddress, Pair } from '@vnaysn/jediswap-sdk-v2'
+import JSBI from 'jsbi'
+import { useCallback, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
 import { useAccountDetails } from 'hooks/starknet-react'
 import { SupportedLocale } from 'constants/locales'
 import { L2_DEADLINE_FROM_NOW } from 'constants/misc'
-import JSBI from 'jsbi'
-import { useCallback, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { RouterPreference } from 'state/routing/types'
 import { UserAddedToken } from 'types/tokens'
-
 import { useDefaultActiveTokens } from '../../hooks/Tokens'
-import {
-  addSerializedPair,
+import { addSerializedPair,
   addSerializedToken,
   updateHideBaseWalletBanner,
   updateHideClosedPositions,
   updateUserDeadline,
   updateUserLocale,
   updateUserRouterPreference,
-  updateUserSlippageTolerance,
-} from './reducer'
+  updateUserSlippageTolerance } from './reducer'
 import { SerializedPair, SerializedToken, SlippageTolerance } from './types'
 import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from 'constants/tokens'
 import { V2_FACTORY_ADDRESSES } from 'constants/addresses'
-import { useDispatch, useSelector } from 'react-redux'
 import { AppDispatch, AppState } from 'state'
 
 export function serializeToken(token: Token): SerializedToken {
@@ -32,7 +30,7 @@ export function serializeToken(token: Token): SerializedToken {
     address: token.address,
     decimals: token.decimals,
     symbol: token.symbol,
-    name: token.name,
+    name: token.name
   }
 }
 
@@ -80,8 +78,8 @@ export function useRouterPreference(): [RouterPreference, (routerPreference: Rou
 }
 
 export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
-  if (tokenA.chainId !== tokenB.chainId) throw new Error('Not matching chain IDs')
-  if (tokenA.equals(tokenB)) throw new Error('Tokens cannot be equal')
+  if (tokenA.chainId !== tokenB.chainId) { throw new Error('Not matching chain IDs') }
+  if (tokenA.equals(tokenB)) { throw new Error('Tokens cannot be equal') }
   // if (!V2_FACTORY_ADDRESSES[tokenA.chainId]) throw new Error('No V2 factory address on this chain')
 
   return new Token(
@@ -98,9 +96,7 @@ export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
  */
 export function useUserSlippageTolerance(): [number, (slippage: number) => void] {
   const dispatch = useDispatch<AppDispatch>()
-  const userSlippageTolerance = useSelector<AppState, AppState['user']['userSlippageTolerance']>((state) => {
-    return state.user.userSlippageTolerance
-  })
+  const userSlippageTolerance = useSelector<AppState, AppState['user']['userSlippageTolerance']>((state) => state.user.userSlippageTolerance)
 
   const setUserSlippageTolerance = useCallback(
     (userSlippageTolerance: number) => {
@@ -114,9 +110,7 @@ export function useUserSlippageTolerance(): [number, (slippage: number) => void]
 
 export function useUserTransactionTTL(): [number, (slippage: number) => void] {
   const dispatch = useDispatch<AppDispatch>()
-  const userDeadline = useSelector<AppState, AppState['user']['userDeadline']>((state) => {
-    return state.user.userDeadline
-  })
+  const userDeadline = useSelector<AppState, AppState['user']['userDeadline']>((state) => state.user.userDeadline)
 
   const setUserDeadline = useCallback(
     (userDeadline: number) => {
@@ -166,7 +160,7 @@ function useUserAddedTokensOnChain(chainId: string | undefined | null): Token[] 
   const serializedTokensMap = useAppSelector(({ user: { tokens } }) => tokens)
 
   return useMemo(() => {
-    if (!chainId) return []
+    if (!chainId) { return [] }
     const tokenMap: Token[] = serializedTokensMap?.[chainId]
       ? Object.values(serializedTokensMap[chainId]).map((value) => deserializeToken(value, UserAddedToken))
       : []
@@ -181,7 +175,7 @@ export function useUserAddedTokens(): Token[] {
 function serializePair(pair: Pair): SerializedPair {
   return {
     token0: serializeToken(pair.token0),
-    token1: serializeToken(pair.token1),
+    token1: serializeToken(pair.token1)
   }
 }
 
@@ -227,26 +221,24 @@ export function useTrackedTokenPairs(): [Token, Token][] {
 
   // pairs for every token against every base
   const generatedPairs: [Token, Token][] = useMemo(
-    () =>
-      chainId
-        ? Object.keys(tokens).flatMap((tokenAddress) => {
-            const token = tokens[tokenAddress]
-            // for each token on the current chain,
-            return (
-              // loop though all bases on the current chain
-              (BASES_TO_TRACK_LIQUIDITY_FOR[chainId] ?? [])
-                // to construct pairs of the given token with each base
-                .map((base) => {
-                  if (base.address === token.address) {
-                    return null
-                  } else {
-                    return [base, token]
-                  }
-                })
-                .filter((p): p is [Token, Token] => p !== null)
-            )
-          })
-        : [],
+    () => (chainId
+      ? Object.keys(tokens).flatMap((tokenAddress) => {
+        const token = tokens[tokenAddress]
+        // for each token on the current chain,
+        return (
+          // loop though all bases on the current chain
+          (BASES_TO_TRACK_LIQUIDITY_FOR[chainId] ?? [])
+            // to construct pairs of the given token with each base
+            .map((base) => {
+              if (base.address === token.address) {
+                return null
+              }
+              return [base, token]
+            })
+            .filter((p): p is [Token, Token] => p !== null)
+        )
+      })
+      : []),
     [tokens, chainId]
   )
 
@@ -254,13 +246,11 @@ export function useTrackedTokenPairs(): [Token, Token][] {
   const savedSerializedPairs = useAppSelector(({ user: { pairs } }) => pairs)
 
   const userPairs: [Token, Token][] = useMemo(() => {
-    if (!chainId || !savedSerializedPairs) return []
+    if (!chainId || !savedSerializedPairs) { return [] }
     const forChain = savedSerializedPairs[chainId]
-    if (!forChain) return []
+    if (!forChain) { return [] }
 
-    return Object.keys(forChain).map((pairId) => {
-      return [deserializeToken(forChain[pairId].token0), deserializeToken(forChain[pairId].token1)]
-    })
+    return Object.keys(forChain).map((pairId) => [deserializeToken(forChain[pairId].token0), deserializeToken(forChain[pairId].token1)])
   }, [savedSerializedPairs, chainId])
 
   const combinedList = useMemo(
@@ -273,7 +263,7 @@ export function useTrackedTokenPairs(): [Token, Token][] {
     const keyed = combinedList.reduce<{ [key: string]: [Token, Token] }>((memo, [tokenA, tokenB]) => {
       const sorted = tokenA.sortsBefore(tokenB)
       const key = sorted ? `${tokenA.address}:${tokenB.address}` : `${tokenB.address}:${tokenA.address}`
-      if (memo[key]) return memo
+      if (memo[key]) { return memo }
       memo[key] = sorted ? [tokenA, tokenB] : [tokenB, tokenA]
       return memo
     }, {})
