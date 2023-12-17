@@ -24,9 +24,8 @@ enum MenuState {
 }
 
 function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
-  // const { address: account } = useAccountDetails()
-  const { address } = useAccountDetails()
-  const isAuthenticated = !!address
+  const { address: account } = useAccountDetails()
+  const isAuthenticated = !!account
 
   const [menu, setMenu] = useState<MenuState>(MenuState.DEFAULT)
   const openSettings = useCallback(() => setMenu(MenuState.SETTINGS), [])
@@ -49,7 +48,7 @@ function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
     switch (menu) {
       case MenuState.DEFAULT:
         return isAuthenticated ? (
-          <AuthenticatedHeader account={address} openSettings={openSettings} />
+          <AuthenticatedHeader account={account} openSettings={openSettings} />
         ) : (
           <WalletModal openSettings={openSettings} />
         )
@@ -66,7 +65,7 @@ function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
       case MenuState.LOCAL_CURRENCY_SETTINGS:
         return <LocalCurrencyMenu onClose={openSettings} />
     }
-  }, [address, closeSettings, isAuthenticated, menu, openLanguageSettings, openLocalCurrencySettings, openSettings])
+  }, [account, closeSettings, isAuthenticated, menu, openLanguageSettings, openLocalCurrencySettings, openSettings])
 
   return <DefaultMenuWrap>{SubMenu}</DefaultMenuWrap>
 }

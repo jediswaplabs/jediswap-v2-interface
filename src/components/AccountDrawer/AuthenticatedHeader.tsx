@@ -25,7 +25,7 @@ import { useToggleAccountDrawer } from '.'
 import IconButton, { IconHoverText, IconWithConfirmTextButton } from './IconButton'
 import MiniPortfolio from './MiniPortfolio'
 import { portfolioFadeInAnimation } from './MiniPortfolio/PortfolioRow'
-import { useDisconnect } from '@starknet-react/core'
+import { useDisconnect, useStarkName } from '@starknet-react/core'
 
 const AuthenticatedHeaderWrapper = styled.div`
   padding: 20px 16px;
@@ -88,20 +88,20 @@ const PortfolioDrawerContainer = styled(Column)`
 `
 
 export default function AuthenticatedHeader({ account, openSettings }: { account: string; openSettings: () => void }) {
-  const { connector } = useAccountDetails()
-  const { ENSName } = useENSName(account)
+  const { connector, address } = useAccountDetails()
+  const { data: starkName } = useStarkName({ address })
   const dispatch = useAppDispatch()
   const { formatNumber, formatDelta } = useFormatter()
   const { disconnect } = useDisconnect()
 
   // const connection = getConnection(connector)
-  // const disconnectWallet = useCallback(() => {
-  //   if (connector) {
-  //     disconnect()
-  //   }
-  //   connector.resetState()
-  //   dispatch(updateSelectedWallet({ wallet: undefined }))
-  // }, [connector, dispatch])
+  const disconnectWallet = useCallback(() => {
+    if (connector) {
+      disconnect()
+    }
+    // connector.resetState()
+    // dispatch(updateSelectedWallet({ wallet: undefined }))
+  }, [connector])
 
   const toggleWalletDrawer = useToggleAccountDrawer()
 
@@ -119,22 +119,9 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
     loading: fiatOnrampAvailabilityLoading,
   } = useFiatOnrampAvailability(shouldCheck, openFoRModalWithAnalytics)
 
-  const handleBuyCryptoClick = useCallback(() => {
-    if (!fiatOnrampAvailabilityChecked) {
-      setShouldCheck(true)
-    } else if (fiatOnrampAvailable) {
-      openFoRModalWithAnalytics()
-    }
-  }, [fiatOnrampAvailabilityChecked, fiatOnrampAvailable, openFoRModalWithAnalytics])
-  const disableBuyCryptoButton = Boolean(
-    error || (!fiatOnrampAvailable && fiatOnrampAvailabilityChecked) || fiatOnrampAvailabilityLoading
-  )
-
   const { data: portfolioBalances } = useCachedPortfolioBalancesQuery({ account })
   const portfolio = portfolioBalances?.portfolios?.[0]
   const totalBalance = portfolio?.tokensTotalDenominatedValue?.value
-  const absoluteChange = portfolio?.tokensTotalDenominatedValueChange?.absolute?.value
-  const percentChange = portfolio?.tokensTotalDenominatedValueChange?.percentage?.value
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false)
 
   const addressShort = account ? `${account.slice(0, 6)}...${account.slice(-4)}` : null
@@ -147,10 +134,10 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           {account && (
             <AccountNamesWrapper>
               <ThemedText.SubHeader>
-                <CopyText toCopy={ENSName ?? account}>{ENSName ?? addressShort}</CopyText>
+                <CopyText toCopy={starkName ?? account}>{starkName ?? addressShort}</CopyText>
               </ThemedText.SubHeader>
               {/* Displays smaller view of account if ENS name was rendered above */}
-              {ENSName && (
+              {starkName && (
                 <ThemedText.BodySmall color="neutral2">
                   <CopyText toCopy={account}>{shortenAddress(account)}</CopyText>
                 </ThemedText.BodySmall>
@@ -165,38 +152,21 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
             onClick={openSettings}
             Icon={Settings}
           />
-          {/* <IconWithConfirmTextButton
+          <IconWithConfirmTextButton
             data-testid="wallet-disconnect"
             onConfirm={disconnectWallet}
             onShowConfirm={setShowDisconnectConfirm}
             Icon={Power}
             text="Disconnect"
             dismissOnHoverOut
-          /> */}
+          />
         </IconContainer>
       </HeaderWrapper>
-      {/*  <PortfolioDrawerContainer>
+      <PortfolioDrawerContainer>
         {totalBalance !== undefined ? (
           <FadeInColumn gap="xs">
-            <ThemedText.HeadlineLarge fontWeight={535} data-testid="portfolio-total-balance">
-              {formatNumber({
-                input: totalBalance,
-                type: NumberType.PortfolioBalance,
-              })}
-            </ThemedText.HeadlineLarge>
-            <AutoRow>
-              {absoluteChange !== 0 && percentChange && (
-                <>
-                  <DeltaArrow delta={absoluteChange} />
-                  <ThemedText.BodySecondary>
-                    {`${formatNumber({
-                      input: Math.abs(absoluteChange as number),
-                      type: NumberType.PortfolioBalance,
-                    })} (${formatDelta(percentChange)})`}
-                  </ThemedText.BodySecondary>
-                </>
-              )}
-            </AutoRow>
+            <ThemedText.HeadlineLarge fontWeight={535} data-testid="portfolio-total-balance"></ThemedText.HeadlineLarge>
+            <AutoRow></AutoRow>
           </FadeInColumn>
         ) : (
           <Column gap="xs">
@@ -204,18 +174,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
             <LoadingBubble height="16px" width="100px" margin="4px 0 20px 0" />
           </Column>
         )}
-        <MiniPortfolio account={account} />
-        {isUnclaimed && (
-          <UNIButton onClick={openClaimModal} size={ButtonSize.medium} emphasis={ButtonEmphasis.medium}>
-            <Trans>Claim</Trans> {unclaimedAmount?.toFixed(0, { groupSeparator: ',' } ?? '-')} <Trans>reward</Trans>
-          </UNIButton>
-        )}
-        {isClaimAvailable && (
-          <UNIButton size={ButtonSize.medium} emphasis={ButtonEmphasis.medium} onClick={openNftModal}>
-            <Trans>Claim Uniswap NFT Airdrop</Trans>
-          </UNIButton>
-        )}
-      </PortfolioDrawerContainer> */}
+      </PortfolioDrawerContainer>
     </AuthenticatedHeaderWrapper>
   )
 }
