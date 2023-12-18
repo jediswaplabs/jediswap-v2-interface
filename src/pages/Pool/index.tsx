@@ -25,6 +25,9 @@ import CTACards from './CTACards'
 import { LoadingRows } from './styled'
 import WalletIcon from '../../assets/wallets/Wallet.png'
 import NoPositionsIcon from '../../assets/images/noPosition.png'
+import { useContractRead } from '@starknet-react/core'
+import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
+import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -298,14 +301,27 @@ function WrongNetworkCard() {
 
 export default function Pool() {
   const { address, chainId } = useAccountDetails()
-  const [isWalletConnected, setIsWalletConnected] = useState(true)
-  const networkSupportsV2 = useNetworkSupportsV2()
   const toggleWalletDrawer = useToggleAccountDrawer()
 
   const theme = useTheme()
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
 
   const { positions, loading: positionsLoading } = useV3Positions(address)
+
+  const {
+    data: positionsV3,
+    isError,
+    isLoading,
+    error,
+  } = useContractRead({
+    functionName: 'balance_of',
+    args: [address as string],
+    abi: NFTPositionManagerABI,
+    address: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+    watch: true,
+  })
+
+  console.log(positionsLoading, isError, error, 'dkfdkfdmk')
 
   const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
     (acc, p) => {
@@ -328,69 +344,17 @@ export default function Pool() {
 
   const showConnectAWallet = Boolean(!address)
 
-  const menuItems = [
-    {
-      content: (
-        <PoolMenuItem>
-          <Trans>Migrate</Trans>
-          <ChevronsRight size={16} />
-        </PoolMenuItem>
-      ),
-      link: '/migrate/v2',
-      external: false,
-    },
-    {
-      content: (
-        <PoolMenuItem>
-          <Trans>V2 liquidity</Trans>
-          <Layers size={16} />
-        </PoolMenuItem>
-      ),
-      link: '/pools/v2',
-      external: false,
-    },
-    {
-      content: (
-        <PoolMenuItem>
-          <Trans>Learn</Trans>
-          <BookOpen size={16} />
-        </PoolMenuItem>
-      ),
-      link: 'https://support.uniswap.org/hc/en-us/categories/8122334631437-Providing-Liquidity-',
-      external: true,
-    },
-  ]
-
   return (
     <Trace page={InterfacePageName.POOL_PAGE} shouldLogImpression>
       <PageWrapper>
         <AutoColumn gap="lg" justify="center">
           <AutoColumn gap="lg" style={{ width: '100%' }}>
-            <TitleRow padding="0">
+            {/* <TitleRow padding="0">
               <ThemedText.LargeHeader>
                 <PoolsHeading>Pools</PoolsHeading>
               </ThemedText.LargeHeader>
-              {/* <ButtonRow>
-                {networkSupportsV2 && (
-                  <PoolMenu
-                    menuItems={menuItems}
-                    flyoutAlignment={FlyoutAlignment.LEFT}
-                    ToggleUI={(props: any) => (
-                      <MoreOptionsButton {...props}>
-                        <MoreOptionsText>
-                          <Trans>More</Trans>
-                          <ChevronDown size={15} />
-                        </MoreOptionsText>
-                      </MoreOptionsButton>
-                    )}
-                  />
-                )}
-                <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
-                  + <Trans>New position</Trans>
-                </ResponsiveButtonPrimary>
-              </ButtonRow> */}
-            </TitleRow>
-            <PoolStats>
+            </TitleRow> */}
+            {/* <PoolStats>
               <PoolsCard>
                 <PoolsCardHeader>Total Liquidity</PoolsCardHeader>
                 <PoolsCardDetails>
@@ -412,55 +376,28 @@ export default function Pool() {
                   <PoolsCardPercentNegative>-1.96%</PoolsCardPercentNegative>
                 </PoolsCardDetails>
               </PoolsCard>
-            </PoolStats>
-
+            </PoolStats> */}
             <ButtonRow justifyContent={'space-between'}>
               <PositionsText>My Positions</PositionsText>
               <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
                 + <Trans>New position</Trans>
               </ResponsiveButtonPrimary>
             </ButtonRow>
-
-            <MainContentWrapper
-              isWalletConnected={isWalletConnected}
-              filteredPositions={userSelectedPositionSet.length}
-            >
-              {isWalletConnected ? (
-                !userSelectedPositionSet.length && !positionsLoading ? (
-                  <NoPositions>
-                    <IconWrapper>
-                      <img src={NoPositionsIcon} alt={'Icon'} />
-                    </IconWrapper>
-                    <NewPositionText>
-                      <Trans>Open a new position</Trans>
-                    </NewPositionText>
-                    <ResponsiveButtonPrimary
-                      data-cy="join-pool-button"
-                      id="join-pool-button"
-                      as={Link}
-                      to="/add/ETH"
-                      style={{ marginLeft: '0' }}
-                    >
-                      + <Trans>New position</Trans>
-                    </ResponsiveButtonPrimary>
-                  </NoPositions>
-                ) : positionsLoading ? (
-                  <PositionsLoadingPlaceholder />
-                ) : (
-                  <PositionList
-                    positions={userSelectedPositionSet}
-                    setUserHideClosedPositions={setUserHideClosedPositions}
-                    userHideClosedPositions={userHideClosedPositions}
-                  />
-                )
+            <MainContentWrapper>
+              {positionsLoading ? (
+                <PositionsLoadingPlaceholder />
+              ) : userSelectedPositionSet && userSelectedPositionSet.length > 0 ? (
+                <PositionList
+                  positions={userSelectedPositionSet}
+                  setUserHideClosedPositions={setUserHideClosedPositions}
+                  userHideClosedPositions={userHideClosedPositions}
+                />
               ) : (
                 <ErrorContainer>
                   <ThemedText.BodyPrimary color={theme.neutral3} textAlign="center">
-                    <IconWrapper>
-                      <img src={WalletIcon} alt={'Icon'} />
-                    </IconWrapper>
+                    <InboxIcon strokeWidth={1} style={{ marginTop: '2em' }} />
                     <div>
-                      <Trans>Connect wallet to see your positions or open a new position</Trans>
+                      <Trans>Your active V3 liquidity positions will appear here.</Trans>
                     </div>
                   </ThemedText.BodyPrimary>
                   {!showConnectAWallet && closedPositions.length > 0 && (
@@ -472,19 +409,12 @@ export default function Pool() {
                     </ButtonText>
                   )}
                   {showConnectAWallet && (
-                    <TraceEvent
-                      events={[BrowserEvent.onClick]}
-                      name={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
-                      properties={{ received_swap_quote: false }}
-                      element={InterfaceElementName.CONNECT_WALLET_BUTTON}
+                    <ButtonPrimary
+                      style={{ marginTop: '2em', marginBottom: '2em', padding: '8px 16px', width: 'fit-content' }}
+                      onClick={toggleWalletDrawer}
                     >
-                      <ButtonPrimary
-                        style={{ marginTop: '2em', marginBottom: '2em', padding: '8px 16px', width: 'fit-content' }}
-                        onClick={toggleWalletDrawer}
-                      >
-                        <Trans>Connect wallet</Trans>
-                      </ButtonPrimary>
-                    </TraceEvent>
+                      <Trans>Connect wallet</Trans>
+                    </ButtonPrimary>
                   )}
                 </ErrorContainer>
               )}
