@@ -16,6 +16,7 @@ import {
   SubmittableTrade,
   TradeState,
 } from './types'
+import { AccountInterface } from 'starknet'
 
 const TRADE_NOT_FOUND = { state: TradeState.NO_ROUTE_FOUND, trade: undefined, currentData: undefined } as const
 const TRADE_LOADING = { state: TradeState.LOADING, trade: undefined, currentData: undefined } as const
@@ -26,7 +27,7 @@ export function useRoutingAPITrade<TTradeType extends TradeType>(
   amountSpecified: CurrencyAmount<Currency> | undefined,
   otherCurrency: Currency | undefined,
   routerPreference: typeof INTERNAL_ROUTER_PREFERENCE_PRICE,
-  account?: string,
+  account?: AccountInterface,
   inputTax?: Percent,
   outputTax?: Percent
 ): {
@@ -42,7 +43,7 @@ export function useRoutingAPITrade<TTradeType extends TradeType>(
   amountSpecified: CurrencyAmount<Currency> | undefined,
   otherCurrency: Currency | undefined,
   routerPreference: RouterPreference,
-  account?: string,
+  account?: AccountInterface,
   inputTax?: Percent,
   outputTax?: Percent
 ): {
@@ -64,7 +65,7 @@ export function useRoutingAPITrade<TTradeType extends TradeType>(
   amountSpecified: CurrencyAmount<Currency> | undefined,
   otherCurrency: Currency | undefined,
   routerPreference: RouterPreference | typeof INTERNAL_ROUTER_PREFERENCE_PRICE,
-  account?: string,
+  account?: AccountInterface,
   inputTax = ZERO_PERCENT,
   outputTax = ZERO_PERCENT
 ) {

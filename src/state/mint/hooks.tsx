@@ -12,6 +12,7 @@ import { PairState, useV2Pair } from '../../hooks/useV2Pairs'
 import { useCurrencyBalances } from '../connection/hooks'
 import { AppState } from '../reducer'
 import { Field, typeInput } from './actions'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const ZERO = JSBI.BigInt(0)
 

@@ -21,6 +21,7 @@ import { SwapState } from './reducer'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 import { useAddressNormalizer } from '../../hooks/useAddressNormalizer'
 import { useTradeExactIn, useTradeExactOut } from '../../hooks/Trades'
+import { isAddressValidForStarknet } from '../../utils/addresses'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
@@ -154,7 +155,7 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
       inputError = inputError ?? <Trans>Enter an amount</Trans>
     }
 
-    const formattedTo = isAddress(to)
+    const formattedTo = isAddressValidForStarknet(to)
     if (!to || !formattedTo) {
       inputError = inputError ?? <Trans>Enter a recipient</Trans>
     } else if (

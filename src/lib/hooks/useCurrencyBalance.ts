@@ -12,8 +12,9 @@ import { DEFAULT_CHAIN_ID, nativeOnChain } from '../../constants/tokens'
 import { useTokenContract } from '../../hooks/useContractV2'
 import { useInterfaceMulticall } from '../../hooks/useContract'
 import { isAddress } from '../../utils'
+import { AccountInterface } from 'starknet'
 import { useAddressNormalizer } from '../../hooks/useAddressNormalizer'
-import { isAddressValidForStarknet } from '../../utils/addresses'
+import {isAddressValidForStarknet}  from '../../utils/addresses'
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
@@ -77,7 +78,7 @@ const tokenBalancesGasRequirement = { gasRequired: 185_000 }
  * Returns a map of token addresses to their eventually consistent token balances for a single account.
  */
 export function useTokenBalancesWithLoadingIndicator(
-  address?: string,
+  address?: AccountInterface,
   tokens?: (Token | undefined)[]
 ): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
   const validatedTokens: Token[] = useMemo(
@@ -112,14 +113,14 @@ export function useTokenBalancesWithLoadingIndicator(
 }
 
 export function useTokenBalances(
-  address?: string,
+  account?: AccountInterface,
   tokens?: (Token | undefined)[]
 ): { [tokenAddress: string]: CurrencyAmount<Token> | undefined } {
-  return useTokenBalancesWithLoadingIndicator(address, tokens)[0]
+  return useTokenBalancesWithLoadingIndicator(account, tokens)[0]
 }
 
 // get the balance for a single token/account combo
-export function useTokenBalance(account?: string, token?: Token): CurrencyAmount<Token> | undefined {
+export function useTokenBalance(account?: AccountInterface, token?: Token): CurrencyAmount<Token> | undefined {
   const tokenBalances = useTokenBalances(
     account,
     useMemo(() => [token], [token])
@@ -129,7 +130,7 @@ export function useTokenBalance(account?: string, token?: Token): CurrencyAmount
 }
 
 export function useCurrencyBalances(
-  account?: string,
+  account?: AccountInterface,
   currencies?: (Currency | undefined)[]
 ): (CurrencyAmount | undefined)[] {
   const tokens = useMemo(
@@ -155,7 +156,7 @@ export function useCurrencyBalances(
 }
 
 export default function useCurrencyBalance(
-  account?: string,
+  account?: AccountInterface,
   currency?: Currency
 ): CurrencyAmount<Currency> | undefined {
   return useCurrencyBalances(

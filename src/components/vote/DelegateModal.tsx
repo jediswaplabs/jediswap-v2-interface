@@ -54,7 +54,7 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
   // monitor for self delegation or input for third part delegate
   // default is self delegation
   const activeDelegate = usingDelegate ? typed : account
-  const { address: parsedAddress } = useENS(activeDelegate)
+  const { address: parsedAddress } = useENS(activeDelegate as any)
 
   // get the number of votes available to delegate
   const uniBalance = useTokenBalance(account ?? undefined, undefined)

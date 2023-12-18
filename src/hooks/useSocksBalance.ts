@@ -3,6 +3,7 @@ import { SOCKS_CONTROLLER_ADDRESSES } from 'constants/addresses'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useMemo } from 'react'
 import { useTokenBalance } from 'state/connection/hooks'
+import { useAccountDetails } from './starknet-react'
 
 // technically a 721, not an ERC20, but suffices for our purposes
 const SOCKS = new Token(ChainId.MAINNET, SOCKS_CONTROLLER_ADDRESSES[ChainId.MAINNET], 0)

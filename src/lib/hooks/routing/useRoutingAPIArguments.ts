@@ -6,6 +6,7 @@ import { useUniswapXExactOutputEnabled } from 'featureFlags/flags/uniswapXExactO
 import { useUniswapXSyntheticQuoteEnabled } from 'featureFlags/flags/uniswapXUseSyntheticQuote'
 import { useFeesEnabled } from 'featureFlags/flags/useFees'
 import { useMemo } from 'react'
+import { AccountInterface } from 'starknet'
 import { GetQuoteArgs, INTERNAL_ROUTER_PREFERENCE_PRICE, RouterPreference } from 'state/routing/types'
 import { currencyAddressForSwapQuote } from 'state/routing/utils'
 import { useUserDisabledUniswapX, useUserOptedOutOfUniswapX } from 'state/user/hooks'
@@ -25,7 +26,7 @@ export function useRoutingAPIArguments({
   inputTax,
   outputTax,
 }: {
-  account?: string
+  account?: any
   tokenIn?: Currency
   tokenOut?: Currency
   amount?: CurrencyAmount<Currency>
