@@ -24,6 +24,7 @@ import { MouseoverTooltip } from '../../Tooltip'
 import { LoadingRows, MenuItem } from '../styled'
 import { scrollbarStyle } from './index.css'
 import { useCurrencyBalance } from '../../../state/connection/hooks'
+import React from 'react'
 
 function currencyKey(currency: Currency): string {
   return currency.isToken ? currency.address : 'ETHER'
@@ -107,13 +108,15 @@ function TokenTags({ currency }: { currency: Currency }) {
   )
 }
 
-export function CurrencyRow({ currency,
+export function CurrencyRow({
+  currency,
   onSelect,
   isSelected,
   otherSelected,
   style,
   showCurrencyAmount,
-  eventProperties }: {
+  eventProperties,
+}: {
   currency: Currency
   onSelect: (hasWarning: boolean) => void
   isSelected: boolean
@@ -145,11 +148,7 @@ export function CurrencyRow({ currency,
       dim={isBlockedToken}
     >
       <Column>
-        <CurrencyLogo
-          currency={currency}
-          size="36px"
-          style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}
-        />
+        <CurrencyLogo currency={currency} size="36px" style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }} />
       </Column>
       <AutoColumn style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}>
         <Row>
@@ -200,7 +199,7 @@ export const formatAnalyticsEventProperties = (
   token_list_length: data.length,
   ...(isAddressSearch === false
     ? { search_token_symbol_input: searchQuery }
-    : { search_token_address_input: isAddressSearch })
+    : { search_token_address_input: isAddressSearch }),
 })
 
 const LoadingRow = () => (
@@ -211,7 +210,8 @@ const LoadingRow = () => (
   </LoadingRows>
 )
 
-export default function CurrencyList({ height,
+export default function CurrencyList({
+  height,
   currencies,
   otherListTokens,
   selectedCurrency,
@@ -222,7 +222,8 @@ export default function CurrencyList({ height,
   isLoading,
   searchQuery,
   isAddressSearch,
-  balances }: {
+  balances,
+}: {
   height: number
   currencies: Currency[]
   otherListTokens?: WrappedTokenInfo[]
@@ -249,10 +250,11 @@ export default function CurrencyList({ height,
 
       const currency = row
 
-      const balance = tryParseCurrencyAmount(
-        String(balances[currency.isNative ? 'ETH' : currency.address?.toLowerCase()]?.balance ?? 0),
-        currency
-      ) ?? CurrencyAmount.fromRawAmount(currency, 0)
+      const balance =
+        tryParseCurrencyAmount(
+          String(balances[currency.isNative ? 'ETH' : currency.address?.toLowerCase()]?.balance ?? 0),
+          currency
+        ) ?? CurrencyAmount.fromRawAmount(currency, 0)
 
       const isSelected = Boolean(currency && selectedCurrency && selectedCurrency.equals(currency))
       const otherSelected = Boolean(currency && otherCurrency && otherCurrency.equals(currency))
@@ -287,7 +289,7 @@ export default function CurrencyList({ height,
       showCurrencyAmount,
       searchQuery,
       isAddressSearch,
-      balances
+      balances,
     ]
   )
 

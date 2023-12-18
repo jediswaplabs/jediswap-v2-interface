@@ -33,7 +33,7 @@ export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
       dispatch(
         selectCurrency({
           field,
-          currencyId: currency.isToken ? currency.address : currency.isNative ? 'ETH' : ''
+          currencyId: currency.isToken ? currency.address : currency.isNative ? 'ETH' : '',
         })
       )
     },
@@ -65,14 +65,14 @@ export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
     onSwitchTokens,
     onCurrencySelection,
     onUserInput,
-    onChangeRecipient
+    onChangeRecipient,
   }
 }
 
 const BAD_RECIPIENT_ADDRESSES: { [address: string]: true } = {
   '0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f': true, // v2 factory
   '0xf164fC0Ec4E93095b804a4795bBe1e041497b92a': true, // v2 router 01
-  '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D': true // v2 router 02
+  '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D': true, // v2 router 02
 }
 
 export type SwapInfo = {
@@ -80,33 +80,26 @@ export type SwapInfo = {
   currencyBalances: { [field in Field]?: CurrencyAmount<Currency> }
   parsedAmount?: CurrencyAmount<Currency>
   inputError?: ReactNode
-  trade: Trade,
+  trade: Trade
   tradeLoading: boolean
 }
 
 // from the current swap inputs, compute the best trade and return it.
 export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefined): SwapInfo {
   const { address: connectedAddress } = useAccountDetails()
-  debugger
-  const { independentField,
+  const {
+    independentField,
     typedValue,
     [Field.INPUT]: { currencyId: inputCurrencyId },
     [Field.OUTPUT]: { currencyId: outputCurrencyId },
-    recipient } = state
-
+    recipient,
+  } = state
   const inputCurrency = useCurrency(inputCurrencyId, chainId)
   const outputCurrency = useCurrency(outputCurrencyId, chainId)
-
   const address = useAddressNormalizer(recipient ?? undefined)
   const to: string | null = (recipient === null ? connectedAddress : address) ?? null
 
-  const relevantTokenBalances = useCurrencyBalances(
-    connectedAddress ?? undefined,
-    [
-      inputCurrency,
-      outputCurrency
-    ]
-  )
+  const relevantTokenBalances = useCurrencyBalances(connectedAddress ?? undefined, [inputCurrency, outputCurrency])
 
   const isExactIn: boolean = independentField === Field.INPUT
   const parsedAmount = useMemo(
@@ -129,7 +122,7 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
   const currencyBalances: { [field in Field]?: Currency } = useMemo(
     () => ({
       [Field.INPUT]: relevantTokenBalances[0],
-      [Field.OUTPUT]: relevantTokenBalances[1]
+      [Field.OUTPUT]: relevantTokenBalances[1],
     }),
     [relevantTokenBalances]
   )
@@ -137,13 +130,14 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
   const currencies: { [field in Field]?: Currency } = useMemo(
     () => ({
       [Field.INPUT]: inputCurrency,
-      [Field.OUTPUT]: outputCurrency
+      [Field.OUTPUT]: outputCurrency,
     }),
     [inputCurrency, outputCurrency]
   )
 
   const [allowedSlippage] = useUserSlippageTolerance()
-  const slippageAdjustedAmounts = trade && allowedSlippage && computeSlippageAdjustedAmounts(trade.trade as any, allowedSlippage)
+  const slippageAdjustedAmounts =
+    trade && allowedSlippage && computeSlippageAdjustedAmounts(trade.trade as any, allowedSlippage)
 
   const inputError = useMemo(() => {
     let inputError: ReactNode | undefined
@@ -164,9 +158,9 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     if (!to || !formattedTo) {
       inputError = inputError ?? <Trans>Enter a recipient</Trans>
     } else if (
-      BAD_RECIPIENT_ADDRESSES[formattedTo]
-          || (bestTradeExactIn && involvesAddress(bestTradeExactIn, formattedTo))
-          || (bestTradeExactOut && involvesAddress(bestTradeExactOut, formattedTo))
+      BAD_RECIPIENT_ADDRESSES[formattedTo] ||
+      (bestTradeExactIn && involvesAddress(bestTradeExactIn, formattedTo)) ||
+      (bestTradeExactOut && involvesAddress(bestTradeExactOut, formattedTo))
     ) {
       inputError = inputError ?? <Trans>Invalid recipient</Trans>
     }
@@ -174,7 +168,7 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     // compare input balance to max input based on version
     const [balanceIn, maxAmountIn] = [
       currencyBalances[Field.INPUT],
-      slippageAdjustedAmounts ? slippageAdjustedAmounts[Field.INPUT] : null
+      slippageAdjustedAmounts ? slippageAdjustedAmounts[Field.INPUT] : null,
     ]
 
     // compare input balance to max input based on version
@@ -193,16 +187,20 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     parsedAmount,
     inputError,
     trade,
-    tradeLoading: isExactIn ? bestTradeInLoading : bestTradeOutLoading
+    tradeLoading: isExactIn ? bestTradeInLoading : bestTradeOutLoading,
   }
 }
 
 function parseCurrencyFromURLParameter(urlParam: ParsedQs[string]): string {
   if (typeof urlParam === 'string') {
     const valid = isAddress(urlParam)
-    if (valid) { return valid }
+    if (valid) {
+      return valid
+    }
     const upper = urlParam.toUpperCase()
-    if (upper === 'ETH') { return 'ETH' }
+    if (upper === 'ETH') {
+      return 'ETH'
+    }
     // if (upper in TOKEN_SHORTHANDS) return upper
   }
   return ''
@@ -219,11 +217,19 @@ function parseIndependentFieldURLParameter(urlParam: any): Field {
 const ENS_NAME_REGEX = /^[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)?$/
 const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
 function validatedRecipient(recipient: any): string | null {
-  if (typeof recipient !== 'string') { return null }
+  if (typeof recipient !== 'string') {
+    return null
+  }
   const address = isAddress(recipient)
-  if (address) { return address }
-  if (ENS_NAME_REGEX.test(recipient)) { return recipient }
-  if (ADDRESS_REGEX.test(recipient)) { return recipient }
+  if (address) {
+    return address
+  }
+  if (ENS_NAME_REGEX.test(recipient)) {
+    return recipient
+  }
+  if (ADDRESS_REGEX.test(recipient)) {
+    return recipient
+  }
   return null
 }
 
@@ -245,14 +251,14 @@ export function queryParametersToSwapState(parsedQs: ParsedQs): SwapState {
 
   return {
     [Field.INPUT]: {
-      currencyId: inputCurrency === '' ? null : inputCurrency ?? null
+      currencyId: inputCurrency === '' ? null : inputCurrency ?? null,
     },
     [Field.OUTPUT]: {
-      currencyId: outputCurrency === '' ? null : outputCurrency ?? null
+      currencyId: outputCurrency === '' ? null : outputCurrency ?? null,
     },
     typedValue,
     independentField,
-    recipient
+    recipient,
   }
 }
 
@@ -263,9 +269,10 @@ export function useDefaultsFromURLSearch(): SwapState {
   const parsedQs = useParsedQueryString()
 
   const parsedSwapState = useMemo(() => queryParametersToSwapState(parsedQs), [parsedQs])
-
   useEffect(() => {
-    if (!chainId) { return }
+    if (!chainId) {
+      return
+    }
     const inputCurrencyId = parsedSwapState[Field.INPUT].currencyId ?? undefined
     const outputCurrencyId = parsedSwapState[Field.OUTPUT].currencyId ?? undefined
 
@@ -275,7 +282,7 @@ export function useDefaultsFromURLSearch(): SwapState {
         field: parsedSwapState.independentField,
         inputCurrencyId,
         outputCurrencyId,
-        recipient: parsedSwapState.recipient
+        recipient: parsedSwapState.recipient,
       })
     )
   }, [dispatch, chainId, parsedSwapState])

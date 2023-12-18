@@ -13,13 +13,15 @@ import { InterfaceSectionName } from '@uniswap/analytics-events'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import AddressInputPanel from 'components/AddressInputPanel'
-import { ButtonEmphasis,
+import {
+  ButtonEmphasis,
   ButtonError,
   ButtonGray,
   ButtonLight,
   ButtonPrimary,
   ButtonSize,
-  ThemeButton } from 'components/Button'
+  ThemeButton,
+} from 'components/Button'
 import { GrayCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import SwapCurrencyInputPanel from 'components/CurrencyInputPanel/SwapCurrencyInputPanel'
@@ -62,6 +64,7 @@ import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
 import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
 import { getSwapCurrencyId } from 'constants/tokens'
+import React from 'react'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -160,12 +163,14 @@ export default function SwapPage({ className }: { className?: string }) {
  * However if this component is being used in a context that displays information from a different, unconnected
  * chain (e.g. the TDP), then chainId should refer to the unconnected chain.
  */
-export function Swap({ className,
+export function Swap({
+  className,
   initialInputCurrencyId,
   initialOutputCurrencyId,
   chainId,
   onCurrencyChange,
-  disableTokenInputs = false }: {
+  disableTokenInputs = false,
+}: {
   className?: string
   initialInputCurrencyId?: string | null
   initialOutputCurrencyId?: string | null
@@ -202,8 +207,9 @@ export function Swap({ className,
   // dismiss warning if all imported tokens are in active lists
   const defaultTokens = useDefaultActiveTokens(chainId)
   const importTokensNotInDefault = useMemo(
-    () => urlLoadedTokens
-      && urlLoadedTokens
+    () =>
+      urlLoadedTokens &&
+      urlLoadedTokens
         .filter((token: Token) => !(token.address in defaultTokens))
         .filter((token: Token) => {
           // Any token addresses that are loaded from the shorthands map do not need to show the import URL
@@ -228,7 +234,7 @@ export function Swap({ className,
   const prefilledState = useMemo(
     () => ({
       [Field.INPUT]: { currencyId: initialInputCurrencyId },
-      [Field.OUTPUT]: { currencyId: initialOutputCurrencyId }
+      [Field.OUTPUT]: { currencyId: initialOutputCurrencyId },
     }),
     [initialInputCurrencyId, initialOutputCurrencyId]
   )
@@ -265,12 +271,7 @@ export function Swap({ className,
   // }, [connectedChainId, prefilledState, previousConnectedChainId, previousPrefilledState])
 
   const swapInfo = useDerivedSwapInfo(state, chainId)
-  const { trade,
-    currencyBalances,
-    parsedAmount,
-    currencies,
-    inputError: swapInputError,
-    tradeLoading } = swapInfo
+  const { trade, currencyBalances, parsedAmount, currencies, inputError: swapInputError, tradeLoading } = swapInfo
 
   const route = trade?.route
 
@@ -279,15 +280,16 @@ export function Swap({ className,
   const showWrap = false // TODO
 
   const parsedAmounts = useMemo(
-    () => (showWrap
-      ? {
-        [Field.INPUT]: parsedAmount,
-        [Field.OUTPUT]: parsedAmount
-      }
-      : {
-        [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
-        [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount
-      }),
+    () =>
+      showWrap
+        ? {
+            [Field.INPUT]: parsedAmount,
+            [Field.OUTPUT]: parsedAmount,
+          }
+        : {
+            [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
+            [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount,
+          },
     [independentField, parsedAmount, showWrap, trade]
   )
 
@@ -357,10 +359,10 @@ export function Swap({ className,
       [dependentField]: showWrap
         ? parsedAmounts[independentField]?.toExact() ?? ''
         : formatCurrencyAmount({
-          amount: parsedAmounts[dependentField],
-          type: NumberType.SwapTradeAmount,
-          placeholder: ''
-        })
+            amount: parsedAmounts[dependentField],
+            type: NumberType.SwapTradeAmount,
+            placeholder: '',
+          }),
     }),
     [dependentField, formatCurrencyAmount, independentField, parsedAmounts, showWrap, typedValue]
   )
@@ -459,7 +461,6 @@ export function Swap({ className,
 
   const { priceImpactWithoutFee } = computeTradePriceBreakdown(trade)
   const priceImpactSeverity = warningSeverity(priceImpactWithoutFee)
-  console.log(trade)
   // const handleConfirmDismiss = useCallback(() => {
   //   setSwapState((currentState) => ({ ...currentState, showConfirm: false }))
   //   // If there was a swap, we want to clear the input
@@ -477,9 +478,9 @@ export function Swap({ className,
       onCurrencySelection(Field.INPUT, inputCurrency)
       onCurrencyChange?.({
         [Field.INPUT]: {
-          currencyId: getSwapCurrencyId(inputCurrency)
+          currencyId: getSwapCurrencyId(inputCurrency),
         },
-        [Field.OUTPUT]: state[Field.OUTPUT]
+        [Field.OUTPUT]: state[Field.OUTPUT],
       })
     },
     [onCurrencyChange, onCurrencySelection, state]
@@ -499,8 +500,8 @@ export function Swap({ className,
       onCurrencyChange?.({
         [Field.INPUT]: state[Field.INPUT],
         [Field.OUTPUT]: {
-          currencyId: getSwapCurrencyId(outputCurrency)
-        }
+          currencyId: getSwapCurrencyId(outputCurrency),
+        },
       })
     },
     [onCurrencyChange, onCurrencySelection, state]
@@ -614,7 +615,7 @@ export function Swap({ className,
                 disabled: false,
                 // Focus the input currency panel if the user tries to type into the disabled output currency panel
                 onDisabledClick: () => inputCurrencyNumericalInputRef.current?.focus(),
-                disabledTooltipBody: <OutputTaxTooltipBody currencySymbol={currencies[Field.OUTPUT]?.symbol} />
+                disabledTooltipBody: <OutputTaxTooltipBody currencySymbol={currencies[Field.OUTPUT]?.symbol} />,
               }}
             />
             {recipient !== null && !showWrap ? (
@@ -664,14 +665,14 @@ export function Swap({ className,
               disabled={!getIsReviewableQuote(trade, tradeState, swapInputError)}
               error={!swapInputError && priceImpactSeverity > 2 && allowance.state === AllowanceState.ALLOWED}
             >
-              {swapInputError
-                    || (tradeLoading ? (
-                      <Trans>Swap</Trans>
-                    ) : priceImpactSeverity > 2 ? (
-                      <Trans>Swap anyway</Trans>
-                    ) : (
-                      <Trans>Swap</Trans>
-                    ))}
+              {swapInputError ||
+                (tradeLoading ? (
+                  <Trans>Swap</Trans>
+                ) : priceImpactSeverity > 2 ? (
+                  <Trans>Swap anyway</Trans>
+                ) : (
+                  <Trans>Swap</Trans>
+                ))}
             </ButtonError>
           )}
         </div>

@@ -2,7 +2,7 @@ import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { getChainInfo } from 'constants/chainInfo'
 import { DEFAULT_INACTIVE_LIST_URLS, DEFAULT_LIST_OF_LISTS } from 'constants/lists'
-import { useCurrencyFromMap, useTokenFromMapOrNetwork } from 'lib/hooks/useCurrency'
+import { useCurrencyFromMap, useTokenFromMapOrNetwork } from '../lib/hooks/useCurrency'
 import { getTokenFilter } from 'lib/hooks/useTokenList/filtering'
 import { TokenAddressMap } from 'lib/hooks/useTokenList/utils'
 import { useMemo } from 'react'
@@ -191,10 +191,20 @@ export function useToken(tokenAddress?: string | null): Token | null | undefined
   return useTokenFromMapOrNetwork(tokens, tokenAddress)
 }
 
+
+
+// export function useCurrency(currencyId: Maybe<string>, chainId?: ChainId): Currency | undefined {
+//   const isETH = currencyId?.toUpperCase() === 'ETH'
+//   const { chainId: connectedChainId } = useAccountDetails()
+//   if (isETH) return WETH[chainId ?? connectedChainId]
+//   const tokens = useDefaultActiveTokens(chainId ?? connectedChainId)
+//   console.log(useCurrencyFromMap(tokens, chainId ?? connectedChainId, currencyId))
+//   return useCurrencyFromMap(tokens, chainId ?? connectedChainId, currencyId)
+// }
+
 export function useCurrency(currencyId: Maybe<string>, chainId?: ChainId): Currency | undefined {
   const isETH = currencyId?.toUpperCase() === 'ETH'
   const { chainId: connectedChainId } = useAccountDetails()
-  if (isETH) return WETH[chainId ?? connectedChainId]
-  const tokens = useDefaultActiveTokens(chainId ?? connectedChainId)
-  return useCurrencyFromMap(tokens, chainId ?? connectedChainId, currencyId)
+  const token = useToken(isETH ? undefined : currencyId)
+  return isETH ? WETH[chainId ?? connectedChainId] : token
 }

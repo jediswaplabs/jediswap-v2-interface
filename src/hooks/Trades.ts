@@ -17,7 +17,6 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): [Pair[],
   const [tokenA, tokenB] = chainId
     ? [wrappedCurrency(currencyA, chainId), wrappedCurrency(currencyB, chainId)]
     : [undefined, undefined]
-  debugger
   const basePairs: [Token, Token][] = useMemo(
     () => flatMap(bases, (base): [Token, Token][] => bases.map((otherBase) => [base, otherBase])).filter(
       ([t0, t1]) => t0.address !== t1.address

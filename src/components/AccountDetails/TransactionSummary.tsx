@@ -24,6 +24,7 @@ import {
   // VoteTransactionInfo,
   WrapTransactionInfo,
 } from '../../state/transactions/types'
+import React from 'react'
 // import { nativeOnChain } from '@uniswap/smart-order-router'
 
 function formatAmount(amountRaw: string, decimals: number, sigFigs: number): string {

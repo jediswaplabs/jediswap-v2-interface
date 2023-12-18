@@ -100,7 +100,6 @@ export function computeTradePriceBreakdown(trade): { priceImpactWithoutFee?: Per
   // for each hop in our trade, take away the x*y=k price impact from 0.3% fees
   // e.g. for 3 tokens/2 hops: 1 - ((1 - .03) * (1-.03))
   if (trade) {
-    debugger
   }
   const realizedLPFee = !trade
     ? undefined
