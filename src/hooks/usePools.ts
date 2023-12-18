@@ -1,7 +1,7 @@
 // import { Interface } from '@ethersproject/abi'
 import { BigintIsh, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import IUniswapV3PoolStateJSON from '@uniswap/v3-core/artifacts/contracts/interfaces/pool/IUniswapV3PoolState.sol/IUniswapV3PoolState.json'
-import { computePoolAddress } from '@vnaysn/jediswap-sdk-v3'
+import { computePoolAddress, toHex } from '@vnaysn/jediswap-sdk-v3'
 import { FeeAmount, Pool } from '@vnaysn/jediswap-sdk-v3'
 import { useAccountDetails } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
@@ -10,7 +10,7 @@ import { useMemo } from 'react'
 import { IUniswapV3PoolStateInterface } from '../types/v3/IUniswapV3PoolState'
 import { V3_CORE_FACTORY_ADDRESSES } from 'constants/addresses'
 import { useAllPairs } from 'state/pairs/hooks'
-import { CallData, ec, hash, num, validateAndParseAddress } from 'starknet'
+import { BigNumberish, CallData, ec, hash, num, uint256, validateAndParseAddress } from 'starknet'
 import { useContractRead } from '@starknet-react/core'
 import POOL_ABI from 'contracts/pool/abi.json'
 import { DEFAULT_POOL_ADDRESS, DEFAULT_POOL_HASH, FACTORY_ADDRESS } from 'constants/tokens'
@@ -141,6 +141,7 @@ export function usePools(
       }),
     [poolTokens]
   )
+  console.log('🚀 ~ file: usePools.ts:144 ~ pool:', pairAddresses)
 
   // if (!pairAddresses || !pairAddresses.length) return [PoolState.NOT_EXISTS, null]
 
@@ -157,7 +158,7 @@ export function usePools(
     watch: true,
   })
 
-  const { data: liquid } = useContractRead({
+  const { data: liquidity } = useContractRead({
     functionName: 'get_liquidity',
     args: [],
     abi: POOL_ABI,
@@ -173,28 +174,19 @@ export function usePools(
     watch: true,
   })
 
-  const liquidity = JSBI.BigInt('0x78c95144121d6f5222f880')
-  const sqrt = JSBI.BigInt('0x569d27eac14698dd7ad6117c')
-  // const liquidity = JSBI.BigInt('253')
+  // 2018382873588440326581633304624437
+
+  const sqrtPriceHex = sqrtPriceX96 && num.toHex(sqrtPriceX96 as BigNumberish)
+  const liquidityHex = liquidity && num.toHex(liquidity as BigNumberish)
   return useMemo(() => {
     return poolKeys.map((_key, index) => {
       const tokens = poolTokens[index]
       if (!tokens) return [PoolState.INVALID, null]
       const [token0, token1, fee] = tokens
+      if (!tick || !liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
 
-      // if(!slot) return [PoolState.INVALID, null]
-      // if (!slot0s[index]) return [PoolState.INVALID, null]
-      // const { result: slot0, loading: slot0Loading, valid: slot0Valid } = slot0s[index]
-
-      // if (!liquidities[index]) return [PoolState.INVALID, null]
-      // const { result: liquidity, loading: liquidityLoading, valid: liquidityValid } = liquidities[index]
-
-      // if (!tokens || !slot0Valid || !liquidityValid) return [PoolState.INVALID, null]
-      // if (slot0Loading || liquidityLoading) return [PoolState.LOADING, null]
-      // if (!tick || !liquidity || !sqrtPriceX96) return [PoolState.NOT_EXISTS, null]
-      // if (!slot0.sqrtPriceX96 || slot0.sqrtPriceX96.eq(0)) return [PoolState.NOT_EXISTS, null]
       try {
-        const pool = PoolCache.getPool(token0, token1, fee, sqrt, liquidity, -21676)
+        const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, Number((tick as any).mag))
         return [PoolState.EXISTS, pool]
       } catch (error) {
         console.error('Error when constructing the pool', error)
