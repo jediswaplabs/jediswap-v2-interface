@@ -112,7 +112,7 @@ export function usePools(
     })
   }, [chainId, poolKeys])
 
-  const pairAddresses: (string | undefined)[] = useMemo(
+  const poolAddress: (string | undefined)[] = useMemo(
     () =>
       poolTokens.map((tokens): string | undefined => {
         if (tokens && tokens[0] && tokens[1] && tokens[2]) {
@@ -141,9 +141,9 @@ export function usePools(
       }),
     [poolTokens]
   )
-  console.log('🚀 ~ file: usePools.ts:144 ~ pool:', pairAddresses)
+  console.log('🚀 ~ file: usePools.ts:144 ~ pool:', poolAddress)
 
-  // if (!pairAddresses || !pairAddresses.length) return [PoolState.NOT_EXISTS, null]
+  // if (!poolAddress || !poolAddress.length) return [PoolState.NOT_EXISTS, null]
 
   const {
     data: tick,
@@ -154,7 +154,7 @@ export function usePools(
     functionName: 'get_tick',
     args: [],
     abi: POOL_ABI,
-    address: DEFAULT_POOL_ADDRESS,
+    address: poolAddress?.[0],
     watch: true,
   })
 
@@ -162,7 +162,7 @@ export function usePools(
     functionName: 'get_liquidity',
     args: [],
     abi: POOL_ABI,
-    address: DEFAULT_POOL_ADDRESS,
+    address: poolAddress?.[0],
     watch: true,
   })
 
@@ -170,14 +170,14 @@ export function usePools(
     functionName: 'get_sqrt_price_X96',
     args: [],
     abi: POOL_ABI,
-    address: DEFAULT_POOL_ADDRESS,
+    address: poolAddress?.[0],
     watch: true,
   })
 
   // 2018382873588440326581633304624437
 
-  const sqrtPriceHex = sqrtPriceX96 && num.toHex(sqrtPriceX96 as BigNumberish)
-  const liquidityHex = liquidity && num.toHex(liquidity as BigNumberish)
+  const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(num.toHex(sqrtPriceX96 as BigNumberish))
+  const liquidityHex = Boolean(liquidity) ? JSBI.BigInt(num.toHex(liquidity as BigNumberish)) : JSBI.BigInt('0x0')
   return useMemo(() => {
     return poolKeys.map((_key, index) => {
       const tokens = poolTokens[index]
@@ -186,6 +186,15 @@ export function usePools(
       if (!tick || !liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
 
       try {
+        console.log(
+          token0,
+          token1,
+          fee,
+          sqrtPriceHex,
+          liquidityHex,
+          Number((tick as any).mag),
+          'token0, token1, fee, sqrtPriceHex, liquidityHex, Number((tick as any).mag)'
+        )
         const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, Number((tick as any).mag))
         return [PoolState.EXISTS, pool]
       } catch (error) {

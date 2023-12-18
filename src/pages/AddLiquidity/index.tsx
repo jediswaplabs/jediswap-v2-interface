@@ -139,7 +139,7 @@ function AddLiquidity() {
     parsedAmounts,
     currencyBalances,
     position,
-    // noLiquidity,
+    noLiquidity,
     currencies,
     errorMessage,
     // invalidPool,
@@ -157,7 +157,6 @@ function AddLiquidity() {
     existingPosition
   )
   const invalidPool = false
-  const noLiquidity = false
 
   const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
     useV3MintActionHandlers(noLiquidity)
@@ -676,31 +675,31 @@ function AddLiquidity() {
                   </DynamicSection>
 
                   <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
-                    {/* {!noLiquidity ? (
-                      <> */}
-                    {Boolean(price && baseCurrency && quoteCurrency) && (
-                      <AutoColumn gap="2px" style={{ marginTop: '0.5rem' }}>
-                        <Trans>
-                          <ThemedText.DeprecatedMain fontWeight={535} fontSize={12} color="text1">
-                            Current price:
-                          </ThemedText.DeprecatedMain>
-                          <ThemedText.DeprecatedBody fontWeight={535} fontSize={20} color="text1">
-                            {price && (
-                              <HoverInlineText
-                                maxCharacters={20}
-                                text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
-                              />
-                            )}
-                          </ThemedText.DeprecatedBody>
-                          {baseCurrency && (
-                            <ThemedText.DeprecatedBody color="text2" fontSize={12}>
-                              {quoteCurrency?.symbol} per {baseCurrency.symbol}
-                            </ThemedText.DeprecatedBody>
-                          )}
-                        </Trans>
-                      </AutoColumn>
-                    )}
-                    {/* </>
+                    {!noLiquidity ? (
+                      <>
+                        {Boolean(price && baseCurrency && quoteCurrency) && (
+                          <AutoColumn gap="2px" style={{ marginTop: '0.5rem' }}>
+                            <Trans>
+                              <ThemedText.DeprecatedMain fontWeight={535} fontSize={12} color="text1">
+                                Current price:
+                              </ThemedText.DeprecatedMain>
+                              <ThemedText.DeprecatedBody fontWeight={535} fontSize={20} color="text1">
+                                {price && (
+                                  <HoverInlineText
+                                    maxCharacters={20}
+                                    text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
+                                  />
+                                )}
+                              </ThemedText.DeprecatedBody>
+                              {baseCurrency && (
+                                <ThemedText.DeprecatedBody color="text2" fontSize={12}>
+                                  {quoteCurrency?.symbol} per {baseCurrency.symbol}
+                                </ThemedText.DeprecatedBody>
+                              )}
+                            </Trans>
+                          </AutoColumn>
+                        )}
+                      </>
                     ) : (
                       <AutoColumn gap="md">
                         {noLiquidity && (
@@ -756,7 +755,7 @@ function AddLiquidity() {
                           </ThemedText.DeprecatedMain>
                         </RowBetween>
                       </AutoColumn>
-                    )} */}
+                    )}
                   </DynamicSection>
                 </>
               )}
