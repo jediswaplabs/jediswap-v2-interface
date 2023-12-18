@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { Currency, CurrencyAmount, Price, Rounding, Token } from '@uniswap/sdk-core'
+import { Currency, CurrencyAmount, Price, Rounding, Token } from '@vnaysn/jediswap-sdk-core'
 import {
   encodeSqrtRatioX96,
   FeeAmount,
@@ -10,8 +10,8 @@ import {
   TICK_SPACINGS,
   TickMath,
   tickToPrice,
-} from '@uniswap/v3-sdk'
-import { useWeb3React } from '@web3-react/core'
+} from '@vnaysn/jediswap-sdk-v3'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { usePool } from 'hooks/usePools'
 import JSBI from 'jsbi'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
@@ -51,14 +51,14 @@ export function useV3MintActionHandlers(noLiquidity: boolean | undefined): {
 
   const onFieldAInput = useCallback(
     (typedValue: string) => {
-      dispatch(typeInput({ field: Field.CURRENCY_A, typedValue, noLiquidity: noLiquidity === true }))
+      dispatch(typeInput({ field: Field.CURRENCY_A, typedValue, noLiquidity: false }))
     },
     [dispatch, noLiquidity]
   )
 
   const onFieldBInput = useCallback(
     (typedValue: string) => {
-      dispatch(typeInput({ field: Field.CURRENCY_B, typedValue, noLiquidity: noLiquidity === true }))
+      dispatch(typeInput({ field: Field.CURRENCY_B, typedValue, noLiquidity: false }))
     },
     [dispatch, noLiquidity]
   )
@@ -138,7 +138,7 @@ export function useV3DerivedMintInfo(
   invertPrice: boolean
   ticksAtLimit: { [bound in Bound]?: boolean | undefined }
 } {
-  const { account } = useAccountDetails();
+  const { address: account } = useAccountDetails()
 
   const { independentField, typedValue, leftRangeTypedValue, rightRangeTypedValue, startPriceTypedValue } =
     useV3MintState()

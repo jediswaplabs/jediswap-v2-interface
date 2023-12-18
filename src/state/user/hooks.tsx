@@ -1,28 +1,28 @@
-import { Percent, Token, V2_FACTORY_ADDRESSES } from '@uniswap/sdk-core'
-import { computePairAddress, Pair } from '@uniswap/v2-sdk'
-import { useWeb3React } from '@web3-react/core'
-import { L2_CHAIN_IDS } from 'constants/chains'
-import { SupportedLocale } from 'constants/locales'
-import { L2_DEADLINE_FROM_NOW } from 'constants/misc'
+import { Percent, Token } from '@vnaysn/jediswap-sdk-core'
+import { computePairAddress, Pair } from '@vnaysn/jediswap-sdk-v2'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+
+import { useAccountDetails } from 'hooks/starknet-react'
+import { SupportedLocale } from 'constants/locales'
+import { L2_DEADLINE_FROM_NOW } from 'constants/misc'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
 import { RouterPreference } from 'state/routing/types'
 import { UserAddedToken } from 'types/tokens'
-
-import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from '../../constants/routing'
 import { useDefaultActiveTokens } from '../../hooks/Tokens'
-import {
-  addSerializedPair,
+import { addSerializedPair,
   addSerializedToken,
   updateHideBaseWalletBanner,
   updateHideClosedPositions,
   updateUserDeadline,
   updateUserLocale,
   updateUserRouterPreference,
-  updateUserSlippageTolerance,
-} from './reducer'
+  updateUserSlippageTolerance } from './reducer'
 import { SerializedPair, SerializedToken, SlippageTolerance } from './types'
+import { BASES_TO_TRACK_LIQUIDITY_FOR, PINNED_PAIRS } from 'constants/tokens'
+import { V2_FACTORY_ADDRESSES } from 'constants/addresses'
+import { AppDispatch, AppState } from 'state'
 
 export function serializeToken(token: Token): SerializedToken {
   return {
@@ -30,7 +30,7 @@ export function serializeToken(token: Token): SerializedToken {
     address: token.address,
     decimals: token.decimals,
     symbol: token.symbol,
-    name: token.name,
+    name: token.name
   }
 }
 
@@ -77,43 +77,30 @@ export function useRouterPreference(): [RouterPreference, (routerPreference: Rou
   return [routerPreference, setRouterPreference]
 }
 
+export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
+  if (tokenA.chainId !== tokenB.chainId) { throw new Error('Not matching chain IDs') }
+  if (tokenA.equals(tokenB)) { throw new Error('Tokens cannot be equal') }
+  // if (!V2_FACTORY_ADDRESSES[tokenA.chainId]) throw new Error('No V2 factory address on this chain')
+
+  return new Token(
+    tokenA.chainId,
+    computePairAddress({ factoryAddress: V2_FACTORY_ADDRESSES[tokenA.chainId], tokenA, tokenB }),
+    18,
+    'UNI-V2',
+    'Uniswap V2'
+  )
+}
+
 /**
  * Return the user's slippage tolerance, from the redux store, and a function to update the slippage tolerance
  */
-export function useUserSlippageTolerance(): [
-  Percent | SlippageTolerance.Auto,
-  (slippageTolerance: Percent | SlippageTolerance.Auto) => void
-] {
-  const userSlippageToleranceRaw = useAppSelector((state) => {
-    return state.user.userSlippageTolerance
-  })
+export function useUserSlippageTolerance(): [number, (slippage: number) => void] {
+  const dispatch = useDispatch<AppDispatch>()
+  const userSlippageTolerance = useSelector<AppState, AppState['user']['userSlippageTolerance']>((state) => state.user.userSlippageTolerance)
 
-  // TODO(WEB-1985): Keep `userSlippageTolerance` as Percent in Redux store and remove this conversion
-  const userSlippageTolerance = useMemo(
-    () =>
-      userSlippageToleranceRaw === SlippageTolerance.Auto
-        ? SlippageTolerance.Auto
-        : new Percent(userSlippageToleranceRaw, 10_000),
-    [userSlippageToleranceRaw]
-  )
-
-  const dispatch = useAppDispatch()
   const setUserSlippageTolerance = useCallback(
-    (userSlippageTolerance: Percent | SlippageTolerance.Auto) => {
-      let value: SlippageTolerance.Auto | number
-      try {
-        value =
-          userSlippageTolerance === SlippageTolerance.Auto
-            ? SlippageTolerance.Auto
-            : JSBI.toNumber(userSlippageTolerance.multiply(10_000).quotient)
-      } catch (error) {
-        value = SlippageTolerance.Auto
-      }
-      dispatch(
-        updateUserSlippageTolerance({
-          userSlippageTolerance: value,
-        })
-      )
+    (userSlippageTolerance: number) => {
+      dispatch(updateUserSlippageTolerance({ userSlippageTolerance }))
     },
     [dispatch]
   )
@@ -121,13 +108,27 @@ export function useUserSlippageTolerance(): [
   return [userSlippageTolerance, setUserSlippageTolerance]
 }
 
+export function useUserTransactionTTL(): [number, (slippage: number) => void] {
+  const dispatch = useDispatch<AppDispatch>()
+  const userDeadline = useSelector<AppState, AppState['user']['userDeadline']>((state) => state.user.userDeadline)
+
+  const setUserDeadline = useCallback(
+    (userDeadline: number) => {
+      dispatch(updateUserDeadline({ userDeadline }))
+    },
+    [dispatch]
+  )
+
+  return [userDeadline, setUserDeadline]
+}
+
 /**
  *Returns user slippage tolerance, replacing the auto with a default value
  * @param defaultSlippageTolerance the value to replace auto with
  */
-export function useUserSlippageToleranceWithDefault(defaultSlippageTolerance: Percent): Percent {
+export function useUserSlippageToleranceWithDefault(defaultSlippageTolerance: number): number {
   const [allowedSlippage] = useUserSlippageTolerance()
-  return allowedSlippage === SlippageTolerance.Auto ? defaultSlippageTolerance : allowedSlippage
+  return !allowedSlippage ? defaultSlippageTolerance : allowedSlippage
 }
 
 export function useUserHideClosedPositions(): [boolean, (newHideClosedPositions: boolean) => void] {
@@ -145,23 +146,6 @@ export function useUserHideClosedPositions(): [boolean, (newHideClosedPositions:
   return [hideClosedPositions, setHideClosedPositions]
 }
 
-export function useUserTransactionTTL(): [number, (slippage: number) => void] {
-  const { chainId } = useWeb3React()
-  const dispatch = useAppDispatch()
-  const userDeadline = useAppSelector((state) => state.user.userDeadline)
-  const onL2 = Boolean(chainId && L2_CHAIN_IDS.includes(chainId))
-  const deadline = onL2 ? L2_DEADLINE_FROM_NOW : userDeadline
-
-  const setUserDeadline = useCallback(
-    (userDeadline: number) => {
-      dispatch(updateUserDeadline({ userDeadline }))
-    },
-    [dispatch]
-  )
-
-  return [deadline, setUserDeadline]
-}
-
 export function useAddUserToken(): (token: Token) => void {
   const dispatch = useAppDispatch()
   return useCallback(
@@ -172,11 +156,11 @@ export function useAddUserToken(): (token: Token) => void {
   )
 }
 
-function useUserAddedTokensOnChain(chainId: number | undefined | null): Token[] {
+function useUserAddedTokensOnChain(chainId: string | undefined | null): Token[] {
   const serializedTokensMap = useAppSelector(({ user: { tokens } }) => tokens)
 
   return useMemo(() => {
-    if (!chainId) return []
+    if (!chainId) { return [] }
     const tokenMap: Token[] = serializedTokensMap?.[chainId]
       ? Object.values(serializedTokensMap[chainId]).map((value) => deserializeToken(value, UserAddedToken))
       : []
@@ -185,13 +169,13 @@ function useUserAddedTokensOnChain(chainId: number | undefined | null): Token[] 
 }
 
 export function useUserAddedTokens(): Token[] {
-  return useUserAddedTokensOnChain(useWeb3React().chainId)
+  return []
 }
 
 function serializePair(pair: Pair): SerializedPair {
   return {
     token0: serializeToken(pair.token0),
-    token1: serializeToken(pair.token1),
+    token1: serializeToken(pair.token1)
   }
 }
 
@@ -226,29 +210,10 @@ export function useUserOptedOutOfUniswapX(): boolean {
 }
 
 /**
- * Given two tokens return the liquidity token that represents its liquidity shares
- * @param tokenA one of the two tokens
- * @param tokenB the other token
- */
-export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
-  if (tokenA.chainId !== tokenB.chainId) throw new Error('Not matching chain IDs')
-  if (tokenA.equals(tokenB)) throw new Error('Tokens cannot be equal')
-  if (!V2_FACTORY_ADDRESSES[tokenA.chainId]) throw new Error('No V2 factory address on this chain')
-
-  return new Token(
-    tokenA.chainId,
-    computePairAddress({ factoryAddress: V2_FACTORY_ADDRESSES[tokenA.chainId], tokenA, tokenB }),
-    18,
-    'UNI-V2',
-    'Uniswap V2'
-  )
-}
-
-/**
  * Returns all the pairs of tokens that are tracked by the user for the current chain ID.
  */
 export function useTrackedTokenPairs(): [Token, Token][] {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const tokens = useDefaultActiveTokens(chainId)
 
   // pinned pairs
@@ -256,26 +221,24 @@ export function useTrackedTokenPairs(): [Token, Token][] {
 
   // pairs for every token against every base
   const generatedPairs: [Token, Token][] = useMemo(
-    () =>
-      chainId
-        ? Object.keys(tokens).flatMap((tokenAddress) => {
-            const token = tokens[tokenAddress]
-            // for each token on the current chain,
-            return (
-              // loop though all bases on the current chain
-              (BASES_TO_TRACK_LIQUIDITY_FOR[chainId] ?? [])
-                // to construct pairs of the given token with each base
-                .map((base) => {
-                  if (base.address === token.address) {
-                    return null
-                  } else {
-                    return [base, token]
-                  }
-                })
-                .filter((p): p is [Token, Token] => p !== null)
-            )
-          })
-        : [],
+    () => (chainId
+      ? Object.keys(tokens).flatMap((tokenAddress) => {
+        const token = tokens[tokenAddress]
+        // for each token on the current chain,
+        return (
+          // loop though all bases on the current chain
+          (BASES_TO_TRACK_LIQUIDITY_FOR[chainId] ?? [])
+            // to construct pairs of the given token with each base
+            .map((base) => {
+              if (base.address === token.address) {
+                return null
+              }
+              return [base, token]
+            })
+            .filter((p): p is [Token, Token] => p !== null)
+        )
+      })
+      : []),
     [tokens, chainId]
   )
 
@@ -283,13 +246,11 @@ export function useTrackedTokenPairs(): [Token, Token][] {
   const savedSerializedPairs = useAppSelector(({ user: { pairs } }) => pairs)
 
   const userPairs: [Token, Token][] = useMemo(() => {
-    if (!chainId || !savedSerializedPairs) return []
+    if (!chainId || !savedSerializedPairs) { return [] }
     const forChain = savedSerializedPairs[chainId]
-    if (!forChain) return []
+    if (!forChain) { return [] }
 
-    return Object.keys(forChain).map((pairId) => {
-      return [deserializeToken(forChain[pairId].token0), deserializeToken(forChain[pairId].token1)]
-    })
+    return Object.keys(forChain).map((pairId) => [deserializeToken(forChain[pairId].token0), deserializeToken(forChain[pairId].token1)])
   }, [savedSerializedPairs, chainId])
 
   const combinedList = useMemo(
@@ -302,7 +263,7 @@ export function useTrackedTokenPairs(): [Token, Token][] {
     const keyed = combinedList.reduce<{ [key: string]: [Token, Token] }>((memo, [tokenA, tokenB]) => {
       const sorted = tokenA.sortsBefore(tokenB)
       const key = sorted ? `${tokenA.address}:${tokenB.address}` : `${tokenB.address}:${tokenA.address}`
-      if (memo[key]) return memo
+      if (memo[key]) { return memo }
       memo[key] = sorted ? [tokenA, tokenB] : [tokenB, tokenA]
       return memo
     }, {})

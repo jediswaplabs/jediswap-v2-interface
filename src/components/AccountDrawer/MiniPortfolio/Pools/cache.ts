@@ -1,5 +1,5 @@
-import { ChainId, Token } from '@uniswap/sdk-core'
-import { Pool, Position } from '@uniswap/v3-sdk'
+import { ChainId, Token } from '@vnaysn/jediswap-sdk-core'
+import { Pool, Position } from '@vnaysn/jediswap-sdk-v3'
 import { useAllTokensMultichain } from 'hooks/Tokens'
 import { atom, useAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'
@@ -86,7 +86,7 @@ const tokenCacheAtom = atomWithStorage<{ [key: string]: SerializedToken | undefi
 function useTokenCache() {
   const [cache, setCache] = useAtom(tokenCacheAtom)
   const get = useCallback(
-    (chainId: number, address: string) => {
+    (chainId: ChainId, address: string) => {
       const entry = cache[buildCurrencyKey(chainId, address)]
       return entry ? deserializeToken(entry) : undefined
     },

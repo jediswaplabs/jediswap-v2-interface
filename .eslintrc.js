@@ -2,9 +2,8 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaFeatures: {
-      jsx: true,
-    },
-    // project: "./tsconfig.json"
+      jsx: true
+    }
   },
   extends: ['airbnb', 'plugin:@typescript-eslint/recommended', 'plugin:import/typescript', 'plugin:react/recommended', 'plugin:react-hooks/recommended'],
   plugins: ['react', 'react-hooks'],
@@ -12,26 +11,27 @@ module.exports = {
     'import/resolver': {
       node: {
         extensions: ['.js', '.jsx', '.ts', '.tsx'],
-        moduleDirectory: ['node_modules', 'src/'],
-      },
-    },
+        moduleDirectory: ['node_modules', 'src/']
+      }
+    }
   },
   globals: {
-    document: true, window: true, Fragment: true,
+    document: true, window: true, Fragment: true
   },
   overrides: [{
     files: ['**/*.test.js', '**/*.test.jsx', '**/*.stories.jsx'],
     env: {
-      jest: true,
+      jest: true
     },
     plugins: ['jest'],
     rules: {
       'no-console': 0,
       'jest/no-standalone-expect': 0,
       'import/no-extraneous-dependencies': 0,
-      'import/no-default-export': 0,
-    },
+      'import/no-default-export': 0
+    }
   }],
+
   rules: {
     'arrow-parens': ['error', 'always'],
     'consistent-return': 'off',
@@ -45,7 +45,7 @@ module.exports = {
     'import/no-named-as-default': 2,
     'import/order': ['error', {
       'newlines-between': 'always',
-      groups: [['builtin', 'external'], ['internal', 'parent', 'sibling', 'index']],
+      groups: [['builtin', 'external'], ['internal', 'parent', 'sibling', 'index']]
     }],
     'import/prefer-default-export': 'off',
     'jest/expect-expect': 'off',
@@ -103,7 +103,7 @@ module.exports = {
     'no-restricted-syntax': 'off',
     'no-promise-executor-return': 'off',
     'no-unused-vars': ['off', {
-      varsIgnorePattern: 'Fragment', ignoreRestSiblings: true,
+      varsIgnorePattern: 'Fragment', ignoreRestSiblings: true
     }],
     'linebreak-style': 0,
     '@typescript-eslint/no-unused-vars': 'off',
@@ -113,12 +113,12 @@ module.exports = {
       ObjectPattern: 'never',
       ImportDeclaration: 'never',
       ExportDeclaration: {
-        multiline: true, minProperties: 3,
-      },
+        multiline: true, minProperties: 3
+      }
     }],
     'object-curly-spacing': ['error', 'always', {
 
-      arraysInObjects: true, objectsInObjects: true,
+      arraysInObjects: true, objectsInObjects: true
     }],
     'react-hooks/exhaustive-deps': 0, // Checks effect dependencies
     'react-hooks/rules-of-hooks': 'error',
@@ -147,6 +147,7 @@ module.exports = {
     'default-param-last': 'off',
     indent: ['error', 2, { SwitchCase: 1 }],
     quotes: ['error', 'single'],
-    semi: ['error', 'always'],
-  },
-};
+    semi: ['error', 'never'],
+    'comma-dangle': ['error', 'never']
+  }
+}

@@ -1,5 +1,5 @@
 import { t, Trans } from '@lingui/macro'
-import { CurrencyAmount, TradeType } from '@uniswap/sdk-core'
+import { CurrencyAmount, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { ReactComponent as ErrorContent } from 'assets/svg/uniswapx_error.svg'
 import Column, { AutoColumn } from 'components/Column'
 import { OpacityHoverState } from 'components/Common'
@@ -88,39 +88,39 @@ const DescriptionText = styled(ThemedText.LabelMicro)`
   text-align: center;
 `
 
-function useOrderAmounts(
-  orderDetails?: UniswapXOrderDetails
-): Pick<InterfaceTrade, 'inputAmount' | 'postTaxOutputAmount'> | undefined {
-  const inputCurrency = useCurrency(orderDetails?.swapInfo?.inputCurrencyId, orderDetails?.chainId)
-  const outputCurrency = useCurrency(orderDetails?.swapInfo?.outputCurrencyId, orderDetails?.chainId)
+// function useOrderAmounts(
+//   orderDetails?: UniswapXOrderDetails
+// ): Pick<InterfaceTrade, 'inputAmount' | 'postTaxOutputAmount'> | undefined {
+//   const inputCurrency = useCurrency(orderDetails?.swapInfo?.inputCurrencyId, orderDetails?.chainId)
+//   const outputCurrency = useCurrency(orderDetails?.swapInfo?.outputCurrencyId, orderDetails?.chainId)
 
-  if (!orderDetails) return undefined
+//   if (!orderDetails) return undefined
 
-  if (!inputCurrency || !outputCurrency) {
-    console.error(`Could not find token(s) for order ${orderDetails.orderHash}`)
-    return undefined
-  }
+//   if (!inputCurrency || !outputCurrency) {
+//     console.error(`Could not find token(s) for order ${orderDetails.orderHash}`)
+//     return undefined
+//   }
 
-  const { swapInfo } = orderDetails
+//   const { swapInfo } = orderDetails
 
-  if (swapInfo.tradeType === TradeType.EXACT_INPUT) {
-    return {
-      inputAmount: CurrencyAmount.fromRawAmount(inputCurrency, swapInfo.inputCurrencyAmountRaw),
-      postTaxOutputAmount: CurrencyAmount.fromRawAmount(
-        outputCurrency,
-        swapInfo.settledOutputCurrencyAmountRaw ?? swapInfo.expectedOutputCurrencyAmountRaw
-      ),
-    }
-  } else {
-    return {
-      inputAmount: CurrencyAmount.fromRawAmount(inputCurrency, swapInfo.expectedInputCurrencyAmountRaw),
-      postTaxOutputAmount: CurrencyAmount.fromRawAmount(outputCurrency, swapInfo.outputCurrencyAmountRaw),
-    }
-  }
-}
+//   if (swapInfo.tradeType === TradeType.EXACT_INPUT) {
+//     return {
+//       inputAmount: CurrencyAmount.fromRawAmount(inputCurrency, swapInfo.inputCurrencyAmountRaw),
+//       postTaxOutputAmount: CurrencyAmount.fromRawAmount(
+//         outputCurrency,
+//         swapInfo.settledOutputCurrencyAmountRaw ?? swapInfo.expectedOutputCurrencyAmountRaw
+//       ),
+//     }
+//   } else {
+//     return {
+//       inputAmount: CurrencyAmount.fromRawAmount(inputCurrency, swapInfo.expectedInputCurrencyAmountRaw),
+//       postTaxOutputAmount: CurrencyAmount.fromRawAmount(outputCurrency, swapInfo.outputCurrencyAmountRaw),
+//     }
+//   }
+// }
 
 export function OrderContent({ order }: { order: SelectedOrderInfo }) {
-  const amounts = useOrderAmounts(order.details)
+  // const amounts = useOrderAmounts(order.details)
 
   const explorerLink = order?.details?.txHash
     ? getExplorerLink(order.details.chainId, order.details.txHash, ExplorerDataType.TRANSACTION)
@@ -135,7 +135,7 @@ export function OrderContent({ order }: { order: SelectedOrderInfo }) {
             <Trans>Swapping</Trans>
           </ThemedText.SubHeaderLarge>
           <Column>
-            {amounts && <TradeSummary trade={amounts} />}
+            {/* {amounts && <TradeSummary trade={amounts} />} */}
             <ThemedText.BodySmall paddingTop="48px" textAlign="center">
               <ExternalLink href="https://support.uniswap.org/hc/en-us/articles/17515415311501">
                 <Trans>Learn more about swapping with UniswapX</Trans>
@@ -153,7 +153,7 @@ export function OrderContent({ order }: { order: SelectedOrderInfo }) {
             <Trans>Swapped</Trans>
           </ThemedText.SubHeaderLarge>
           <Column>
-            {amounts && <TradeSummary trade={amounts} />}
+            {/* {amounts && <TradeSummary trade={amounts} />} */}
             <ThemedText.BodySmall paddingTop="48px" textAlign="center">
               {explorerLink && (
                 <ExternalLink href={explorerLink}>
@@ -215,9 +215,9 @@ export function OrderContent({ order }: { order: SelectedOrderInfo }) {
           <ThemedText.SubHeaderLarge>
             <Trans>Insufficient funds for swap</Trans>
           </ThemedText.SubHeaderLarge>
-          <ThemedText.LabelSmall textAlign="center">{t`You didn't have enough ${
+          {/* <ThemedText.LabelSmall textAlign="center">{t`You didn't have enough ${
             amounts?.inputAmount.currency.symbol ?? amounts?.inputAmount.currency.name ?? t`of the input token`
-          } to complete this swap.`}</ThemedText.LabelSmall>
+          } to complete this swap.`}</ThemedText.LabelSmall> */}
         </ContentContainer>
       )
   }

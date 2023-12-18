@@ -1,7 +1,7 @@
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import useHttpLocations from 'hooks/useHttpLocations'
 import { useMemo } from 'react'
-import { isAddress } from 'utils'
+import { isAddressValidForStarknet } from 'utils/addresses'
 
 import EthereumLogo from '../../assets/images/ethereum-logo.png'
 import AvaxLogo from '../../assets/svg/avax_logo.svg'
@@ -16,20 +16,6 @@ export function chainIdToNetworkName(networkId: ChainId): Network {
   switch (networkId) {
     case ChainId.MAINNET:
       return 'ethereum'
-    case ChainId.ARBITRUM_ONE:
-      return 'arbitrum'
-    case ChainId.OPTIMISM:
-      return 'optimism'
-    case ChainId.POLYGON:
-      return 'polygon'
-    case ChainId.BNB:
-      return 'smartchain'
-    case ChainId.CELO:
-      return 'celo'
-    case ChainId.AVALANCHE:
-      return 'avalanchec'
-    case ChainId.BASE:
-      return 'base'
     default:
       return 'ethereum'
   }
@@ -37,15 +23,15 @@ export function chainIdToNetworkName(networkId: ChainId): Network {
 
 export function getNativeLogoURI(chainId: ChainId = ChainId.MAINNET): string {
   switch (chainId) {
-    case ChainId.POLYGON:
-    case ChainId.POLYGON_MUMBAI:
+    case ChainId.MAINNET:
+    case ChainId.MAINNET:
       return MaticLogo
-    case ChainId.BNB:
+    case ChainId.MAINNET:
       return BnbLogo
-    case ChainId.CELO:
-    case ChainId.CELO_ALFAJORES:
+    case ChainId.MAINNET:
+    case ChainId.MAINNET:
       return CeloLogo
-    case ChainId.AVALANCHE:
+    case ChainId.MAINNET:
       return AvaxLogo
     default:
       return EthereumLogo
@@ -55,16 +41,16 @@ export function getNativeLogoURI(chainId: ChainId = ChainId.MAINNET): string {
 function getTokenLogoURI(address: string, chainId: ChainId = ChainId.MAINNET): string | void {
   const networkName = chainIdToNetworkName(chainId)
   const networksWithUrls = [
-    ChainId.ARBITRUM_ONE,
     ChainId.MAINNET,
-    ChainId.OPTIMISM,
-    ChainId.BNB,
-    ChainId.AVALANCHE,
-    ChainId.BASE,
+    ChainId.MAINNET,
+    ChainId.MAINNET,
+    ChainId.MAINNET,
+    ChainId.MAINNET,
+    ChainId.MAINNET,
   ]
-  if (isCelo(chainId) && address === nativeOnChain(chainId).wrapped.address) {
-    return CeloLogo
-  }
+  // if (isCelo(chainId) && address === nativeOnChain(chainId).wrapped.address) {
+  //   return CeloLogo
+  // }
 
   if (networksWithUrls.includes(chainId)) {
     return `https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/${networkName}/assets/${address}/logo.png`
@@ -77,7 +63,7 @@ export default function useCurrencyLogoURIs(
         isNative?: boolean
         isToken?: boolean
         address?: string
-        chainId: number
+        chainId: ChainId
         logoURI?: string | null
       }
     | null
@@ -90,7 +76,7 @@ export default function useCurrencyLogoURIs(
       if (currency.isNative || currency.address === NATIVE_CHAIN_ID) {
         logoURIs.push(getNativeLogoURI(currency.chainId))
       } else if (currency.isToken || currency.address) {
-        const checksummedAddress = isAddress(currency.address)
+        const checksummedAddress = isAddressValidForStarknet(currency.address)
         const logoURI = checksummedAddress && getTokenLogoURI(checksummedAddress, currency.chainId)
         if (logoURI) {
           logoURIs.push(logoURI)

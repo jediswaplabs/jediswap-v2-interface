@@ -1,4 +1,4 @@
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useEffect } from 'react'
 
 import { useRemovePopup } from '../../state/application/hooks'
@@ -29,7 +29,7 @@ export default function PopupItem({
     }
   }, [popKey, removeAfterMs, removePopup])
 
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   switch (content.type) {
     case PopupType.Transaction: {

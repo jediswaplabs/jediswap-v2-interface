@@ -1,9 +1,18 @@
-import { MixedRouteSDK, ONE, Protocol, Trade } from '@uniswap/router-sdk'
-import { ChainId, Currency, CurrencyAmount, Fraction, Percent, Price, Token, TradeType } from '@uniswap/sdk-core'
-import { DutchOrderInfo, DutchOrderInfoJSON, DutchOrderTrade as IDutchOrderTrade } from '@uniswap/uniswapx-sdk'
-import { Route as V2Route } from '@uniswap/v2-sdk'
-import { Route as V3Route } from '@uniswap/v3-sdk'
+import { MixedRouteSDK, ONE, Protocol, Trade } from '@vnaysn/jediswap-router-sdk'
+import {
+  ChainId,
+  Currency,
+  CurrencyAmount,
+  Fraction,
+  Percent,
+  Price,
+  Token,
+  TradeType,
+} from '@vnaysn/jediswap-sdk-core'
+import { DutchOrderInfoJSON, DutchOrderTrade as IDutchOrderTrade } from '@uniswap/uniswapx-sdk'
 import { ZERO_PERCENT } from 'constants/misc'
+import { Route as V2Route } from '@vnaysn/jediswap-sdk-v2'
+import { Route as V3Route } from '@vnaysn/jediswap-sdk-v3'
 
 export enum TradeState {
   LOADING = 'loading',
@@ -198,34 +207,25 @@ export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
   approveInfo: ApproveInfo
   gasUseEstimateUSD?: number // gas estimate for swaps
   blockNumber: string | null | undefined
-  isUniswapXBetter: boolean | undefined
   requestId: string | undefined
   quoteMethod: QuoteMethod
-  inputTax: Percent
-  outputTax: Percent
   swapFee: SwapFeeInfo | undefined
 
   constructor({
     gasUseEstimateUSD,
     blockNumber,
-    isUniswapXBetter,
     requestId,
     quoteMethod,
     approveInfo,
-    inputTax,
-    outputTax,
     swapFee,
     ...routes
   }: {
     gasUseEstimateUSD?: number
     totalGasUseEstimateUSD?: number
     blockNumber?: string | null
-    isUniswapXBetter?: boolean
     requestId?: string
     quoteMethod: QuoteMethod
     approveInfo: ApproveInfo
-    inputTax: Percent
-    outputTax: Percent
     swapFee?: SwapFeeInfo
     v2Routes: {
       routev2: V2Route<Currency, Currency>
@@ -247,12 +247,9 @@ export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
     super(routes)
     this.blockNumber = blockNumber
     this.gasUseEstimateUSD = gasUseEstimateUSD
-    this.isUniswapXBetter = isUniswapXBetter
     this.requestId = requestId
     this.quoteMethod = quoteMethod
     this.approveInfo = approveInfo
-    this.inputTax = inputTax
-    this.outputTax = outputTax
     this.swapFee = swapFee
   }
 
@@ -263,30 +260,12 @@ export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
     return new Price({ baseAmount: this.inputAmount, quoteAmount: this.postSwapFeeOutputAmount })
   }
 
-  public get totalTaxRate(): Percent {
-    return this.inputTax.add(this.outputTax)
-  }
-
   public get postSwapFeeOutputAmount(): CurrencyAmount<Currency> {
     // Routing api already applies the swap fee to the output amount for exact-in
     if (this.tradeType === TradeType.EXACT_INPUT) return this.outputAmount
 
     const swapFeeAmount = CurrencyAmount.fromRawAmount(this.outputAmount.currency, this.swapFee?.amount ?? 0)
     return this.outputAmount.subtract(swapFeeAmount)
-  }
-
-  public get postTaxOutputAmount() {
-    // Ideally we should calculate the final output amount by ammending the inputAmount based on the input tax and then applying the output tax,
-    // but this isn't currently possible because V2Trade reconstructs the total inputAmount based on the swap routes
-    // TODO(WEB-2761): Amend V2Trade objects in the v2-sdk to have a separate field for post-input tax routes
-    return this.postSwapFeeOutputAmount.multiply(new Fraction(ONE).subtract(this.totalTaxRate))
-  }
-
-  public minimumAmountOut(slippageTolerance: Percent, amountOut = this.outputAmount): CurrencyAmount<Currency> {
-    // Since universal-router-sdk reconstructs V2Trade objects, overriding this method does not actually change the minimumAmountOut that gets submitted on-chain
-    // Our current workaround is to add tax rate to slippage tolerance before we submit the trade to universal-router-sdk in useUniversalRouter.ts
-    // So the purpose of this override is so the UI displays the same minimum amount out as what is submitted on-chain
-    return super.minimumAmountOut(slippageTolerance.add(this.totalTaxRate), amountOut)
   }
 
   // gas estimate for maybe approve + swap
@@ -296,84 +275,6 @@ export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
     }
 
     return this.gasUseEstimateUSD
-  }
-}
-
-export class DutchOrderTrade extends IDutchOrderTrade<Currency, Currency, TradeType> {
-  public readonly fillType = TradeFillType.UniswapX
-  quoteId?: string
-  requestId?: string
-  wrapInfo: WrapInfo
-  approveInfo: ApproveInfo
-  // The gas estimate of the reference classic trade, if there is one.
-  classicGasUseEstimateUSD?: number
-  auctionPeriodSecs: number
-  startTimeBufferSecs: number
-  deadlineBufferSecs: number
-  slippageTolerance: Percent
-
-  inputTax = ZERO_PERCENT
-  outputTax = ZERO_PERCENT
-  swapFee: SwapFeeInfo | undefined
-
-  constructor({
-    currencyIn,
-    currenciesOut,
-    orderInfo,
-    tradeType,
-    quoteId,
-    requestId,
-    wrapInfo,
-    approveInfo,
-    classicGasUseEstimateUSD,
-    auctionPeriodSecs,
-    startTimeBufferSecs,
-    deadlineBufferSecs,
-    slippageTolerance,
-    swapFee,
-  }: {
-    currencyIn: Currency
-    currenciesOut: Currency[]
-    orderInfo: DutchOrderInfo
-    tradeType: TradeType
-    quoteId?: string
-    requestId?: string
-    approveInfo: ApproveInfo
-    wrapInfo: WrapInfo
-    classicGasUseEstimateUSD?: number
-    auctionPeriodSecs: number
-    startTimeBufferSecs: number
-    deadlineBufferSecs: number
-    slippageTolerance: Percent
-    swapFee?: SwapFeeInfo
-  }) {
-    super({ currencyIn, currenciesOut, orderInfo, tradeType })
-    this.quoteId = quoteId
-    this.requestId = requestId
-    this.approveInfo = approveInfo
-    this.wrapInfo = wrapInfo
-    this.classicGasUseEstimateUSD = classicGasUseEstimateUSD
-    this.auctionPeriodSecs = auctionPeriodSecs
-    this.deadlineBufferSecs = deadlineBufferSecs
-    this.slippageTolerance = slippageTolerance
-    this.startTimeBufferSecs = startTimeBufferSecs
-    this.swapFee = swapFee
-  }
-
-  public get totalGasUseEstimateUSD(): number {
-    if (this.wrapInfo.needsWrap && this.approveInfo.needsApprove) {
-      return this.wrapInfo.wrapGasEstimateUSD + this.approveInfo.approveGasEstimateUSD
-    }
-
-    if (this.wrapInfo.needsWrap) return this.wrapInfo.wrapGasEstimateUSD
-    if (this.approveInfo.needsApprove) return this.approveInfo.approveGasEstimateUSD
-
-    return 0
-  }
-
-  /** For UniswapX, handling token taxes in the output amount is outsourced to quoters */
-  public get postTaxOutputAmount() {
-    return this.outputAmount
   }
 }
 
@@ -466,7 +367,7 @@ export class PreviewTrade {
   }
 }
 
-export type SubmittableTrade = ClassicTrade | DutchOrderTrade
+export type SubmittableTrade = ClassicTrade
 export type InterfaceTrade = SubmittableTrade | PreviewTrade
 
 export enum QuoteState {
@@ -484,17 +385,11 @@ export type QuoteResult =
       data: URAQuoteResponse
     }
 
-export type TradeResult =
-  | {
-      state: QuoteState.NOT_FOUND
-      trade?: undefined
-      latencyMs?: number
-    }
-  | {
-      state: QuoteState.SUCCESS
-      trade: SubmittableTrade
-      latencyMs?: number
-    }
+export type TradeResult = {
+  state: QuoteState.NOT_FOUND
+  trade?: undefined
+  latencyMs?: number
+}
 
 export type PreviewTradeResult =
   | {

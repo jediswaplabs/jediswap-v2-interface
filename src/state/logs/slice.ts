@@ -4,7 +4,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { filterToKey, Log } from './utils'
 
 export interface LogsState {
-  [chainId: number]: {
+  [chainId: string]: {
     [filterKey: string]: {
       listeners: number
       fetchingBlockNumber?: number
@@ -27,7 +27,7 @@ const slice = createSlice({
   name: 'logs',
   initialState: {} as LogsState,
   reducers: {
-    addListener(state, { payload: { chainId, filter } }: PayloadAction<{ chainId: number; filter: Filter }>) {
+    addListener(state, { payload: { chainId, filter } }: PayloadAction<{ chainId: string; filter: Filter }>) {
       if (!state[chainId]) state[chainId] = {}
       const key = filterToKey(filter)
       if (!state[chainId][key])
@@ -40,7 +40,7 @@ const slice = createSlice({
       state,
       {
         payload: { chainId, filters, blockNumber },
-      }: PayloadAction<{ chainId: number; filters: Filter[]; blockNumber: number }>
+      }: PayloadAction<{ chainId: string; filters: Filter[]; blockNumber: number }>
     ) {
       if (!state[chainId]) return
       for (const filter of filters) {
@@ -53,7 +53,7 @@ const slice = createSlice({
       state,
       {
         payload: { chainId, filter, results },
-      }: PayloadAction<{ chainId: number; filter: Filter; results: { blockNumber: number; logs: Log[] } }>
+      }: PayloadAction<{ chainId: string; filter: Filter; results: { blockNumber: number; logs: Log[] } }>
     ) {
       if (!state[chainId]) return
       const key = filterToKey(filter)
@@ -65,7 +65,7 @@ const slice = createSlice({
       state,
       {
         payload: { chainId, filter, blockNumber },
-      }: PayloadAction<{ chainId: number; blockNumber: number; filter: Filter }>
+      }: PayloadAction<{ chainId: string; blockNumber: number; filter: Filter }>
     ) {
       if (!state[chainId]) return
       const key = filterToKey(filter)
@@ -76,7 +76,7 @@ const slice = createSlice({
         error: true,
       }
     },
-    removeListener(state, { payload: { chainId, filter } }: PayloadAction<{ chainId: number; filter: Filter }>) {
+    removeListener(state, { payload: { chainId, filter } }: PayloadAction<{ chainId: string; filter: Filter }>) {
       if (!state[chainId]) return
       const key = filterToKey(filter)
       if (!state[chainId][key]) return

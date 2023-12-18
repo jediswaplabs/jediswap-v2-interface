@@ -1,22 +1,16 @@
 import { Trans } from '@lingui/macro'
-import { ChainId, Currency, CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
-import { useConnectionReady } from 'connection/eagerlyConnect'
-import { useFotAdjustmentsEnabled } from 'featureFlags/flags/fotAdjustments'
-import useAutoSlippageTolerance from 'hooks/useAutoSlippageTolerance'
-import { useDebouncedTrade } from 'hooks/useDebouncedTrade'
-import { useSwapTaxes } from 'hooks/useSwapTaxes'
-import { useUSDPrice } from 'hooks/useUSDPrice'
-import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
+import { ChainId, Currency, CurrencyAmount, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { ParsedQs } from 'qs'
 import { ReactNode, useCallback, useEffect, useMemo } from 'react'
 import { AnyAction } from 'redux'
-import { useAppDispatch } from 'state/hooks'
-import { InterfaceTrade, TradeState } from 'state/routing/types'
-import { isClassicTrade, isSubmittableTrade, isUniswapXTrade } from 'state/routing/utils'
-import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
+import { Trade } from '@jediswap/sdk'
 
-import { TOKEN_SHORTHANDS } from '../../constants/tokens'
+import { useAccountDetails } from 'hooks/starknet-react'
+import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
+import { useAppDispatch } from 'state/hooks'
+import { useUserSlippageTolerance, useUserSlippageToleranceWithDefault } from 'state/user/hooks'
+
+// import { TOKEN_SHORTHANDS } from '../../constants/tokens'
 import { useCurrency } from '../../hooks/Tokens'
 import useENS from '../../hooks/useENS'
 import useParsedQueryString from '../../hooks/useParsedQueryString'
@@ -24,8 +18,9 @@ import { isAddress, checkAddress } from '../../utils'
 import { useCurrencyBalances } from '../connection/hooks'
 import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies, typeInput } from './actions'
 import { SwapState } from './reducer'
-import { useAccountDetails } from 'hooks/starknet-react'
-import { AccountInterface } from 'starknet'
+import { computeSlippageAdjustedAmounts } from 'utils/prices'
+import { useAddressNormalizer } from '../../hooks/useAddressNormalizer'
+import { useTradeExactIn, useTradeExactOut } from '../../hooks/Trades'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
@@ -83,26 +78,15 @@ const BAD_RECIPIENT_ADDRESSES: { [address: string]: true } = {
 export type SwapInfo = {
   currencies: { [field in Field]?: Currency }
   currencyBalances: { [field in Field]?: CurrencyAmount<Currency> }
-  inputTax: Percent
-  outputTax: Percent
-  outputFeeFiatValue?: number
   parsedAmount?: CurrencyAmount<Currency>
   inputError?: ReactNode
-  trade: {
-    trade?: InterfaceTrade
-    state: TradeState
-    uniswapXGasUseEstimateUSD?: number
-    error?: any
-    swapQuoteLatency?: number
-  }
-  allowedSlippage: Percent
-  autoSlippage: Percent
+  trade: Trade
+  tradeLoading: boolean
 }
 
 // from the current swap inputs, compute the best trade and return it.
 export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefined): SwapInfo {
-  const { account, address } = useAccountDetails()
-
+  const { address: connectedAddress } = useAccountDetails()
   const {
     independentField,
     typedValue,
@@ -110,23 +94,12 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     [Field.OUTPUT]: { currencyId: outputCurrencyId },
     recipient,
   } = state
-
   const inputCurrency = useCurrency(inputCurrencyId, chainId)
   const outputCurrency = useCurrency(outputCurrencyId, chainId)
+  const address = useAddressNormalizer(recipient ?? undefined)
+  const to: string | null = (recipient === null ? connectedAddress : address) ?? null
 
-  const fotAdjustmentsEnabled = useFotAdjustmentsEnabled()
-  const { inputTax, outputTax } = useSwapTaxes(
-    inputCurrency?.isToken && fotAdjustmentsEnabled ? inputCurrency.address : undefined,
-    outputCurrency?.isToken && fotAdjustmentsEnabled ? outputCurrency.address : undefined
-  )
-
-  const recipientLookup = useENS(recipient ?? undefined)
-  const to: string | AccountInterface | null = (recipient === null ? address : recipientLookup.address) ?? null
-
-  const relevantTokenBalances = useCurrencyBalances(
-    account ?? undefined,
-    useMemo(() => [inputCurrency ?? undefined, outputCurrency ?? undefined], [inputCurrency, outputCurrency])
-  )
+  const relevantTokenBalances = useCurrencyBalances(connectedAddress ?? undefined, [inputCurrency, outputCurrency])
 
   const isExactIn: boolean = independentField === Field.INPUT
   const parsedAmount = useMemo(
@@ -134,24 +107,19 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     [inputCurrency, isExactIn, outputCurrency, typedValue]
   )
 
-  const trade = useDebouncedTrade(
-    isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
-    parsedAmount,
-    (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
-    undefined,
-    account,
-    inputTax,
-    outputTax
+  const [bestTradeExactIn, bestTradeInLoading] = useTradeExactIn(
+    isExactIn ? parsedAmount : undefined,
+    outputCurrency ?? undefined
   )
 
-  const { data: outputFeeFiatValue } = useUSDPrice(
-    isSubmittableTrade(trade.trade) && trade.trade.swapFee
-      ? CurrencyAmount.fromRawAmount(trade.trade.outputAmount.currency, trade.trade.swapFee.amount)
-      : undefined,
-    trade.trade?.outputAmount.currency
+  const [bestTradeExactOut, bestTradeOutLoading] = useTradeExactOut(
+    inputCurrency ?? undefined,
+    !isExactIn ? parsedAmount : undefined
   )
 
-  const currencyBalances = useMemo(
+  const trade = isExactIn ? bestTradeExactIn : bestTradeExactOut
+
+  const currencyBalances: { [field in Field]?: Currency } = useMemo(
     () => ({
       [Field.INPUT]: relevantTokenBalances[0],
       [Field.OUTPUT]: relevantTokenBalances[1],
@@ -167,28 +135,18 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     [inputCurrency, outputCurrency]
   )
 
-  // allowed slippage for classic trades is either auto slippage, or custom user defined slippage if auto slippage disabled
-  const classicAutoSlippage = useAutoSlippageTolerance(isClassicTrade(trade.trade) ? trade.trade : undefined)
+  const [allowedSlippage] = useUserSlippageTolerance()
+  const slippageAdjustedAmounts =
+    trade && allowedSlippage && computeSlippageAdjustedAmounts(trade.trade as any, allowedSlippage)
 
-  // slippage for uniswapx trades is defined by the quote response
-  const uniswapXAutoSlippage = isUniswapXTrade(trade.trade) ? trade.trade.slippageTolerance : undefined
-
-  // Uniswap interface recommended slippage amount
-  const autoSlippage = uniswapXAutoSlippage ?? classicAutoSlippage
-  const classicAllowedSlippage = useUserSlippageToleranceWithDefault(autoSlippage)
-
-  // slippage amount used to submit the trade
-  const allowedSlippage = uniswapXAutoSlippage ?? classicAllowedSlippage
-
-  const connectionReady = useConnectionReady()
   const inputError = useMemo(() => {
     let inputError: ReactNode | undefined
 
-    if (!account) {
-      inputError = connectionReady ? <Trans>Connect wallet</Trans> : <Trans>Connecting wallet...</Trans>
+    if (!connectedAddress) {
+      inputError = <Trans>Connect wallet</Trans>
     }
 
-    if (!currencies[Field.INPUT] || !currencies[Field.OUTPUT]) {
+    if (!currencyBalances[Field.INPUT] || !currencyBalances[Field.OUTPUT]) {
       inputError = inputError ?? <Trans>Select a token</Trans>
     }
 
@@ -199,57 +157,51 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     const formattedTo = checkAddress(to)
     if (!to || !formattedTo) {
       inputError = inputError ?? <Trans>Enter a recipient</Trans>
-    } else {
-      if (BAD_RECIPIENT_ADDRESSES[formattedTo]) {
-        inputError = inputError ?? <Trans>Invalid recipient</Trans>
-      }
+    } else if (
+      BAD_RECIPIENT_ADDRESSES[formattedTo] ||
+      (bestTradeExactIn && involvesAddress(bestTradeExactIn, formattedTo)) ||
+      (bestTradeExactOut && involvesAddress(bestTradeExactOut, formattedTo))
+    ) {
+      inputError = inputError ?? <Trans>Invalid recipient</Trans>
     }
 
     // compare input balance to max input based on version
-    const [balanceIn, maxAmountIn] = [currencyBalances[Field.INPUT], trade?.trade?.maximumAmountIn(allowedSlippage)]
+    const [balanceIn, maxAmountIn] = [
+      currencyBalances[Field.INPUT],
+      slippageAdjustedAmounts ? slippageAdjustedAmounts[Field.INPUT] : null,
+    ]
+
+    // compare input balance to max input based on version
+    // const [balanceIn, maxAmountIn] = [currencyBalances[Field.INPUT], trade?.trade?.maximumAmountIn(allowedSlippage)]
 
     if (balanceIn && maxAmountIn && balanceIn.lessThan(maxAmountIn)) {
       inputError = <Trans>Insufficient {balanceIn.currency.symbol} balance</Trans>
     }
 
     return inputError
-  }, [account, currencies, parsedAmount, to, currencyBalances, trade?.trade, allowedSlippage, connectionReady])
+  }, [connectedAddress, currencies, parsedAmount, to, currencyBalances, trade?.trade, allowedSlippage])
 
-  return useMemo(
-    () => ({
-      currencies,
-      currencyBalances,
-      parsedAmount,
-      inputError,
-      trade,
-      autoSlippage,
-      allowedSlippage,
-      inputTax,
-      outputTax,
-      outputFeeFiatValue,
-    }),
-    [
-      allowedSlippage,
-      autoSlippage,
-      currencies,
-      currencyBalances,
-      inputError,
-      inputTax,
-      outputFeeFiatValue,
-      outputTax,
-      parsedAmount,
-      trade,
-    ]
-  )
+  return {
+    currencies,
+    currencyBalances,
+    parsedAmount,
+    inputError,
+    trade,
+    tradeLoading: isExactIn ? bestTradeInLoading : bestTradeOutLoading,
+  }
 }
 
 function parseCurrencyFromURLParameter(urlParam: ParsedQs[string]): string {
   if (typeof urlParam === 'string') {
     const valid = isAddress(urlParam)
-    if (valid) return valid
+    if (valid) {
+      return valid
+    }
     const upper = urlParam.toUpperCase()
-    if (upper === 'ETH') return 'ETH'
-    if (upper in TOKEN_SHORTHANDS) return upper
+    if (upper === 'ETH') {
+      return 'ETH'
+    }
+    // if (upper in TOKEN_SHORTHANDS) return upper
   }
   return ''
 }
@@ -265,11 +217,19 @@ function parseIndependentFieldURLParameter(urlParam: any): Field {
 const ENS_NAME_REGEX = /^[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)?$/
 const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
 function validatedRecipient(recipient: any): string | null {
-  if (typeof recipient !== 'string') return null
+  if (typeof recipient !== 'string') {
+    return null
+  }
   const address = isAddress(recipient)
-  if (address) return address
-  if (ENS_NAME_REGEX.test(recipient)) return recipient
-  if (ADDRESS_REGEX.test(recipient)) return recipient
+  if (address) {
+    return address
+  }
+  if (ENS_NAME_REGEX.test(recipient)) {
+    return recipient
+  }
+  if (ADDRESS_REGEX.test(recipient)) {
+    return recipient
+  }
   return null
 }
 
@@ -304,16 +264,15 @@ export function queryParametersToSwapState(parsedQs: ParsedQs): SwapState {
 
 // updates the swap state to use the defaults for a given network
 export function useDefaultsFromURLSearch(): SwapState {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const dispatch = useAppDispatch()
   const parsedQs = useParsedQueryString()
 
-  const parsedSwapState = useMemo(() => {
-    return queryParametersToSwapState(parsedQs)
-  }, [parsedQs])
-
+  const parsedSwapState = useMemo(() => queryParametersToSwapState(parsedQs), [parsedQs])
   useEffect(() => {
-    if (!chainId) return
+    if (!chainId) {
+      return
+    }
     const inputCurrencyId = parsedSwapState[Field.INPUT].currencyId ?? undefined
     const outputCurrencyId = parsedSwapState[Field.OUTPUT].currencyId ?? undefined
 

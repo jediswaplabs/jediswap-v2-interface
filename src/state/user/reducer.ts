@@ -3,7 +3,7 @@ import { deletePersistedConnectionMeta, getPersistedConnectionMeta } from 'conne
 
 import { ConnectionType } from '../../connection/types'
 import { SupportedLocale } from '../../constants/locales'
-import { DEFAULT_DEADLINE_FROM_NOW } from '../../constants/misc'
+import { DEFAULT_DEADLINE_FROM_NOW, INITIAL_ALLOWED_SLIPPAGE } from '../../constants/misc'
 import { RouterPreference } from '../../state/routing/types'
 import { SerializedPair, SerializedToken, SlippageTolerance } from './types'
 
@@ -25,7 +25,7 @@ export interface UserState {
   userHideClosedPositions: boolean
 
   // user defined slippage tolerance in bips, used in all txns
-  userSlippageTolerance: number | SlippageTolerance.Auto
+  userSlippageTolerance: number 
 
   // flag to indicate whether the user has been migrated from the old slippage tolerance values
   userSlippageToleranceHasBeenMigratedToAuto: boolean
@@ -34,13 +34,13 @@ export interface UserState {
   userDeadline: number
 
   tokens: {
-    [chainId: number]: {
+    [chainId: string]: {
       [address: string]: SerializedToken
     }
   }
 
   pairs: {
-    [chainId: number]: {
+    [chainId: string]: {
       // keyed by token0Address:token1Address
       [key: string]: SerializedPair
     }
@@ -67,7 +67,7 @@ export const initialState: UserState = {
   userLocale: null,
   userRouterPreference: RouterPreference.API,
   userHideClosedPositions: false,
-  userSlippageTolerance: SlippageTolerance.Auto,
+  userSlippageTolerance:  INITIAL_ALLOWED_SLIPPAGE,
   userSlippageToleranceHasBeenMigratedToAuto: true,
   userDeadline: DEFAULT_DEADLINE_FROM_NOW,
   tokens: {},

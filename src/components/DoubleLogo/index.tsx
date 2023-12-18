@@ -1,4 +1,4 @@
-import { Currency } from '@uniswap/sdk-core'
+import { Currency } from '@vnaysn/jediswap-sdk-core'
 import styled from 'styled-components'
 
 import CurrencyLogo from '../Logo/CurrencyLogo'

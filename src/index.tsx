@@ -10,8 +10,13 @@ import { Helmet } from 'react-helmet'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Provider } from 'react-redux'
 import { HashRouter, useLocation } from 'react-router-dom'
+import { goerli, mainnet } from '@starknet-react/chains'
+import { StarknetConfig, publicProvider } from '@starknet-react/core'
+import { WebWalletConnector } from 'starknetkit/webwallet'
+import { InjectedConnector } from 'starknetkit/injected'
 
 import { MulticallUpdater } from 'lib/state/multicall'
+import StarkMulticallUpdater from './state/multicall/updater'
 import { BlockNumberProvider } from 'lib/hooks/useBlockNumber'
 import { apolloClient } from 'graphql/data/apollo'
 import { FeatureFlagsProvider } from 'featureFlags'
@@ -27,9 +32,7 @@ import OrderUpdater from './state/signatures/updater'
 import ThemeProvider, { ThemedGlobalStyle } from './theme'
 import TransactionUpdater from './state/transactions/updater'
 import RadialGradientByChainUpdater from './theme/components/RadialGradientByChainUpdater'
-
-import { goerli } from '@starknet-react/chains'
-import { StarknetConfig, publicProvider, argent, braavos } from '@starknet-react/core'
+import { isTestnetEnvironment } from './connectors'
 
 function Updaters() {
   const location = useLocation()
@@ -45,6 +48,7 @@ function Updaters() {
       <TransactionUpdater />
       <OrderUpdater />
       <MulticallUpdater />
+      <StarkMulticallUpdater />
       <LogsUpdater />
     </>
   )
@@ -54,9 +58,25 @@ const queryClient = new QueryClient()
 
 const container = document.getElementById('root') as HTMLElement
 
-const chains = [goerli]
+const chains = [mainnet, goerli]
 const providers = [publicProvider()]
-const connectors = [argent(), braavos()]
+const connectors = [
+  new InjectedConnector({
+    options: {
+      id: 'argentX',
+      name: 'Argent X'
+    }
+  }),
+  new WebWalletConnector({
+    url: isTestnetEnvironment() ? 'https://web.hydrogen.argent47.net' : 'https://web.argent.xyz/'
+  }),
+  new InjectedConnector({
+    options: {
+      id: 'braavos',
+      name: 'Braavos'
+    }
+  })
+]
 
 createRoot(container).render(
   <StrictMode>
@@ -66,17 +86,17 @@ createRoot(container).render(
           <QueryClientProvider client={queryClient}>
             <HashRouter>
               <LanguageProvider>
-                <Web3Provider>
-                  <ApolloProvider client={apolloClient}>
-                    <BlockNumberProvider>
-                      <Updaters />
-                      <ThemeProvider>
-                        <ThemedGlobalStyle />
-                        <App />
-                      </ThemeProvider>
-                    </BlockNumberProvider>
-                  </ApolloProvider>
-                </Web3Provider>
+                {/* <Web3Provider> */}
+                <ApolloProvider client={apolloClient}>
+                  <BlockNumberProvider>
+                    <Updaters />
+                    <ThemeProvider>
+                      <ThemedGlobalStyle />
+                      <App />
+                    </ThemeProvider>
+                  </BlockNumberProvider>
+                </ApolloProvider>
+                {/* </Web3Provider> */}
               </LanguageProvider>
             </HashRouter>
           </QueryClientProvider>

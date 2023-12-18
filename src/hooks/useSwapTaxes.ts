@@ -1,7 +1,7 @@
 import { InterfaceEventName } from '@uniswap/analytics-events'
-import { ChainId, Percent } from '@uniswap/sdk-core'
-import { WETH_ADDRESS as getWethAddress } from '@uniswap/universal-router-sdk'
-import { useWeb3React } from '@web3-react/core'
+import { ChainId, Percent } from '@vnaysn/jediswap-sdk-core'
+// import { WETH_ADDRESS as getWethAddress } from '@vnaysn/jediswap-router-sdk'
+import { useAccountDetails } from 'hooks/starknet-react'
 import FOT_DETECTOR_ABI from 'abis/fee-on-transfer-detector.json'
 import { FeeOnTransferDetector } from 'abis/types'
 import { sendAnalyticsEvent } from 'analytics'
@@ -9,11 +9,12 @@ import { BIPS_BASE, ZERO_PERCENT } from 'constants/misc'
 import { useEffect, useState } from 'react'
 
 import { useContract } from './useContract'
+import { WETH } from 'constants/tokens'
 
 const FEE_ON_TRANSFER_DETECTOR_ADDRESS = '0x19C97dc2a25845C7f9d1d519c8C2d4809c58b43f'
 
 function useFeeOnTransferDetectorContract(): FeeOnTransferDetector | null {
-  const { account } = useWeb3React()
+  const { address: account } = useAccountDetails()
   const contract = useContract<FeeOnTransferDetector>(FEE_ON_TRANSFER_DETECTOR_ADDRESS, FOT_DETECTOR_ABI)
 
   useEffect(() => {
@@ -31,7 +32,7 @@ function useFeeOnTransferDetectorContract(): FeeOnTransferDetector | null {
 }
 
 // TODO(WEB-2787): add tax-fetching for other chains
-const WETH_ADDRESS = getWethAddress(ChainId.MAINNET)
+const WETH_ADDRESS = WETH[ChainId.MAINNET].address
 const AMOUNT_TO_BORROW = 10000 // smallest amount that has full precision over bps
 
 const FEE_CACHE: { [address in string]?: { sellTax?: Percent; buyTax?: Percent } } = {}
@@ -75,7 +76,7 @@ async function getSwapTaxes(
 export function useSwapTaxes(inputTokenAddress?: string, outputTokenAddress?: string) {
   const fotDetector = useFeeOnTransferDetectorContract()
   const [{ inputTax, outputTax }, setTaxes] = useState({ inputTax: ZERO_PERCENT, outputTax: ZERO_PERCENT })
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   useEffect(() => {
     if (!fotDetector || chainId !== ChainId.MAINNET) return

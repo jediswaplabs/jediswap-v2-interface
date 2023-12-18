@@ -1,17 +1,17 @@
-import { Currency, CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
-import { WRAPPED_NATIVE_CURRENCY } from 'constants/tokens'
+import { Currency, CurrencyAmount, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { DebounceSwapQuoteVariant, useDebounceSwapQuoteFlag } from 'featureFlags/flags/debounceSwapQuote'
 import { useMemo } from 'react'
-import { ClassicTrade, InterfaceTrade, QuoteMethod, RouterPreference, TradeState } from 'state/routing/types'
+import { InterfaceTrade, QuoteMethod, RouterPreference, TradeState } from 'state/routing/types'
 import { usePreviewTrade } from 'state/routing/usePreviewTrade'
-import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade'
+// import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade'
 import { useRouterPreference } from 'state/user/hooks'
 
 import useAutoRouterSupported from './useAutoRouterSupported'
 import useDebounce from './useDebounce'
 import useIsWindowVisible from './useIsWindowVisible'
 import { AccountInterface } from 'starknet'
+import { WETH } from 'constants/tokens'
 
 // Prevents excessive quote requests between keystrokes.
 const DEBOUNCE_TIME = 350
@@ -44,7 +44,6 @@ export function useDebouncedTrade(
   outputTax?: Percent
 ): {
   state: TradeState
-  trade?: ClassicTrade
   swapQuoteLatency?: number
 }
 /**
@@ -70,7 +69,7 @@ export function useDebouncedTrade(
   method?: QuoteMethod
   swapQuoteLatency?: number
 } {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const autoRouterSupported = useAutoRouterSupported()
   const isWindowVisible = useIsWindowVisible()
 
@@ -86,7 +85,7 @@ export function useDebouncedTrade(
 
   const isWrap = useMemo(() => {
     if (!chainId || !amountSpecified || !otherCurrency) return false
-    const weth = WRAPPED_NATIVE_CURRENCY[chainId]
+    const weth = WETH[chainId]
     return Boolean(
       (amountSpecified.currency.isNative && weth?.equals(otherCurrency)) ||
         (otherCurrency.isNative && weth?.equals(amountSpecified.currency))
@@ -108,18 +107,16 @@ export function useDebouncedTrade(
     inputTax,
     outputTax
   )
-  const routingApiTradeResult = useRoutingAPITrade(
-    skipRoutingFetch,
-    tradeType,
-    amountSpecified,
-    otherCurrency,
-    routerPreferenceOverride ?? routerPreference,
-    account,
-    inputTax,
-    outputTax
-  )
+  // const routingApiTradeResult = useRoutingAPITrade(
+  //   skipRoutingFetch,
+  //   tradeType,
+  //   amountSpecified,
+  //   otherCurrency,
+  //   routerPreferenceOverride ?? routerPreference,
+  //   account,
+  //   inputTax,
+  //   outputTax
+  // )
 
-  return previewTradeResult.currentTrade && !routingApiTradeResult.currentTrade
-    ? previewTradeResult
-    : routingApiTradeResult
+  return previewTradeResult
 }

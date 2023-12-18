@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { InterfacePageName } from '@uniswap/analytics-events'
-import { Currency, CurrencyAmount, Token } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import { useCallback, useEffect, useState } from 'react'
 import { Plus } from 'react-feather'
@@ -42,9 +42,7 @@ function useQuery() {
 export default function PoolFinder() {
   const query = useQuery()
 
-  const { chainId } = useWeb3React()
-  const { account } = useAccountDetails();
-
+  const { address: account, chainId } = useAccountDetails()
 
   const [showSearch, setShowSearch] = useState<boolean>(false)
   const [activeField, setActiveField] = useState<number>(Fields.TOKEN1)

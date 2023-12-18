@@ -1,5 +1,5 @@
 import { NFTEventName } from '@uniswap/analytics-events'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { sendAnalyticsEvent, useTrace } from 'analytics'
 import { OpacityHoverState } from 'components/Common'
 import { Share } from 'components/Icons/Share'
@@ -310,7 +310,7 @@ const NotForSale = ({ collectionName, collectionUrl }: { collectionName: string;
 }
 
 export const AssetPriceDetails = ({ asset, collection }: AssetPriceDetailsProps) => {
-  const { account } = useWeb3React()
+  const { address: account } = useAccountDetails()
 
   const cheapestOrder = asset.sellorders && asset.sellorders.length > 0 ? asset.sellorders[0] : undefined
   const expirationDate = cheapestOrder?.endAt ? new Date(cheapestOrder.endAt) : undefined

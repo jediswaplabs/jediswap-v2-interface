@@ -1,30 +1,30 @@
-import { Trans } from '@lingui/macro';
-import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfacePageName } from '@uniswap/analytics-events';
-import { useWeb3React } from '@web3-react/core';
-import { useMemo, useState } from 'react';
-import { AlertTriangle, BookOpen, ChevronDown, ChevronsRight, Inbox, Layers } from 'react-feather';
-import { Link } from 'react-router-dom';
-import styled, { css, useTheme } from 'styled-components';
-import { PositionDetails } from 'types/position';
+import { Trans } from '@lingui/macro'
+import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfacePageName } from '@uniswap/analytics-events'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { useMemo, useState } from 'react'
+import { AlertTriangle, BookOpen, ChevronDown, ChevronsRight, Inbox, Layers } from 'react-feather'
+import { Link } from 'react-router-dom'
+import styled, { css, useTheme } from 'styled-components'
+import { PositionDetails } from 'types/position'
 
-import { Trace, TraceEvent } from 'analytics';
-import { useToggleAccountDrawer } from 'components/AccountDrawer';
-import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button';
-import { AutoColumn } from 'components/Column';
-import { FlyoutAlignment, Menu } from 'components/Menu';
-import PositionList from 'components/PositionList';
-import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row';
-import { SwitchLocaleLink } from 'components/SwitchLocaleLink';
-import { isSupportedChain } from 'constants/chains';
-import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions';
-import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2';
-import { useV3Positions } from 'hooks/useV3Positions';
-import { useUserHideClosedPositions } from 'state/user/hooks';
-import { HideSmall, ThemedText } from 'theme/components';
-import CTACards from './CTACards';
-import { LoadingRows } from './styled';
-import WalletIcon from '../../assets/wallets/Wallet.png';
-import NoPositionsIcon from '../../assets/images/noPosition.png';
+import { Trace, TraceEvent } from 'analytics'
+import { useToggleAccountDrawer } from 'components/AccountDrawer'
+import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button'
+import { AutoColumn } from 'components/Column'
+import { FlyoutAlignment, Menu } from 'components/Menu'
+import PositionList from 'components/PositionList'
+import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
+import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
+import { isSupportedChain } from 'constants/chains'
+// import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
+import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
+import { useV3Positions } from 'hooks/useV3Positions'
+import { useUserHideClosedPositions } from 'state/user/hooks'
+import { HideSmall, ThemedText } from 'theme/components'
+import CTACards from './CTACards'
+import { LoadingRows } from './styled'
+import WalletIcon from '../../assets/wallets/Wallet.png'
+import NoPositionsIcon from '../../assets/images/noPosition.png'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -34,7 +34,7 @@ const PageWrapper = styled(AutoColumn)`
   @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     padding-top: 20px;
   }
-`;
+`
 const TitleRow = styled(RowBetween)`
   color: ${({ theme }) => theme.neutral2};
   @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
@@ -43,7 +43,7 @@ const TitleRow = styled(RowBetween)`
     width: 100%;
     padding-left: 12px;
   }
-`;
+`
 const PoolStats = styled.div`
   display: grid;
   gap: 12px;
@@ -51,16 +51,20 @@ const PoolStats = styled.div`
   @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     grid-template-columns: 1fr;
   }
-`;
+`
 
 const PoolsCard = styled.div`
   padding: 20px;
   border-radius: 8px;
   backdrop-filter: blur(38px);
   background-color: rgba(196, 196, 196, 0.01);
-  box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.20) inset, 0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.30) inset, 0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.30) inset, 0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.30) inset, 0px 5.38841px 8.46749px -3.07909px #FFF inset, 0px 30.02111px 43.10724px -27.7118px rgba(255, 255, 255, 0.50) inset;
+  box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
+    0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
+    0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset,
+    0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.3) inset, 0px 5.38841px 8.46749px -3.07909px #fff inset,
+    0px 30.02111px 43.10724px -27.7118px rgba(255, 255, 255, 0.5) inset;
   color: ${({ theme }) => theme.jediWhite};
-`;
+`
 const PoolsCardHeader = styled.div`
   color: ${({ theme }) => theme.notice};
   font-family: DM Sans;
@@ -69,16 +73,15 @@ const PoolsCardHeader = styled.div`
   font-weight: 700;
   line-height: 20px;
   margin-bottom: 20px;
-  
-   @media (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
-     font-size: 14px;
-   }
-`;
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
+    font-size: 14px;
+  }
+`
 const PoolsCardDetails = styled.div`
   display: flex;
   align-items: center;
-  
-`;
+`
 
 const PoolsCardNumbers = styled.div`
   color: ${({ theme }) => theme.jediWhite};
@@ -91,7 +94,7 @@ const PoolsCardNumbers = styled.div`
   @media (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
     font-size: 18px;
   }
-`;
+`
 
 const PoolsCardPercent = styled.div`
   color: ${({ theme }) => theme.signalGreen};
@@ -106,10 +109,10 @@ const PoolsCardPercent = styled.div`
   @media (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
     font-size: 12px;
   }
-`;
+`
 const PoolsCardPercentNegative = styled(PoolsCardPercent)`
   color: ${({ theme }) => theme.signalRed};
-`;
+`
 
 const NoPositions = styled.div`
   align-items: center;
@@ -119,12 +122,12 @@ const NoPositions = styled.div`
   margin: auto;
   min-height: 25vh;
   height: 240px;
-`;
+`
 
 const NewPositionText = styled.div`
   margin-top: 12px;
   margin-bottom: 20px;
-`;
+`
 
 const PoolsHeading = styled.div`
   color: ${({ theme }) => theme.jediWhite};
@@ -132,7 +135,7 @@ const PoolsHeading = styled.div`
   text-transform: uppercase;
   font-size: 24px;
   font-weight: 750;
-`;
+`
 const PositionsText = styled.div`
   color: ${({ theme }) => theme.jediWhite};
   font-family: DM Sans;
@@ -140,8 +143,8 @@ const PositionsText = styled.div`
   font-style: normal;
   font-weight: 500;
   line-height: 100%; /* 20px */
-`;
-const ButtonRow = styled(AutoRow)``;
+`
+const ButtonRow = styled(AutoRow)``
 
 const PoolMenu = styled(Menu)`
   margin-left: 0;
@@ -152,14 +155,14 @@ const PoolMenu = styled(Menu)`
   a {
     width: 100%;
   }
-`;
+`
 const PoolMenuItem = styled.div`
   align-items: center;
   display: flex;
   justify-content: space-between;
   width: 100%;
   font-weight: 535;
-`;
+`
 const MoreOptionsButton = styled(ButtonGray)`
   border-radius: 12px;
   flex: 1 1 auto;
@@ -168,12 +171,12 @@ const MoreOptionsButton = styled(ButtonGray)`
   background-color: ${({ theme }) => theme.surface1};
   border: 1px solid ${({ theme }) => theme.surface3};
   margin-right: 8px;
-`;
+`
 
 const MoreOptionsText = styled(ThemedText.BodyPrimary)`
   align-items: center;
   display: flex;
-`;
+`
 
 const ErrorContainer = styled.div`
   align-items: center;
@@ -189,13 +192,13 @@ const ErrorContainer = styled.div`
   @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     padding: 0px 52px;
   }
-`;
+`
 
 const IconStyle = css`
   width: 48px;
   height: 48px;
   margin-bottom: 0.5rem;
-`;
+`
 
 const IconWrapper = styled.div`
   display: flex;
@@ -203,15 +206,15 @@ const IconWrapper = styled.div`
   align-items: center;
   justify-content: center;
   margin-top: 20px;
-`;
+`
 
 const NetworkIcon = styled(AlertTriangle)`
   ${IconStyle}
-`;
+`
 
 const InboxIcon = styled(Inbox)`
   ${IconStyle}
-`;
+`
 
 const ResponsiveButtonPrimary = styled(ButtonPrimary)`
   border-radius: 8px;
@@ -223,21 +226,24 @@ const ResponsiveButtonPrimary = styled(ButtonPrimary)`
   @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     width: 132px;
   }
-`;
+`
 
 const MainContentWrapper = styled.main<{ isWalletConnected?: boolean; filteredPositions?: any }>`
-  background-color: ${({ theme, isWalletConnected, filteredPositions }) => (isWalletConnected && filteredPositions ? 'rgba(196, 196, 196, 0.01)' : theme.jediNavyBlue)};
+  background-color: ${({ theme, isWalletConnected, filteredPositions }) =>
+    isWalletConnected && filteredPositions ? 'rgba(196, 196, 196, 0.01)' : theme.jediNavyBlue};
   border-radius: 8px;
-  box-shadow: ${({ isWalletConnected, filteredPositions }) => (isWalletConnected && filteredPositions
-    ? `0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
+  box-shadow: ${({ isWalletConnected, filteredPositions }) =>
+    isWalletConnected && filteredPositions
+      ? `0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
         0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
         0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset,
         0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.3) inset`
-    : '')};
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {  }
-`;
+      : ''};
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+  }
+`
 
-const PositionWrapper = styled.div``;
+const PositionWrapper = styled.div``
 
 function PositionsLoadingPlaceholder() {
   return (
@@ -255,11 +261,11 @@ function PositionsLoadingPlaceholder() {
       <div />
       <div />
     </LoadingRows>
-  );
+  )
 }
 
 function WrongNetworkCard() {
-  const theme = useTheme();
+  const theme = useTheme()
 
   return (
     <>
@@ -287,40 +293,40 @@ function WrongNetworkCard() {
       </PageWrapper>
       <SwitchLocaleLink />
     </>
-  );
+  )
 }
 
 export default function Pool() {
-  const { account, chainId } = useWeb3React();
-  const [isWalletConnected, setIsWalletConnected] = useState(true);
-  const networkSupportsV2 = useNetworkSupportsV2();
-  const toggleWalletDrawer = useToggleAccountDrawer();
+  const { address, chainId } = useAccountDetails()
+  const [isWalletConnected, setIsWalletConnected] = useState(true)
+  const networkSupportsV2 = useNetworkSupportsV2()
+  const toggleWalletDrawer = useToggleAccountDrawer()
 
-  const theme = useTheme();
-  const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions();
+  const theme = useTheme()
+  const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
 
-  const { positions, loading: positionsLoading } = useV3Positions(account);
+  const { positions, loading: positionsLoading } = useV3Positions(address)
 
   const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
     (acc, p) => {
-      acc[p.liquidity?.isZero() ? 1 : 0].push(p);
-      return acc;
+      acc[p.liquidity?.isZero() ? 1 : 0].push(p)
+      return acc
     },
-    [[], []],
-  ) ?? [[], []];
+    [[], []]
+  ) ?? [[], []]
 
   const userSelectedPositionSet = useMemo(
     () => [...openPositions, ...(userHideClosedPositions ? [] : closedPositions)],
-    [closedPositions, openPositions, userHideClosedPositions],
-  );
+    [closedPositions, openPositions, userHideClosedPositions]
+  )
 
-  const filteredPositions = useFilterPossiblyMaliciousPositions(userSelectedPositionSet);
+  // const filteredPositions = useFilterPossiblyMaliciousPositions(userSelectedPositionSet)
 
   if (!isSupportedChain(chainId)) {
-    return <WrongNetworkCard />;
+    return <WrongNetworkCard />
   }
 
-  const showConnectAWallet = Boolean(!account);
+  const showConnectAWallet = Boolean(!address)
 
   const menuItems = [
     {
@@ -353,7 +359,7 @@ export default function Pool() {
       link: 'https://support.uniswap.org/hc/en-us/categories/8122334631437-Providing-Liquidity-',
       external: true,
     },
-  ];
+  ]
 
   return (
     <Trace page={InterfacePageName.POOL_PAGE} shouldLogImpression>
@@ -415,9 +421,12 @@ export default function Pool() {
               </ResponsiveButtonPrimary>
             </ButtonRow>
 
-            <MainContentWrapper isWalletConnected={isWalletConnected} filteredPositions={filteredPositions.length}>
+            <MainContentWrapper
+              isWalletConnected={isWalletConnected}
+              filteredPositions={userSelectedPositionSet.length}
+            >
               {isWalletConnected ? (
-                !filteredPositions.length && !positionsLoading ? (
+                !userSelectedPositionSet.length && !positionsLoading ? (
                   <NoPositions>
                     <IconWrapper>
                       <img src={NoPositionsIcon} alt={'Icon'} />
@@ -439,7 +448,7 @@ export default function Pool() {
                   <PositionsLoadingPlaceholder />
                 ) : (
                   <PositionList
-                    positions={filteredPositions}
+                    positions={userSelectedPositionSet}
                     setUserHideClosedPositions={setUserHideClosedPositions}
                     userHideClosedPositions={userHideClosedPositions}
                   />
@@ -480,7 +489,7 @@ export default function Pool() {
                 </ErrorContainer>
               )}
             </MainContentWrapper>
-            {filteredPositions.length ? null : <CTACards />}
+            {userSelectedPositionSet.length ? null : <CTACards />}
           </AutoColumn>
         </AutoColumn>
       </PageWrapper>

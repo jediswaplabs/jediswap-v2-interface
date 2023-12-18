@@ -1,6 +1,6 @@
 import { TransactionResponse } from '@ethersproject/abstract-provider'
 import { JsonRpcProvider, Network, Provider } from '@ethersproject/providers'
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 import AppRpcProvider from './AppRpcProvider'
 

@@ -3,7 +3,7 @@ import { WrappedTokenInfo } from 'state/lists/wrappedTokenInfo'
 
 type TokenMap = Readonly<{ [tokenAddress: string]: { token: WrappedTokenInfo; list?: TokenList } }>
 // TODO(WEB-2347): replace usage of the misnomered TokenAddressMap w/ ChainTokenMap from src/hooks/Tokens.ts
-export type TokenAddressMap = Readonly<{ [chainId: number]: TokenMap }>
+export type TokenAddressMap = Readonly<{ [chainId: string]: TokenMap }>
 
 type Mutable<T> = {
   -readonly [P in keyof T]: Mutable<T[P]>

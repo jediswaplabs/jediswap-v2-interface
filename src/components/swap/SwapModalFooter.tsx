@@ -1,43 +1,43 @@
-import { Trans } from '@lingui/macro';
-import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events';
-import { Percent } from '@uniswap/sdk-core';
-import ms from 'ms';
-import { ReactNode, useState } from 'react';
-import { AlertTriangle } from 'react-feather';
-import { easings, useSpring } from 'react-spring';
-import styled, { useTheme } from 'styled-components';
+import { Trans } from '@lingui/macro'
+import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
+import { Percent } from '@vnaysn/jediswap-sdk-core'
+import ms from 'ms'
+import { ReactNode, useState } from 'react'
+import { AlertTriangle } from 'react-feather'
+import { easings, useSpring } from 'react-spring'
+import styled, { useTheme } from 'styled-components'
 
-import { TraceEvent } from 'analytics';
-import AnimatedDropdown from 'components/AnimatedDropdown';
-import Column from 'components/Column';
-import SpinningLoader from 'components/Loader/SpinningLoader';
-import { SwapResult } from 'hooks/useSwapCallback';
-import useTransactionDeadline from 'hooks/useTransactionDeadline';
-import { InterfaceTrade, RouterPreference } from 'state/routing/types';
-import { isClassicTrade } from 'state/routing/utils';
-import { useRouterPreference, useUserSlippageTolerance } from 'state/user/hooks';
-import { Separator, ThemedSeparator, ThemedText } from 'theme/components';
-import getRoutingDiagramEntries from 'utils/getRoutingDiagramEntries';
-import { formatSwapButtonClickEventProperties } from 'utils/loggingFormatters';
-import { ReactComponent as ExpandoIconClosed } from '../../assets/svg/expando-icon-closed.svg';
-import { ReactComponent as ExpandoIconOpened } from '../../assets/svg/expando-icon-opened.svg';
-import { ButtonError, ButtonPrimary, ButtonSize, SmallButtonPrimary } from '../Button';
-import Row, { AutoRow, RowBetween, RowFixed } from '../Row';
-import { SwapCallbackError, SwapShowAcceptChanges } from './styled';
-import SwapLineItem, { SwapLineItemProps, SwapLineItemType } from './SwapLineItem';
+import { TraceEvent } from 'analytics'
+import AnimatedDropdown from 'components/AnimatedDropdown'
+import Column from 'components/Column'
+import SpinningLoader from 'components/Loader/SpinningLoader'
+import { SwapResult } from 'hooks/useSwapCallback'
+import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import { InterfaceTrade, RouterPreference } from 'state/routing/types'
+import { isClassicTrade } from 'state/routing/utils'
+import { useRouterPreference, useUserSlippageTolerance } from 'state/user/hooks'
+import { Separator, ThemedSeparator, ThemedText } from 'theme/components'
+import getRoutingDiagramEntries from 'utils/getRoutingDiagramEntries'
+import { formatSwapButtonClickEventProperties } from 'utils/loggingFormatters'
+import { ReactComponent as ExpandoIconClosed } from '../../assets/svg/expando-icon-closed.svg'
+import { ReactComponent as ExpandoIconOpened } from '../../assets/svg/expando-icon-opened.svg'
+import { ButtonError, ButtonPrimary, ButtonSize, SmallButtonPrimary } from '../Button'
+import Row, { AutoRow, RowBetween, RowFixed } from '../Row'
+import { SwapCallbackError, SwapShowAcceptChanges } from './styled'
+import SwapLineItem, { SwapLineItemProps, SwapLineItemType } from './SwapLineItem'
 
 const DetailsContainer = styled(Column)`
   padding-bottom: 8px;
-`;
+`
 
 const StyledAlertTriangle = styled(AlertTriangle)`
   margin-right: 8px;
   min-width: 24px;
-`;
+`
 
 const ConfirmButton = styled(ButtonError)`
   height: 56px;
-`;
+`
 
 const DropdownControllerWrapper = styled.div`
   display: flex;
@@ -47,7 +47,7 @@ const DropdownControllerWrapper = styled.div`
   padding: 0 16px;
   min-width: fit-content;
   white-space: nowrap;
-`;
+`
 
 const DropdownButton = styled.button`
   padding: 0;
@@ -59,7 +59,7 @@ const DropdownButton = styled.button`
   border: none;
   align-items: center;
   cursor: pointer;
-`;
+`
 
 function DropdownController({ open, onClick }: { open: boolean; onClick: () => void }) {
   return (
@@ -75,10 +75,11 @@ function DropdownController({ open, onClick }: { open: boolean; onClick: () => v
       </DropdownControllerWrapper>
       <ThemedSeparator reversed />
     </DropdownButton>
-  );
+  )
 }
 
-export default function SwapModalFooter({ trade,
+export default function SwapModalFooter({
+  trade,
   allowedSlippage,
   swapResult,
   onConfirm,
@@ -88,10 +89,11 @@ export default function SwapModalFooter({ trade,
   fiatValueOutput,
   showAcceptChanges,
   onAcceptChanges,
-  isLoading }: {
+  isLoading,
+}: {
   trade: InterfaceTrade
   swapResult?: SwapResult
-  allowedSlippage: Percent
+  allowedSlippage: number
   onConfirm: () => void
   swapErrorMessage?: ReactNode
   disabledConfirm: boolean
@@ -101,14 +103,14 @@ export default function SwapModalFooter({ trade,
   onAcceptChanges: () => void
   isLoading: boolean
 }) {
-  const transactionDeadlineSecondsSinceEpoch = useTransactionDeadline()?.toNumber(); // in seconds since epoch
-  const isAutoSlippage = useUserSlippageTolerance()[0] === 'auto';
-  const [routerPreference] = useRouterPreference();
-  const routes = isClassicTrade(trade) ? getRoutingDiagramEntries(trade) : undefined;
-  const theme = useTheme();
-  const [showMore, setShowMore] = useState(false);
+  const transactionDeadlineSecondsSinceEpoch = useTransactionDeadline()?.toNumber() // in seconds since epoch
+  // const isAutoSlippage = useUserSlippageTolerance()[0] === 'auto'
+  const [routerPreference] = useRouterPreference()
+  const routes = isClassicTrade(trade) ? getRoutingDiagramEntries(trade) : undefined
+  const theme = useTheme()
+  const [showMore, setShowMore] = useState(false)
 
-  const lineItemProps = { trade, allowedSlippage, syncing: false };
+  const lineItemProps = { trade, allowedSlippage, syncing: false }
 
   return (
     <>
@@ -137,7 +139,6 @@ export default function SwapModalFooter({ trade,
         </SwapShowAcceptChanges>
       ) : (
         <AutoRow>
-
           <ConfirmButton
             data-testid="confirm-swap-button"
             onClick={onConfirm}
@@ -163,27 +164,29 @@ export default function SwapModalFooter({ trade,
         </AutoRow>
       )}
     </>
-  );
+  )
 }
 
 function AnimatedLineItem(props: SwapLineItemProps & { open: boolean; delay: number }) {
-  const { open, delay } = props;
+  const { open, delay } = props
 
   const animatedProps = useSpring({
     animatedOpacity: open ? 1 : 0,
     config: { duration: ms('300ms'), easing: easings.easeOutSine },
     delay,
-  });
+  })
 
-  return <SwapLineItem {...props} {...animatedProps} />;
+  return <SwapLineItem {...props} {...animatedProps} />
 }
 
-function ExpandableLineItems(props: { trade: InterfaceTrade; allowedSlippage: Percent; open: boolean }) {
-  const { open, trade, allowedSlippage } = props;
+function ExpandableLineItems(props: { trade: InterfaceTrade; allowedSlippage: number; open: boolean }) {
+  const { open, trade, allowedSlippage } = props
 
-  if (!trade) { return null; }
+  if (!trade) {
+    return null
+  }
 
-  const lineItemProps = { trade, allowedSlippage, syncing: false, open };
+  const lineItemProps = { trade, allowedSlippage, syncing: false, open }
 
   return (
     <AnimatedDropdown
@@ -203,5 +206,5 @@ function ExpandableLineItems(props: { trade: InterfaceTrade; allowedSlippage: Pe
         <AnimatedLineItem {...lineItemProps} type={SwapLineItemType.MAXIMUM_INPUT} delay={ms('120ms')} />
       </Column>
     </AnimatedDropdown>
-  );
+  )
 }

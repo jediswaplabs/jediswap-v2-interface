@@ -1,6 +1,6 @@
-import { ChainId, CurrencyAmount, Token, V3_CORE_FACTORY_ADDRESSES } from '@uniswap/sdk-core'
+import { ChainId, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
 import IUniswapV3PoolStateJSON from '@uniswap/v3-core/artifacts/contracts/interfaces/pool/IUniswapV3PoolState.sol/IUniswapV3PoolState.json'
-import { computePoolAddress, Pool, Position } from '@uniswap/v3-sdk'
+import { computePoolAddress, Pool, Position } from '@vnaysn/jediswap-sdk-v3'
 import { DEFAULT_ERC20_DECIMALS } from 'constants/tokens'
 import { BigNumber } from 'ethers/lib/ethers'
 import { Interface } from 'ethers/lib/utils'
@@ -13,6 +13,7 @@ import { currencyKey } from 'utils/currencyKey'
 import { PositionInfo, useCachedPositions, useGetCachedTokens, usePoolAddressCache } from './cache'
 import { Call, DEFAULT_GAS_LIMIT } from './getTokensAsync'
 import { useInterfaceMulticallContracts, usePoolPriceMap, useV3ManagerContracts } from './hooks'
+import { V3_CORE_FACTORY_ADDRESSES } from 'constants/addresses'
 
 function createPositionInfo(
   owner: string,
@@ -39,16 +40,7 @@ type FeeAmounts = [BigNumber, BigNumber]
 
 const MAX_UINT128 = BigNumber.from(2).pow(128).sub(1)
 
-const DEFAULT_CHAINS = [
-  ChainId.MAINNET,
-  ChainId.ARBITRUM_ONE,
-  ChainId.OPTIMISM,
-  ChainId.POLYGON,
-  ChainId.CELO,
-  ChainId.BNB,
-  ChainId.AVALANCHE,
-  ChainId.BASE,
-]
+const DEFAULT_CHAINS = [ChainId.MAINNET]
 
 type UseMultiChainPositionsData = { positions?: PositionInfo[]; loading: boolean }
 
@@ -78,7 +70,7 @@ export default function useMultiChainPositions(account: string, chains = DEFAULT
   const { priceMap, pricesLoading } = usePoolPriceMap(positions)
 
   const fetchPositionFees = useCallback(
-    async (pm: NonfungiblePositionManager, positionIds: BigNumber[], chainId: number) => {
+    async (pm: NonfungiblePositionManager, positionIds: BigNumber[], chainId: string) => {
       const callData = positionIds.map((id) =>
         pm.interface.encodeFunctionData('collect', [
           { tokenId: id, recipient: account, amount0Max: MAX_UINT128, amount1Max: MAX_UINT128 },

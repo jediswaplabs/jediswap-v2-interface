@@ -1,5 +1,5 @@
-import { TradeType } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { TradeType } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { DEFAULT_TXN_DISMISS_MS, L2_TXN_DISMISS_MS } from 'constants/misc'
 import { UniswapXBackendOrder, UniswapXOrderStatus } from 'lib/hooks/orders/types'
 import OrderUpdater from 'lib/hooks/orders/updater'
@@ -14,9 +14,10 @@ import { useAddPopup } from '../application/hooks'
 import { useAllSignatures } from './hooks'
 import { updateSignature } from './reducer'
 import { SignatureType, UniswapXOrderDetails } from './types'
+import { useProvider } from '@starknet-react/core'
 
 export default function Updater() {
-  const { provider } = useWeb3React()
+  const { provider } = useProvider()
   const addPopup = useAddPopup()
   const signatures = useAllSignatures()
 
@@ -47,19 +48,19 @@ export default function Updater() {
           }
         }
         // Wait to update a filled order until the on-chain tx is available.
-        provider?.getTransactionReceipt(update.txHash).then((receipt) => {
-          dispatch(
-            addTransaction({
-              chainId: updatedOrder.chainId,
-              from: updatedOrder.offerer, // TODO(WEB-2053): use filler as from once tx reducer is organized by account
-              hash: update.txHash,
-              info: updatedOrder.swapInfo,
-              receipt: toSerializableReceipt(receipt),
-            })
-          )
-          dispatch(updateSignature(updatedOrder))
-          addPopup({ type: PopupType.Transaction, hash: update.txHash }, update.txHash, popupDismissalTime)
-        })
+        // provider?.getTransactionReceipt(update.txHash).then((receipt) => {
+        //   dispatch(
+        //     addTransaction({
+        //       chainId: updatedOrder.chainId,
+        //       from: updatedOrder.offerer, // TODO(WEB-2053): use filler as from once tx reducer is organized by account
+        //       hash: update.txHash,
+        //       info: updatedOrder.swapInfo,
+        //       receipt: toSerializableReceipt(receipt),
+        //     })
+        //   )
+        //   dispatch(updateSignature(updatedOrder))
+        //   addPopup({ type: PopupType.Transaction, hash: update.txHash }, update.txHash, popupDismissalTime)
+        // })
       } else {
         dispatch(updateSignature(updatedOrder))
         addPopup({ type: PopupType.Order, orderHash: order.orderHash }, updatedOrder.orderHash, popupDismissalTime)

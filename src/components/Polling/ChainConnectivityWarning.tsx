@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { getChainInfoOrDefault, L2ChainInfo } from 'constants/chainInfo'
 import { AlertTriangle } from 'react-feather'
 import styled from 'styled-components'
@@ -50,9 +50,9 @@ const Wrapper = styled.div`
 `
 
 export function ChainConnectivityWarning() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const info = getChainInfoOrDefault(chainId)
-  const label = info?.label
+  // const label = info?.label
 
   return (
     <Wrapper>
@@ -63,19 +63,19 @@ export function ChainConnectivityWarning() {
         </TitleText>
       </TitleRow>
       <BodyRow>
-        {chainId === ChainId.MAINNET ? (
+        {/* {chainId === ChainId.MAINNET ? (
           <Trans>You may have lost your network connection.</Trans>
         ) : (
           <Trans>{label} might be down right now, or you may have lost your network connection.</Trans>
-        )}{' '}
-        {(info as L2ChainInfo).statusPage !== undefined && (
+        )}{' '} */}
+        {/* {(info as L2ChainInfo).statusPage !== undefined && (
           <span>
             <Trans>Check network status</Trans>{' '}
             <Link href={(info as L2ChainInfo).statusPage || ''}>
               <Trans>here.</Trans>
             </Link>
           </span>
-        )}
+        )} */}
       </BodyRow>
     </Wrapper>
   )

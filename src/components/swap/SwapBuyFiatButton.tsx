@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, SharedEventName } from '@uniswap/analytics-events'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { TraceEvent } from 'analytics'
 import { useAccountDrawer } from 'components/AccountDrawer'
 import { ButtonText } from 'components/Button'
@@ -41,7 +41,7 @@ const StyledTextButton = styled(ButtonText)`
 `
 
 export default function SwapBuyFiatButton() {
-  const { account } = useAccountDetails()
+  const { address: account } = useAccountDetails()
   const openFiatOnRampModal = useOpenModal(ApplicationModal.FIAT_ONRAMP)
   const shouldShowBuyFiatButton = useIsNotOriginCountry('GB')
   const [checkFiatRegionAvailability, setCheckFiatRegionAvailability] = useState(false)

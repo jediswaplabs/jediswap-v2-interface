@@ -144,6 +144,9 @@ export const colors = {
   critical: '#FF3257',
   scrim: 'rgba(0, 0, 0, 0.60)',
   divider: 'rgba(255, 255, 255, 0.40)',
+
+  bg1: '#212429',
+  bg4: '#565A69',
 }
 
 type Theme = typeof darkTheme
@@ -173,6 +176,9 @@ const commonTheme = {
   chain_56_background: colors.networkBsc,
   promotional: colors.magenta300,
   notice: colors.greyLight,
+
+  bg1: colors.bg1,
+  bg4: colors.bg4,
 
   brandedGradient: 'linear-gradient(95.64deg, #29aafd 8.08%, #ff00e9 105.91%)',
   brandedGradientReversed: 'linear-gradient(95.64deg, #ff00e9 8.08%, #29aafd 105.91%)',

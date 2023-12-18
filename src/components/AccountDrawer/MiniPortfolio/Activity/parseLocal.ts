@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber';
 import { t } from '@lingui/macro';
-import { ChainId, Currency, CurrencyAmount, TradeType } from '@uniswap/sdk-core';
+import { ChainId, Currency, CurrencyAmount, TradeType } from '@vnaysn/jediswap-sdk-core';
 import { useMemo } from 'react';
 
 import UniswapXBolt from 'assets/svg/bolt.svg';

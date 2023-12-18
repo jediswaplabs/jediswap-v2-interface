@@ -1,12 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 import { SerializableTransactionReceipt, TransactionDetails, TransactionInfo } from './types'
 
 // TODO(WEB-2053): update this to be a map of account -> chainId -> txHash -> TransactionDetails
 // to simplify usage, once we're able to invalidate localstorage
 export interface TransactionState {
-  [chainId: number]: {
+  [chainId: string]: {
     [txHash: string]: TransactionDetails
   }
 }

@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { FeeAmount } from '@uniswap/v3-sdk'
+import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
 import { ButtonGray } from 'components/Button'
 import { OutlineCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
@@ -70,8 +70,8 @@ const ButtonLabel = styled(ThemedText.DeprecatedWhite)<{ disabled: boolean }>`
 interface StepCounterProps {
   value: string
   onUserInput: (value: string) => void
-  decrement: () => string
-  increment: () => string
+  decrement?: () => string
+  increment?: () => string
   decrementDisabled?: boolean
   incrementDisabled?: boolean
   feeAmount?: FeeAmount
@@ -83,19 +83,7 @@ interface StepCounterProps {
   tokenB?: string
 }
 
-const StepCounter = ({
-  value,
-  decrement,
-  increment,
-  decrementDisabled = false,
-  incrementDisabled = false,
-  width,
-  locked,
-  onUserInput,
-  title,
-  tokenA,
-  tokenB,
-}: StepCounterProps) => {
+const StepCounter = ({ value, width, locked, onUserInput, title, tokenA, tokenB }: StepCounterProps) => {
   //  for focus state, styled components doesnt let you select input parent container
   const [active, setActive] = useState(false)
 
@@ -116,17 +104,6 @@ const StepCounter = ({
     setActive(false)
     onUserInput(localValue) // trigger update on parent value
   }, [localValue, onUserInput])
-
-  // for button clicks
-  const handleDecrement = useCallback(() => {
-    setUseLocalValue(false)
-    onUserInput(decrement())
-  }, [decrement, onUserInput])
-
-  const handleIncrement = useCallback(() => {
-    setUseLocalValue(false)
-    onUserInput(increment())
-  }, [increment, onUserInput])
 
   useEffect(() => {
     if (localValue !== value && !useLocalValue) {
@@ -162,23 +139,6 @@ const StepCounter = ({
             </Trans>
           </InputTitle>
         </InputColumn>
-
-        <AutoColumn gap="8px">
-          {!locked && (
-            <SmallButton data-testid="increment-price-range" onClick={handleIncrement} disabled={incrementDisabled}>
-              <ButtonLabel disabled={incrementDisabled} fontSize="12px">
-                <Plus size={18} />
-              </ButtonLabel>
-            </SmallButton>
-          )}
-          {!locked && (
-            <SmallButton data-testid="decrement-price-range" onClick={handleDecrement} disabled={decrementDisabled}>
-              <ButtonLabel disabled={decrementDisabled} fontSize="12px">
-                <Minus size={18} />
-              </ButtonLabel>
-            </SmallButton>
-          )}
-        </AutoColumn>
       </InputRow>
     </FocusedOutlineCard>
   )

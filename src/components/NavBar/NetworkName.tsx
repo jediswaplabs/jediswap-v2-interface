@@ -1,9 +1,9 @@
-import { useWeb3React } from '@web3-react/core';
-import { useRef } from 'react';
-import styled from 'styled-components';
+import { useAccountDetails } from 'hooks/starknet-react'
+import { useRef } from 'react'
+import styled from 'styled-components'
 
-import { getChainInfo } from 'constants/chainInfo';
-import useSyncChainQuery from 'hooks/useSyncChainQuery';
+import { getChainInfo } from 'constants/chainInfo'
+import useSyncChainQuery from 'hooks/useSyncChainQuery'
 
 const ChainSelectorRow = styled.div`
   width: 162px;
@@ -11,43 +11,35 @@ const ChainSelectorRow = styled.div`
   flex-shrink: 0;
 
   border-radius: 8px;
-  background:  ${({ theme }) => theme.jediNavyBlue};;
+  background: ${({ theme }) => theme.jediNavyBlue};
 
   display: flex;
   align-items: center;
   justify-content: center;
 
   // text content
-  color:  ${({ theme }) => theme.jediWhite};;
+  color: ${({ theme }) => theme.jediWhite};
   text-align: center;
   font-feature-settings: 'clig' off, 'liga' off;
   font-family: Avenir LT Std;
   font-size: 16px;
   font-style: normal;
   font-weight: 600;
-  line-height: 20px; /* 125% */ 
-`;
+  line-height: 20px; /* 125% */
+`
 
 export const NetworkName = () => {
-  const { chainId, account } = useWeb3React();
+  const { chainId, address: account } = useAccountDetails()
 
-  const info = getChainInfo(chainId);
+  const info = getChainInfo(chainId)
 
-  useSyncChainQuery();
+  useSyncChainQuery()
 
   if (!account || !chainId) {
-    return null;
+    return null
   }
 
-  const isSupported = !!info;
+  const isSupported = !!info
 
-  return (
-    <ChainSelectorRow>
-      {!isSupported ? (
-        'Unsupported Network'
-      ) : (
-        info.label
-      )}
-    </ChainSelectorRow>
-  );
-};
+  return <ChainSelectorRow>{!isSupported ? 'Unsupported Network' : info.label}</ChainSelectorRow>
+}

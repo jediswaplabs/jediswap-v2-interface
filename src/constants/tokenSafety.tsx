@@ -1,12 +1,12 @@
-import { Plural, Trans } from '@lingui/macro';
+import { Plural, Trans } from '@lingui/macro'
 
-import { TokenStandard } from 'graphql/data/types-and-hooks';
-import { SearchToken } from 'graphql/data/SearchTokens';
-import { ZERO_ADDRESS } from './misc';
-import { NATIVE_CHAIN_ID } from './tokens';
-import tokenSafetyLookup, { TOKEN_LIST_TYPES } from './tokenSafetyLookup';
+import { TokenStandard } from 'graphql/data/types-and-hooks'
+import { SearchToken } from 'graphql/data/SearchTokens'
+import { ZERO_ADDRESS } from './misc'
+import { NATIVE_CHAIN_ID } from './tokens'
+import tokenSafetyLookup, { TOKEN_LIST_TYPES } from './tokenSafetyLookup'
 
-export const TOKEN_SAFETY_ARTICLE = 'https://support.uniswap.org/hc/en-us/articles/8723118437133';
+export const TOKEN_SAFETY_ARTICLE = 'https://support.uniswap.org/hc/en-us/articles/8723118437133'
 
 export enum WARNING_LEVEL {
   MEDIUM,
@@ -15,8 +15,8 @@ export enum WARNING_LEVEL {
 }
 
 export function getWarningCopy(warning: Warning | null, plural = false) {
-  let heading = null;
-  let description = null;
+  let heading = null
+  let description = null
   if (warning) {
     switch (warning.level) {
       case WARNING_LEVEL.MEDIUM:
@@ -26,9 +26,9 @@ export function getWarningCopy(warning: Warning | null, plural = false) {
             _1="This token isn't traded on leading U.S. centralized exchanges."
             other="These tokens aren't traded on leading U.S. centralized exchanges."
           />
-        );
-        description = <Trans>Always conduct your own research before trading.</Trans>;
-        break;
+        )
+        description = <Trans>Always conduct your own research before trading.</Trans>
+        break
       case WARNING_LEVEL.UNKNOWN:
         heading = (
           <Plural
@@ -36,9 +36,9 @@ export function getWarningCopy(warning: Warning | null, plural = false) {
             _1="This token isn't traded on leading U.S. centralized exchanges or frequently swapped on Uniswap."
             other="These tokens aren't traded on leading U.S. centralized exchanges or frequently swapped on Uniswap."
           />
-        );
-        description = <Trans>Always conduct your own research before trading.</Trans>;
-        break;
+        )
+        description = <Trans>Always conduct your own research before trading.</Trans>
+        break
       case WARNING_LEVEL.BLOCKED:
         description = (
           <Plural
@@ -46,11 +46,11 @@ export function getWarningCopy(warning: Warning | null, plural = false) {
             _1="You can't trade this token using the Uniswap App."
             other="You can't trade these tokens using the Uniswap App."
           />
-        );
-        break;
+        )
+        break
     }
   }
-  return { heading, description };
+  return { heading, description }
 }
 
 export type Warning = {
@@ -64,52 +64,52 @@ const MediumWarning: Warning = {
   level: WARNING_LEVEL.MEDIUM,
   message: <Trans>Caution</Trans>,
   canProceed: true,
-};
+}
 
 const StrongWarning: Warning = {
   level: WARNING_LEVEL.UNKNOWN,
   message: <Trans>Warning</Trans>,
   canProceed: true,
-};
+}
 
 const BlockedWarning: Warning = {
   level: WARNING_LEVEL.BLOCKED,
   message: <Trans>Not available</Trans>,
   canProceed: false,
-};
+}
 
 export const NotFoundWarning: Warning = {
   level: WARNING_LEVEL.UNKNOWN,
   message: <Trans>Token not found</Trans>,
   canProceed: false,
-};
+}
 
-export function checkWarning(tokenAddress: string, chainId?: number | null) {
+export function checkWarning(tokenAddress: string, chainId?: string | null) {
   if (tokenAddress === NATIVE_CHAIN_ID || tokenAddress === ZERO_ADDRESS) {
-    return null;
+    return null
   }
   switch (tokenSafetyLookup.checkToken(tokenAddress.toLowerCase(), chainId)) {
     case TOKEN_LIST_TYPES.UNI_DEFAULT:
-      return null;
+      return null
     case TOKEN_LIST_TYPES.UNI_EXTENDED:
-      return MediumWarning;
+      return MediumWarning
     case TOKEN_LIST_TYPES.UNKNOWN:
-      return StrongWarning;
+      return StrongWarning
     case TOKEN_LIST_TYPES.BLOCKED:
-      return BlockedWarning;
+      return BlockedWarning
     case TOKEN_LIST_TYPES.BROKEN:
-      return BlockedWarning;
+      return BlockedWarning
   }
 }
 
 // TODO(cartcrom): Replace all usage of WARNING_LEVEL with SafetyLevel
 export function checkSearchTokenWarning(token: SearchToken) {
   if (!token.address) {
-    return token.standard === TokenStandard.Native ? null : StrongWarning;
+    return token.standard === TokenStandard.Native ? null : StrongWarning
   }
-  return checkWarning(token.address);
+  return checkWarning(token.address)
 }
 
 export function displayWarningLabel(warning: Warning | null) {
-  return warning && warning.level !== WARNING_LEVEL.MEDIUM;
+  return warning && warning.level !== WARNING_LEVEL.MEDIUM
 }

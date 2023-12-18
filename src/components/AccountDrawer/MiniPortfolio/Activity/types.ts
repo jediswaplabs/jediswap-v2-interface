@@ -1,4 +1,4 @@
-import { ChainId, Currency } from '@uniswap/sdk-core';
+import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core';
 
 import { TransactionStatus } from 'graphql/data/types-and-hooks';
 import { UniswapXOrderStatus } from 'lib/hooks/orders/types';

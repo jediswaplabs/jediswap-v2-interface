@@ -1,5 +1,6 @@
 import { getAddress } from '@ethersproject/address'
 import { validateAndParseAddress } from 'starknet'
+import isZero from './isZero'
 
 // returns the checksummed address if the address is valid, otherwise returns false
 export function isAddress(value: any): string | false {
@@ -13,7 +14,7 @@ export function isAddress(value: any): string | false {
 }
 
 // returns the checksummed address if the address is valid, otherwise returns false
-export function checkAddress(addr: string | null | undefined): string | false {
+export function isAddressValidForStarknet(addr: string | null | undefined): string | false {
   try {
     if (addr && !isZero(addr)) {
       return validateAndParseAddress(addr)
@@ -23,15 +24,6 @@ export function checkAddress(addr: string | null | undefined): string | false {
     return false
   }
 }
-
-/**
- * Returns true if the string value is zero in hex
- * @param hexNumberString
- */
-export default function isZero(hexNumberString: string) {
-  return /^0x0*$/.test(hexNumberString)
-}
-
 
 export function isSameAddress(a?: string, b?: string) {
   return a === b || a?.toLowerCase() === b?.toLowerCase() // Lazy-lowercases the addresses

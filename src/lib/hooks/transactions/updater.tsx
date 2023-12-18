@@ -1,6 +1,5 @@
 import { TransactionReceipt } from '@ethersproject/abstract-provider'
-import { ChainId } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import useBlockNumber, { useFastForwardBlockNumber } from 'lib/hooks/useBlockNumber'
 import ms from 'ms'
@@ -9,6 +8,8 @@ import { useTransactionRemover } from 'state/transactions/hooks'
 import { TransactionDetails } from 'state/transactions/types'
 
 import { CanceledError, retry, RetryableError, RetryOptions } from './retry'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { useProvider } from '@starknet-react/core'
 
 interface Transaction {
   addedTime: number
@@ -34,23 +35,18 @@ export function shouldCheck(lastBlockNumber: number, tx: Transaction): boolean {
   }
 }
 
-const RETRY_OPTIONS_BY_CHAIN_ID: { [chainId: number]: RetryOptions } = {
-  [ChainId.ARBITRUM_ONE]: { n: 10, minWait: 250, maxWait: 1000 },
-  [ChainId.ARBITRUM_GOERLI]: { n: 10, minWait: 250, maxWait: 1000 },
-  [ChainId.OPTIMISM]: { n: 10, minWait: 250, maxWait: 1000 },
-  [ChainId.OPTIMISM_GOERLI]: { n: 10, minWait: 250, maxWait: 1000 },
-  [ChainId.BASE]: { n: 10, minWait: 250, maxWait: 1000 },
-}
+const RETRY_OPTIONS_BY_CHAIN_ID: { [chainId: string]: RetryOptions } = {}
 const DEFAULT_RETRY_OPTIONS: RetryOptions = { n: 1, minWait: 0, maxWait: 0 }
 
 interface UpdaterProps {
   pendingTransactions: { [hash: string]: TransactionDetails }
-  onCheck: (tx: { chainId: number; hash: string; blockNumber: number }) => void
-  onReceipt: (tx: { chainId: number; hash: string; receipt: TransactionReceipt }) => void
+  onCheck: (tx: { chainId: string; hash: string; blockNumber: number }) => void
+  onReceipt: (tx: { chainId: string; hash: string; receipt: TransactionReceipt }) => void
 }
 
 export default function Updater({ pendingTransactions, onCheck, onReceipt }: UpdaterProps): null {
-  const { account, chainId, provider } = useWeb3React()
+  const { address: account, chainId } = useAccountDetails()
+  const { provider } = useProvider()
 
   const lastBlockNumber = useBlockNumber()
   const fastForwardBlockNumber = useFastForwardBlockNumber()
@@ -96,8 +92,8 @@ export default function Updater({ pendingTransactions, onCheck, onReceipt }: Upd
         const { promise, cancel } = getReceipt(hash)
         promise
           .then((receipt) => {
-            fastForwardBlockNumber(receipt.blockNumber)
-            onReceipt({ chainId, hash, receipt })
+            // fastForwardBlockNumber(receipt.blockNumber)
+            // onReceipt({ chainId, hash, receipt })
           })
           .catch((error) => {
             if (error instanceof CanceledError) return

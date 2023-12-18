@@ -14,9 +14,9 @@ export default function RouterLabel({ trade, color }: { trade: SubmittableTrade;
     )
   }
 
-  if (trade.quoteMethod === QuoteMethod.CLIENT_SIDE_FALLBACK) {
-    return <ThemedText.BodySmall color={color}>Uniswap Client</ThemedText.BodySmall>
-  }
+  // if (trade.quoteMethod === QuoteMethod.CLIENT_SIDE_FALLBACK) {
+  //   return <ThemedText.BodySmall color={color}>Uniswap Client</ThemedText.BodySmall>
+  // }
 
   return <ThemedText.BodySmall color={color}>Uniswap API</ThemedText.BodySmall>
 }

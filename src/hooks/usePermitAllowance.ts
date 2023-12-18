@@ -1,6 +1,6 @@
 import { AllowanceTransfer, MaxAllowanceTransferAmount, PERMIT2_ADDRESS, PermitSingle } from '@uniswap/permit2-sdk'
-import { CurrencyAmount, Token } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import PERMIT2_ABI from 'abis/permit2.json'
 import { Permit2 } from 'abis/types'
 import { useContract } from 'hooks/useContract'
@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { toReadableError, UserRejectedRequestError } from 'utils/errors'
 import { signTypedData } from 'utils/signing'
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
+import { useProvider } from '@starknet-react/core'
 
 const PERMIT_EXPIRATION = ms(`30d`)
 const PERMIT_SIG_EXPIRATION = ms(`30m`)
@@ -56,29 +57,30 @@ export function useUpdatePermitAllowance(
   nonce: number | undefined,
   onPermitSignature: (signature: PermitSignature) => void
 ) {
-  const { account, chainId, provider } = useWeb3React()
+  const { address: account, chainId } = useAccountDetails()
+  const { provider } = useProvider()
   return useCallback(async () => {
     try {
-      if (!chainId) throw new Error('missing chainId')
-      if (!provider) throw new Error('missing provider')
-      if (!token) throw new Error('missing token')
-      if (!spender) throw new Error('missing spender')
-      if (nonce === undefined) throw new Error('missing nonce')
+      // if (!chainId) throw new Error('missing chainId')
+      // if (!provider) throw new Error('missing provider')
+      // if (!token) throw new Error('missing token')
+      // if (!spender) throw new Error('missing spender')
+      // if (nonce === undefined) throw new Error('missing nonce')
 
-      const permit: Permit = {
-        details: {
-          token: token.address,
-          amount: MaxAllowanceTransferAmount,
-          expiration: toDeadline(PERMIT_EXPIRATION),
-          nonce,
-        },
-        spender,
-        sigDeadline: toDeadline(PERMIT_SIG_EXPIRATION),
-      }
+      // const permit: Permit = {
+      //   details: {
+      //     token: token.address,
+      //     amount: MaxAllowanceTransferAmount,
+      //     expiration: toDeadline(PERMIT_EXPIRATION),
+      //     nonce,
+      //   },
+      //   spender,
+      //   sigDeadline: toDeadline(PERMIT_SIG_EXPIRATION),
+      // }
 
-      const { domain, types, values } = AllowanceTransfer.getPermitData(permit, PERMIT2_ADDRESS, chainId)
-      const signature = await signTypedData(provider.getSigner(account), domain, types, values)
-      onPermitSignature?.({ ...permit, signature })
+      // const { domain, types, values } = AllowanceTransfer.getPermitData(permit, PERMIT2_ADDRESS, chainId)
+      // const signature = await signTypedData(provider.getSigner(account), domain, types, values)
+      // onPermitSignature?.({ ...permit, signature })
       return
     } catch (e: unknown) {
       const symbol = token?.symbol ?? 'Token'

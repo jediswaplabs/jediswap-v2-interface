@@ -1,26 +1,26 @@
-// @ts-nocheck
-import { Trans } from '@lingui/macro';
-import { FeePoolSelectAction, LiquidityEventName } from '@uniswap/analytics-events';
-import { Currency } from '@uniswap/sdk-core';
-import { FeeAmount } from '@uniswap/v3-sdk';
-import { useWeb3React } from '@web3-react/core';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Box } from 'rebass';
-import styled, { keyframes } from 'styled-components';
+import { Trans } from '@lingui/macro'
+import { FeePoolSelectAction, LiquidityEventName } from '@uniswap/analytics-events'
+import { Currency } from '@uniswap/sdk-core'
+import { FeeAmount } from '@uniswap/v3-sdk'
+// import { useWeb3React } from '@web3-react/core'
+import { sendAnalyticsEvent, useTrace } from 'analytics'
+import { ButtonGray } from 'components/Button'
+import Card from 'components/Card'
+import { AutoColumn } from 'components/Column'
+import { RowBetween } from 'components/Row'
+import { useFeeTierDistribution } from 'hooks/useFeeTierDistribution'
+import { PoolState, usePools } from 'hooks/usePools'
+import usePrevious from 'hooks/usePrevious'
+import { DynamicSection } from 'pages/AddLiquidity/styled'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Box } from 'rebass'
+import styled, { keyframes } from 'styled-components'
+import { ThemedText } from 'theme/components'
 
-import { sendAnalyticsEvent, useTrace } from 'analytics';
-import { ButtonGray } from 'components/Button';
-import Card from 'components/Card';
-import { AutoColumn } from 'components/Column';
-import { RowBetween } from 'components/Row';
-import { useFeeTierDistribution } from 'hooks/useFeeTierDistribution';
-import { PoolState, usePools } from 'hooks/usePools';
-import usePrevious from 'hooks/usePrevious';
-import { DynamicSection } from 'pages/AddLiquidity/styled';
-import { ThemedText } from 'theme/components';
-import { FeeOption } from './FeeOption';
-import { FeeTierPercentageBadge } from './FeeTierPercentageBadge';
-import { FEE_AMOUNT_DETAIL } from './shared';
+import { FeeOption } from './FeeOption'
+import { FeeTierPercentageBadge } from './FeeTierPercentageBadge'
+import { FEE_AMOUNT_DETAIL } from './shared'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 const pulse = (color: string) => keyframes`
   0% {
@@ -34,138 +34,84 @@ const pulse = (color: string) => keyframes`
   100% {
     box-shadow: 0 0 0 0 ${color};
   }
-`;
-const FocusedOutlineCard = styled(Card) <{ pulsing: boolean, feeAmount: FeeAmount }>`
-  border: 1px solid ${({ theme, feeAmount }) => (feeAmount ? theme.jediBlue : theme.surface3)};
+`
+const FocusedOutlineCard = styled(Card)<{ pulsing: boolean }>`
+  border: 1px solid ${({ theme }) => theme.surface3};
   animation: ${({ pulsing, theme }) => pulsing && pulse(theme.accent1)} 0.6s linear;
   align-self: center;
-  border-radius: 8px;
-`;
+`
 
 const Select = styled.div`
   align-items: flex-start;
   display: grid;
   grid-auto-flow: column;
   grid-gap: 8px;
-`;
+`
 
-export default function FeeSelector({ disabled = false,
+export default function FeeSelector({
+  disabled = false,
   feeAmount,
   handleFeePoolSelect,
   currencyA,
-  currencyB }: {
+  currencyB,
+}: {
   disabled?: boolean
   feeAmount?: FeeAmount
   handleFeePoolSelect: (feeAmount: FeeAmount) => void
   currencyA?: Currency
   currencyB?: Currency
 }) {
-  const { chainId } = useWeb3React();
-  const trace = useTrace();
+  const { chainId } = useAccountDetails()
+  const trace = useTrace()
 
-  const { isLoading, isError, largestUsageFeeTier, distributions } = useFeeTierDistribution(currencyA, currencyB);
+  // const { isLoading, isError, largestUsageFeeTier } = useFeeTierDistribution(currencyA, currencyB)
 
-  // get pool data on-chain for latest states
-  const pools = usePools([
-    [currencyA, currencyB, FeeAmount.LOWEST],
-    [currencyA, currencyB, FeeAmount.LOW],
-    [currencyA, currencyB, FeeAmount.MEDIUM],
-    [currencyA, currencyB, FeeAmount.HIGH],
-  ]);
+  const distributions = {
+    '100': 0.13230880019434835,
+    '500': 58.77589559263296,
+    '3000': 39.81891308283566,
+    '10000': 1.272882524337048,
+  }
 
-  const poolsByFeeTier: Record<FeeAmount, PoolState> = useMemo(
-    () => pools.reduce(
-      (acc, [curPoolState, curPool]) => {
-        acc = {
-          ...acc,
-          ...{ [curPool?.fee as FeeAmount]: curPoolState },
-        };
-        return acc;
-      },
-      {
-        // default all states to NOT_EXISTS
-        [FeeAmount.LOWEST]: PoolState.NOT_EXISTS,
-        [FeeAmount.LOW]: PoolState.NOT_EXISTS,
-        [FeeAmount.MEDIUM]: PoolState.NOT_EXISTS,
-        [FeeAmount.HIGH]: PoolState.NOT_EXISTS,
-      },
-    ),
-    [pools],
-  );
+  const poolsByFeeTier = {
+    '100': 2,
+    '500': 2,
+    '3000': 2,
+    '10000': 2,
+  }
 
-  const [showOptions, setShowOptions] = useState(false);
-  const [pulsing, setPulsing] = useState(false);
+  const [showOptions, setShowOptions] = useState(true)
+  const [pulsing, setPulsing] = useState(false)
 
-  const previousFeeAmount = usePrevious(feeAmount);
-
-  const recommended = useRef(false);
-
-  const handleFeePoolSelectWithEvent = useCallback(
-    (fee: FeeAmount) => {
-      sendAnalyticsEvent(LiquidityEventName.SELECT_LIQUIDITY_POOL_FEE_TIER, {
-        action: FeePoolSelectAction.MANUAL,
-        ...trace,
-      });
-      handleFeePoolSelect(fee);
-    },
-    [handleFeePoolSelect, trace],
-  );
-
-  useEffect(() => {
-    if (feeAmount || isLoading || isError) {
-      return;
-    }
-
-    if (!largestUsageFeeTier) {
-      // cannot recommend, open options
-      setShowOptions(true);
-    } else {
-      setShowOptions(false);
-
-      recommended.current = true;
-      sendAnalyticsEvent(LiquidityEventName.SELECT_LIQUIDITY_POOL_FEE_TIER, {
-        action: FeePoolSelectAction.RECOMMENDED,
-        ...trace,
-      });
-
-      handleFeePoolSelect(largestUsageFeeTier);
-    }
-  }, [feeAmount, isLoading, isError, largestUsageFeeTier, handleFeePoolSelect, trace]);
-
-  useEffect(() => {
-    setShowOptions(isError);
-  }, [isError]);
+  const previousFeeAmount = usePrevious(feeAmount)
 
   useEffect(() => {
     if (feeAmount && previousFeeAmount !== feeAmount) {
-      setPulsing(true);
+      setPulsing(true)
     }
-  }, [previousFeeAmount, feeAmount]);
+  }, [previousFeeAmount, feeAmount])
 
   return (
     <AutoColumn gap="16px">
       <DynamicSection gap="md" disabled={disabled}>
-        <FocusedOutlineCard pulsing={pulsing} onAnimationEnd={() => setPulsing(false)} feeAmount={feeAmount}>
+        <FocusedOutlineCard pulsing={pulsing} onAnimationEnd={() => setPulsing(false)}>
           <RowBetween>
             <AutoColumn id="add-liquidity-selected-fee">
               {!feeAmount ? (
                 <>
-                  <ThemedText.DeprecatedLabel style={{ fontFamily: 'DM Sans', fontWeight: '500', fontSize: '16px' }}>
-                    <Trans>Select Fee Tier</Trans>
+                  <ThemedText.DeprecatedLabel>
+                    <Trans>Fee tier</Trans>
                   </ThemedText.DeprecatedLabel>
-                  <ThemedText.DeprecatedMain fontSize="12px" textAlign="left" style={{ fontFamily: 'DM Sans' }}>
+                  <ThemedText.DeprecatedMain fontWeight={485} fontSize="12px" textAlign="left">
                     <Trans>The % you will earn in fees.</Trans>
                   </ThemedText.DeprecatedMain>
                 </>
               ) : (
                 <>
                   <ThemedText.DeprecatedLabel className="selected-fee-label">
-                    <Trans>{FEE_AMOUNT_DETAIL[feeAmount].label}% Fee Tier</Trans>
+                    <Trans>{FEE_AMOUNT_DETAIL[feeAmount].label}% fee tier</Trans>
                   </ThemedText.DeprecatedLabel>
-                  {/* <Box
-                    style={{ width: 'fit-content', marginTop: '8px', backgroundColor: '#444', borderRadius: '4px' }}
-                    className="selected-fee-percentage"
-                  >
+                  <Box style={{ width: 'fit-content', marginTop: '8px' }} className="selected-fee-percentage">
                     {distributions && (
                       <FeeTierPercentageBadge
                         distributions={distributions}
@@ -173,38 +119,34 @@ export default function FeeSelector({ disabled = false,
                         poolState={poolsByFeeTier[feeAmount]}
                       />
                     )}
-                  </Box> */}
+                  </Box>
                 </>
               )}
             </AutoColumn>
 
-            {/* <ButtonGray onClick={() => setShowOptions(!showOptions)} width="auto" padding="4px" $borderRadius="6px">
+            <ButtonGray onClick={() => setShowOptions(!showOptions)} width="auto" padding="4px" $borderRadius="6px">
               {showOptions ? <Trans>Hide</Trans> : <Trans>Edit</Trans>}
-            </ButtonGray> */}
+            </ButtonGray>
           </RowBetween>
         </FocusedOutlineCard>
 
-        {chainId && (
+        {chainId && showOptions && (
           <Select>
             {[FeeAmount.LOWEST, FeeAmount.LOW, FeeAmount.MEDIUM, FeeAmount.HIGH].map((_feeAmount, i) => {
-              const { supportedChains } = FEE_AMOUNT_DETAIL[_feeAmount];
-              if (supportedChains.includes(chainId)) {
-                return (
-                  <FeeOption
-                    feeAmount={_feeAmount}
-                    active={feeAmount === _feeAmount}
-                    onClick={() => handleFeePoolSelectWithEvent(_feeAmount)}
-                    distributions={distributions}
-                    poolState={poolsByFeeTier[_feeAmount]}
-                    key={i}
-                  />
-                );
-              }
-              return null;
+              return (
+                <FeeOption
+                  feeAmount={_feeAmount}
+                  active={feeAmount === _feeAmount}
+                  onClick={() => handleFeePoolSelect(_feeAmount)}
+                  distributions={distributions}
+                  poolState={poolsByFeeTier[_feeAmount]}
+                  key={i}
+                />
+              )
             })}
           </Select>
         )}
       </DynamicSection>
     </AutoColumn>
-  );
+  )
 }
