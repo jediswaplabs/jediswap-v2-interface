@@ -28,7 +28,6 @@ import { usePairAdder } from '../../state/user/hooks'
 import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { Dots } from '../Pool/styled'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 enum Fields {
   TOKEN0 = 0,

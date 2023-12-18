@@ -12,7 +12,6 @@ import { useTotalSupply } from '../../hooks/useTotalSupply'
 import { useV2Pair } from '../../hooks/useV2Pairs'
 import { useTokenBalances } from '../connection/hooks'
 import { Field, typeInput } from './actions'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 export function useBurnState(): AppState['burn'] {
   return useAppSelector((state) => state.burn)

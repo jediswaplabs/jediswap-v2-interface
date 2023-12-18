@@ -17,7 +17,6 @@ import { AutoColumn } from '../Column'
 import Modal from '../Modal'
 import { LoadingView, SubmittedView } from '../ModalViews'
 import { RowBetween } from '../Row'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 const ContentWrapper = styled(AutoColumn)`
   width: 100%;

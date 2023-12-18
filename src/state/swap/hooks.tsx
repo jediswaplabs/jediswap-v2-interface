@@ -14,13 +14,14 @@ import { useUserSlippageTolerance, useUserSlippageToleranceWithDefault } from 's
 import { useCurrency } from '../../hooks/Tokens'
 import useENS from '../../hooks/useENS'
 import useParsedQueryString from '../../hooks/useParsedQueryString'
-import { isAddress, checkAddress } from '../../utils'
+import { isAddress } from '../../utils'
 import { useCurrencyBalances } from '../connection/hooks'
 import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies, typeInput } from './actions'
 import { SwapState } from './reducer'
 import { computeSlippageAdjustedAmounts } from 'utils/prices'
 import { useAddressNormalizer } from '../../hooks/useAddressNormalizer'
 import { useTradeExactIn, useTradeExactOut } from '../../hooks/Trades'
+import { isAddressValidForStarknet } from '../../utils/addresses'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
@@ -154,7 +155,7 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
       inputError = inputError ?? <Trans>Enter an amount</Trans>
     }
 
-    const formattedTo = checkAddress(to)
+    const formattedTo = isAddressValidForStarknet(to)
     if (!to || !formattedTo) {
       inputError = inputError ?? <Trans>Enter a recipient</Trans>
     } else if (

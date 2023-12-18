@@ -25,7 +25,6 @@ import { CardNoise } from '../earn/styled'
 import CurrencyLogo from '../Logo/CurrencyLogo'
 import { AutoRow, RowBetween, RowFixed } from '../Row'
 import { Dots } from '../swap/styled'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 export const FixedHeightRow = styled(RowBetween)`
   height: 24px;

@@ -14,7 +14,7 @@ import { useInterfaceMulticall } from '../../hooks/useContract'
 import { isAddress } from '../../utils'
 import { AccountInterface } from 'starknet'
 import { useAddressNormalizer } from '../../hooks/useAddressNormalizer'
-import isAddressValidForStarknet  from '../../utils/addresses'
+import {isAddressValidForStarknet}  from '../../utils/addresses'
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.

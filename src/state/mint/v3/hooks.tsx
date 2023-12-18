@@ -34,7 +34,6 @@ import {
   typeStartPriceInput,
 } from './actions'
 import { tryParseTick } from './utils'
-import { useAccountDetails } from 'hooks/starknet-react'
 
 export function useV3MintState(): AppState['mintV3'] {
   return useAppSelector((state) => state.mintV3)
