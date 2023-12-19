@@ -383,6 +383,8 @@ export function useV3DerivedMintInfo(
     typeof tickLower === 'number' && poolForPosition && poolForPosition.tickCurrent <= tickLower
   )
 
+  console.log(invalidRange, typeof tickLower, typeof tickUpper, 'invalidRange')
+
   // sorted for token order
   const depositADisabled =
     invalidRange ||

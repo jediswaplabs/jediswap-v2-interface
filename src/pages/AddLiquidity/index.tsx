@@ -3,7 +3,7 @@ import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount, Percent, validateAndParseAddress } from '@vnaysn/jediswap-sdk-core'
-import { FeeAmount, NonfungiblePositionManager, toHex } from '@vnaysn/jediswap-sdk-v3'
+import { FeeAmount, NonfungiblePositionManager, Position, toHex } from '@vnaysn/jediswap-sdk-v3'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -68,7 +68,8 @@ import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, Style
 import { useAccountDetails } from 'hooks/starknet-react'
 import { NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/addresses'
 import { useContractWrite, useProvider } from '@starknet-react/core'
-import { Call, CallData, num } from 'starknet'
+import { Call, CallData, hash, num } from 'starknet'
+import JSBI from 'jsbi'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -156,6 +157,7 @@ function AddLiquidity() {
     baseCurrency ?? undefined,
     existingPosition
   )
+
   const invalidPool = false
 
   const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
@@ -231,53 +233,62 @@ function AddLiquidity() {
 
       // adjust for slippage
       const minimumAmounts = position.mintAmountsWithSlippage(allowedSlippage)
-      const amount0Min = toHex(minimumAmounts.amount0)
-      const amount1Min = toHex(minimumAmounts.amount1)
+      const amount0Min = minimumAmounts.amount0
+      const amount1Min = minimumAmounts.amount1
 
-      let value: string = num.toHex(0)
-      const mintData = {
-        token0: position.pool.token0.address,
-        token1: position.pool.token1.address,
-        fee: position.pool.fee,
-        tickLower: position.tickLower,
-        tickUpper: position.tickUpper,
-        amount0Desired: toHex(amount0Desired),
-        amount1Desired: toHex(amount1Desired),
-        amount0Min,
-        amount1Min,
-        recipient: account,
-        deadline,
+      if (noLiquidity) {
+        const mintData = {
+          token0: position.pool.token0.address,
+          token1: position.pool.token1.address,
+          fee: position.pool.fee,
+          sqrt_price_X96: BigNumber.from(num.toHex(JSBI.toNumber(position?.pool?.sqrtRatioX96))),
+        }
+
+        const callData = CallData.compile(mintData)
+        const calls = {
+          contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+          entrypoint: 'create_and_initialize_pool',
+          calldata: callData,
+        }
+        setMintCallData([calls])
+      } else {
+        const hasExistingLiquidity = hasExistingPosition && tokenId
+        let mintData = {}
+        if (hasExistingLiquidity) {
+          mintData = {
+            tokenId,
+            amount0Desired,
+            amount1Desired,
+            amount0Min,
+            amount1Min,
+            deadline,
+          }
+        } else {
+          mintData = {
+            token0: position.pool.token0.address,
+            token1: position.pool.token1.address,
+            fee: position.pool.fee,
+            tickLower: position.tickLower,
+            tickUpper: position.tickUpper,
+            amount0Desired,
+            amount1Desired,
+            amount0Min,
+            amount1Min,
+            recipient: account,
+            deadline,
+          }
+        }
+
+        const callData = CallData.compile(mintData)
+
+        const calls = {
+          contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+          entrypoint: hasExistingLiquidity ? 'increase_liquidity' : 'mint',
+          calldata: callData,
+        }
+
+        setMintCallData([calls])
       }
-
-      const callData = CallData.compile(mintData)
-
-      const calls = {
-        contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
-        entrypoint: 'mint',
-        calldata: callData,
-      }
-
-      setMintCallData([calls])
-
-      // const { calldata, value } =
-      //   hasExistingPosition && tokenId
-      //     ? NonfungiblePositionManager.addCallParameters(position, {
-      //         tokenId,
-      //         slippageTolerance: allowedSlippage,
-      //         deadline: deadline.toString(),
-      //       })
-      //     : NonfungiblePositionManager.addCallParameters(position, {
-      //         slippageTolerance: allowedSlippage,
-      //         recipient: account,
-      //         deadline: deadline.toString(),
-      //         createPool: noLiquidity,
-      //       })
-
-      // let txn: { to: string; data: string; value: string } = {
-      //   to: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
-      //   data: calldata,
-      //   value,
-      // }
 
       setAttemptingTxn(true)
     } else {

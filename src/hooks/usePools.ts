@@ -141,7 +141,6 @@ export function usePools(
       }),
     [poolTokens]
   )
-  console.log('🚀 ~ file: usePools.ts:144 ~ pool:', poolAddress)
 
   // if (!poolAddress || !poolAddress.length) return [PoolState.NOT_EXISTS, null]
 
@@ -186,15 +185,6 @@ export function usePools(
       if (!tick || !liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
 
       try {
-        console.log(
-          token0,
-          token1,
-          fee,
-          sqrtPriceHex,
-          liquidityHex,
-          Number((tick as any).mag),
-          'token0, token1, fee, sqrtPriceHex, liquidityHex, Number((tick as any).mag)'
-        )
         const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, Number((tick as any).mag))
         return [PoolState.EXISTS, pool]
       } catch (error) {
