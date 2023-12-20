@@ -4,7 +4,7 @@ import { ChainId, Currency, NativeCurrency, Percent, Token } from '@vnaysn/jedis
 // import { fortmatic, injected, portis, walletconnect, walletlink, argentX } from '../connectors'
 import JSBI from 'jsbi'
 
-export const DEFAULT_CHAIN_ID = ChainId.MAINNET
+export const DEFAULT_CHAIN_ID = ChainId.GOERLI
 export const NONFUNGIBLE_POSITION_MANAGER_ADDRESSES = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
 export const DEFAULT_POOL_ADDRESS = '0x0087c11c97290c2a57f579d306675280032e5261b3d4bb681c90f1cd2bf5d392'
 export const NONFUNGIBLE_POOL_MANAGER_ADDRESS = '0x01bd2d850c1e328891365d67c76fbdfc446be59ea44baad4fb19364da29de898'

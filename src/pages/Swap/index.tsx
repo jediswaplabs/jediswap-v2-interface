@@ -662,7 +662,7 @@ export function Swap({
               id="swap-button"
               data-testid="swap-button"
               size={ButtonSize.large}
-              disabled={!getIsReviewableQuote(trade, tradeState, swapInputError)}
+              disabled={!getIsReviewableQuote(trade, undefined, swapInputError)}
               error={!swapInputError && priceImpactSeverity > 2 && allowance.state === AllowanceState.ALLOWED}
             >
               {swapInputError ||

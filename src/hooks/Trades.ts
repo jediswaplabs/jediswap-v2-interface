@@ -13,7 +13,6 @@ function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): [Pair[],
   const { account, chainId } = useAccountDetails()
 
   const bases: Token[] = useMemo(() => (chainId ? BASES_TO_CHECK_TRADES_AGAINST[chainId] : []), [chainId])
-
   const [tokenA, tokenB] = chainId
     ? [wrappedCurrency(currencyA, chainId), wrappedCurrency(currencyB, chainId)]
     : [undefined, undefined]
@@ -80,7 +79,7 @@ export function useTradeExactIn(currencyAmountIn?: CurrencyAmount, currencyOut?:
       }
       return null
     }, [allowedPairs, currencyAmountIn, currencyOut]),
-    pairLoading || allowedPairs.length === 0
+    pairLoading 
   ]
 }
 
@@ -100,6 +99,6 @@ export function useTradeExactOut(currencyIn?: Currency, currencyAmountOut?: Curr
       }
       return null
     }, [allowedPairs, currencyIn, currencyAmountOut]),
-    pairLoading || allowedPairs.length === 0
+    pairLoading 
   ]
 }

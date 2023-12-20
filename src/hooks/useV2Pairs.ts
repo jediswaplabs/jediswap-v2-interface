@@ -8,7 +8,6 @@ import JediswapPairABI from '../constants/abis/Pair.json'
 import { useMultipleContractSingleData } from '../state/multicall/hooks'
 import { V2_FACTORY_ADDRESSES } from 'constants/addresses'
 
-const PAIR_INTERFACE = new Interface(IUniswapV2PairJSON.abi)
 
 export enum PairState {
   LOADING,
@@ -24,36 +23,44 @@ export function useV2Pairs(currencies: [Currency | undefined, Currency | undefin
   )
 
   const pairAddresses = useMemo(
-    () => tokens.map(([tokenA, tokenB]) => (tokenA
-          && tokenB
-          && tokenA.chainId === tokenB.chainId
-          && !tokenA.equals(tokenB)
-          && V2_FACTORY_ADDRESSES[tokenA.chainId]
-      ? computePairAddress({ factoryAddress: V2_FACTORY_ADDRESSES[tokenA.chainId], tokenA, tokenB })
-      : undefined)),
+    () =>
+      tokens.map(([tokenA, tokenB]) => {
+        return tokenA &&
+          tokenB &&
+          tokenA.chainId === tokenB.chainId &&
+          !tokenA.equals(tokenB) &&
+          V2_FACTORY_ADDRESSES[tokenA.chainId]
+          ? computePairAddress({ factoryAddress: V2_FACTORY_ADDRESSES[tokenA.chainId], tokenA, tokenB })
+          : undefined
+      }),
     [tokens]
   )
 
-  const results = useMultipleContractSingleData(pairAddresses, JediswapPairABI, 'getReserves')
+  console.log({pairAddresses})
 
-  return useMemo(() => results.map((result, i) => {
-    const { result: reserves, loading } = result
-    const tokenA = tokens[i][0]
-    const tokenB = tokens[i][1]
+  const results = useMultipleContractSingleData(pairAddresses, JediswapPairABI, 'get_reserves')
+  console.log({results})
 
-    if (loading) { return [PairState.LOADING, null] }
-    if (!tokenA || !tokenB || tokenA.equals(tokenB)) { return [PairState.INVALID, null] }
-    if (!reserves) { return [PairState.NOT_EXISTS, null] }
-    const { reserve0, reserve1 } = reserves
-    const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
-    return [
-      PairState.EXISTS,
-      new Pair(
-        CurrencyAmount.fromRawAmount(token0, reserve0.toString()),
-        CurrencyAmount.fromRawAmount(token1, reserve1.toString())
-      )
-    ]
-  }), [results, tokens])
+  return useMemo(() => {
+    return results.map((result, i) => {
+      const { result: reserves, loading } = result
+      const tokenA = tokens[i][0]
+      const tokenB = tokens[i][1]
+
+      if (loading) return [PairState.LOADING, null]
+      if (!tokenA || !tokenB || tokenA.equals(tokenB)) return [PairState.INVALID, null]
+      if (!reserves) return [PairState.NOT_EXISTS, null]
+      const { reserve0, reserve1 } = reserves
+      const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
+      return [
+        PairState.EXISTS,
+        new Pair(
+          CurrencyAmount.fromRawAmount(token0, reserve0.toString()),
+          CurrencyAmount.fromRawAmount(token1, reserve1.toString())
+        ),
+      ]
+    })
+  }, [results, tokens])
 }
 
 export function useV2Pair(tokenA?: Currency, tokenB?: Currency): [PairState, Pair | null] {

@@ -1,167 +1,248 @@
 [
   {
-    "data": [
-      {
-        "name": "token0",
-        "type": "felt"
-      },
-      {
-        "name": "token1",
-        "type": "felt"
-      },
-      {
-        "name": "pair",
-        "type": "felt"
-      },
-      {
-        "name": "total_pairs",
-        "type": "felt"
-      }
-    ],
-    "keys": [],
-    "name": "pair_created",
-    "type": "event"
+    "name": "JediSwapV2FactoryImpl",
+    "type": "impl",
+    "interface_name": "jediswap_v2_core::jediswap_v2_factory::IJediSwapV2Factory"
   },
   {
-    "inputs": [
+    "name": "jediswap_v2_core::jediswap_v2_factory::IJediSwapV2Factory",
+    "type": "interface",
+    "items": [
       {
-        "name": "pair_contract_class_hash",
-        "type": "felt"
+        "name": "fee_amount_tick_spacing",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "fee",
+            "type": "core::integer::u32"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u32"
+          }
+        ],
+        "state_mutability": "view"
       },
       {
-        "name": "fee_to_setter",
-        "type": "felt"
+        "name": "get_pool",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "token_a",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "token_b",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "fee",
+            "type": "core::integer::u32"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "create_pool",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "token_a",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "token_b",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "fee",
+            "type": "core::integer::u32"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "enable_fee_amount",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "fee",
+            "type": "core::integer::u32"
+          },
+          {
+            "name": "tick_spacing",
+            "type": "core::integer::u32"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
       }
-    ],
+    ]
+  },
+  {
+    "name": "OwnableImpl",
+    "type": "impl",
+    "interface_name": "openzeppelin::access::ownable::interface::IOwnable"
+  },
+  {
+    "name": "openzeppelin::access::ownable::interface::IOwnable",
+    "type": "interface",
+    "items": [
+      {
+        "name": "owner",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "transfer_ownership",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "new_owner",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "renounce_ownership",
+        "type": "function",
+        "inputs": [],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
     "name": "constructor",
-    "outputs": [],
-    "type": "constructor"
-  },
-  {
+    "type": "constructor",
     "inputs": [
       {
+        "name": "owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "pool_class_hash",
+        "type": "core::starknet::class_hash::ClassHash"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "jediswap_v2_core::jediswap_v2_factory::JediSwapV2Factory::PoolCreated",
+    "type": "event",
+    "members": [
+      {
+        "kind": "data",
         "name": "token0",
-        "type": "felt"
+        "type": "core::starknet::contract_address::ContractAddress"
       },
       {
+        "kind": "data",
         "name": "token1",
-        "type": "felt"
-      }
-    ],
-    "name": "get_pair",
-    "outputs": [
-      {
-        "name": "pair",
-        "type": "felt"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "get_all_pairs",
-    "outputs": [
-      {
-        "name": "all_pairs_len",
-        "type": "felt"
+        "type": "core::starknet::contract_address::ContractAddress"
       },
       {
-        "name": "all_pairs",
-        "type": "felt*"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "get_num_of_pairs",
-    "outputs": [
-      {
-        "name": "num_of_pairs",
-        "type": "felt"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "get_fee_to",
-    "outputs": [
-      {
-        "name": "address",
-        "type": "felt"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "get_fee_to_setter",
-    "outputs": [
-      {
-        "name": "address",
-        "type": "felt"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "get_pair_contract_class_hash",
-    "outputs": [
-      {
-        "name": "class_hash",
-        "type": "felt"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "name": "tokenA",
-        "type": "felt"
+        "kind": "data",
+        "name": "fee",
+        "type": "core::integer::u32"
       },
       {
-        "name": "tokenB",
-        "type": "felt"
-      }
-    ],
-    "name": "create_pair",
-    "outputs": [
+        "kind": "data",
+        "name": "tick_spacing",
+        "type": "core::integer::u32"
+      },
       {
-        "name": "pair",
-        "type": "felt"
+        "kind": "data",
+        "name": "pool",
+        "type": "core::starknet::contract_address::ContractAddress"
       }
-    ],
-    "type": "function"
+    ]
   },
   {
-    "inputs": [
+    "kind": "struct",
+    "name": "jediswap_v2_core::jediswap_v2_factory::JediSwapV2Factory::FeeAmountEnabled",
+    "type": "event",
+    "members": [
       {
-        "name": "new_fee_to",
-        "type": "felt"
+        "kind": "data",
+        "name": "fee",
+        "type": "core::integer::u32"
+      },
+      {
+        "kind": "data",
+        "name": "tick_spacing",
+        "type": "core::integer::u32"
       }
-    ],
-    "name": "set_fee_to",
-    "outputs": [],
-    "type": "function"
+    ]
   },
   {
-    "inputs": [
+    "kind": "struct",
+    "name": "openzeppelin::access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+    "type": "event",
+    "members": [
       {
-        "name": "new_fee_to_setter",
-        "type": "felt"
+        "kind": "data",
+        "name": "previous_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "data",
+        "name": "new_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
       }
-    ],
-    "name": "set_fee_to_setter",
-    "outputs": [],
-    "type": "function"
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "openzeppelin::access::ownable::ownable::OwnableComponent::Event",
+    "type": "event",
+    "variants": [
+      {
+        "kind": "nested",
+        "name": "OwnershipTransferred",
+        "type": "openzeppelin::access::ownable::ownable::OwnableComponent::OwnershipTransferred"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "jediswap_v2_core::jediswap_v2_factory::JediSwapV2Factory::Event",
+    "type": "event",
+    "variants": [
+      {
+        "kind": "nested",
+        "name": "PoolCreated",
+        "type": "jediswap_v2_core::jediswap_v2_factory::JediSwapV2Factory::PoolCreated"
+      },
+      {
+        "kind": "nested",
+        "name": "FeeAmountEnabled",
+        "type": "jediswap_v2_core::jediswap_v2_factory::JediSwapV2Factory::FeeAmountEnabled"
+      },
+      {
+        "kind": "flat",
+        "name": "OwnableEvent",
+        "type": "openzeppelin::access::ownable::ownable::OwnableComponent::Event"
+      }
+    ]
   }
 ]

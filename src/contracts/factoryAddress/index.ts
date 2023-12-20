@@ -5,7 +5,7 @@ import FACTORY_ABI from './abi.json'
 
 const FACTORY_ADDRESS: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: '0xdad44c139a476c7a17fc8141e6db680e9abc9f56fe249a105094c44382c2fd',
-  [ChainId.GOERLI]: '0x262744f8cea943dadc8823c318eaf24d0110dee2ee8026298f49a3bc58ed74a',
+  [ChainId.GOERLI]: '0x06d394e77603407976810011a263ed7c040dc369ade2344a75b1caeb47625a4d',
 }
 
 export { FACTORY_ABI, FACTORY_ADDRESS }
