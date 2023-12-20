@@ -13,6 +13,7 @@ import { useAllPairs } from 'state/pairs/hooks'
 import { BigNumberish, CallData, ec, hash, num, uint256, validateAndParseAddress } from 'starknet'
 import { useContractRead } from '@starknet-react/core'
 import POOL_ABI from 'contracts/pool/abi.json'
+import FACTORY_ABI from 'contracts/factoryAddress/abi.json'
 import { DEFAULT_POOL_ADDRESS, DEFAULT_POOL_HASH, FACTORY_ADDRESS } from 'constants/tokens'
 
 // const POOL_STATE_INTERFACE = new Interface(IUniswapV3PoolStateJSON.abi) as IUniswapV3PoolStateInterface
@@ -129,9 +130,13 @@ export function usePools(
             BigInt(feeAmount),
           ])
 
-          const contructorCalldata = CallData.compile([tokens[0].address, tokens[1].address, feeAmount, 2])
+          const contructorCalldata = CallData.compile([tokens[0].address, tokens[1].address, feeAmount, feeAmount / 50])
 
           calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS)
+          console.log(
+            '🚀 ~ file: usePools.ts:141 ~ poolTokens.map ~ calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS):',
+            calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS)
+          )
 
           return tokenA && tokenB && !tokenA.equals(tokenB)
             ? calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS)

@@ -66,10 +66,11 @@ import { Dots } from '../Pool/styled'
 import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
 import { useAccountDetails } from 'hooks/starknet-react'
-import { NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/addresses'
 import { useContractWrite, useProvider } from '@starknet-react/core'
-import { Call, CallData, hash, num } from 'starknet'
+import { BigNumberish, cairo, Call, CallData, hash, num } from 'starknet'
 import JSBI from 'jsbi'
+import { toI32 } from 'utils/toI32'
+import { useApprovalCall } from 'hooks/useApproveCall'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -165,7 +166,7 @@ function AddLiquidity() {
 
   const [mintCallData, setMintCallData] = useState<Call[]>([])
 
-  const { writeAsync, data } = useContractWrite({
+  const { writeAsync, data: txData } = useContractWrite({
     calls: mintCallData,
   })
 
@@ -176,7 +177,8 @@ function AddLiquidity() {
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
 
   // txn values
-  const deadline = useTransactionDeadline() // custom from users settings
+  // const deadline = useTransactionDeadline() // custom from users settings
+  const deadline = '1705014714'
 
   const [txHash, setTxHash] = useState<string>('')
 
@@ -190,6 +192,10 @@ function AddLiquidity() {
     [Field.CURRENCY_A]: useStablecoinValue(parsedAmounts[Field.CURRENCY_A]),
     [Field.CURRENCY_B]: useStablecoinValue(parsedAmounts[Field.CURRENCY_B]),
   }
+
+  // check whether the user has approved the router on the tokens
+  const approvalACallback = useApprovalCall(parsedAmounts[Field.CURRENCY_A], NONFUNGIBLE_POOL_MANAGER_ADDRESS)
+  const approvalBCallback = useApprovalCall(parsedAmounts[Field.CURRENCY_B], NONFUNGIBLE_POOL_MANAGER_ADDRESS)
 
   // get the max amounts user can add
   const maxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
@@ -213,8 +219,24 @@ function AddLiquidity() {
   )
 
   useEffect(() => {
+    console.log(txData, 'txData')
+  }, [txData])
+
+  useEffect(() => {
     if (mintCallData) {
-      writeAsync().then((tx) => console.log(tx))
+      writeAsync()
+        .then((tx) => {
+          // if (tx.transaction_hash) {
+          //   if (response) {
+          //     dispatch(setIsWalletClaimedAnyNFT(response));
+          //     setNFTClaimedByUser(true);
+          //     setHash(tx.transaction_hash);
+          //   }
+          // }
+        })
+        .catch((err) => {
+          console.log(err?.message)
+        })
     }
   }, [mintCallData])
 
@@ -228,6 +250,9 @@ function AddLiquidity() {
     }
 
     if (position && account && deadline) {
+      const approvalA = approvalACallback()
+      const approvalB = approvalBCallback()
+
       // get amounts
       const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
 
@@ -235,13 +260,12 @@ function AddLiquidity() {
       const minimumAmounts = position.mintAmountsWithSlippage(allowedSlippage)
       const amount0Min = minimumAmounts.amount0
       const amount1Min = minimumAmounts.amount1
-
       if (noLiquidity) {
         const mintData = {
           token0: position.pool.token0.address,
           token1: position.pool.token1.address,
           fee: position.pool.fee,
-          sqrt_price_X96: BigNumber.from(num.toHex(JSBI.toNumber(position?.pool?.sqrtRatioX96))),
+          sqrt_price_X96: cairo.uint256(position?.pool?.sqrtRatioX96.toString()),
         }
 
         const callData = CallData.compile(mintData)
@@ -268,14 +292,14 @@ function AddLiquidity() {
             token0: position.pool.token0.address,
             token1: position.pool.token1.address,
             fee: position.pool.fee,
-            tickLower: position.tickLower,
-            tickUpper: position.tickUpper,
-            amount0Desired,
-            amount1Desired,
-            amount0Min,
-            amount1Min,
+            tick_lower: toI32(position.tickLower),
+            tick_upper: toI32(position.tickUpper),
+            amount0_desired: cairo.uint256(amount0Desired.toString()),
+            amount1_desired: cairo.uint256(amount1Desired.toString()),
+            amount0_min: cairo.uint256(amount0Min.toString()),
+            amount1_min: cairo.uint256(amount0Min.toString()),
             recipient: account,
-            deadline,
+            deadline: cairo.felt(deadline.toString()),
           }
         }
 

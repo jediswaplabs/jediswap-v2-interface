@@ -352,7 +352,7 @@
         "state_mutability": "external"
       },
       {
-        "name": "create_and_initialize_pool_if_necessary",
+        "name": "create_and_initialize_pool",
         "type": "function",
         "inputs": [
           {
