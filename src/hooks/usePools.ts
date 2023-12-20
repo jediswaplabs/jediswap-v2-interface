@@ -133,11 +133,6 @@ export function usePools(
           const contructorCalldata = CallData.compile([tokens[0].address, tokens[1].address, feeAmount, feeAmount / 50])
 
           calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS)
-          console.log(
-            '🚀 ~ file: usePools.ts:141 ~ poolTokens.map ~ calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS):',
-            calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS)
-          )
-
           return tokenA && tokenB && !tokenA.equals(tokenB)
             ? calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS)
             : undefined
@@ -188,7 +183,6 @@ export function usePools(
       if (!tokens) return [PoolState.INVALID, null]
       const [token0, token1, fee] = tokens
       if (!tick || !liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
-
       try {
         const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, Number((tick as any).mag))
         return [PoolState.EXISTS, pool]

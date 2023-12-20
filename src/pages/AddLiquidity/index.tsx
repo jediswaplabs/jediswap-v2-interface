@@ -196,7 +196,6 @@ function AddLiquidity() {
   // check whether the user has approved the router on the tokens
   const approvalACallback = useApprovalCall(parsedAmounts[Field.CURRENCY_A], NONFUNGIBLE_POOL_MANAGER_ADDRESS)
   const approvalBCallback = useApprovalCall(parsedAmounts[Field.CURRENCY_B], NONFUNGIBLE_POOL_MANAGER_ADDRESS)
-  console.log(parsedAmounts[Field.CURRENCY_A], 'parsedAmounts[Field.CURRENCY_A]')
   // get the max amounts user can add
   const maxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
     (accumulator, field) => ({
@@ -217,6 +216,9 @@ function AddLiquidity() {
   const allowedSlippage = useUserSlippageToleranceWithDefault(
     outOfRange ? ZERO_PERCENT : DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE
   )
+
+  console.log(noLiquidity, 'noliquidity')
+  console.log(invalidRange, outOfRange, ' invalidRange, outOfRange,')
 
   useEffect(() => {
     console.log(txData, 'txData')
@@ -288,7 +290,7 @@ function AddLiquidity() {
           amount0_desired: cairo.uint256(amount0Desired.toString()),
           amount1_desired: cairo.uint256(amount1Desired.toString()),
           amount0_min: cairo.uint256(amount0Min.toString()),
-          amount1_min: cairo.uint256(amount0Min.toString()),
+          amount1_min: cairo.uint256(amount1Min.toString()),
           recipient: account,
           deadline: cairo.felt(deadline.toString()),
         }
@@ -298,11 +300,6 @@ function AddLiquidity() {
           entrypoint: 'mint',
           calldata: mintCallData,
         }
-
-        console.log([icalls, approvalA, approvalB, mcalls], 'dfkdnfkdnkfdn')
-
-        // debugger
-
         setMintCallData([icalls, approvalA, approvalB, mcalls])
       } else {
         const hasExistingLiquidity = hasExistingPosition && tokenId
@@ -321,11 +318,11 @@ function AddLiquidity() {
 
         const calls = {
           contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
-          entrypoint: hasExistingLiquidity ? 'increase_liquidity' : 'mint',
+          entrypoint: 'increase_liquidity',
           calldata: callData,
         }
 
-        setMintCallData([calls])
+        setMintCallData([approvalA, approvalB, calls])
       }
 
       setAttemptingTxn(true)
@@ -697,7 +694,7 @@ function AddLiquidity() {
                       ticksAtLimit={ticksAtLimit}
                     />
 
-                    {/*  {outOfRange && (
+                    {outOfRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
                         <RowBetween>
                           <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
@@ -709,9 +706,8 @@ function AddLiquidity() {
                           </ThemedText.DeprecatedYellow>
                         </RowBetween>
                       </YellowCard>
-                    )} */}
-
-                    {/* {invalidRange && (
+                    )}
+                    {invalidRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
                         <RowBetween>
                           <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
@@ -720,7 +716,7 @@ function AddLiquidity() {
                           </ThemedText.DeprecatedYellow>
                         </RowBetween>
                       </YellowCard>
-                    )} */}
+                    )}
                   </DynamicSection>
 
                   <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
