@@ -6,14 +6,10 @@ import { DEFAULT_CHAIN_ID, WETH } from 'constants/tokens'
 import ERC20_ABI from 'abis/erc20.json'
 
 export function useApprovalCall(amountToApprove?: CurrencyAmount<Currency>, spender?: string): () => Call | null {
-  console.log(amountToApprove, 'amountToApprove')
+  console.log(amountToApprove?.currency, 'amountToApprove')
   const { account, chainId } = useAccountDetails()
-  const token: Token | undefined =
-    amountToApprove instanceof TokenAmount
-      ? amountToApprove.token
-      : amountToApprove?.currency?.name === 'ETHER'
-      ? WETH[chainId ?? DEFAULT_CHAIN_ID]
-      : undefined
+  const token: Token | undefined = amountToApprove?.currency?.isToken ? amountToApprove.currency : undefined
+  console.log('🚀 ~ file: useApproveCall.ts:12 ~ useApprovalCall ~ token:', token)
 
   return useCallback(() => {
     if (!token) {
@@ -46,6 +42,7 @@ export function useApprovalCall(amountToApprove?: CurrencyAmount<Currency>, spen
       entrypoint: 'approve',
       calldata: approveCalldata,
     }
+    console.log('🚀 ~ file: useApproveCall.ts:50 ~ returnuseCallback ~ approveCall:', approveCall)
 
     return approveCall
   }, [amountToApprove, spender, token])

@@ -196,7 +196,7 @@ function AddLiquidity() {
   // check whether the user has approved the router on the tokens
   const approvalACallback = useApprovalCall(parsedAmounts[Field.CURRENCY_A], NONFUNGIBLE_POOL_MANAGER_ADDRESS)
   const approvalBCallback = useApprovalCall(parsedAmounts[Field.CURRENCY_B], NONFUNGIBLE_POOL_MANAGER_ADDRESS)
-
+  console.log(parsedAmounts[Field.CURRENCY_A], 'parsedAmounts[Field.CURRENCY_A]')
   // get the max amounts user can add
   const maxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
     (accumulator, field) => ({
@@ -253,6 +253,8 @@ function AddLiquidity() {
       const approvalA = approvalACallback()
       const approvalB = approvalBCallback()
 
+      if (!approvalA || !approvalB) return
+
       // get amounts
       const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
 
@@ -261,20 +263,47 @@ function AddLiquidity() {
       const amount0Min = minimumAmounts.amount0
       const amount1Min = minimumAmounts.amount1
       if (noLiquidity) {
-        const mintData = {
+        //create and initialize pool
+        const initializeData = {
           token0: position.pool.token0.address,
           token1: position.pool.token1.address,
           fee: position.pool.fee,
           sqrt_price_X96: cairo.uint256(position?.pool?.sqrtRatioX96.toString()),
         }
 
-        const callData = CallData.compile(mintData)
-        const calls = {
+        const initializeCallData = CallData.compile(initializeData)
+        const icalls = {
           contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
           entrypoint: 'create_and_initialize_pool',
-          calldata: callData,
+          calldata: initializeCallData,
         }
-        setMintCallData([calls])
+
+        //mint position
+        const mintData = {
+          token0: position.pool.token0.address,
+          token1: position.pool.token1.address,
+          fee: position.pool.fee,
+          tick_lower: toI32(position.tickLower),
+          tick_upper: toI32(position.tickUpper),
+          amount0_desired: cairo.uint256(amount0Desired.toString()),
+          amount1_desired: cairo.uint256(amount1Desired.toString()),
+          amount0_min: cairo.uint256(amount0Min.toString()),
+          amount1_min: cairo.uint256(amount0Min.toString()),
+          recipient: account,
+          deadline: cairo.felt(deadline.toString()),
+        }
+        const mintCallData = CallData.compile(mintData)
+        const mcalls = {
+          contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+          entrypoint: 'mint',
+          calldata: mintCallData,
+        }
+
+        console.log([icalls, approvalA, approvalB, mcalls], 'dfkdnfkdnkfdn')
+
+        // debugger
+
+        setMintCallData([icalls, approvalA, approvalB, mcalls])
       } else {
         const hasExistingLiquidity = hasExistingPosition && tokenId
         let mintData = {}
@@ -287,22 +316,7 @@ function AddLiquidity() {
             amount1Min,
             deadline,
           }
-        } else {
-          mintData = {
-            token0: position.pool.token0.address,
-            token1: position.pool.token1.address,
-            fee: position.pool.fee,
-            tick_lower: toI32(position.tickLower),
-            tick_upper: toI32(position.tickUpper),
-            amount0_desired: cairo.uint256(amount0Desired.toString()),
-            amount1_desired: cairo.uint256(amount1Desired.toString()),
-            amount0_min: cairo.uint256(amount0Min.toString()),
-            amount1_min: cairo.uint256(amount0Min.toString()),
-            recipient: account,
-            deadline: cairo.felt(deadline.toString()),
-          }
         }
-
         const callData = CallData.compile(mintData)
 
         const calls = {
