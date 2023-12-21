@@ -28,6 +28,7 @@ import NoPositionsIcon from '../../assets/images/noPosition.png'
 import { useContractRead } from '@starknet-react/core'
 import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
 import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import { cairo } from 'starknet'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -307,15 +308,9 @@ export default function Pool() {
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
 
   const { positions, loading: positionsLoading } = useV3Positions(address)
-
-  const {
-    data: positionsV3,
-    isError,
-    isLoading,
-    error,
-  } = useContractRead({
-    functionName: 'balance_of',
-    args: [address as string],
+  const { data: positionsV3 } = useContractRead({
+    functionName: 'get_position',
+    args: [cairo.uint256(1)],
     abi: NFTPositionManagerABI,
     address: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
     watch: true,
