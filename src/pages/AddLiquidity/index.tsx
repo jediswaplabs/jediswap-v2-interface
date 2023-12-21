@@ -217,9 +217,6 @@ function AddLiquidity() {
     outOfRange ? ZERO_PERCENT : DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE
   )
 
-  console.log(noLiquidity, 'noliquidity')
-  console.log(invalidRange, outOfRange, ' invalidRange, outOfRange,')
-
   useEffect(() => {
     console.log(txData, 'txData')
   }, [txData])
@@ -227,7 +224,8 @@ function AddLiquidity() {
   useEffect(() => {
     if (mintCallData) {
       writeAsync()
-        .then((tx) => {
+        .then((response) => {
+          setAttemptingTxn(false)
           // if (tx.transaction_hash) {
           //   if (response) {
           //     dispatch(setIsWalletClaimedAnyNFT(response));
@@ -238,6 +236,7 @@ function AddLiquidity() {
         })
         .catch((err) => {
           console.log(err?.message)
+          setAttemptingTxn(false)
         })
     }
   }, [mintCallData])
@@ -302,16 +301,16 @@ function AddLiquidity() {
         }
         setMintCallData([icalls, approvalA, approvalB, mcalls])
       } else {
-        const hasExistingLiquidity = hasExistingPosition && tokenId
+        const hasExistingLiquidity = hasExistingPosition
         let mintData = {}
         if (hasExistingLiquidity) {
           mintData = {
-            tokenId,
-            amount0Desired,
-            amount1Desired,
-            amount0Min,
-            amount1Min,
-            deadline,
+            tokenId: cairo.uint256(1),
+            amount0_desired: cairo.uint256(amount0Desired.toString()),
+            amount1_desired: cairo.uint256(amount1Desired.toString()),
+            amount0_min: cairo.uint256(amount0Min.toString()),
+            amount1_min: cairo.uint256(amount1Min.toString()),
+            deadline: cairo.felt(deadline.toString()),
           }
         }
         const callData = CallData.compile(mintData)
