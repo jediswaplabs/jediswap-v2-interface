@@ -226,13 +226,9 @@ function AddLiquidity() {
       writeAsync()
         .then((response) => {
           setAttemptingTxn(false)
-          // if (tx.transaction_hash) {
-          //   if (response) {
-          //     dispatch(setIsWalletClaimedAnyNFT(response));
-          //     setNFTClaimedByUser(true);
-          //     setHash(tx.transaction_hash);
-          //   }
-          // }
+          if (response?.transaction_hash) {
+            setTxHash(response.transaction_hash)
+          }
         })
         .catch((err) => {
           console.log(err?.message)
@@ -626,14 +622,14 @@ function AddLiquidity() {
                     </AutoColumn>{' '}
                   </>
                 )}
-                {/* {hasExistingPosition && existingPosition && (
+                {hasExistingPosition && existingPosition && (
                   <PositionPreview
                     position={existingPosition}
                     title={<Trans>Selected range</Trans>}
                     inRange={!outOfRange}
                     ticksAtLimit={ticksAtLimit}
                   />
-                )} */}
+                )}
               </AutoColumn>
 
               {!hasExistingPosition && (

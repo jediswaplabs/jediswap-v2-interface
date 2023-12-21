@@ -192,9 +192,10 @@ export function useToken(tokenAddress?: string | null): Token | null | undefined
 }
 
 export function useCurrency(currencyId: Maybe<string>, chainId?: ChainId): Currency | undefined {
-  const isETH = currencyId?.toUpperCase() === 'ETH'
+  // const isETH = currencyId?.toUpperCase() === 'ETH'
   const { chainId: connectedChainId } = useAccountDetails()
-  if (isETH) return WETH[chainId ?? connectedChainId]
+  // if (isETH) return WETH[chainId ?? connectedChainId]
   const tokens = useDefaultActiveTokens(chainId ?? connectedChainId)
+  console.log('🚀 ~ file: Tokens.ts:202 ~ useCurrency ~ tokens:', tokens)
   return useCurrencyFromMap(tokens, chainId ?? connectedChainId, currencyId)
 }

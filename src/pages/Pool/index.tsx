@@ -315,6 +315,7 @@ export default function Pool() {
     address: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
     watch: true,
   })
+  console.log('🚀 ~ file: index.tsx:318 ~ Pool ~ positionsV3:', positionsV3)
 
   const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
     (acc, p) => {
