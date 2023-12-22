@@ -4898,6 +4898,11 @@
   resolved "https://registry.yarnpkg.com/@starknet-react/chains/-/chains-0.1.0-next.0.tgz#c9e5e1c1788e4166292852287769a980306cfb91"
   integrity sha512-g5wxh8yoD1upym0onHFifODpw1Eb0TF+C3J/Kso+hopTIIq3goRw7uQ1i4dBlrIlx9uP8iNA/yKdED24uwvWJQ==
 
+"@starknet-react/chains@^0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@starknet-react/chains/-/chains-0.1.3.tgz#8e5d248f860b850b0b03e1059d6a4010d4801818"
+  integrity sha512-dSpLgDS02PmPzFVoW07EBVRbsX+h7MH7DYx2FF7vJv/J6eMGY7KtSupJW9R6ys0iADAxSg0UDcZr7syuy+b/Pg==
+
 "@starknet-react/core@2.0.0-next.0":
   version "2.0.0-next.0"
   resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-2.0.0-next.0.tgz#3aae8f84af791a0b29e0f83fc177b1c2dd66aeab"
@@ -4909,13 +4914,13 @@
     immutable "^4.3.4"
     zod "^3.22.2"
 
-"@starknet-react/core@^2.0.0-next.3":
-  version "2.0.0-next.3"
-  resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-2.0.0-next.3.tgz#18469392f5bdb42a5b39a9a5f1bd2e1cc1d9b3b4"
-  integrity sha512-QGPINztLslmaZf5REWoqQr74RoV5qS8trYQrmiAf2Dz3a5U060Xp3bqPHigND4RBV4TL2eaj8UHCrGcJ/4d+kA==
+"@starknet-react/core@^2.1.5":
+  version "2.1.5"
+  resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-2.1.5.tgz#a6a68f5223bd42190f3235e9737a66f47f4b3c07"
+  integrity sha512-lHBZMVFkz7XzyCy24Ca7/b55AkJU+alTD5520lBEbqYYOUAALdKCVp8+rlwPYv5Z8pkJzqRLoB//X6mTsky6Lw==
   dependencies:
-    "@starknet-react/chains" "^0.1.0-next.0"
-    "@tanstack/react-query" "^4.35.3"
+    "@starknet-react/chains" "^0.1.3"
+    "@tanstack/react-query" "^5.0.1"
     eventemitter3 "^5.0.1"
     immutable "^4.3.4"
     zod "^3.22.2"
@@ -5216,6 +5221,11 @@
   resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.36.1.tgz#79f8c1a539d47c83104210be2388813a7af2e524"
   integrity sha512-DJSilV5+ytBP1FbFcEJovv4rnnm/CokuVvrBEtW/Va9DvuJ3HksbXUJEpI0aV1KtuL4ZoO9AVE6PyNLzF7tLeA==
 
+"@tanstack/query-core@5.14.2":
+  version "5.14.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-5.14.2.tgz#ef0c1a93e142d5cce90b0ac2d0333a88fc0fbb95"
+  integrity sha512-QmoJvC72sSWs3hgGis8JdmlDvqLfYGWUK4UG6OR9Q6t28JMN9m2FDwKPqoSJ9YVocELCSjMt/FGjEiLfk8000Q==
+
 "@tanstack/react-query@^4.35.3":
   version "4.36.1"
   resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.36.1.tgz#acb589fab4085060e2e78013164868c9c785e5d2"
@@ -5223,6 +5233,13 @@
   dependencies:
     "@tanstack/query-core" "4.36.1"
     use-sync-external-store "^1.2.0"
+
+"@tanstack/react-query@^5.0.1":
+  version "5.14.2"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.14.2.tgz#b66c9710609118c07bfe6fca0147c6735a4c95a5"
+  integrity sha512-SbOzV7UBW8ED3tOnyn6kqNGscnOAfoxShYlbvaQo/5528mDZKpvrwoL/1du1/ukSC6RMAiKmx95SrYqlwPzWDw==
+  dependencies:
+    "@tanstack/query-core" "5.14.2"
 
 "@testing-library/dom@^7.11.0":
   version "7.31.2"
@@ -5363,11 +5380,6 @@
   integrity sha512-DomsDK/nX3XXHs6jlQ8/YYE6jZAuhmoGAFfcYi1h1jbBNGS7Efdx74FKLTO3HCCyLqQyLlNbql87xqa7C3M/FQ==
   dependencies:
     "@babel/types" "^7.3.0"
-
-"@types/big.js@^6.2.2":
-  version "6.2.2"
-  resolved "https://registry.yarnpkg.com/@types/big.js/-/big.js-6.2.2.tgz#69422ec9ef59df1330ccfde2106d9e1159a083c3"
-  integrity sha512-e2cOW9YlVzFY2iScnGBBkplKsrn2CsObHQ2Hiw4V1sSyiGbgWL8IyqE3zFi1Pt5o1pdAtYkDAIsF3KKUPjdzaA==
 
 "@types/bn.js@^4.11.3":
   version "4.11.6"
@@ -8462,11 +8474,6 @@ big.js@^5.2.2:
   version "5.2.2"
   resolved "https://registry.yarnpkg.com/big.js/-/big.js-5.2.2.tgz#65f0af382f578bcdc742bd9c281e9cb2d7768328"
   integrity sha512-vyL2OymJxmarO8gxMr0mhChsO9QGwhynfuu4+MHTAW6czfq9humCB7rKpUjDd9YUiDPU4mzpyupFSvOClAwbmQ==
-
-big.js@^6.2.1:
-  version "6.2.1"
-  resolved "https://registry.yarnpkg.com/big.js/-/big.js-6.2.1.tgz#7205ce763efb17c2e41f26f121c420c6a7c2744f"
-  integrity sha512-bCtHMwL9LeDIozFn+oNhhFoq+yQ3BNdnsLSASUxLciOb1vgvpHsIO1dsENiGMgbb4SkP5TrzWzRiLddn8ahVOQ==
 
 bigint-buffer@^1.1.5:
   version "1.1.5"
@@ -19470,7 +19477,7 @@ stacktracey@^2.1.8:
     as-table "^1.0.36"
     get-source "^2.0.12"
 
-starknet@5.19.5, starknet@^5.19.5:
+starknet@5.19.5:
   version "5.19.5"
   resolved "https://registry.yarnpkg.com/starknet/-/starknet-5.19.5.tgz#59a2e0f707dc1f64fbe9894195984ae97f623449"
   integrity sha512-S7V4ifyYd+ApsIwYTd7YA5U2Px+NZkCsQPnmgY/wkc5LLFKhYMNpzHQ5nIA15p70AwtSXCcsEBnHNRBOuci13Q==

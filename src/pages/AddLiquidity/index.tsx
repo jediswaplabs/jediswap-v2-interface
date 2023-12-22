@@ -178,7 +178,6 @@ function AddLiquidity() {
 
   // txn values
   const deadline = useTransactionDeadline() // custom from users settings
-  console.log('🚀 ~ file: index.tsx:181 ~ AddLiquidity ~ deadline:', deadline)
 
   const [txHash, setTxHash] = useState<string>('')
 
@@ -218,7 +217,7 @@ function AddLiquidity() {
   )
 
   useEffect(() => {
-    console.log(txData, 'txData')
+    if (txData) console.log(txData, 'txData')
   }, [txData])
 
   useEffect(() => {
