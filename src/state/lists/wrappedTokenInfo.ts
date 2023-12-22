@@ -34,7 +34,7 @@ export class WrappedTokenInfo implements Token {
   }
 
   public get chainId(): ChainId {
-    return this.tokenInfo.chainId
+    return this.tokenInfo.chainId as any
   }
 
   public get decimals(): number {

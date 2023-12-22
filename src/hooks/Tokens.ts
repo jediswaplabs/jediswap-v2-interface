@@ -12,8 +12,6 @@ import { isL2ChainId } from 'utils/chains'
 import { useAllLists, useCombinedActiveList, useCombinedTokenMapFromUrls } from '../state/lists/hooks'
 import { WrappedTokenInfo } from '../state/lists/wrappedTokenInfo'
 import { deserializeToken, useUserAddedTokens } from '../state/user/hooks'
-import { useUnsupportedTokenList } from './../state/lists/hooks'
-import { WETH } from 'constants/tokens'
 
 type Maybe<T> = T | null | undefined
 
@@ -153,7 +151,7 @@ export function useSearchInactiveTokenLists(search: string | undefined, minResul
       const list = lists[url]?.current
       if (!list) continue
       for (const tokenInfo of list.tokens) {
-        if (tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
+        if ((tokenInfo.chainId as any) === chainId && tokenFilter(tokenInfo)) {
           try {
             const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, list)
             if (!(wrapped.address in activeTokens) && !addressSet[wrapped.address]) {
