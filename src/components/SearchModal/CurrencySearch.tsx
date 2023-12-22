@@ -76,8 +76,8 @@ export function CurrencySearch({
   const searchTokenIsAdded = useIsUserAddedToken(searchToken)
 
   const defaultTokens = useDefaultActiveTokens(chainId)
-
   const { data, loading: balancesAreLoading } = useCachedPortfolioBalancesQuery({ account })
+
   const balances: TokenBalances = useMemo(
     () =>
       data?.portfolios?.[0].tokenBalances?.reduce((balanceMap, tokenBalance) => {
