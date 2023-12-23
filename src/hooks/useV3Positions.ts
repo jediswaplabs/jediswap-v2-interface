@@ -2,12 +2,106 @@ import { BigNumber } from '@ethersproject/bignumber'
 import { CallStateResult, useSingleCallResult, useSingleContractMultipleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
 import { PositionDetails } from 'types/position'
-
+import { useContractRead } from '@starknet-react/core'
+import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
+import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import { cairo } from 'starknet'
 import { useV3NFTPositionManagerContract } from './useContract'
+
+export interface TickType {
+  mag: BigNumber
+  sign: boolean
+}
+
+export interface FlattenedPositions {
+  tokenId: number
+  operator: string
+  token0: string
+  token1: string
+  fee: number
+  tick_lower: number
+  tick_upper: number
+  liquidity: BigNumber
+  fee_growth_inside_0_last_X128: BigNumber
+  fee_growth_inside_1_last_X128: BigNumber
+  tokens_owed_0: BigNumber
+  tokens_owed_1: BigNumber
+}
+
+interface UseV3Positions {
+  loading: boolean
+  error: any
+  position?: FlattenedPositions
+}
 
 interface UseV3PositionsResults {
   loading: boolean
   positions?: PositionDetails[]
+}
+
+const flattenedPositionsV3 = (positionsV3: FlattenedPositions): FlattenedPositions => {
+  let flattened: any = {}
+
+  for (const key in positionsV3) {
+    const positionKey = key as keyof FlattenedPositions // Type assertion to keyof FlattenedPositions
+    flattened = Object.assign(flattened, positionsV3[positionKey])
+  }
+
+  return flattened
+}
+
+const getPositionsV3 = (tokenId: number): UseV3Positions => {
+  const { data, isLoading, error } = useContractRead({
+    functionName: 'get_position',
+    args: [cairo.uint256(tokenId)],
+    abi: NFTPositionManagerABI,
+    address: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+    watch: true,
+  })
+
+  const position = flattenedPositionsV3(data as any)
+  return { position, loading: isLoading, error }
+}
+
+const fetchV3Positions = (tokenIds: number[]): UseV3Positions[] => {
+  return tokenIds?.map((tokenId) => {
+    return getPositionsV3(tokenId)
+  })
+}
+
+export function useV3PositionsFromTokenId(tokenIds: number[]) {
+  const results = fetchV3Positions(tokenIds)
+  const loading = useMemo(() => results.some(({ loading }) => loading), [results])
+  const error = useMemo(() => results.some(({ error }) => error), [results])
+
+  const positions = useMemo(() => {
+    if (!loading && !error && tokenIds) {
+      return results.map((call, i) => {
+        const tokenId = tokenIds[i]
+        const result = call.position as FlattenedPositions
+        return {
+          tokenId,
+          fee: Number(result.fee),
+          fee_growth_inside_0_last_X128: result.fee_growth_inside_0_last_X128,
+          fee_growth_inside_1_last_X128: result.fee_growth_inside_1_last_X128,
+          liquidity: result.liquidity,
+          operator: result.operator,
+          tick_lower: Number((result.tick_upper as any).mag),
+          tick_upper: Number((result.tick_lower as any).mag),
+          token0: result.token0,
+          token1: result.token1,
+          tokens_owed_0: result.tokens_owed_0,
+          tokens_owed_1: result.tokens_owed_1,
+        }
+      })
+    }
+    return undefined
+  }, [loading, error, results, tokenIds])
+
+  return {
+    loading,
+    positions: positions?.map((position, i) => ({ ...position, tokenId: position.tokenId })),
+  }
 }
 
 function useV3PositionsFromTokenIds(tokenIds: BigNumber[] | undefined): UseV3PositionsResults {

@@ -18,7 +18,7 @@ import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { isSupportedChain } from 'constants/chains'
 // import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
 import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
-import { useV3Positions } from 'hooks/useV3Positions'
+import { FlattenedPositions, useV3Positions, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
 import { useUserHideClosedPositions } from 'state/user/hooks'
 import { HideSmall, ThemedText } from 'theme/components'
 import CTACards from './CTACards'
@@ -307,18 +307,13 @@ export default function Pool() {
   const theme = useTheme()
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
 
-  const { positions, loading: positionsLoading } = useV3Positions(address)
-  const { data: positionsV3 } = useContractRead({
-    functionName: 'get_position',
-    args: [cairo.uint256(1)],
-    abi: NFTPositionManagerABI,
-    address: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
-    watch: true,
-  })
+  // const { positions, loading: positionsLoading } = useV3Positions(address)
 
-  const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
+  const { positions, loading: positionsLoading } = useV3PositionsFromTokenId([1])
+
+  const [openPositions, closedPositions] = positions?.reduce<[FlattenedPositions[], FlattenedPositions[]]>(
     (acc, p) => {
-      acc[p.liquidity?.isZero() ? 1 : 0].push(p)
+      acc[!p.liquidity ? 1 : 0].push(p)
       return acc
     },
     [[], []]

@@ -46,7 +46,6 @@ export const useAccountDetails = (): {
     const fetchChainId = async () => {
       try {
         const Id = await provider.getChainId()
-        console.log('🚀 ~ file: starknet-react.ts:49 ~ fetchChainId ~ Id:', Id)
         const convertedId: ChainId = convertStarknetToChainId(Id)
         setChainId(convertedId)
       } catch (error) {

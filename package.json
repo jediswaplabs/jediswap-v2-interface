@@ -216,7 +216,7 @@
     "@vnaysn/jediswap-router-sdk": "^10.0.0",
     "@vnaysn/jediswap-sdk-core": "^9.3.0",
     "@vnaysn/jediswap-sdk-v2": "^8.0.0",
-    "@vnaysn/jediswap-sdk-v3": "^14.0.0",
+    "@vnaysn/jediswap-sdk-v3": "^15.0.0",
     "@vnaysn/jediswap-universal-router-sdk": "^8.0.0",
     "@web3-react/coinbase-wallet": "^8.2.3",
     "@web3-react/core": "^8.2.3",
