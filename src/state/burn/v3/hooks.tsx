@@ -12,13 +12,15 @@ import { unwrappedToken } from 'utils/unwrappedToken'
 
 import { AppState } from '../../reducer'
 import { selectPercent } from './actions'
+import { FlattenedPositions } from 'hooks/useV3Positions'
+import { BigNumber } from 'ethers'
 
 export function useBurnV3State(): AppState['burnV3'] {
   return useAppSelector((state) => state.burnV3)
 }
 
 export function useDerivedV3BurnInfo(
-  position?: PositionDetails,
+  position?: FlattenedPositions,
   asWETH = false
 ): {
   position?: Position
@@ -40,12 +42,15 @@ export function useDerivedV3BurnInfo(
 
   const positionSDK = useMemo(
     () =>
-      pool && position?.liquidity && typeof position?.tickLower === 'number' && typeof position?.tickUpper === 'number'
+      pool &&
+      position?.liquidity &&
+      typeof position?.tick_lower === 'number' &&
+      typeof position?.tick_upper === 'number'
         ? new Position({
             pool,
             liquidity: position.liquidity.toString(),
-            tickLower: position.tickLower,
-            tickUpper: position.tickUpper,
+            tickLower: position.tick_lower,
+            tickUpper: position.tick_upper,
           })
         : undefined,
     [pool, position]
@@ -69,10 +74,14 @@ export function useDerivedV3BurnInfo(
       ? CurrencyAmount.fromRawAmount(asWETH ? token1 : unwrappedToken(token1), discountedAmount1)
       : undefined
 
-  const [feeValue0, feeValue1] = useV3PositionFees(pool ?? undefined, position?.tokenId, asWETH)
+  const [feeValue0, feeValue1] = useV3PositionFees(
+    pool ?? undefined,
+    position?.tokenId ? BigNumber.from(position?.tokenId) : undefined,
+    asWETH
+  )
 
   const outOfRange =
-    pool && position ? pool.tickCurrent < position.tickLower || pool.tickCurrent > position.tickUpper : false
+    pool && position ? pool.tickCurrent < position.tick_lower || pool.tickCurrent > position.tick_upper : false
 
   let error: ReactNode | undefined
   if (!account) {

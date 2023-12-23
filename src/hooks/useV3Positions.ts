@@ -40,6 +40,11 @@ interface UseV3PositionsResults {
   positions?: PositionDetails[]
 }
 
+interface UseV3PositionsResult {
+  loading: boolean
+  position?: PositionDetails[]
+}
+
 const flattenedPositionsV3 = (positionsV3: FlattenedPositions): FlattenedPositions => {
   let flattened: any = {}
 
@@ -70,8 +75,8 @@ const fetchV3Positions = (tokenIds: number[]): UseV3Positions[] => {
   })
 }
 
-export function useV3PositionsFromTokenId(tokenIds: number[]) {
-  const results = fetchV3Positions(tokenIds)
+export function useV3PositionsFromTokenId(tokenIds: number[] | undefined) {
+  const results = fetchV3Positions(tokenIds ? tokenIds : [])
   const loading = useMemo(() => results.some(({ loading }) => loading), [results])
   const error = useMemo(() => results.some(({ error }) => error), [results])
 
@@ -100,7 +105,6 @@ export function useV3PositionsFromTokenId(tokenIds: number[]) {
     }
     return undefined
   }, [loading, error, results, tokenIds])
-  console.log('🚀 ~ file: useV3Positions.ts:100 ~ positions ~ positions:', positions)
 
   return {
     loading,
@@ -150,6 +154,14 @@ function useV3PositionsFromTokenIds(tokenIds: BigNumber[] | undefined): UseV3Pos
 interface UseV3PositionResults {
   loading: boolean
   position?: PositionDetails
+}
+
+export function useV3PosFromTokenId(tokenId: number | undefined) {
+  const position = useV3PositionsFromTokenId(tokenId ? [tokenId] : undefined)
+  return {
+    loading: position.loading,
+    position: position.positions?.[0],
+  }
 }
 
 export function useV3PositionFromTokenId(tokenId: BigNumber | undefined): UseV3PositionResults {

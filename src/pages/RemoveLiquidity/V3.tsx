@@ -28,7 +28,7 @@ import { isSupportedChain } from 'constants/chains'
 import { useV3NFTPositionManagerContract } from 'hooks/useContract'
 import useDebouncedChangeHandler from 'hooks/useDebouncedChangeHandler'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { useV3PositionFromTokenId } from 'hooks/useV3Positions'
+import { useV3PosFromTokenId, useV3PositionFromTokenId, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
 import { PositionPageUnsupportedContent } from 'pages/Pool/PositionPage'
 import { useBurnV3ActionHandlers, useBurnV3State, useDerivedV3BurnInfo } from 'state/burn/v3/hooks'
@@ -54,23 +54,24 @@ export default function RemoveLiquidityV3() {
   const location = useLocation()
   const parsedTokenId = useMemo(() => {
     try {
-      return BigNumber.from(tokenId)
+      return Number(tokenId)
     } catch {
       return null
     }
   }, [tokenId])
 
-  const { position, loading } = useV3PositionFromTokenId(parsedTokenId ?? undefined)
-  if (parsedTokenId === null || parsedTokenId.eq(0)) {
+  const { positions, loading } = useV3PositionsFromTokenId([Number(tokenId ? tokenId : undefined)])
+  const existingPositionDetails = positions && positions?.[0]
+  if (parsedTokenId === null || parsedTokenId === 0) {
     return <Navigate to={{ ...location, pathname: '/pools' }} replace />
   }
-  if (isSupportedChain(chainId) && (loading || position)) {
+  if (isSupportedChain(chainId) && (loading || existingPositionDetails)) {
     return <Remove tokenId={parsedTokenId} />
   }
   return <PositionPageUnsupportedContent />
 }
-function Remove({ tokenId }: { tokenId: BigNumber }) {
-  const { position } = useV3PositionFromTokenId(tokenId)
+function Remove({ tokenId }: { tokenId: number }) {
+  const { position } = useV3PosFromTokenId(tokenId)
   const theme = useTheme()
   const { address: account, chainId } = useAccountDetails()
   const { provider } = useProvider()
@@ -94,7 +95,6 @@ function Remove({ tokenId }: { tokenId: BigNumber }) {
     error,
   } = useDerivedV3BurnInfo(position, receiveWETH)
   const { onPercentSelect } = useBurnV3ActionHandlers()
-
   const removed = position?.liquidity?.eq(0)
 
   // boilerplate for the slider

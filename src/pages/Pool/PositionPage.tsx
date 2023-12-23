@@ -610,11 +610,11 @@ function PositionPageContent() {
   })
 
   const ownsNFT = useMemo(() => {
-    if (!isLoading && !error && ownerOf) {
+    if (!isLoading && !error && ownerOf && address) {
       return validateAndParseAddress(ownerOf) === validateAndParseAddress(address)
     }
     return false
-  }, [ownerOf])
+  }, [ownerOf, address])
 
   const feeValueUpper = inverted ? feeValue0 : feeValue1
   const feeValueLower = inverted ? feeValue1 : feeValue0
