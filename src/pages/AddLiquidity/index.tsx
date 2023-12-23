@@ -53,7 +53,7 @@ import { useDerivedPositionInfo } from '../../hooks/useDerivedPositionInfo'
 import { useIsSwapUnsupported } from '../../hooks/useIsSwapUnsupported'
 import { useStablecoinValue } from '../../hooks/useStablecoinPrice'
 import useTransactionDeadline from '../../hooks/useTransactionDeadline'
-import { useV3PositionFromTokenId } from '../../hooks/useV3Positions'
+import { useV3PositionFromTokenId, useV3PositionsFromTokenId } from '../../hooks/useV3Positions'
 import { Bound, Field } from '../../state/mint/v3/actions'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { TransactionInfo, TransactionType } from '../../state/transactions/types'
@@ -110,9 +110,8 @@ function AddLiquidity() {
   const positionManager = useV3NFTPositionManagerContract()
 
   // check for existing position if tokenId in url
-  const { position: existingPositionDetails, loading: positionLoading } = useV3PositionFromTokenId(
-    tokenId ? BigNumber.from(tokenId) : undefined
-  )
+  const { positions, loading: positionLoading } = useV3PositionsFromTokenId([Number(tokenId ? tokenId : undefined)])
+  const existingPositionDetails = positions && positions?.[0]
   const hasExistingPosition = !!existingPositionDetails && !positionLoading
   const { position: existingPosition } = useDerivedPositionInfo(existingPositionDetails)
 
