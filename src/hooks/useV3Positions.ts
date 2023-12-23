@@ -7,6 +7,7 @@ import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json
 import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { cairo } from 'starknet'
 import { useV3NFTPositionManagerContract } from './useContract'
+import { toInt } from 'utils/toInt'
 
 export interface TickType {
   mag: BigNumber
@@ -79,15 +80,17 @@ export function useV3PositionsFromTokenId(tokenIds: number[]) {
       return results.map((call, i) => {
         const tokenId = tokenIds[i]
         const result = call.position as FlattenedPositions
+        const tick_lower = toInt(result.tick_lower)
+        const tick_upper = toInt(result.tick_upper)
         return {
           tokenId,
           fee: Number(result.fee),
           fee_growth_inside_0_last_X128: result.fee_growth_inside_0_last_X128,
           fee_growth_inside_1_last_X128: result.fee_growth_inside_1_last_X128,
-          liquidity: result.liquidity,
+          liquidity: BigNumber.from(result.liquidity),
           operator: result.operator,
-          tick_lower: Number((result.tick_upper as any).mag),
-          tick_upper: Number((result.tick_lower as any).mag),
+          tick_lower: tick_lower,
+          tick_upper: tick_upper,
           token0: result.token0,
           token1: result.token1,
           tokens_owed_0: result.tokens_owed_0,
@@ -97,6 +100,7 @@ export function useV3PositionsFromTokenId(tokenIds: number[]) {
     }
     return undefined
   }, [loading, error, results, tokenIds])
+  console.log('🚀 ~ file: useV3Positions.ts:100 ~ positions ~ positions:', positions)
 
   return {
     loading,

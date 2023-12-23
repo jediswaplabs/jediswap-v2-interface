@@ -15,6 +15,7 @@ import { useContractRead } from '@starknet-react/core'
 import POOL_ABI from 'contracts/pool/abi.json'
 import FACTORY_ABI from 'contracts/factoryAddress/abi.json'
 import { DEFAULT_POOL_ADDRESS, DEFAULT_POOL_HASH, FACTORY_ADDRESS } from 'constants/tokens'
+import { toInt } from 'utils/toInt'
 
 // const POOL_STATE_INTERFACE = new Interface(IUniswapV3PoolStateJSON.abi) as IUniswapV3PoolStateInterface
 
@@ -144,18 +145,19 @@ export function usePools(
 
   // if (!poolAddress || !poolAddress.length) return [PoolState.NOT_EXISTS, null]
 
-  const {
-    data: tick,
-    isError,
-    isLoading,
-    error,
-  } = useContractRead({
+  const { data: tick } = useContractRead({
     functionName: 'get_tick',
     args: [],
     abi: POOL_ABI,
     address: poolAddress?.[0],
     watch: true,
   })
+
+  const tickCurrent = useMemo(() => {
+    if (tick) return toInt(tick)
+    return undefined
+  }, [tick])
+  console.log('🚀 ~ file: usePools.ts:160 ~ tickCurrent ~ tickCurrent:', tickCurrent)
 
   const { data: liquidity } = useContractRead({
     functionName: 'get_liquidity',
@@ -182,16 +184,16 @@ export function usePools(
       const tokens = poolTokens[index]
       if (!tokens) return [PoolState.INVALID, null]
       const [token0, token1, fee] = tokens
-      if (!tick || !liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
+      if (!tickCurrent || !liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
       try {
-        const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, Number((tick as any).mag))
+        const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, tickCurrent)
         return [PoolState.EXISTS, pool]
       } catch (error) {
         console.error('Error when constructing the pool', error)
         return [PoolState.NOT_EXISTS, null]
       }
     })
-  }, [liquidity, poolKeys, tick, poolTokens])
+  }, [liquidity, poolKeys, tickCurrent, poolTokens])
 }
 
 export function usePool(

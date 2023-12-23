@@ -173,7 +173,8 @@ export default function PositionListItem({
   tick_lower: tickLower,
   tick_upper: tickUpper,
 }: PositionListItemProps) {
-  console.log('🚀 ~ file: index.tsx:232 ~ feeAmount:', feeAmount)
+  console.log('🚀 ~ file: index.tsx:176 ~ tickUpper:', tickUpper)
+  console.log('🚀 ~ file: index.tsx:176 ~ tickLower:', tickLower)
   const { formatDelta, formatTickPrice } = useFormatter()
 
   const token0 = useToken(token0Address)
@@ -184,6 +185,7 @@ export default function PositionListItem({
 
   // construct Position from details returned
   const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount)
+  console.log('🚀 ~ file: index.tsx:186 ~ pool:', pool)
 
   const position = useMemo(() => {
     if (pool) {
@@ -217,7 +219,7 @@ export default function PositionListItem({
           </ThemedText.SubHeader>
 
           <FeeTierText>
-            <Trans>{formatDelta(parseFloat(new Percent(feeAmount, 1_000_000).toSignificant()))}</Trans>
+            <Trans>{formatDelta(parseFloat(new Percent(feeAmount, 1_000_000_00).toSignificant()))}</Trans>
           </FeeTierText>
         </PrimaryPositionIdData>
         <RangeBadge removed={removed} inRange={!outOfRange} />
