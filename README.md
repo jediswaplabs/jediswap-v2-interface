@@ -1,6 +1,6 @@
 # Jediswap Interface
 
-An open source interface for Jediswap -- a protocol for decentralized exchange of Starknet tokens.
+An open source interface for Jediswap -- a protocol for decentralized exchange of Starknet tokens.A community-led fully permissionless and composable AMM on Starknet
 
 - Website: [jediswap.xyz](https://www.jediswap.xyz/)
 - Interface: [app.jediswap.xyz](https://app.jediswap.xyz/)
