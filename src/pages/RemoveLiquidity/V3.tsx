@@ -44,7 +44,7 @@ import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from '../../constants/tokens'
 import JSBI from 'jsbi'
 
 const DEFAULT_REMOVE_V3_LIQUIDITY_SLIPPAGE_TOLERANCE = new Percent(5, 100)
-
+const MAX_UINT128 = BigInt(2) ** BigInt(128) - BigInt(1)
 // redirect invalid tokenIds
 export default function RemoveLiquidityV3() {
   const { chainId } = useAccountDetails()
@@ -141,19 +141,6 @@ function Remove({ tokenId }: { tokenId: number }) {
       return
     }
 
-    // we fall back to expecting 0 fees in case the fetch fails, which is safe in the
-    // vast majority of cases
-    // const { calldata, value } = NonfungiblePositionManager.removeCallParameters(positionSDK, {
-    //   tokenId: tokenId.toString(),
-    //   liquidityPercentage,
-    //   slippageTolerance: allowedSlippage,
-    //   deadline: deadline.toString(),
-    //   collectOptions: {
-    //     expectedCurrencyOwed0: feeValue0 ?? CurrencyAmount.fromRawAmount(liquidityValue0.currency, 0),
-    //     expectedCurrencyOwed1: feeValue1 ?? CurrencyAmount.fromRawAmount(liquidityValue1.currency, 0),
-    //     recipient: account,
-    //   },
-    // })
     // construct a partial position with a percentage of liquidity
     const partialPosition = new Position({
       pool: positionSDK.pool,
@@ -162,39 +149,42 @@ function Remove({ tokenId }: { tokenId: number }) {
       tickUpper: positionSDK.tickUpper,
     })
 
-    const expectedCurrencyOwed0 = feeValue0 ?? CurrencyAmount.fromRawAmount(liquidityValue0.currency, 0)
-    const expectedCurrencyOwed1 = feeValue1 ?? CurrencyAmount.fromRawAmount(liquidityValue1.currency, 0)
-
-    let mintData = {}
-    let entrypoint = 'decrease_liquidity'
-    // slippage-adjusted underlying amounts
     const { amount0: amount0Min, amount1: amount1Min } = partialPosition.burnAmountsWithSlippage(allowedSlippage)
-    console.log(partialPosition.liquidity.toString(), 'partialPosition.liquidity')
 
-    if (liquidityPercentage.equalTo(JSBI.BigInt(1))) {
-      entrypoint = 'burn'
-      mintData = {
-        tokenId: cairo.uint256(tokenId),
-      }
-    } else {
-      mintData = {
-        tokenId: cairo.uint256(tokenId),
-        liquidity: BigInt(partialPosition.liquidity.toString()),
-        amount0_min: cairo.uint256(amount0Min.toString()),
-        amount1_min: cairo.uint256(amount1Min.toString()),
-        deadline: cairo.felt(deadline.toString()),
-      }
+    const decreaseLiquidityParams = {
+      tokenId: cairo.uint256(tokenId),
+      liquidity: BigInt(partialPosition.liquidity.toString()),
+      amount0_min: cairo.uint256(amount0Min.toString()),
+      amount1_min: cairo.uint256(amount1Min.toString()),
+      deadline: cairo.felt(deadline.toString()),
     }
+    const decreaseLiquidityCallData = CallData.compile(decreaseLiquidityParams)
+    const burnPositionParams = {
+      tokenId: cairo.uint256(tokenId),
+    }
+    const collectFeeParams = {
+      tokenId: cairo.uint256(tokenId),
+      recipient: account,
+      amount0_max: MAX_UINT128,
+      amount1_max: MAX_UINT128,
+    }
+    const burnCallData = CallData.compile(burnPositionParams)
+    const collectFeeCallData = CallData.compile(collectFeeParams)
 
-    const callData = CallData.compile(mintData)
-
-    const calls = {
+    const createCallObject = (entrypoint: string, calldata: any) => ({
       contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
       entrypoint,
-      calldata: callData,
-    }
+      calldata,
+    })
 
-    setMintCallData([calls])
+    const decreaseLiquidityCall = createCallObject('decrease_liquidity', decreaseLiquidityCallData)
+    const burnCall = createCallObject('burn', burnCallData)
+    const collectFeeCall = createCallObject('collect', collectFeeCallData)
+
+    // slippage-adjusted underlying amounts
+    const toBurnPosition: boolean = liquidityPercentage.equalTo(JSBI.BigInt(1))
+    const finalCallData = [decreaseLiquidityCall, ...(toBurnPosition ? [collectFeeCall, burnCall] : [])]
+    setMintCallData(finalCallData)
   }, [
     positionManager,
     liquidityValue0,
