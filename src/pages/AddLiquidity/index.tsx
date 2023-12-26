@@ -176,7 +176,8 @@ function AddLiquidity() {
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
 
   // txn values
-  const deadline = useTransactionDeadline() // custom from users settings
+  // const deadline = useTransactionDeadline() // custom from users settings
+  const deadline = '1705014714'
 
   const [txHash, setTxHash] = useState<string>('')
 
@@ -295,11 +296,11 @@ function AddLiquidity() {
         }
         setMintCallData([icalls, approvalA, approvalB, mcalls])
       } else {
-        const hasExistingLiquidity = hasExistingPosition
+        const hasExistingLiquidity = hasExistingPosition && tokenId
         let mintData = {}
         if (hasExistingLiquidity) {
           mintData = {
-            tokenId: cairo.uint256(1),
+            tokenId: cairo.uint256(tokenId),
             amount0_desired: cairo.uint256(amount0Desired.toString()),
             amount1_desired: cairo.uint256(amount1Desired.toString()),
             amount0_min: cairo.uint256(amount0Min.toString()),

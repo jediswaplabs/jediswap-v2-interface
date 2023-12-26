@@ -157,7 +157,6 @@ export function usePools(
     if (tick) return toInt(tick)
     return undefined
   }, [tick])
-  console.log('🚀 ~ file: usePools.ts:160 ~ tickCurrent ~ tickCurrent:', tickCurrent)
 
   const { data: liquidity } = useContractRead({
     functionName: 'get_liquidity',
