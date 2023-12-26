@@ -45,7 +45,7 @@ import RangeBadge from '../../components/Badge/RangeBadge'
 import { getPriceOrderingFromPositionForUI } from '../../components/PositionListItem'
 import RateToggle from '../../components/RateToggle'
 import { SwitchLocaleLink } from '../../components/SwitchLocaleLink'
-import { usePositionTokenURI } from '../../hooks/usePositionTokenURI'
+import { usePositionTokenURI, useV3PositionTokenURI } from '../../hooks/usePositionTokenURI'
 import { TransactionType } from '../../state/transactions/types'
 import { calculateGasMargin } from '../../utils/calculateGasMargin'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
@@ -415,6 +415,7 @@ function PositionPageContent() {
   const removed = !liquidity
 
   const metadata = usePositionTokenURI(parsedTokenId)
+  const metadataV3 = useV3PositionTokenURI(1)
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
