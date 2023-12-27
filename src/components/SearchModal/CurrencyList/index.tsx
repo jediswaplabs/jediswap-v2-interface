@@ -132,7 +132,7 @@ export function CurrencyRow({
   const blockedTokenOpacity = '0.6'
   const { data } = useCachedPortfolioBalancesQuery({ account })
   const portfolioBalanceUsd = data?.portfolios?.[0].tokensTotalDenominatedValue?.value
-  const { balance } = useAccountBalance(currency as Currency)
+  const { formatted } = useAccountBalance(currency as Currency)
 
   // only show add or remove buttons if not on selected list
   return (
@@ -172,7 +172,7 @@ export function CurrencyRow({
         </Column>
         {showCurrencyAmount ? (
           <RowFixed style={{ justifySelf: 'flex-end' }}>
-            {account ? balance ? <Balance balance={balance} /> : <Loader /> : null}
+            {account ? formatted ? <Balance balance={formatted} /> : <Loader /> : null}
             {isSelected && <CheckIcon />}
           </RowFixed>
         ) : (

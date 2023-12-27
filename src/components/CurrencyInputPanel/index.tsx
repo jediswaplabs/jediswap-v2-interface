@@ -215,7 +215,7 @@ export default function CurrencyInputPanel({
   const [modalOpen, setModalOpen] = useState(false)
   const { address: account, chainId } = useAccountDetails()
   const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
-  const { balance } = useAccountBalance(currency as Currency)
+  const { formatted } = useAccountBalance(currency as Currency)
   const theme = useTheme()
 
   const handleDismissSearch = useCallback(() => {
@@ -291,15 +291,9 @@ export default function CurrencyInputPanel({
                 {account && (
                   <RowFixed style={{ height: '17px' }}>
                     {Boolean(showMaxButton && selectedCurrencyBalance) && (
-                      <TraceEvent
-                        events={[BrowserEvent.onClick]}
-                        name={SwapEventName.SWAP_MAX_TOKEN_AMOUNT_SELECTED}
-                        element={InterfaceElementName.MAX_TOKEN_AMOUNT_BUTTON}
-                      >
-                        <StyledBalanceMax onClick={onMax}>
-                          <Trans>MAX</Trans>
-                        </StyledBalanceMax>
-                      </TraceEvent>
+                      <StyledBalanceMax onClick={onMax}>
+                        <Trans>MAX</Trans>
+                      </StyledBalanceMax>
                     )}
                     <ThemedText.DeprecatedBody
                       onClick={onMax}
@@ -308,7 +302,7 @@ export default function CurrencyInputPanel({
                       fontSize={14}
                       style={{ display: 'inline', cursor: 'pointer' }}
                     >
-                      {balance && <>Bal: {balance}</>}
+                      {formatted && <>Bal: {formatted}</>}
                     </ThemedText.DeprecatedBody>
                   </RowFixed>
                 )}

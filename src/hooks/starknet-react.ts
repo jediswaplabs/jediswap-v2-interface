@@ -75,5 +75,5 @@ export const useAccountBalance = (currency: Currency) => {
     watch: true,
   })
 
-  return { balance: formatBalance(data?.formatted) }
+  return { balance: data?.formatted, formatted: formatBalance(data?.formatted) }
 }
