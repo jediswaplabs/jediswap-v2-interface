@@ -305,15 +305,18 @@ export default function Pool() {
   const [tokenIds, setTokenIds] = useState<number[]>([])
   //fetch Token Ids
   useEffect(() => {
-    const getTokenIds = async (address: string, chainId: ChainId) => {
-      const result = await fetchTokenIds(address, chainId)
-      if (result) {
-        setTokenIds(result.data)
+    const getTokenIds = async () => {
+      if (address && chainId) {
+        const result = await fetchTokenIds(address, chainId)
+        if (result) {
+          const tokenIdsArray: number[] = result.data.map((item: any) => parseInt(item.token_id))
+          setTokenIds(tokenIdsArray)
+        }
       }
     }
 
     if (address && chainId) {
-      getTokenIds(address, chainId)
+      getTokenIds()
     }
   }, [chainId, address])
 

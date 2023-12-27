@@ -400,9 +400,9 @@ function PositionPageContent() {
   const theme = useTheme()
   const { formatTickPrice } = useFormatter()
 
-  const parsedTokenId = parseTokenId(tokenIdFromUrl)
+  const parsedTokenId = parseInt(tokenIdFromUrl)
 
-  const { loading, positions: positionDetails } = useV3PositionsFromTokenId([1])
+  const { loading, positions: positionDetails } = useV3PositionsFromTokenId([parsedTokenId])
 
   const {
     token0: token0Address,
@@ -416,8 +416,7 @@ function PositionPageContent() {
 
   const removed = !liquidity
 
-  const metadata = usePositionTokenURI(parsedTokenId)
-  const metadataV3 = useV3PositionTokenURI(1)
+  const metadata = useV3PositionTokenURI(parsedTokenId)
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
