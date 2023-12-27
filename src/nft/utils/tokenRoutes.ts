@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { IRoute, Protocol } from '@vnaysn/jediswap-router-sdk'
 import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
@@ -32,8 +33,8 @@ function buildTradeRouteInputAmounts(swapAmounts: SwapAmounts): TradeTokenInputA
           : '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
         chainId: swapAmounts.inputAmount.currency.chainId,
         decimals: swapAmounts.inputAmount.currency.decimals,
-        isNative: swapAmounts.inputAmount.currency.isNative,
-      },
+        isNative: swapAmounts.inputAmount.currency.isNative
+      }
     },
     outputAmount: {
       amount: swapAmounts.outputAmount.quotient.toString(),
@@ -43,9 +44,9 @@ function buildTradeRouteInputAmounts(swapAmounts: SwapAmounts): TradeTokenInputA
           : '0xeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
         chainId: swapAmounts.outputAmount.currency.chainId,
         decimals: swapAmounts.outputAmount.currency.decimals,
-        isNative: swapAmounts.outputAmount.currency.isNative,
-      },
-    },
+        isNative: swapAmounts.outputAmount.currency.isNative
+      }
+    }
   }
 }
 
@@ -55,46 +56,46 @@ function buildPool(pool: Pair | Pool): TradePoolInput {
   return {
     pair: !isPool
       ? {
-          tokenAmountA: {
-            amount: pool.reserve0.quotient.toString(),
-            token: {
-              address: pool.token0.address,
-              chainId: pool.token0.chainId,
-              decimals: pool.token0.decimals,
-              isNative: pool.token0.isNative,
-            },
-          },
-          tokenAmountB: {
-            amount: pool.reserve1.quotient.toString(),
-            token: {
-              address: pool.token1.address,
-              chainId: pool.token1.chainId,
-              decimals: pool.token1.decimals,
-              isNative: pool.token1.isNative,
-            },
-          },
-        }
-      : undefined,
-    pool: isPool
-      ? {
-          fee: pool.fee,
-          liquidity: pool.liquidity.toString(),
-          sqrtRatioX96: pool.sqrtRatioX96.toString(),
-          tickCurrent: pool.tickCurrent.toString(),
-          tokenA: {
+        tokenAmountA: {
+          amount: pool.reserve0.quotient.toString(),
+          token: {
             address: pool.token0.address,
             chainId: pool.token0.chainId,
             decimals: pool.token0.decimals,
-            isNative: pool.token0.isNative,
-          },
-          tokenB: {
+            isNative: pool.token0.isNative
+          }
+        },
+        tokenAmountB: {
+          amount: pool.reserve1.quotient.toString(),
+          token: {
             address: pool.token1.address,
             chainId: pool.token1.chainId,
             decimals: pool.token1.decimals,
-            isNative: pool.token1.isNative,
-          },
+            isNative: pool.token1.isNative
+          }
         }
+      }
       : undefined,
+    pool: isPool
+      ? {
+        fee: pool.fee,
+        liquidity: pool.liquidity.toString(),
+        sqrtRatioX96: pool.sqrtRatioX96.toString(),
+        tickCurrent: pool.tickCurrent.toString(),
+        tokenA: {
+          address: pool.token0.address,
+          chainId: pool.token0.chainId,
+          decimals: pool.token0.decimals,
+          isNative: pool.token0.isNative
+        },
+        tokenB: {
+          address: pool.token1.address,
+          chainId: pool.token1.chainId,
+          decimals: pool.token1.decimals,
+          isNative: pool.token1.isNative
+        }
+      }
+      : undefined
   }
 }
 
@@ -105,7 +106,7 @@ function buildPools(pools: (Pair | Pool)[]): TradePoolInput[] {
 function buildTradeRouteInput(swap: Swap): TokenTradeRouteInput {
   return {
     ...buildTradeRouteInputAmounts({ inputAmount: swap.inputAmount, outputAmount: swap.outputAmount }),
-    pools: buildPools(swap.route.pools),
+    pools: buildPools(swap.route.pools)
   }
 }
 
@@ -133,6 +134,6 @@ export function buildAllTradeRouteInputs(trade: ClassicTrade): {
   return {
     mixedTokenTradeRouteInputs: mixedTokenTradeRouteInputs.length > 0 ? mixedTokenTradeRouteInputs : undefined,
     v2TokenTradeRouteInputs: v2TokenTradeRouteInputs.length > 0 ? v2TokenTradeRouteInputs : undefined,
-    v3TokenTradeRouteInputs: v3TokenTradeRouteInputs.length > 0 ? v3TokenTradeRouteInputs : undefined,
+    v3TokenTradeRouteInputs: v3TokenTradeRouteInputs.length > 0 ? v3TokenTradeRouteInputs : undefined
   }
 }

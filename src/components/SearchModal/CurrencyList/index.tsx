@@ -1,12 +1,13 @@
 import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
-import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
+import { currencyEquals } from '@jediswap/sdk'
 import { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
 import { Check } from 'react-feather'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { TraceEvent } from 'analytics'
 import Loader from 'components/Icons/LoadingSpinner'
 import { useCachedPortfolioBalancesQuery } from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
@@ -106,15 +107,13 @@ function TokenTags({ currency }: { currency: Currency }) {
   )
 }
 
-export function CurrencyRow({
-  currency,
+export function CurrencyRow({ currency,
   onSelect,
   isSelected,
   otherSelected,
   style,
   showCurrencyAmount,
-  eventProperties,
-}: {
+  eventProperties }: {
   currency: Currency
   onSelect: (hasWarning: boolean) => void
   isSelected: boolean
@@ -122,7 +121,6 @@ export function CurrencyRow({
   style?: CSSProperties
   showCurrencyAmount?: boolean
   eventProperties: Record<string, unknown>
-  balance?: CurrencyAmount<Currency>
 }) {
   const { address: account } = useAccountDetails()
   const key = currencyKey(currency)
@@ -209,7 +207,7 @@ export const formatAnalyticsEventProperties = (
   token_list_length: data.length,
   ...(isAddressSearch === false
     ? { search_token_symbol_input: searchQuery }
-    : { search_token_address_input: isAddressSearch }),
+    : { search_token_address_input: isAddressSearch })
 })
 
 const LoadingRow = () => (
@@ -220,8 +218,7 @@ const LoadingRow = () => (
   </LoadingRows>
 )
 
-export default function CurrencyList({
-  height,
+export default function CurrencyList({ height,
   currencies,
   otherListTokens,
   selectedCurrency,
@@ -231,9 +228,7 @@ export default function CurrencyList({
   showCurrencyAmount,
   isLoading,
   searchQuery,
-  isAddressSearch,
-  balances,
-}: {
+  isAddressSearch }: {
   height: number
   currencies: Currency[]
   otherListTokens?: WrappedTokenInfo[]
@@ -245,7 +240,6 @@ export default function CurrencyList({
   isLoading: boolean
   searchQuery: string
   isAddressSearch: string | false
-  balances: TokenBalances
 }) {
   const itemData: Currency[] = useMemo(() => {
     if (otherListTokens && otherListTokens?.length > 0) {
@@ -260,14 +254,8 @@ export default function CurrencyList({
 
       const currency = row
 
-      const balance =
-        tryParseCurrencyAmount(
-          String(balances[currency.isNative ? 'ETH' : currency.address?.toLowerCase()]?.balance ?? 0),
-          currency
-        ) ?? CurrencyAmount.fromRawAmount(currency, 0)
-
-      const isSelected = Boolean(currency && selectedCurrency && selectedCurrency.equals(currency))
-      const otherSelected = Boolean(currency && otherCurrency && otherCurrency.equals(currency))
+      const isSelected = Boolean(selectedCurrency && currencyEquals(selectedCurrency, currency))
+      const otherSelected = Boolean(otherCurrency && currencyEquals(otherCurrency, currency))
       const handleSelect = (hasWarning: boolean) => currency && onCurrencySelect(currency, hasWarning)
 
       const token = currency?.wrapped
@@ -285,7 +273,6 @@ export default function CurrencyList({
             otherSelected={otherSelected}
             showCurrencyAmount={showCurrencyAmount}
             eventProperties={formatAnalyticsEventProperties(token, index, data, searchQuery, isAddressSearch)}
-            balance={balance}
           />
         )
       }
@@ -298,8 +285,7 @@ export default function CurrencyList({
       onCurrencySelect,
       showCurrencyAmount,
       searchQuery,
-      isAddressSearch,
-      balances,
+      isAddressSearch
     ]
   )
 

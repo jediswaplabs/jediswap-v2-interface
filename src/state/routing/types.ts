@@ -1,18 +1,18 @@
+// @ts-nocheck
 import { MixedRouteSDK, ONE, Protocol, Trade } from '@vnaysn/jediswap-router-sdk'
-import {
-  ChainId,
+import { ChainId,
   Currency,
   CurrencyAmount,
   Fraction,
   Percent,
   Price,
   Token,
-  TradeType,
-} from '@vnaysn/jediswap-sdk-core'
+  TradeType } from '@vnaysn/jediswap-sdk-core'
 import { DutchOrderInfoJSON, DutchOrderTrade as IDutchOrderTrade } from '@uniswap/uniswapx-sdk'
-import { ZERO_PERCENT } from 'constants/misc'
 import { Route as V2Route } from '@vnaysn/jediswap-sdk-v2'
 import { Route as V3Route } from '@vnaysn/jediswap-sdk-v3'
+
+import { ZERO_PERCENT } from 'constants/misc'
 
 export enum TradeState {
   LOADING = 'loading',
@@ -204,22 +204,26 @@ export type SwapFeeInfo = { recipient: string; percent: Percent; amount: string 
 
 export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
   public readonly fillType = TradeFillType.Classic
+
   approveInfo: ApproveInfo
+
   gasUseEstimateUSD?: number // gas estimate for swaps
+
   blockNumber: string | null | undefined
+
   requestId: string | undefined
+
   quoteMethod: QuoteMethod
+
   swapFee: SwapFeeInfo | undefined
 
-  constructor({
-    gasUseEstimateUSD,
+  constructor({ gasUseEstimateUSD,
     blockNumber,
     requestId,
     quoteMethod,
     approveInfo,
     swapFee,
-    ...routes
-  }: {
+    ...routes }: {
     gasUseEstimateUSD?: number
     totalGasUseEstimateUSD?: number
     blockNumber?: string | null
@@ -254,7 +258,7 @@ export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
   }
 
   public get executionPrice(): Price<Currency, Currency> {
-    if (this.tradeType === TradeType.EXACT_INPUT || !this.swapFee) return super.executionPrice
+    if (this.tradeType === TradeType.EXACT_INPUT || !this.swapFee) { return super.executionPrice }
 
     // Fix inaccurate price calculation for exact output trades
     return new Price({ baseAmount: this.inputAmount, quoteAmount: this.postSwapFeeOutputAmount })
@@ -262,7 +266,7 @@ export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
 
   public get postSwapFeeOutputAmount(): CurrencyAmount<Currency> {
     // Routing api already applies the swap fee to the output amount for exact-in
-    if (this.tradeType === TradeType.EXACT_INPUT) return this.outputAmount
+    if (this.tradeType === TradeType.EXACT_INPUT) { return this.outputAmount }
 
     const swapFeeAmount = CurrencyAmount.fromRawAmount(this.outputAmount.currency, this.swapFee?.amount ?? 0)
     return this.outputAmount.subtract(swapFeeAmount)
@@ -280,20 +284,24 @@ export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
 
 export class PreviewTrade {
   public readonly fillType = TradeFillType.None
+
   public readonly quoteMethod = QuoteMethod.QUICK_ROUTE
+
   public readonly tradeType: TradeType
+
   public readonly inputAmount: CurrencyAmount<Currency>
+
   public readonly outputAmount: CurrencyAmount<Currency>
+
   inputTax: Percent
+
   outputTax: Percent
 
-  constructor({
-    inputAmount,
+  constructor({ inputAmount,
     outputAmount,
     tradeType,
     inputTax,
-    outputTax,
-  }: {
+    outputTax }: {
     inputAmount: CurrencyAmount<Currency>
     outputAmount: CurrencyAmount<Currency>
     tradeType: TradeType
@@ -323,32 +331,31 @@ export class PreviewTrade {
   public minimumAmountOut(slippageTolerance: Percent, amountOut = this.outputAmount): CurrencyAmount<Currency> {
     if (this.tradeType === TradeType.EXACT_OUTPUT) {
       return amountOut
-    } else {
-      const slippageAdjustedAmountOut = new Fraction(ONE)
-        .add(slippageTolerance)
-        .invert()
-        .multiply(amountOut.quotient).quotient
-      return CurrencyAmount.fromRawAmount(amountOut.currency, slippageAdjustedAmountOut)
     }
+    const slippageAdjustedAmountOut = new Fraction(ONE)
+      .add(slippageTolerance)
+      .invert()
+      .multiply(amountOut.quotient).quotient
+    return CurrencyAmount.fromRawAmount(amountOut.currency, slippageAdjustedAmountOut)
   }
 
   public maximumAmountIn(slippageTolerance: Percent, amountIn = this.inputAmount): CurrencyAmount<Currency> {
     if (this.tradeType === TradeType.EXACT_INPUT) {
       return amountIn
-    } else {
-      const slippageAdjustedAmountIn = new Fraction(ONE).add(slippageTolerance).multiply(amountIn.quotient).quotient
-      return CurrencyAmount.fromRawAmount(amountIn.currency, slippageAdjustedAmountIn)
     }
+    const slippageAdjustedAmountIn = new Fraction(ONE).add(slippageTolerance).multiply(amountIn.quotient).quotient
+    return CurrencyAmount.fromRawAmount(amountIn.currency, slippageAdjustedAmountIn)
   }
 
   private _executionPrice: Price<Currency, Currency> | undefined
+
   /**
    * The price expressed in terms of output amount/input amount.
    */
   public get executionPrice(): Price<Currency, Currency> {
     return (
-      this._executionPrice ??
-      (this._executionPrice = new Price(
+      this._executionPrice
+      ?? (this._executionPrice = new Price(
         this.inputAmount.currency,
         this.outputAmount.currency,
         this.inputAmount.quotient,

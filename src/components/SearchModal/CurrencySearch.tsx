@@ -2,13 +2,13 @@
 import { t, Trans } from '@lingui/macro'
 import { InterfaceEventName, InterfaceModalName } from '@uniswap/analytics-events'
 import { ChainId, Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
 import { ChangeEvent, KeyboardEvent, RefObject, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeList } from 'react-window'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
+import { useAccountDetails } from 'hooks/starknet-react'
 import { Trace } from 'analytics'
 import { useCachedPortfolioBalancesQuery } from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
 import { supportedChainIdFromGQLChain } from 'graphql/data/util'
@@ -50,8 +50,7 @@ interface CurrencySearchProps {
   onlyShowCurrenciesWithBalance?: boolean
 }
 
-export function CurrencySearch({
-  selectedCurrency,
+export function CurrencySearch({ selectedCurrency,
   onCurrencySelect,
   otherSelectedCurrency,
   showCommonBases,
@@ -59,8 +58,7 @@ export function CurrencySearch({
   disableNonToken,
   onDismiss,
   isOpen,
-  onlyShowCurrenciesWithBalance,
-}: CurrencySearchProps) {
+  onlyShowCurrenciesWithBalance }: CurrencySearchProps) {
   const { chainId, address: account } = useAccountDetails()
   const theme = useTheme()
 
@@ -79,21 +77,20 @@ export function CurrencySearch({
   const { data, loading: balancesAreLoading } = useCachedPortfolioBalancesQuery({ account })
 
   const balances: TokenBalances = useMemo(
-    () =>
-      data?.portfolios?.[0].tokenBalances?.reduce((balanceMap, tokenBalance) => {
-        if (
-          tokenBalance.token?.chain &&
-          supportedChainIdFromGQLChain(tokenBalance.token?.chain) === chainId &&
-          tokenBalance.token?.address !== undefined &&
-          tokenBalance.denominatedValue?.value !== undefined
-        ) {
-          const address = tokenBalance.token?.standard === 'ERC20' ? tokenBalance.token?.address?.toLowerCase() : 'ETH'
-          const usdValue = tokenBalance.denominatedValue?.value
-          const balance = tokenBalance.quantity
-          balanceMap[address] = { usdValue, balance: balance ?? 0 }
-        }
-        return balanceMap
-      }, {} as TokenBalances) ?? {},
+    () => data?.portfolios?.[0].tokenBalances?.reduce((balanceMap, tokenBalance) => {
+      if (
+        tokenBalance.token?.chain
+          && supportedChainIdFromGQLChain(tokenBalance.token?.chain) === chainId
+          && tokenBalance.token?.address !== undefined
+          && tokenBalance.denominatedValue?.value !== undefined
+      ) {
+        const address = tokenBalance.token?.standard === 'ERC20' ? tokenBalance.token?.address?.toLowerCase() : 'ETH'
+        const usdValue = tokenBalance.denominatedValue?.value
+        const balance = tokenBalance.quantity
+        balanceMap[address] = { usdValue, balance: balance ?? 0 }
+      }
+      return balanceMap
+    }, {} as TokenBalances) ?? {},
     [chainId, data?.portfolios]
   )
 
@@ -147,7 +144,7 @@ export function CurrencySearch({
     balances,
     onlyShowCurrenciesWithBalance,
     selectedCurrency,
-    otherSelectedCurrency,
+    otherSelectedCurrency
   ])
 
   const isLoading = Boolean(balancesAreLoading && !tokenLoaderTimerElapsed)
@@ -161,8 +158,7 @@ export function CurrencySearch({
     const s = debouncedQuery.toLowerCase().trim()
 
     const tokens = filteredSortedTokens.filter((t) => !(t.equals(wrapped) || (disableNonToken && t.isNative)))
-    const shouldShowWrapped =
-      !onlyShowCurrenciesWithBalance || (!balancesAreLoading && balances[wrapped.address]?.usdValue > 0)
+    const shouldShowWrapped = !onlyShowCurrenciesWithBalance || (!balancesAreLoading && balances[wrapped.address]?.usdValue > 0)
     const natives = (
       disableNonToken || native.equals(wrapped) ? [wrapped] : shouldShowWrapped ? [native, wrapped] : [native]
     ).filter((n) => n.symbol?.toLowerCase()?.indexOf(s) !== -1 || n.name?.toLowerCase()?.indexOf(s) !== -1)
@@ -176,7 +172,7 @@ export function CurrencySearch({
     balances,
     wrapped,
     disableNonToken,
-    native,
+    native
   ])
 
   const handleCurrencySelect = useCallback(
@@ -213,8 +209,8 @@ export function CurrencySearch({
           handleCurrencySelect(native)
         } else if (searchCurrencies.length > 0) {
           if (
-            searchCurrencies[0].symbol?.toLowerCase() === debouncedQuery.trim().toLowerCase() ||
-            searchCurrencies.length === 1
+            searchCurrencies[0].symbol?.toLowerCase() === debouncedQuery.trim().toLowerCase()
+            || searchCurrencies.length === 1
           ) {
             handleCurrencySelect(searchCurrencies[0])
           }
@@ -292,12 +288,6 @@ export function CurrencySearch({
               searchQuery,
               isAddressSearch
             )}
-            balance={
-              tryParseCurrencyAmount(
-                String(balances[searchToken.isNative ? 'ETH' : searchToken.address?.toLowerCase()]?.balance ?? 0),
-                searchToken
-              ) ?? CurrencyAmount.fromRawAmount(searchToken, 0)
-            }
           />
         </Column>
       ) : searchCurrencies?.length > 0 || filteredInactiveTokens?.length > 0 || isLoading ? (
@@ -316,7 +306,6 @@ export function CurrencySearch({
                 isLoading={isLoading}
                 searchQuery={searchQuery}
                 isAddressSearch={isAddressSearch}
-                balances={balances}
               />
             )}
           </AutoSizer>
