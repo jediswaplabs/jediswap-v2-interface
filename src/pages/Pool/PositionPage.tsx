@@ -54,7 +54,6 @@ import { useContractRead } from '@starknet-react/core'
 import { cairo, validateAndParseAddress } from 'starknet'
 import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
-import fetchTokenIds from 'api/fetchTokenId'
 
 const PositionPageButtonPrimary = styled(ButtonPrimary)`
   width: 228px;
