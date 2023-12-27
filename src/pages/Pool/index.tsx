@@ -324,7 +324,7 @@ export default function Pool() {
 
   const theme = useTheme()
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
-  const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds)
+  const { positions, loading: positionsLoading } = useV3PositionsFromTokenId([2])
 
   const [openPositions, closedPositions] = positions?.reduce<[FlattenedPositions[], FlattenedPositions[]]>(
     (acc, p) => {

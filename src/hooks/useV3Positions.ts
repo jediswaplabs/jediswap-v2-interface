@@ -81,7 +81,7 @@ export function useV3PositionsFromTokenId(tokenIds: number[] | undefined) {
   const error = useMemo(() => results.some(({ error }) => error), [results])
 
   const positions = useMemo(() => {
-    if (!loading && !error && tokenIds) {
+    if (!loading && !error && tokenIds?.length) {
       return results.map((call, i) => {
         const tokenId = tokenIds[i]
         const result = call.position as FlattenedPositions

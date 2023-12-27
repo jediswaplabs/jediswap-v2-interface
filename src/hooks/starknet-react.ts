@@ -4,6 +4,7 @@ import { AccountInterface, constants } from 'starknet'
 import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { WETH } from '@jediswap/sdk'
 import { useDefaultActiveTokens } from './Tokens'
+import formatBalance from 'utils/formatBalance'
 // Define the type for the balances object
 interface TokenBalance {
   balance: any // Replace 'any' with the correct type of balance
@@ -74,5 +75,5 @@ export const useAccountBalance = (currency: Currency) => {
     watch: true,
   })
 
-  return { balance: data?.formatted }
+  return { balance: formatBalance(data?.formatted) }
 }
