@@ -1,14 +1,15 @@
 import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
+import { useMemo } from 'react'
+import { ETHER } from '@jediswap/sdk' // TODO replace with new sdk
+
 import { useAccountDetails } from 'hooks/starknet-react'
 import { getChainInfo } from 'constants/chainInfo'
 import { DEFAULT_INACTIVE_LIST_URLS, DEFAULT_LIST_OF_LISTS } from 'constants/lists'
 import { useCurrencyFromMap, useTokenFromMapOrNetwork } from 'lib/hooks/useCurrency'
 import { getTokenFilter } from 'lib/hooks/useTokenList/filtering'
 import { TokenAddressMap } from 'lib/hooks/useTokenList/utils'
-import { useMemo } from 'react'
 import { useAppSelector } from 'state/hooks'
 import { isL2ChainId } from 'utils/chains'
-
 import { useAllLists, useCombinedActiveList, useCombinedTokenMapFromUrls } from '../state/lists/hooks'
 import { WrappedTokenInfo } from '../state/lists/wrappedTokenInfo'
 import { deserializeToken, useUserAddedTokens } from '../state/user/hooks'
@@ -18,7 +19,7 @@ type Maybe<T> = T | null | undefined
 // reduce token map into standard address <-> Token mapping, optionally include user added tokens
 function useTokensFromMap(tokenMap: TokenAddressMap, chainId: Maybe<ChainId>): { [address: string]: Token } {
   return useMemo(() => {
-    if (!chainId) return {}
+    if (!chainId) { return {} }
 
     // reduce to just tokens
     return Object.keys(tokenMap[chainId] ?? {}).reduce<{ [address: string]: Token }>((newMap, address) => {
@@ -67,21 +68,19 @@ export function useDefaultActiveTokens(chainId: Maybe<ChainId>): { [address: str
   const defaultListTokens = useCombinedActiveList()
   const tokensFromMap = useTokensFromMap(defaultListTokens, chainId)
   const userAddedTokens = useUserAddedTokens()
-  return useMemo(() => {
-    return (
-      userAddedTokens
-        // reduce into all ALL_TOKENS filtered by the current chain
-        .reduce<{ [address: string]: Token }>(
-          (tokenMap, token) => {
-            tokenMap[token.address] = token
-            return tokenMap
-          },
-          // must make a copy because reduce modifies the map, and we do not
-          // want to make a copy in every iteration
-          { ...tokensFromMap }
-        )
-    )
-  }, [tokensFromMap, userAddedTokens])
+  return useMemo(() => (
+    userAddedTokens
+    // reduce into all ALL_TOKENS filtered by the current chain
+      .reduce<{ [address: string]: Token }>(
+        (tokenMap, token) => {
+          tokenMap[token.address] = token
+          return tokenMap
+        },
+        // must make a copy because reduce modifies the map, and we do not
+        // want to make a copy in every iteration
+        { ...tokensFromMap }
+      )
+  ), [tokensFromMap, userAddedTokens])
 }
 
 type BridgeInfo = Record<
@@ -143,13 +142,13 @@ export function useSearchInactiveTokenLists(search: string | undefined, minResul
   const { chainId } = useAccountDetails()
   const activeTokens = useDefaultActiveTokens(chainId)
   return useMemo(() => {
-    if (!search || search.trim().length === 0) return []
+    if (!search || search.trim().length === 0) { return [] }
     const tokenFilter = getTokenFilter(search)
     const result: WrappedTokenInfo[] = []
     const addressSet: { [address: string]: true } = {}
     for (const url of inactiveUrls) {
       const list = lists[url]?.current
-      if (!list) continue
+      if (!list) { continue }
       for (const tokenInfo of list.tokens) {
         if ((tokenInfo.chainId as any) === chainId && tokenFilter(tokenInfo)) {
           try {
@@ -157,7 +156,7 @@ export function useSearchInactiveTokenLists(search: string | undefined, minResul
             if (!(wrapped.address in activeTokens) && !addressSet[wrapped.address]) {
               addressSet[wrapped.address] = true
               result.push(wrapped)
-              if (result.length >= minResults) return result
+              if (result.length >= minResults) { return result }
             }
           } catch {
             continue
@@ -190,7 +189,9 @@ export function useToken(tokenAddress?: string | null): Token | null | undefined
 }
 
 export function useCurrency(currencyId: Maybe<string>, chainId?: ChainId): Currency | undefined {
-  const { chainId: connectedChainId } = useAccountDetails()
-  const tokens = useDefaultActiveTokens(chainId ?? connectedChainId)
-  return useCurrencyFromMap(tokens, chainId ?? connectedChainId, currencyId)
+  const isETH = currencyId?.toUpperCase() === 'ETH'
+  // const isTOKEN1 = currencyId === TOKEN1.address
+  const token = useToken(isETH ? undefined : currencyId)
+  // @ts-ignore
+  return isETH ? ETHER : token
 }

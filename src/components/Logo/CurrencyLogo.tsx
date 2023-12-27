@@ -12,7 +12,7 @@ export default function CurrencyLogo(
     <AssetLogo
       isNative={props.currency?.isNative}
       chainId={props.currency?.chainId}
-      address={props.currency?.wrapped.address}
+      address={props.currency?.wrapped?.address}
       symbol={props.symbol ?? props.currency?.symbol}
       // backupImg={(props.currency as Token)?.logoURI}
       {...props}
