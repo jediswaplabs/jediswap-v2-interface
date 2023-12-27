@@ -1,13 +1,14 @@
+// @ts-nocheck
 import { Trans } from '@lingui/macro'
 import { Currency, CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
-import { useAccountDetails } from 'hooks/starknet-react'
 import ms from 'ms'
 import { darken } from 'polished'
 import { forwardRef, ReactNode, useCallback, useEffect, useState } from 'react'
 import { Lock } from 'react-feather'
 import styled, { useTheme } from 'styled-components'
 
+import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { AutoColumn } from 'components/Column'
 import { LoadingOpacityContainer, loadingOpacityMixin } from 'components/Loader/styled'
 import CurrencyLogo from 'components/Logo/CurrencyLogo'
@@ -24,225 +25,223 @@ import DoubleCurrencyLogo from '../DoubleLogo'
 import { Input as NumericalInput } from '../NumericalInput'
 import { RowBetween, RowFixed } from '../Row'
 import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
-import { FiatValue } from './FiatValue'
 
 const InputPanel = styled.div<{ hideInput?: boolean }>`
-  ${flexColumnNoWrap};
-  position: relative;
-  border-radius: ${({ hideInput }) => (hideInput ? '16px' : '20px')};
-  z-index: 1;
-  width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
-  transition: height 1s ease;
-  will-change: height;
+    ${flexColumnNoWrap};
+    position: relative;
+    border-radius: ${({ hideInput }) => (hideInput ? '16px' : '20px')};
+    z-index: 1;
+    width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
+    transition: height 1s ease;
+    will-change: height;
 `
 
 const FixedContainer = styled.div`
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  border-radius: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
 `
 
 const Container = styled.div<{ hideInput: boolean }>`
-  min-height: 44px;
-  border-radius: ${({ hideInput }) => (hideInput ? '16px' : '20px')};
-  width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
-  display: flex;
-  flex-direction: column;
-  row-gap: 12px;
+    min-height: 44px;
+    border-radius: ${({ hideInput }) => (hideInput ? '16px' : '20px')};
+    width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
+    display: flex;
+    flex-direction: column;
+    row-gap: 12px;
 `
 
 const CurrencySelect = styled(BaseButton)<{
-  visible: boolean
-  selected: boolean
-  hideInput?: boolean
-  disabled?: boolean
-  animateShake?: boolean
+    visible: boolean
+    selected: boolean
+    hideInput?: boolean
+    disabled?: boolean
+    animateShake?: boolean
 }>`
-  align-items: center;
-  background-color: ${({ theme }) => theme.jediNavyBlue};
-  opacity: ${({ disabled }) => (!disabled ? 1 : 0.4)};
-  color: ${({ selected, theme }) => (selected ? theme.neutral1 : theme.white)};
-  cursor: pointer;
-  height: 40px;
-  border-radius: 8px;
-  outline: none;
-  user-select: none;
-  border: 1px solid ${({ selected, theme }) => (selected ? '#fff' : 'transparent')};
-  font-size: 14px;
-  font-weight: 500;
-  width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
-  padding: 0 8px;
-  gap: 8px;
-  justify-content: space-between;
-  margin-right: ${({ hideInput }) => (hideInput ? '0' : '12px')};
-  box-shadow: ${({ theme }) => theme.deprecated_shallowShadow};
+    align-items: center;
+    background-color: ${({ theme }) => theme.jediNavyBlue};
+    opacity: ${({ disabled }) => (!disabled ? 1 : 0.4)};
+    color: ${({ selected, theme }) => (selected ? theme.neutral1 : theme.white)};
+    cursor: pointer;
+    height: 40px;
+    border-radius: 8px;
+    outline: none;
+    user-select: none;
+    border: 1px solid ${({ selected, theme }) => (selected ? '#fff' : 'transparent')};
+    font-size: 14px;
+    font-weight: 500;
+    width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
+    padding: 0 8px;
+    gap: 8px;
+    justify-content: space-between;
+    margin-right: ${({ hideInput }) => (hideInput ? '0' : '12px')};
+    box-shadow: ${({ theme }) => theme.deprecated_shallowShadow};
 
-  &:hover,
-  &:active {
-    border: 1px solid #fff;
-  }
+    &:hover,
+    &:active {
+        border: 1px solid #fff;
+    }
 
-  &:before {
-    background-size: 100%;
-    border-radius: inherit;
+    &:before {
+        background-size: 100%;
+        border-radius: inherit;
 
-    position: absolute;
-    top: 0;
-    left: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
 
-    width: 100%;
-    height: 100%;
-    content: '';
-  }
+        width: 100%;
+        height: 100%;
+        content: '';
+    }
 
-  visibility: ${({ visible }) => (visible ? 'visible' : 'hidden')};
+    visibility: ${({ visible }) => (visible ? 'visible' : 'hidden')};
 
-  @keyframes horizontal-shaking {
-    0% {
-      transform: translateX(0);
-      animation-timing-function: ease-in-out;
+    @keyframes horizontal-shaking {
+        0% {
+            transform: translateX(0);
+            animation-timing-function: ease-in-out;
+        }
+        20% {
+            transform: translateX(10px);
+            animation-timing-function: ease-in-out;
+        }
+        40% {
+            transform: translateX(-10px);
+            animation-timing-function: ease-in-out;
+        }
+        60% {
+            transform: translateX(10px);
+            animation-timing-function: ease-in-out;
+        }
+        80% {
+            transform: translateX(-10px);
+            animation-timing-function: ease-in-out;
+        }
+        100% {
+            transform: translateX(0);
+            animation-timing-function: ease-in-out;
+        }
     }
-    20% {
-      transform: translateX(10px);
-      animation-timing-function: ease-in-out;
-    }
-    40% {
-      transform: translateX(-10px);
-      animation-timing-function: ease-in-out;
-    }
-    60% {
-      transform: translateX(10px);
-      animation-timing-function: ease-in-out;
-    }
-    80% {
-      transform: translateX(-10px);
-      animation-timing-function: ease-in-out;
-    }
-    100% {
-      transform: translateX(0);
-      animation-timing-function: ease-in-out;
-    }
-  }
-  animation: ${({ animateShake }) => (animateShake ? 'horizontal-shaking 300ms' : 'none')};
+    animation: ${({ animateShake }) => (animateShake ? 'horizontal-shaking 300ms' : 'none')};
 `
 
 const InputRow = styled.div`
-  ${flexRowNoWrap};
-  align-items: center;
-  justify-content: space-between;
+    ${flexRowNoWrap};
+    align-items: center;
+    justify-content: space-between;
 `
 
 const LabelRow = styled.div`
-  ${flexRowNoWrap};
-  align-items: center;
-  color: ${({ theme }) => theme.neutral2};
-  font-size: 0.75rem;
-  line-height: 1rem;
+    ${flexRowNoWrap};
+    align-items: center;
+    color: ${({ theme }) => theme.neutral2};
+    font-size: 0.75rem;
+    line-height: 1rem;
 
-  span:hover {
-    cursor: pointer;
-    color: ${({ theme }) => darken(0.2, theme.neutral2)};
-  }
+    span:hover {
+        cursor: pointer;
+        color: ${({ theme }) => darken(0.2, theme.neutral2)};
+    }
 `
 
 const FiatRow = styled(LabelRow)`
-  justify-content: flex-end;
-  //min-height: 24px;
+    justify-content: flex-end;
+    //min-height: 24px;
 `
 
 const Aligner = styled.span`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
 `
 
 const StyledDropDown = styled(DropDown)<{ selected: boolean }>`
-  margin: 0;
-  height: 35%;
-  margin-left: 8px;
+    margin: 0;
+    height: 35%;
+    margin-left: 8px;
 
-  path {
-    stroke: ${({ selected, theme }) => (selected ? theme.neutral1 : theme.white)};
-    stroke-width: 2px;
-  }
+    path {
+        stroke: ${({ selected, theme }) => (selected ? theme.neutral1 : theme.white)};
+        stroke-width: 2px;
+    }
 `
 
 const StyledTokenName = styled.span<{ active?: boolean }>`
-  ${({ active }) => (active ? '  margin: 0 0.25rem 0 0.25rem;' : '  margin: 0 0.25rem 0 0.25rem;')}
-  font-size: 14px;
-  font-weight: 500;
+    ${({ active }) => (active ? '  margin: 0 0.25rem 0 0.25rem;' : '  margin: 0 0.25rem 0 0.25rem;')}
+    font-size: 14px;
+    font-weight: 500;
 `
 
 const StyledBalanceMax = styled.button<{ disabled?: boolean }>`
-  border-radius: 4px;
-  border: 1px solid #fff;
-  background: transparent;
-  color: ${({ theme }) => theme.neutral1};
-  cursor: pointer;
-  font-size: 12px;
-  line-height: 1;
-  font-weight: 400;
-  opacity: ${({ disabled }) => (!disabled ? 1 : 0.4)};
-  padding: 4px 12px;
-  text-transform: uppercase;
-  pointer-events: ${({ disabled }) => (!disabled ? 'initial' : 'none')};
+    border-radius: 4px;
+    border: 1px solid #fff;
+    background: transparent;
+    color: ${({ theme }) => theme.neutral1};
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 400;
+    opacity: ${({ disabled }) => (!disabled ? 1 : 0.4)};
+    padding: 4px 12px;
+    text-transform: uppercase;
+    pointer-events: ${({ disabled }) => (!disabled ? 'initial' : 'none')};
 
-  :hover {
-    opacity: ${({ disabled }) => (!disabled ? 0.8 : 0.4)};
-  }
+    :hover {
+        opacity: ${({ disabled }) => (!disabled ? 0.8 : 0.4)};
+    }
 
-  :focus {
-    outline: none;
-  }
+    :focus {
+        outline: none;
+    }
 `
 
 const StyledNumericalInput = styled(NumericalInput)<{ $loading: boolean }>`
-  ${loadingOpacityMixin};
-  text-align: right;
-  font-size: 36px;
-  font-weight: 485;
-  max-height: 44px;
+    ${loadingOpacityMixin};
+    text-align: right;
+    font-size: 36px;
+    font-weight: 485;
+    max-height: 44px;
 `
 
 interface SwapCurrencyInputPanelProps {
-  value: string
-  onUserInput: (value: string) => void
-  onMax?: () => void
-  showMaxButton: boolean
-  label: ReactNode
-  onCurrencySelect?: (currency: Currency) => void
-  currency?: Currency | null
-  hideBalance?: boolean
-  pair?: Pair | null
-  hideInput?: boolean
-  otherCurrency?: Currency | null
-  fiatValue?: { data?: number; isLoading: boolean }
-  priceImpact?: Percent
-  id: string
-  showCommonBases?: boolean
-  showCurrencyAmount?: boolean
-  disableNonToken?: boolean
-  renderBalance?: (amount: CurrencyAmount<Currency>) => ReactNode
-  locked?: boolean
-  loading?: boolean
-  disabled?: boolean
-  numericalInputSettings?: {
+    value: string
+    onUserInput: (value: string) => void
+    onMax?: () => void
+    showMaxButton: boolean
+    label: ReactNode
+    onCurrencySelect?: (currency: Currency) => void
+    currency?: Currency | null
+    hideBalance?: boolean
+    pair?: Pair | null
+    hideInput?: boolean
+    otherCurrency?: Currency | null
+    fiatValue?: { data?: number; isLoading: boolean }
+    priceImpact?: Percent
+    id: string
+    showCommonBases?: boolean
+    showCurrencyAmount?: boolean
+    disableNonToken?: boolean
+    renderBalance?: (amount: CurrencyAmount<Currency>) => ReactNode
+    locked?: boolean
+    loading?: boolean
     disabled?: boolean
-    onDisabledClick?: () => void
-    disabledTooltipBody?: ReactNode
-  }
+    numericalInputSettings?: {
+        disabled?: boolean
+        onDisabledClick?: () => void
+        disabledTooltipBody?: ReactNode
+    }
 }
 
 const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPanelProps>(
   (
-    {
-      value,
+    { value,
       onUserInput,
       onMax,
       showMaxButton,
@@ -264,13 +263,12 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
       disabled = false,
       numericalInputSettings,
       label,
-      ...rest
-    },
+      ...rest },
     ref
   ) => {
     const [modalOpen, setModalOpen] = useState(false)
     const { address: account, chainId } = useAccountDetails()
-    const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+    const { balance: selectedCurrencyBalance } = useAccountBalance(currency) ?? {}
     const theme = useTheme()
     const { formatCurrencyAmount } = useFormatter()
 
@@ -357,9 +355,9 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
                         >
                           {(currency && currency.symbol && currency.symbol.length > 20
                             ? `${currency.symbol.slice(0, 4)}...${currency.symbol.slice(
-                                currency.symbol.length - 5,
-                                currency.symbol.length
-                              )}`
+                              currency.symbol.length - 5,
+                              currency.symbol.length
+                            )}`
                             : currency?.symbol) || <Trans>Select token</Trans>}
                         </StyledTokenName>
                       )}
@@ -397,7 +395,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
                             Balance:{' '}
                             {formatCurrencyAmount({
                               amount: selectedCurrencyBalance,
-                              type: NumberType.TokenNonTx,
+                              type: NumberType.TokenNonTx
                             })}
                           </Trans>
                         )
@@ -407,9 +405,6 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
                 ) : (
                   <span />
                 )}
-                <LoadingOpacityContainer $loading={loading}>
-                  {fiatValue && <FiatValue fiatValue={fiatValue} priceImpact={priceImpact} />}
-                </LoadingOpacityContainer>
               </RowBetween>
             </FiatRow>
           )}

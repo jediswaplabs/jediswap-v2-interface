@@ -1,11 +1,9 @@
 import { Currency, CurrencyAmount, Percent, Price, Token } from '@vnaysn/jediswap-sdk-core'
 import { useCallback, useMemo } from 'react'
 
-import {
-  DEFAULT_LOCAL_CURRENCY,
+import { DEFAULT_LOCAL_CURRENCY,
   LOCAL_CURRENCY_SYMBOL_DISPLAY_TYPE,
-  SupportedLocalCurrency,
-} from 'constants/localCurrencies'
+  SupportedLocalCurrency } from 'constants/localCurrencies'
 import { DEFAULT_LOCALE, SupportedLocale } from 'constants/locales'
 import { useCurrencyConversionFlagEnabled } from 'featureFlags/flags/currencyConversion'
 import { Currency as GqlCurrency } from 'graphql/data/types-and-hooks'
@@ -24,20 +22,20 @@ type NumberFormatOptions = Intl.NumberFormatOptions
 const FIVE_DECIMALS_MAX_TWO_DECIMALS_MIN: NumberFormatOptions = {
   notation: 'standard',
   maximumFractionDigits: 5,
-  minimumFractionDigits: 2,
+  minimumFractionDigits: 2
 }
 
 const FIVE_DECIMALS_MAX_TWO_DECIMALS_MIN_NO_COMMAS: NumberFormatOptions = {
   notation: 'standard',
   maximumFractionDigits: 5,
   minimumFractionDigits: 2,
-  useGrouping: false,
+  useGrouping: false
 }
 
 const NO_DECIMALS: NumberFormatOptions = {
   notation: 'standard',
   maximumFractionDigits: 0,
-  minimumFractionDigits: 0,
+  minimumFractionDigits: 0
 }
 
 const NO_DECIMALS_CURRENCY: NumberFormatOptions = {
@@ -45,19 +43,19 @@ const NO_DECIMALS_CURRENCY: NumberFormatOptions = {
   maximumFractionDigits: 0,
   minimumFractionDigits: 0,
   currency: 'USD',
-  style: 'currency',
+  style: 'currency'
 }
 
 const THREE_DECIMALS_NO_TRAILING_ZEROS: NumberFormatOptions = {
   notation: 'standard',
   maximumFractionDigits: 3,
-  minimumFractionDigits: 0,
+  minimumFractionDigits: 0
 }
 
 const THREE_DECIMALS: NumberFormatOptions = {
   notation: 'standard',
   maximumFractionDigits: 3,
-  minimumFractionDigits: 3,
+  minimumFractionDigits: 3
 }
 
 const THREE_DECIMALS_CURRENCY: NumberFormatOptions = {
@@ -65,18 +63,18 @@ const THREE_DECIMALS_CURRENCY: NumberFormatOptions = {
   maximumFractionDigits: 3,
   minimumFractionDigits: 3,
   currency: 'USD',
-  style: 'currency',
+  style: 'currency'
 }
 
 const TWO_DECIMALS_NO_TRAILING_ZEROS: NumberFormatOptions = {
   notation: 'standard',
-  maximumFractionDigits: 2,
+  maximumFractionDigits: 2
 }
 
 const TWO_DECIMALS: NumberFormatOptions = {
   notation: 'standard',
   maximumFractionDigits: 2,
-  minimumFractionDigits: 2,
+  minimumFractionDigits: 2
 }
 
 const TWO_DECIMALS_CURRENCY: NumberFormatOptions = {
@@ -84,24 +82,24 @@ const TWO_DECIMALS_CURRENCY: NumberFormatOptions = {
   maximumFractionDigits: 2,
   minimumFractionDigits: 2,
   currency: 'USD',
-  style: 'currency',
+  style: 'currency'
 }
 
 const SHORTHAND_TWO_DECIMALS: NumberFormatOptions = {
   notation: 'compact',
   minimumFractionDigits: 2,
-  maximumFractionDigits: 2,
+  maximumFractionDigits: 2
 }
 
 const SHORTHAND_TWO_DECIMALS_NO_TRAILING_ZEROS: NumberFormatOptions = {
   notation: 'compact',
-  maximumFractionDigits: 2,
+  maximumFractionDigits: 2
 }
 
 const SHORTHAND_ONE_DECIMAL: NumberFormatOptions = {
   notation: 'compact',
   minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
+  maximumFractionDigits: 1
 }
 
 const SHORTHAND_CURRENCY_TWO_DECIMALS: NumberFormatOptions = {
@@ -109,7 +107,7 @@ const SHORTHAND_CURRENCY_TWO_DECIMALS: NumberFormatOptions = {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
   currency: 'USD',
-  style: 'currency',
+  style: 'currency'
 }
 
 const SHORTHAND_CURRENCY_ONE_DECIMAL: NumberFormatOptions = {
@@ -117,7 +115,7 @@ const SHORTHAND_CURRENCY_ONE_DECIMAL: NumberFormatOptions = {
   minimumFractionDigits: 1,
   maximumFractionDigits: 1,
   currency: 'USD',
-  style: 'currency',
+  style: 'currency'
 }
 
 const SIX_SIG_FIGS_TWO_DECIMALS: NumberFormatOptions = {
@@ -125,13 +123,13 @@ const SIX_SIG_FIGS_TWO_DECIMALS: NumberFormatOptions = {
   maximumSignificantDigits: 6,
   minimumSignificantDigits: 3,
   maximumFractionDigits: 2,
-  minimumFractionDigits: 2,
+  minimumFractionDigits: 2
 }
 
 const SIX_SIG_FIGS_NO_COMMAS: NumberFormatOptions = {
   notation: 'standard',
   maximumSignificantDigits: 6,
-  useGrouping: false,
+  useGrouping: false
 }
 
 const SIX_SIG_FIGS_TWO_DECIMALS_NO_COMMAS: NumberFormatOptions = {
@@ -140,7 +138,7 @@ const SIX_SIG_FIGS_TWO_DECIMALS_NO_COMMAS: NumberFormatOptions = {
   minimumSignificantDigits: 3,
   maximumFractionDigits: 2,
   minimumFractionDigits: 2,
-  useGrouping: false,
+  useGrouping: false
 }
 
 const ONE_SIG_FIG_CURRENCY: NumberFormatOptions = {
@@ -148,7 +146,7 @@ const ONE_SIG_FIG_CURRENCY: NumberFormatOptions = {
   minimumSignificantDigits: 1,
   maximumSignificantDigits: 1,
   currency: 'USD',
-  style: 'currency',
+  style: 'currency'
 }
 
 const THREE_SIG_FIGS_CURRENCY: NumberFormatOptions = {
@@ -156,7 +154,7 @@ const THREE_SIG_FIGS_CURRENCY: NumberFormatOptions = {
   minimumSignificantDigits: 3,
   maximumSignificantDigits: 3,
   currency: 'USD',
-  style: 'currency',
+  style: 'currency'
 }
 
 const SEVEN_SIG_FIGS__SCI_NOTATION_CURRENCY: NumberFormatOptions = {
@@ -164,7 +162,7 @@ const SEVEN_SIG_FIGS__SCI_NOTATION_CURRENCY: NumberFormatOptions = {
   minimumSignificantDigits: 7,
   maximumSignificantDigits: 7,
   currency: 'USD',
-  style: 'currency',
+  style: 'currency'
 }
 
 // each rule must contain either an `upperBound` or an `exact` value.
@@ -201,8 +199,8 @@ const tokenNonTxFormatter: FormatterRule[] = [
   {
     upperBound: Infinity,
     hardCodedInput: { input: 999_000_000_000_000, prefix: '>' },
-    formatterOptions: SHORTHAND_TWO_DECIMALS_NO_TRAILING_ZEROS,
-  },
+    formatterOptions: SHORTHAND_TWO_DECIMALS_NO_TRAILING_ZEROS
+  }
 ]
 
 const tokenTxFormatter: FormatterRule[] = [
@@ -210,18 +208,18 @@ const tokenTxFormatter: FormatterRule[] = [
   {
     upperBound: 0.00001,
     hardCodedInput: { input: 0.00001, prefix: '<' },
-    formatterOptions: FIVE_DECIMALS_MAX_TWO_DECIMALS_MIN,
+    formatterOptions: FIVE_DECIMALS_MAX_TWO_DECIMALS_MIN
   },
   { upperBound: 1, formatterOptions: FIVE_DECIMALS_MAX_TWO_DECIMALS_MIN },
   { upperBound: 10000, formatterOptions: SIX_SIG_FIGS_TWO_DECIMALS },
-  { upperBound: Infinity, formatterOptions: TWO_DECIMALS },
+  { upperBound: Infinity, formatterOptions: TWO_DECIMALS }
 ]
 
 const swapTradeAmountFormatter: FormatterRule[] = [
   { exact: 0, formatterOptions: NO_DECIMALS },
   { upperBound: 0.1, formatterOptions: SIX_SIG_FIGS_NO_COMMAS },
   { upperBound: 1, formatterOptions: FIVE_DECIMALS_MAX_TWO_DECIMALS_MIN_NO_COMMAS },
-  { upperBound: Infinity, formatterOptions: SIX_SIG_FIGS_TWO_DECIMALS_NO_COMMAS },
+  { upperBound: Infinity, formatterOptions: SIX_SIG_FIGS_TWO_DECIMALS_NO_COMMAS }
 ]
 
 const swapDetailsAmountFormatter: FormatterRule[] = [{ upperBound: Infinity, formatterOptions: SIX_SIG_FIGS_NO_COMMAS }]
@@ -231,9 +229,9 @@ const swapPriceFormatter: FormatterRule[] = [
   {
     upperBound: 0.00001,
     hardCodedInput: { input: 0.00001, prefix: '<' },
-    formatterOptions: FIVE_DECIMALS_MAX_TWO_DECIMALS_MIN,
+    formatterOptions: FIVE_DECIMALS_MAX_TWO_DECIMALS_MIN
   },
-  ...swapTradeAmountFormatter,
+  ...swapTradeAmountFormatter
 ]
 
 const fiatTokenDetailsFormatter: FormatterRule[] = [
@@ -241,12 +239,12 @@ const fiatTokenDetailsFormatter: FormatterRule[] = [
   {
     upperBound: 0.00000001,
     hardCodedInput: { input: 0.00000001, prefix: '<' },
-    formatterOptions: ONE_SIG_FIG_CURRENCY,
+    formatterOptions: ONE_SIG_FIG_CURRENCY
   },
   { upperBound: 0.1, formatterOptions: THREE_SIG_FIGS_CURRENCY },
   { upperBound: 1.05, formatterOptions: THREE_DECIMALS_CURRENCY },
   { upperBound: 1e6, formatterOptions: TWO_DECIMALS_CURRENCY },
-  { upperBound: Infinity, formatterOptions: SHORTHAND_CURRENCY_TWO_DECIMALS },
+  { upperBound: Infinity, formatterOptions: SHORTHAND_CURRENCY_TWO_DECIMALS }
 ]
 
 const fiatTokenPricesFormatter: FormatterRule[] = [
@@ -254,12 +252,12 @@ const fiatTokenPricesFormatter: FormatterRule[] = [
   {
     upperBound: 0.00000001,
     hardCodedInput: { input: 0.00000001, prefix: '<' },
-    formatterOptions: ONE_SIG_FIG_CURRENCY,
+    formatterOptions: ONE_SIG_FIG_CURRENCY
   },
   { upperBound: 1, formatterOptions: THREE_SIG_FIGS_CURRENCY },
   { upperBound: 1e6, formatterOptions: TWO_DECIMALS_CURRENCY },
   { upperBound: 1e16, formatterOptions: SHORTHAND_CURRENCY_TWO_DECIMALS },
-  { upperBound: Infinity, formatterOptions: SEVEN_SIG_FIGS__SCI_NOTATION_CURRENCY },
+  { upperBound: Infinity, formatterOptions: SEVEN_SIG_FIGS__SCI_NOTATION_CURRENCY }
 ]
 
 const fiatTokenStatsFormatter: FormatterRule[] = [
@@ -267,24 +265,24 @@ const fiatTokenStatsFormatter: FormatterRule[] = [
   { exact: 0, hardCodedInput: { hardcodedOutput: '-' }, formatterOptions: ONE_SIG_FIG_CURRENCY },
   { upperBound: 0.01, hardCodedInput: { input: 0.01, prefix: '<' }, formatterOptions: TWO_DECIMALS_CURRENCY },
   { upperBound: 1000, formatterOptions: TWO_DECIMALS_CURRENCY },
-  { upperBound: Infinity, formatterOptions: SHORTHAND_CURRENCY_ONE_DECIMAL },
+  { upperBound: Infinity, formatterOptions: SHORTHAND_CURRENCY_ONE_DECIMAL }
 ]
 
 const fiatGasPriceFormatter: FormatterRule[] = [
   { exact: 0, formatterOptions: NO_DECIMALS_CURRENCY },
   { upperBound: 0.01, hardCodedInput: { input: 0.01, prefix: '<' }, formatterOptions: TWO_DECIMALS_CURRENCY },
   { upperBound: 1e6, formatterOptions: TWO_DECIMALS_CURRENCY },
-  { upperBound: Infinity, formatterOptions: SHORTHAND_CURRENCY_TWO_DECIMALS },
+  { upperBound: Infinity, formatterOptions: SHORTHAND_CURRENCY_TWO_DECIMALS }
 ]
 
 const fiatTokenQuantityFormatter: FormatterRule[] = [
   { exact: 0, formatterOptions: TWO_DECIMALS_CURRENCY },
-  ...fiatGasPriceFormatter,
+  ...fiatGasPriceFormatter
 ]
 
 const portfolioBalanceFormatter: FormatterRule[] = [
   { exact: 0, formatterOptions: TWO_DECIMALS_CURRENCY },
-  { upperBound: Infinity, formatterOptions: TWO_DECIMALS_CURRENCY },
+  { upperBound: Infinity, formatterOptions: TWO_DECIMALS_CURRENCY }
 ]
 
 const ntfTokenFloorPriceFormatterTrailingZeros: FormatterRule[] = [
@@ -296,8 +294,8 @@ const ntfTokenFloorPriceFormatterTrailingZeros: FormatterRule[] = [
   {
     upperBound: Infinity,
     hardCodedInput: { input: 999_000_000_000_000, prefix: '>' },
-    formatterOptions: SHORTHAND_TWO_DECIMALS_NO_TRAILING_ZEROS,
-  },
+    formatterOptions: SHORTHAND_TWO_DECIMALS_NO_TRAILING_ZEROS
+  }
 ]
 
 const ntfTokenFloorPriceFormatter: FormatterRule[] = [
@@ -309,13 +307,13 @@ const ntfTokenFloorPriceFormatter: FormatterRule[] = [
   {
     upperBound: Infinity,
     hardCodedInput: { input: 999_000_000_000_000, prefix: '>' },
-    formatterOptions: SHORTHAND_TWO_DECIMALS_NO_TRAILING_ZEROS,
-  },
+    formatterOptions: SHORTHAND_TWO_DECIMALS_NO_TRAILING_ZEROS
+  }
 ]
 
 const ntfCollectionStatsFormatter: FormatterRule[] = [
   { upperBound: 1000, formatterOptions: NO_DECIMALS },
-  { upperBound: Infinity, formatterOptions: SHORTHAND_ONE_DECIMAL },
+  { upperBound: Infinity, formatterOptions: SHORTHAND_ONE_DECIMAL }
 ]
 
 export enum NumberType {
@@ -378,7 +376,7 @@ const TYPE_TO_FORMATTER_RULES = {
   [NumberType.PortfolioBalance]: portfolioBalanceFormatter,
   [NumberType.NFTTokenFloorPrice]: ntfTokenFloorPriceFormatter,
   [NumberType.NFTTokenFloorPriceTrailingZeros]: ntfTokenFloorPriceFormatterTrailingZeros,
-  [NumberType.NFTCollectionStats]: ntfCollectionStatsFormatter,
+  [NumberType.NFTCollectionStats]: ntfCollectionStatsFormatter
 }
 
 function getFormatterRule(input: number, type: FormatterType, conversionRate?: number): FormatterRule {
@@ -388,8 +386,8 @@ function getFormatterRule(input: number, type: FormatterType, conversionRate?: n
     const convertedInput = shouldConvertInput ? input * conversionRate : input
 
     if (
-      (rule.exact !== undefined && convertedInput === rule.exact) ||
-      (rule.upperBound !== undefined && convertedInput < rule.upperBound)
+      (rule.exact !== undefined && convertedInput === rule.exact)
+      || (rule.upperBound !== undefined && convertedInput < rule.upperBound)
     ) {
       return rule
     }
@@ -407,14 +405,12 @@ interface FormatNumberOptions {
   conversionRate?: number
 }
 
-function formatNumber({
-  input,
+function formatNumber({ input,
   type = NumberType.TokenNonTx,
   placeholder = '-',
   locale = DEFAULT_LOCALE,
   localCurrency = DEFAULT_LOCAL_CURRENCY,
-  conversionRate,
-}: FormatNumberOptions): string {
+  conversionRate }: FormatNumberOptions): string {
   if (input === null || input === undefined) {
     return placeholder
   }
@@ -451,21 +447,19 @@ interface FormatCurrencyAmountOptions {
   conversionRate?: number
 }
 
-function formatCurrencyAmount({
-  amount,
+function formatCurrencyAmount({ amount,
   type = NumberType.TokenNonTx,
   placeholder,
   locale = DEFAULT_LOCALE,
   localCurrency = DEFAULT_LOCAL_CURRENCY,
-  conversionRate,
-}: FormatCurrencyAmountOptions): string {
+  conversionRate }: FormatCurrencyAmountOptions): string {
   return formatNumber({
-    input: amount ? parseFloat(amount.toSignificant()) : undefined,
+    input: amount ? parseFloat(amount?.toSignificant?.() ?? amount) : undefined,
     type,
     placeholder,
     locale,
     localCurrency,
-    conversionRate,
+    conversionRate
   })
 }
 
@@ -476,7 +470,7 @@ function formatPercent(percent: Percent | undefined, locale: SupportedLocale = D
 
   return `${Number(percent.toFixed(3)).toLocaleString(locale, {
     maximumFractionDigits: 3,
-    useGrouping: false,
+    useGrouping: false
   })}%`
 }
 
@@ -489,7 +483,7 @@ function formatDelta(delta: Nullish<number>, locale: SupportedLocale = DEFAULT_L
   return `${Number(Math.abs(delta).toFixed(2)).toLocaleString(locale, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-    useGrouping: false,
+    useGrouping: false
   })}%`
 }
 
@@ -501,13 +495,11 @@ interface FormatPriceOptions {
   conversionRate?: number
 }
 
-function formatPrice({
-  price,
+function formatPrice({ price,
   type = NumberType.FiatTokenPrice,
   locale = DEFAULT_LOCALE,
   localCurrency = DEFAULT_LOCAL_CURRENCY,
-  conversionRate,
-}: FormatPriceOptions): string {
+  conversionRate }: FormatPriceOptions): string {
   if (price === null || price === undefined) {
     return '-'
   }
@@ -526,16 +518,14 @@ interface FormatTickPriceOptions {
   conversionRate?: number
 }
 
-function formatTickPrice({
-  price,
+function formatTickPrice({ price,
   atLimit,
   direction,
   placeholder,
   numberType,
   locale,
   localCurrency,
-  conversionRate,
-}: FormatTickPriceOptions) {
+  conversionRate }: FormatTickPriceOptions) {
   if (atLimit[direction]) {
     return direction === Bound.LOWER ? '0' : '∞'
   }
@@ -555,13 +545,11 @@ interface FormatNumberOrStringOptions {
   conversionRate?: number
 }
 
-function formatNumberOrString({
-  input,
+function formatNumberOrString({ input,
   type,
   locale,
   localCurrency,
-  conversionRate,
-}: FormatNumberOrStringOptions): string {
+  conversionRate }: FormatNumberOrStringOptions): string {
   if (input === null || input === undefined) {
     return '-'
   }
@@ -579,13 +567,11 @@ interface FormatFiatPriceOptions {
   conversionRate?: number
 }
 
-function formatFiatPrice({
-  price,
+function formatFiatPrice({ price,
   type = NumberType.FiatTokenPrice,
   locale,
   localCurrency,
-  conversionRate,
-}: FormatFiatPriceOptions): string {
+  conversionRate }: FormatFiatPriceOptions): string {
   return formatNumberOrString({ input: price, type, locale, localCurrency, conversionRate })
 }
 
@@ -605,7 +591,7 @@ function formatReviewSwapCurrencyAmount(
 export function useFormatterLocales(): {
   formatterLocale: SupportedLocale
   formatterLocalCurrency: SupportedLocalCurrency
-} {
+  } {
   const currencyConversionEnabled = useCurrencyConversionFlagEnabled()
   const activeLocale = useActiveLocale()
   const activeLocalCurrency = useActiveLocalCurrency()
@@ -613,13 +599,13 @@ export function useFormatterLocales(): {
   if (currencyConversionEnabled) {
     return {
       formatterLocale: activeLocale,
-      formatterLocalCurrency: activeLocalCurrency,
+      formatterLocalCurrency: activeLocalCurrency
     }
   }
 
   return {
     formatterLocale: DEFAULT_LOCALE,
-    formatterLocalCurrency: DEFAULT_LOCAL_CURRENCY,
+    formatterLocalCurrency: DEFAULT_LOCAL_CURRENCY
   }
 }
 
@@ -644,8 +630,7 @@ export function useFormatter() {
   const { formatterLocale, formatterLocalCurrency } = useFormatterLocales()
 
   const formatterLocalCurrencyIsUSD = formatterLocalCurrency === GqlCurrency.Usd
-  const { data: localCurrencyConversionRate, isLoading: localCurrencyConversionRateIsLoading } =
-    useLocalCurrencyConversionRate(formatterLocalCurrency, formatterLocalCurrencyIsUSD)
+  const { data: localCurrencyConversionRate, isLoading: localCurrencyConversionRateIsLoading } = useLocalCurrencyConversionRate(formatterLocalCurrency, formatterLocalCurrencyIsUSD)
 
   const previousSelectedCurrency = usePrevious(formatterLocalCurrency)
   const previousConversionRate = usePrevious(localCurrencyConversionRate)
@@ -665,35 +650,32 @@ export function useFormatter() {
 
   type LocalesType = 'locale' | 'localCurrency' | 'conversionRate'
   const formatNumberWithLocales = useCallback(
-    (options: Omit<FormatNumberOptions, LocalesType>) =>
-      formatNumber({
-        ...options,
-        locale: formatterLocale,
-        localCurrency: currencyToFormatWith,
-        conversionRate: localCurrencyConversionRateToFormatWith,
-      }),
+    (options: Omit<FormatNumberOptions, LocalesType>) => formatNumber({
+      ...options,
+      locale: formatterLocale,
+      localCurrency: currencyToFormatWith,
+      conversionRate: localCurrencyConversionRateToFormatWith
+    }),
     [currencyToFormatWith, formatterLocale, localCurrencyConversionRateToFormatWith]
   )
 
   const formatCurrencyAmountWithLocales = useCallback(
-    (options: Omit<FormatCurrencyAmountOptions, LocalesType>) =>
-      formatCurrencyAmount({
-        ...options,
-        locale: formatterLocale,
-        localCurrency: currencyToFormatWith,
-        conversionRate: localCurrencyConversionRateToFormatWith,
-      }),
+    (options: Omit<FormatCurrencyAmountOptions, LocalesType>) => formatCurrencyAmount({
+      ...options,
+      locale: formatterLocale,
+      localCurrency: currencyToFormatWith,
+      conversionRate: localCurrencyConversionRateToFormatWith
+    }),
     [currencyToFormatWith, formatterLocale, localCurrencyConversionRateToFormatWith]
   )
 
   const formatPriceWithLocales = useCallback(
-    (options: Omit<FormatPriceOptions, LocalesType>) =>
-      formatPrice({
-        ...options,
-        locale: formatterLocale,
-        localCurrency: currencyToFormatWith,
-        conversionRate: localCurrencyConversionRateToFormatWith,
-      }),
+    (options: Omit<FormatPriceOptions, LocalesType>) => formatPrice({
+      ...options,
+      locale: formatterLocale,
+      localCurrency: currencyToFormatWith,
+      conversionRate: localCurrencyConversionRateToFormatWith
+    }),
     [currencyToFormatWith, formatterLocale, localCurrencyConversionRateToFormatWith]
   )
 
@@ -703,35 +685,32 @@ export function useFormatter() {
   )
 
   const formatTickPriceWithLocales = useCallback(
-    (options: Omit<FormatTickPriceOptions, LocalesType>) =>
-      formatTickPrice({
-        ...options,
-        locale: formatterLocale,
-        localCurrency: currencyToFormatWith,
-        conversionRate: localCurrencyConversionRateToFormatWith,
-      }),
+    (options: Omit<FormatTickPriceOptions, LocalesType>) => formatTickPrice({
+      ...options,
+      locale: formatterLocale,
+      localCurrency: currencyToFormatWith,
+      conversionRate: localCurrencyConversionRateToFormatWith
+    }),
     [currencyToFormatWith, formatterLocale, localCurrencyConversionRateToFormatWith]
   )
 
   const formatNumberOrStringWithLocales = useCallback(
-    (options: Omit<FormatNumberOrStringOptions, LocalesType>) =>
-      formatNumberOrString({
-        ...options,
-        locale: formatterLocale,
-        localCurrency: currencyToFormatWith,
-        conversionRate: localCurrencyConversionRateToFormatWith,
-      }),
+    (options: Omit<FormatNumberOrStringOptions, LocalesType>) => formatNumberOrString({
+      ...options,
+      locale: formatterLocale,
+      localCurrency: currencyToFormatWith,
+      conversionRate: localCurrencyConversionRateToFormatWith
+    }),
     [currencyToFormatWith, formatterLocale, localCurrencyConversionRateToFormatWith]
   )
 
   const formatFiatPriceWithLocales = useCallback(
-    (options: Omit<FormatFiatPriceOptions, LocalesType>) =>
-      formatFiatPrice({
-        ...options,
-        locale: formatterLocale,
-        localCurrency: currencyToFormatWith,
-        conversionRate: localCurrencyConversionRateToFormatWith,
-      }),
+    (options: Omit<FormatFiatPriceOptions, LocalesType>) => formatFiatPrice({
+      ...options,
+      locale: formatterLocale,
+      localCurrency: currencyToFormatWith,
+      conversionRate: localCurrencyConversionRateToFormatWith
+    }),
     [currencyToFormatWith, formatterLocale, localCurrencyConversionRateToFormatWith]
   )
 
@@ -755,7 +734,7 @@ export function useFormatter() {
       formatPercent: formatPercentWithLocales,
       formatPrice: formatPriceWithLocales,
       formatReviewSwapCurrencyAmount: formatReviewSwapCurrencyAmountWithLocales,
-      formatTickPrice: formatTickPriceWithLocales,
+      formatTickPrice: formatTickPriceWithLocales
     }),
     [
       formatCurrencyAmountWithLocales,
@@ -766,7 +745,7 @@ export function useFormatter() {
       formatPercentWithLocales,
       formatPriceWithLocales,
       formatReviewSwapCurrencyAmountWithLocales,
-      formatTickPriceWithLocales,
+      formatTickPriceWithLocales
     ]
   )
 }

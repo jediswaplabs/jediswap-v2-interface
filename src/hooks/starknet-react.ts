@@ -3,6 +3,7 @@ import { Connector, useAccount, useBalance, useConnect, useProvider } from '@sta
 import { AccountInterface, constants } from 'starknet'
 import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { WETH } from '@jediswap/sdk'
+
 import { useDefaultActiveTokens } from './Tokens'
 // Define the type for the balances object
 interface TokenBalance {
@@ -64,14 +65,14 @@ export const useConnectors = () => {
   return { connect, connectors }
 }
 
-export const useAccountBalance = (currency: Currency) => {
+export const useAccountBalance = (currency: Currency | null | undefined) => {
   const { address } = useAccountDetails()
   const tokenAddress = (currency as any)?.address
 
   const { data } = useBalance({
     token: tokenAddress,
     address,
-    watch: true,
+    watch: true
   })
 
   return { balance: data?.formatted }
