@@ -1,37 +1,42 @@
 // @ts-nocheck
-import { Trans } from '@lingui/macro';
-import { useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Trans } from '@lingui/macro'
+import { useCallback } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
-import Logo from 'assets/jedi/logo.png';
-import MobileLogo from 'assets/jedi/squareLogo.png';
-import { useAccountDrawer } from 'components/AccountDrawer';
-import Web3Status from 'components/Web3Status';
-import { useIsPoolsPage } from 'hooks/useIsPoolsPage';
-import { NetworkName } from './NetworkName';
-import { ActiveMenuItem, ExternalMenuItem, LogoContainer, MenuContainer, MenuItem, Nav, StatusContainer } from './styled';
+import Logo from 'assets/jedi/logo.png'
+import MobileLogo from 'assets/jedi/squareLogo.png'
+import { useAccountDrawer } from 'components/AccountDrawer'
+import Web3Status from 'components/Web3Status'
+import { useIsPoolsPage } from 'hooks/useIsPoolsPage'
+import { NetworkName } from './NetworkName'
+import {
+  ActiveMenuItem,
+  ExternalMenuItem,
+  LogoContainer,
+  MenuContainer,
+  MenuItem,
+  Nav,
+  StatusContainer,
+} from './styled'
 
 const MenuItemLink = ({ to, dataTestId, id, isActive, children }) => {
-  const Component = isActive ? ActiveMenuItem : MenuItem;
+  const Component = isActive ? ActiveMenuItem : MenuItem
   return (
-    <Component
-      to={to}
-      id={id}
-      style={{ textDecoration: 'none' }}
-      data-testid={dataTestId}
-    >
+    <Component to={to} id={id} style={{ textDecoration: 'none' }} data-testid={dataTestId}>
       {children}
     </Component>
-  );
-};
+  )
+}
 
 const ExternalMenuItemLink = ({ to, children }) => (
-  <ExternalMenuItem target="_blank" rel="noopener noreferrer" href={to}>{children}</ExternalMenuItem>
-);
+  <ExternalMenuItem target="_blank" rel="noopener noreferrer" href={to}>
+    {children}
+  </ExternalMenuItem>
+)
 
 export const PageTabs = () => {
-  const { pathname } = useLocation();
-  const isPoolActive = useIsPoolsPage();
+  const { pathname } = useLocation()
+  const isPoolActive = useIsPoolsPage()
 
   return (
     <>
@@ -45,28 +50,42 @@ export const PageTabs = () => {
         <Trans>Dashboard</Trans>
       </ExternalMenuItemLink>
     </>
-  );
-};
+  )
+}
 
 const Navbar = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  const [accountDrawerOpen, toggleAccountDrawer] = useAccountDrawer();
+  const [accountDrawerOpen, toggleAccountDrawer] = useAccountDrawer()
 
   const handleLogoIconClick = useCallback(() => {
     if (accountDrawerOpen) {
-      toggleAccountDrawer();
+      toggleAccountDrawer()
     }
     navigate({
       pathname: '/',
-    });
-  }, [accountDrawerOpen, navigate, toggleAccountDrawer]);
+    })
+  }, [accountDrawerOpen, navigate, toggleAccountDrawer])
 
   return (
     <Nav>
       <LogoContainer>
-        <img width={'195px'} height={'32px'} src={Logo} alt="logo" onClick={handleLogoIconClick} className={'desktop'} />
-        <img width={'32'} height={'32'} src={MobileLogo} alt="logo" onClick={handleLogoIconClick} className={'mobile'} />
+        <img
+          width={'195px'}
+          height={'32px'}
+          src={Logo}
+          alt="logo"
+          onClick={handleLogoIconClick}
+          className={'desktop'}
+        />
+        <img
+          width={'32'}
+          height={'32'}
+          src={MobileLogo}
+          alt="logo"
+          onClick={handleLogoIconClick}
+          className={'mobile'}
+        />
       </LogoContainer>
 
       <MenuContainer>
@@ -74,12 +93,11 @@ const Navbar = () => {
       </MenuContainer>
 
       <StatusContainer>
-        <NetworkName />
+        {/* <NetworkName /> */}
         <Web3Status />
       </StatusContainer>
     </Nav>
+  )
+}
 
-  );
-};
-
-export default Navbar;
+export default Navbar

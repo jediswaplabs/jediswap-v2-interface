@@ -3,12 +3,15 @@ import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount, Percent, validateAndParseAddress } from '@vnaysn/jediswap-sdk-core'
-import { FeeAmount, NonfungiblePositionManager, toHex } from '@vnaysn/jediswap-sdk-v3'
+import { FeeAmount, NonfungiblePositionManager, Position, toHex } from '@vnaysn/jediswap-sdk-v3'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
+import { useContractWrite, useProvider } from '@starknet-react/core'
+import { BigNumberish, cairo, Call, CallData, hash, num } from 'starknet'
+import JSBI from 'jsbi'
 
 import { sendAnalyticsEvent, TraceEvent, useTrace } from 'analytics'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
@@ -19,12 +22,10 @@ import usePrevious from 'hooks/usePrevious'
 import { useSingleCallResult } from 'lib/hooks/multicall'
 import { BodyWrapper } from 'pages/AppBody'
 import { PositionPageUnsupportedContent } from 'pages/Pool/PositionPage'
-import {
-  useRangeHopCallbacks,
+import { useRangeHopCallbacks,
   useV3DerivedMintInfo,
   useV3MintActionHandlers,
-  useV3MintState,
-} from 'state/mint/v3/hooks'
+  useV3MintState } from 'state/mint/v3/hooks'
 import { ThemedText } from 'theme/components'
 import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
 import { WrongChainError } from 'utils/errors'
@@ -53,7 +54,7 @@ import { useDerivedPositionInfo } from '../../hooks/useDerivedPositionInfo'
 import { useIsSwapUnsupported } from '../../hooks/useIsSwapUnsupported'
 import { useStablecoinValue } from '../../hooks/useStablecoinPrice'
 import useTransactionDeadline from '../../hooks/useTransactionDeadline'
-import { useV3PositionFromTokenId } from '../../hooks/useV3Positions'
+import { useV3PositionFromTokenId, useV3PositionsFromTokenId } from '../../hooks/useV3Positions'
 import { Bound, Field } from '../../state/mint/v3/actions'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { TransactionInfo, TransactionType } from '../../state/transactions/types'
@@ -68,8 +69,8 @@ import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, Style
 import { useAccountDetails } from 'hooks/starknet-react'
 import { NONFUNGIBLE_POSITION_MANAGER_ADDRESSES } from 'constants/addresses'
 import { calculateSlippageAmount } from 'utils/calculateSlippageAmount'
-import { useContractWrite, useProvider } from '@starknet-react/core'
-import { Call, CallData, num } from 'starknet'
+import { toI32 } from 'utils/toI32'
+import { useApprovalCall } from 'hooks/useApproveCall'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -88,12 +89,10 @@ export default function AddLiquidityWrapper() {
 
 function AddLiquidity() {
   const navigate = useNavigate()
-  const {
-    currencyIdA,
+  const { currencyIdA,
     currencyIdB,
     feeAmount: feeAmountFromUrl,
-    tokenId,
-  } = useParams<{
+    tokenId } = useParams<{
     currencyIdA?: string
     currencyIdB?: string
     feeAmount?: string
@@ -109,29 +108,25 @@ function AddLiquidity() {
   const positionManager = useV3NFTPositionManagerContract()
 
   // check for existing position if tokenId in url
-  const { position: existingPositionDetails, loading: positionLoading } = useV3PositionFromTokenId(
-    tokenId ? BigNumber.from(tokenId) : undefined
-  )
+  const { positions, loading: positionLoading } = useV3PositionsFromTokenId([Number(tokenId || undefined)])
+  const existingPositionDetails = positions && positions?.[0]
   const hasExistingPosition = !!existingPositionDetails && !positionLoading
   const { position: existingPosition } = useDerivedPositionInfo(existingPositionDetails)
 
   // fee selection from url
-  const feeAmount: FeeAmount | undefined =
-    feeAmountFromUrl && Object.values(FeeAmount).includes(parseFloat(feeAmountFromUrl))
-      ? parseFloat(feeAmountFromUrl)
-      : undefined
+  const feeAmount: FeeAmount | undefined = feeAmountFromUrl && Object.values(FeeAmount).includes(parseFloat(feeAmountFromUrl))
+    ? parseFloat(feeAmountFromUrl)
+    : undefined
 
   const baseCurrency = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
   // prevent an error if they input ETH/WETH
-  const quoteCurrency =
-    baseCurrency && currencyB && baseCurrency.wrapped.equals(currencyB.wrapped) ? undefined : currencyB
+  const quoteCurrency = baseCurrency && currencyB && baseCurrency.wrapped.equals(currencyB.wrapped) ? undefined : currencyB
 
   // mint state
   const { independentField, typedValue, startPriceTypedValue } = useV3MintState()
 
-  const {
-    pool,
+  const { pool,
     ticks,
     dependentField,
     price,
@@ -140,7 +135,7 @@ function AddLiquidity() {
     parsedAmounts,
     currencyBalances,
     position,
-    // noLiquidity,
+    noLiquidity,
     currencies,
     errorMessage,
     // invalidPool,
@@ -149,24 +144,22 @@ function AddLiquidity() {
     depositADisabled,
     depositBDisabled,
     invertPrice,
-    ticksAtLimit,
-  } = useV3DerivedMintInfo(
+    ticksAtLimit } = useV3DerivedMintInfo(
     baseCurrency ?? undefined,
     quoteCurrency ?? undefined,
     feeAmount,
     baseCurrency ?? undefined,
     existingPosition
   )
-  const invalidPool = false
-  const noLiquidity = false
 
-  const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
-    useV3MintActionHandlers(noLiquidity)
+  const invalidPool = false
+
+  const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } = useV3MintActionHandlers(noLiquidity)
 
   const [mintCallData, setMintCallData] = useState<Call[]>([])
 
-  const { writeAsync, data } = useContractWrite({
-    calls: mintCallData,
+  const { writeAsync, data: txData } = useContractWrite({
+    calls: mintCallData
   })
 
   const isValid = !errorMessage && !invalidRange
@@ -183,19 +176,22 @@ function AddLiquidity() {
   // get formatted amounts
   const formattedAmounts = {
     [independentField]: typedValue,
-    [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
+    [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? ''
   }
 
   const usdcValues = {
     [Field.CURRENCY_A]: useStablecoinValue(parsedAmounts[Field.CURRENCY_A]),
-    [Field.CURRENCY_B]: useStablecoinValue(parsedAmounts[Field.CURRENCY_B]),
+    [Field.CURRENCY_B]: useStablecoinValue(parsedAmounts[Field.CURRENCY_B])
   }
 
+  // check whether the user has approved the router on the tokens
+  const approvalACallback = useApprovalCall(parsedAmounts[Field.CURRENCY_A], NONFUNGIBLE_POOL_MANAGER_ADDRESS)
+  const approvalBCallback = useApprovalCall(parsedAmounts[Field.CURRENCY_B], NONFUNGIBLE_POOL_MANAGER_ADDRESS)
   // get the max amounts user can add
   const maxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
     (accumulator, field) => ({
       ...accumulator,
-      [field]: maxAmountSpend(currencyBalances[field]),
+      [field]: maxAmountSpend(currencyBalances[field])
     }),
     {}
   )
@@ -203,7 +199,7 @@ function AddLiquidity() {
   const atMaxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
     (accumulator, field) => ({
       ...accumulator,
-      [field]: maxAmounts[field]?.equalTo(parsedAmounts[field] ?? '0'),
+      [field]: maxAmounts[field]?.equalTo(parsedAmounts[field] ?? '0')
     }),
     {}
   )
@@ -223,8 +219,22 @@ function AddLiquidity() {
   const [allowedSlippage] = useUserSlippageTolerance() // custom from users
 
   useEffect(() => {
+    if (txData) { console.log(txData, 'txData') }
+  }, [txData])
+
+  useEffect(() => {
     if (mintCallData) {
-      writeAsync().then((tx) => console.log(tx))
+      writeAsync()
+        .then((response) => {
+          setAttemptingTxn(false)
+          if (response?.transaction_hash) {
+            setTxHash(response.transaction_hash)
+          }
+        })
+        .catch((err) => {
+          console.log(err?.message)
+          setAttemptingTxn(false)
+        })
     }
   }, [mintCallData])
 
@@ -238,62 +248,82 @@ function AddLiquidity() {
     }
 
     if (position && account && deadline) {
+      const approvalA = approvalACallback()
+      const approvalB = approvalBCallback()
+
+      if (!approvalA || !approvalB) { return }
+
       // get amounts
       const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
 
       // adjust for slippage
       const minimumAmounts = position.mintAmountsWithSlippage(allowedSlippage)
-      const amount0Min = toHex(minimumAmounts.amount0)
-      const amount1Min = toHex(minimumAmounts.amount1)
+      const amount0Min = minimumAmounts.amount0
+      const amount1Min = minimumAmounts.amount1
+      if (noLiquidity) {
+        // create and initialize pool
+        const initializeData = {
+          token0: position.pool.token0.address,
+          token1: position.pool.token1.address,
+          fee: position.pool.fee,
+          sqrt_price_X96: cairo.uint256(position?.pool?.sqrtRatioX96.toString())
+        }
 
-      let value: string = num.toHex(0)
-      const mintData = {
-        token0: position.pool.token0.address,
-        token1: position.pool.token1.address,
-        fee: position.pool.fee,
-        tickLower: position.tickLower,
-        tickUpper: position.tickUpper,
-        amount0Desired: toHex(amount0Desired),
-        amount1Desired: toHex(amount1Desired),
-        amount0Min,
-        amount1Min,
-        recipient: account,
-        deadline,
+        const initializeCallData = CallData.compile(initializeData)
+        const icalls = {
+          contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+          entrypoint: 'create_and_initialize_pool',
+          calldata: initializeCallData
+        }
+
+        // mint position
+        const mintData = {
+          token0: position.pool.token0.address,
+          token1: position.pool.token1.address,
+          fee: position.pool.fee,
+          tick_lower: toI32(position.tickLower),
+          tick_upper: toI32(position.tickUpper),
+          amount0_desired: cairo.uint256(amount0Desired.toString()),
+          amount1_desired: cairo.uint256(amount1Desired.toString()),
+          amount0_min: cairo.uint256(amount0Min.toString()),
+          amount1_min: cairo.uint256(amount1Min.toString()),
+          recipient: account,
+          deadline: cairo.felt(deadline.toString())
+        }
+        const mintCallData = CallData.compile(mintData)
+        const mcalls = {
+          contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+          entrypoint: 'mint',
+          calldata: mintCallData
+        }
+        setMintCallData([icalls, approvalA, approvalB, mcalls])
+      } else {
+        const hasExistingLiquidity = hasExistingPosition
+        let mintData = {}
+        if (hasExistingLiquidity) {
+          mintData = {
+            tokenId: cairo.uint256(1),
+            amount0_desired: cairo.uint256(amount0Desired.toString()),
+            amount1_desired: cairo.uint256(amount1Desired.toString()),
+            amount0_min: cairo.uint256(amount0Min.toString()),
+            amount1_min: cairo.uint256(amount1Min.toString()),
+            deadline: cairo.felt(deadline.toString())
+          }
+        }
+        const callData = CallData.compile(mintData)
+
+        const calls = {
+          contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+          entrypoint: 'increase_liquidity',
+          calldata: callData
+        }
+
+        setMintCallData([approvalA, approvalB, calls])
       }
-
-      const callData = CallData.compile(mintData)
-
-      const calls = {
-        contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
-        entrypoint: 'mint',
-        calldata: callData,
-      }
-
-      setMintCallData([calls])
-
-      // const { calldata, value } =
-      //   hasExistingPosition && tokenId
-      //     ? NonfungiblePositionManager.addCallParameters(position, {
-      //         tokenId,
-      //         slippageTolerance: allowedSlippage,
-      //         deadline: deadline.toString(),
-      //       })
-      //     : NonfungiblePositionManager.addCallParameters(position, {
-      //         slippageTolerance: allowedSlippage,
-      //         recipient: account,
-      //         deadline: deadline.toString(),
-      //         createPool: noLiquidity,
-      //       })
-
-      // let txn: { to: string; data: string; value: string } = {
-      //   to: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
-      //   data: calldata,
-      //   value,
-      // }
 
       setAttemptingTxn(true)
     } else {
-      return
+
     }
   }
 
@@ -306,13 +336,11 @@ function AddLiquidity() {
         return [currencyIdNew, undefined]
       }
       // prevent weth + eth
-      const isETHOrWETHNew =
-        currencyIdNew === 'ETH' ||
-        (chainId !== undefined && currencyIdNew === WRAPPED_NATIVE_CURRENCY[chainId]?.address)
-      const isETHOrWETHOther =
-        currencyIdOther !== undefined &&
-        (currencyIdOther === 'ETH' ||
-          (chainId !== undefined && currencyIdOther === WRAPPED_NATIVE_CURRENCY[chainId]?.address))
+      const isETHOrWETHNew = currencyIdNew === 'ETH'
+        || (chainId !== undefined && currencyIdNew === WRAPPED_NATIVE_CURRENCY[chainId]?.address)
+      const isETHOrWETHOther = currencyIdOther !== undefined
+        && (currencyIdOther === 'ETH'
+          || (chainId !== undefined && currencyIdOther === WRAPPED_NATIVE_CURRENCY[chainId]?.address))
 
       if (isETHOrWETHNew && isETHOrWETHOther) {
         return [currencyIdNew, undefined]
@@ -418,10 +446,10 @@ function AddLiquidity() {
     const minPrice = searchParams.get('minPrice')
     const oldMinPrice = oldSearchParams?.get('minPrice')
     if (
-      minPrice &&
-      typeof minPrice === 'string' &&
-      !isNaN(minPrice as any) &&
-      (!oldMinPrice || oldMinPrice !== minPrice)
+      minPrice
+      && typeof minPrice === 'string'
+      && !isNaN(minPrice as any)
+      && (!oldMinPrice || oldMinPrice !== minPrice)
     ) {
       onLeftRangeInput(minPrice)
     }
@@ -433,10 +461,10 @@ function AddLiquidity() {
     const maxPrice = searchParams.get('maxPrice')
     const oldMaxPrice = oldSearchParams?.get('maxPrice')
     if (
-      maxPrice &&
-      typeof maxPrice === 'string' &&
-      !isNaN(maxPrice as any) &&
-      (!oldMaxPrice || oldMaxPrice !== maxPrice)
+      maxPrice
+      && typeof maxPrice === 'string'
+      && !isNaN(maxPrice as any)
+      && (!oldMaxPrice || oldMaxPrice !== maxPrice)
     ) {
       onRightRangeInput(maxPrice)
     }
@@ -446,39 +474,38 @@ function AddLiquidity() {
   }, [searchParams])
   // END: sync values with query string
 
-  const Buttons = () =>
-    !account ? (
-      <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
-        <Trans>Connect wallet</Trans>
-      </ButtonLight>
-    ) : (
-      <AutoColumn gap="md">
-        <ButtonError
-          onClick={() => {
-            setShowConfirm(true)
-          }}
-          disabled={!isValid}
-          error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
-        >
-          {/* <Text fontWeight={535}>{errorMessage || <Trans>Preview</Trans>}</Text> */}
-          <Text fontWeight={535}>{<Trans>Preview</Trans>}</Text>
-        </ButtonError>
-      </AutoColumn>
-    )
+  const Buttons = () => (!account ? (
+    <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
+      <Trans>Connect wallet</Trans>
+    </ButtonLight>
+  ) : (
+    <AutoColumn gap="md">
+      <ButtonError
+        onClick={() => {
+          setShowConfirm(true)
+        }}
+        disabled={!isValid}
+        error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
+      >
+        {/* <Text fontWeight={535}>{errorMessage || <Trans>Preview</Trans>}</Text> */}
+        <Text fontWeight={535}>{<Trans>Preview</Trans>}</Text>
+      </ButtonError>
+    </AutoColumn>
+  ))
 
   const usdcValueCurrencyA = usdcValues[Field.CURRENCY_A]
   const usdcValueCurrencyB = usdcValues[Field.CURRENCY_B]
   const currencyAFiat = useMemo(
     () => ({
       data: usdcValueCurrencyA ? parseFloat(usdcValueCurrencyA.toSignificant()) : undefined,
-      isLoading: false,
+      isLoading: false
     }),
     [usdcValueCurrencyA]
   )
   const currencyBFiat = useMemo(
     () => ({
       data: usdcValueCurrencyB ? parseFloat(usdcValueCurrencyB.toSignificant()) : undefined,
-      isLoading: false,
+      isLoading: false
     }),
     [usdcValueCurrencyB]
   )
@@ -593,14 +620,14 @@ function AddLiquidity() {
                     </AutoColumn>{' '}
                   </>
                 )}
-                {/* {hasExistingPosition && existingPosition && (
+                {hasExistingPosition && existingPosition && (
                   <PositionPreview
                     position={existingPosition}
                     title={<Trans>Selected range</Trans>}
                     inRange={!outOfRange}
                     ticksAtLimit={ticksAtLimit}
                   />
-                )} */}
+                )}
               </AutoColumn>
 
               {!hasExistingPosition && (
@@ -660,7 +687,7 @@ function AddLiquidity() {
                       ticksAtLimit={ticksAtLimit}
                     />
 
-                    {/*  {outOfRange && (
+                    {outOfRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
                         <RowBetween>
                           <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
@@ -672,9 +699,8 @@ function AddLiquidity() {
                           </ThemedText.DeprecatedYellow>
                         </RowBetween>
                       </YellowCard>
-                    )} */}
-
-                    {/* {invalidRange && (
+                    )}
+                    {invalidRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
                         <RowBetween>
                           <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
@@ -683,35 +709,35 @@ function AddLiquidity() {
                           </ThemedText.DeprecatedYellow>
                         </RowBetween>
                       </YellowCard>
-                    )} */}
+                    )}
                   </DynamicSection>
 
                   <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
-                    {/* {!noLiquidity ? (
-                      <> */}
-                    {Boolean(price && baseCurrency && quoteCurrency) && (
-                      <AutoColumn gap="2px" style={{ marginTop: '0.5rem' }}>
-                        <Trans>
-                          <ThemedText.DeprecatedMain fontWeight={535} fontSize={12} color="text1">
-                            Current price:
-                          </ThemedText.DeprecatedMain>
-                          <ThemedText.DeprecatedBody fontWeight={535} fontSize={20} color="text1">
-                            {price && (
-                              <HoverInlineText
-                                maxCharacters={20}
-                                text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
-                              />
-                            )}
-                          </ThemedText.DeprecatedBody>
-                          {baseCurrency && (
-                            <ThemedText.DeprecatedBody color="text2" fontSize={12}>
-                              {quoteCurrency?.symbol} per {baseCurrency.symbol}
-                            </ThemedText.DeprecatedBody>
-                          )}
-                        </Trans>
-                      </AutoColumn>
-                    )}
-                    {/* </>
+                    {!noLiquidity ? (
+                      <>
+                        {Boolean(price && baseCurrency && quoteCurrency) && (
+                          <AutoColumn gap="2px" style={{ marginTop: '0.5rem' }}>
+                            <Trans>
+                              <ThemedText.DeprecatedMain fontWeight={535} fontSize={12} color="text1">
+                                Current price:
+                              </ThemedText.DeprecatedMain>
+                              <ThemedText.DeprecatedBody fontWeight={535} fontSize={20} color="text1">
+                                {price && (
+                                  <HoverInlineText
+                                    maxCharacters={20}
+                                    text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
+                                  />
+                                )}
+                              </ThemedText.DeprecatedBody>
+                              {baseCurrency && (
+                                <ThemedText.DeprecatedBody color="text2" fontSize={12}>
+                                  {quoteCurrency?.symbol} per {baseCurrency.symbol}
+                                </ThemedText.DeprecatedBody>
+                              )}
+                            </Trans>
+                          </AutoColumn>
+                        )}
+                      </>
                     ) : (
                       <AutoColumn gap="md">
                         {noLiquidity && (
@@ -720,7 +746,7 @@ function AddLiquidity() {
                               display: 'flex',
                               flexDirection: 'row',
                               alignItems: 'center',
-                              padding: '1rem 1rem',
+                              padding: '1rem 1rem'
                             }}
                           >
                             <ThemedText.DeprecatedBody fontSize={12} textAlign="left" color={theme.accent1}>
@@ -742,7 +768,7 @@ function AddLiquidity() {
                         <RowBetween
                           style={{
                             padding: '12px',
-                            borderRadius: '12px',
+                            borderRadius: '12px'
                           }}
                         >
                           <ThemedText.DeprecatedMain>
@@ -767,7 +793,7 @@ function AddLiquidity() {
                           </ThemedText.DeprecatedMain>
                         </RowBetween>
                       </AutoColumn>
-                    )} */}
+                    )}
                   </DynamicSection>
                 </>
               )}

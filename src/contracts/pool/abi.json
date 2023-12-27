@@ -5,6 +5,20 @@
     "interface_name": "jediswap_v2_core::jediswap_v2_pool::IJediSwapV2Pool"
   },
   {
+    "name": "core::integer::u256",
+    "type": "struct",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
     "name": "core::bool",
     "type": "enum",
     "variants": [
@@ -33,15 +47,15 @@
     ]
   },
   {
-    "name": "core::integer::u256",
+    "name": "jediswap_v2_core::jediswap_v2_pool::ProtocolFees",
     "type": "struct",
     "members": [
       {
-        "name": "low",
+        "name": "token0",
         "type": "core::integer::u128"
       },
       {
-        "name": "high",
+        "name": "token1",
         "type": "core::integer::u128"
       }
     ]
@@ -194,7 +208,7 @@
         "inputs": [],
         "outputs": [
           {
-            "type": "yas_core::numbers::signed_integer::i32::i32"
+            "type": "core::integer::u32"
           }
         ],
         "state_mutability": "view"
@@ -261,6 +275,28 @@
         "outputs": [
           {
             "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "get_protocol_fees",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "jediswap_v2_core::jediswap_v2_pool::ProtocolFees"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "get_liquidity",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u128"
           }
         ],
         "state_mutability": "view"
@@ -500,7 +536,7 @@
       },
       {
         "name": "tick_spacing",
-        "type": "yas_core::numbers::signed_integer::i32::i32"
+        "type": "core::integer::u32"
       }
     ]
   },

@@ -1,6 +1,6 @@
 import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
 import { Check } from 'react-feather'
 import { FixedSizeList } from 'react-window'
@@ -66,8 +66,8 @@ const WarningContainer = styled.div`
   margin-left: 0.3em;
 `
 
-function Balance({ balance }: { balance: CurrencyAmount<Currency> }) {
-  return <StyledBalanceText title={balance.toExact()}>{balance.toSignificant(4)}</StyledBalanceText>
+function Balance({ balance }: { balance: any }) {
+  return <StyledBalanceText>{balance}</StyledBalanceText>
 }
 
 const TagContainer = styled.div`
@@ -114,7 +114,6 @@ export function CurrencyRow({
   style,
   showCurrencyAmount,
   eventProperties,
-  balance,
 }: {
   currency: Currency
   onSelect: (hasWarning: boolean) => void
@@ -133,6 +132,7 @@ export function CurrencyRow({
   const blockedTokenOpacity = '0.6'
   const { data } = useCachedPortfolioBalancesQuery({ account })
   const portfolioBalanceUsd = data?.portfolios?.[0].tokensTotalDenominatedValue?.value
+  const { balance } = useAccountBalance(currency as Currency)
 
   // only show add or remove buttons if not on selected list
   return (

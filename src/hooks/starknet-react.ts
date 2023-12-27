@@ -68,18 +68,11 @@ export const useAccountBalance = (currency: Currency) => {
   const { address } = useAccountDetails()
   const tokenAddress = (currency as any)?.address
 
-  // if (!address) return
-
-  // Loop through each token address and fetch its balance
-  const {
-    data: balance,
-    error,
-    isLoading,
-  } = useBalance({
+  const { data } = useBalance({
     token: tokenAddress,
     address,
     watch: true,
   })
 
-  return { balance: balance?.formatted }
+  return { balance: data?.formatted }
 }

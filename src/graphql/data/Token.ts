@@ -96,7 +96,7 @@ export type TokenQueryData = TokenQuery['token']
 // TODO: Return a QueryToken from useTokenQuery instead of TokenQueryData to make it more usable in Currency-centric interfaces.
 export class QueryToken extends WrappedTokenInfo {
   constructor(address: string, data: NonNullable<TokenQueryData>, logoSrc?: string) {
-    const chainId = supportedChainIdFromGQLChain(data.chain) 
+    const chainId = supportedChainIdFromGQLChain(data.chain) as any
     if (chainId) {
       super({
         chainId,
@@ -104,7 +104,7 @@ export class QueryToken extends WrappedTokenInfo {
         decimals: data.decimals ?? DEFAULT_ERC20_DECIMALS,
         symbol: data.symbol ?? '',
         name: data.name ?? '',
-        logoURI: logoSrc ?? data.project?.logoUrl ?? undefined,
+        logoURI: logoSrc ?? data.project?.logoUrl ?? undefined
       })
     }
   }

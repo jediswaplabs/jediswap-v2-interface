@@ -42,9 +42,9 @@ export function FeeOption({ feeAmount, active, poolState, distributions, onClick
           </ThemedText.DeprecatedMain>
         </AutoColumn>
 
-        {distributions && (
+        {/*  {distributions && (
           <FeeTierPercentageBadge distributions={distributions} feeAmount={feeAmount} poolState={poolState} />
-        )}
+        )} */}
       </AutoColumn>
     </ButtonRadioChecked>
   )

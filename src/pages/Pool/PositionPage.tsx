@@ -30,7 +30,7 @@ import useIsTickAtLimit from 'hooks/useIsTickAtLimit'
 import { PoolState, usePool } from 'hooks/usePools'
 import useStablecoinPrice from 'hooks/useStablecoinPrice'
 import { useV3PositionFees } from 'hooks/useV3PositionFees'
-import { useV3PositionFromTokenId } from 'hooks/useV3Positions'
+import { useV3PositionFromTokenId, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
 import { useSingleCallResult } from 'lib/hooks/multicall'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
 import { Bound } from 'state/mint/v3/actions'
@@ -50,6 +50,10 @@ import { TransactionType } from '../../state/transactions/types'
 import { calculateGasMargin } from '../../utils/calculateGasMargin'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { LoadingRows } from './styled'
+import { useContractRead } from '@starknet-react/core'
+import { cairo, validateAndParseAddress } from 'starknet'
+import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
 
 const PositionPageButtonPrimary = styled(ButtonPrimary)`
   width: 228px;
@@ -370,11 +374,9 @@ export function PositionPageUnsupportedContent() {
 }
 
 export default function PositionPage() {
-  const { chainId } = useAccountDetails()
-  if (isSupportedChain(chainId)) {
+  if (true) {
     return <PositionPageContent />
   }
-  return <PositionPageUnsupportedContent />
 }
 
 const PositionLabelRow = styled(RowFixed)({
@@ -393,24 +395,24 @@ function parseTokenId(tokenId: string | undefined): BigNumber | undefined {
 
 function PositionPageContent() {
   const { tokenId: tokenIdFromUrl } = useParams<{ tokenId?: string }>()
-  const { chainId, account, provider } = useAccountDetails()
+  const { chainId, account, address, provider } = useAccountDetails()
   const theme = useTheme()
   const { formatTickPrice } = useFormatter()
 
   const parsedTokenId = parseTokenId(tokenIdFromUrl)
-  const { loading, position: positionDetails } = useV3PositionFromTokenId(parsedTokenId)
+  const { loading, positions: positionDetails } = useV3PositionsFromTokenId([1])
 
   const {
     token0: token0Address,
     token1: token1Address,
     fee: feeAmount,
     liquidity,
-    tickLower,
-    tickUpper,
+    tick_lower: tickLower,
+    tick_upper: tickUpper,
     tokenId,
-  } = positionDetails || {}
+  } = positionDetails?.[0] || {}
 
-  const removed = liquidity?.eq(0)
+  const removed = !liquidity
 
   const metadata = usePositionTokenURI(parsedTokenId)
 
@@ -595,8 +597,24 @@ function PositionPageContent() {
     provider,
   ])
 
-  const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
-  const ownsNFT = owner === account || positionDetails?.operator === account
+  const {
+    data: ownerOf,
+    isLoading,
+    error,
+  } = useContractRead({
+    functionName: 'owner_of',
+    args: [cairo.uint256(1)],
+    abi: NFTPositionManagerABI,
+    address: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+    watch: true,
+  })
+
+  const ownsNFT = useMemo(() => {
+    if (!isLoading && !error && ownerOf && address) {
+      return validateAndParseAddress(ownerOf) === validateAndParseAddress(address)
+    }
+    return false
+  }, [ownerOf, address])
 
   const feeValueUpper = inverted ? feeValue0 : feeValue1
   const feeValueLower = inverted ? feeValue1 : feeValue0
@@ -706,7 +724,7 @@ function PositionPageContent() {
                   </ThemedText.DeprecatedLabel>
                   <Badge style={{ marginRight: '8px' }}>
                     <BadgeText>
-                      <Trans>{new Percent(feeAmount, 1_000_000).toSignificant()}%</Trans>
+                      <Trans>{new Percent(feeAmount, 1_000_000_00).toSignificant()}%</Trans>
                     </BadgeText>
                   </Badge>
                   <RangeBadge removed={removed} inRange={inRange} />

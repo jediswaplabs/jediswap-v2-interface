@@ -47,46 +47,46 @@ interface RouteResult {
  * Transforms a Routing API quote into an array of routes that can be used to
  * create a `Trade`.
  */
-export function computeRoutes(
-  currencyIn: Currency,
-  currencyOut: Currency,
-  routes: ClassicQuoteData['route']
-): RouteResult[] | undefined {
-  if (routes.length === 0) return []
+// export function computeRoutes(
+//   currencyIn: Currency,
+//   currencyOut: Currency,
+//   routes: ClassicQuoteData['route']
+// ): RouteResult[] | undefined {
+//   if (routes.length === 0) return []
 
-  const tokenIn = routes[0]?.[0]?.tokenIn
-  const tokenOut = routes[0]?.[routes[0]?.length - 1]?.tokenOut
-  if (!tokenIn || !tokenOut) throw new Error('Expected both tokenIn and tokenOut to be present')
+//   const tokenIn = routes[0]?.[0]?.tokenIn
+//   const tokenOut = routes[0]?.[routes[0]?.length - 1]?.tokenOut
+//   if (!tokenIn || !tokenOut) throw new Error('Expected both tokenIn and tokenOut to be present')
 
-  try {
-    return routes.map((route) => {
-      if (route.length === 0) {
-        throw new Error('Expected route to have at least one pair or pool')
-      }
-      const rawAmountIn = route[0].amountIn
-      const rawAmountOut = route[route.length - 1].amountOut
+//   try {
+//     return routes.map((route) => {
+//       if (route.length === 0) {
+//         throw new Error('Expected route to have at least one pair or pool')
+//       }
+//       const rawAmountIn = route[0].amountIn
+//       const rawAmountOut = route[route.length - 1].amountOut
 
-      if (!rawAmountIn || !rawAmountOut) {
-        throw new Error('Expected both amountIn and amountOut to be present')
-      }
+//       if (!rawAmountIn || !rawAmountOut) {
+//         throw new Error('Expected both amountIn and amountOut to be present')
+//       }
 
-      const isOnlyV2 = isVersionedRoute<V2PoolInRoute>(PoolType.V2Pool, route)
-      const isOnlyV3 = isVersionedRoute<V3PoolInRoute>(PoolType.V3Pool, route)
+//       const isOnlyV2 = isVersionedRoute<V2PoolInRoute>(PoolType.V2Pool, route)
+//       const isOnlyV3 = isVersionedRoute<V3PoolInRoute>(PoolType.V3Pool, route)
 
-      return {
-        routev3: isOnlyV3 ? new V3Route(route.map(parsePool), currencyIn, currencyOut) : null,
-        routev2: isOnlyV2 ? new V2Route(route.map(parsePair), currencyIn, currencyOut) : null,
-        mixedRoute:
-          !isOnlyV3 && !isOnlyV2 ? new MixedRouteSDK(route.map(parsePoolOrPair), currencyIn, currencyOut) : null,
-        inputAmount: CurrencyAmount.fromRawAmount(currencyIn, rawAmountIn),
-        outputAmount: CurrencyAmount.fromRawAmount(currencyOut, rawAmountOut),
-      }
-    })
-  } catch (e) {
-    console.error('Error computing routes', e)
-    return
-  }
-}
+//       return {
+//         routev3: isOnlyV3 ? new V3Route(route.map(parsePool), currencyIn, currencyOut) : null,
+//         routev2: isOnlyV2 ? new V2Route(route.map(parsePair), currencyIn, currencyOut) : null,
+//         mixedRoute:
+//           !isOnlyV3 && !isOnlyV2 ? new MixedRouteSDK(route.map(parsePoolOrPair), currencyIn, currencyOut) : null,
+//         inputAmount: CurrencyAmount.fromRawAmount(currencyIn, rawAmountIn),
+//         outputAmount: CurrencyAmount.fromRawAmount(currencyOut, rawAmountOut),
+//       }
+//     })
+//   } catch (e) {
+//     console.error('Error computing routes', e)
+//     return
+//   }
+// }
 
 const parsePoolOrPair = (pool: V3PoolInRoute | V2PoolInRoute): Pool | Pair => {
   return pool.type === PoolType.V3Pool ? parsePool(pool) : parsePair(pool)
@@ -167,7 +167,7 @@ function getSwapFee(data: ClassicQuoteData | URADutchOrderQuoteData): SwapFeeInf
   }
 }
 
-function getClassicTradeDetails(
+/* function getClassicTradeDetails(
   currencyIn: Currency,
   currencyOut: Currency,
   data: URAQuoteResponse
@@ -190,7 +190,7 @@ function getClassicTradeDetails(
     routes: computeRoutes(currencyIn, currencyOut, classicQuote.route),
     swapFee: getSwapFee(classicQuote),
   }
-}
+} */
 
 export function transformQuickRouteToTrade(args: GetQuickQuoteArgs, data: QuickRouteResponse): PreviewTrade {
   const { amount, tradeType, inputTax, outputTax } = args

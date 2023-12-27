@@ -10,7 +10,7 @@ import { NEVER_RELOAD, useSingleCallResult } from 'lib/hooks/multicall'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
 import { useEffect, useMemo } from 'react'
 
-import { DEFAULT_CHAIN_ID, DEFAULT_ERC20_DECIMALS } from '../../constants/tokens'
+import { DEFAULT_CHAIN_ID, DEFAULT_ERC20_DECIMALS, WETH } from '../../constants/tokens'
 // import { TOKEN_SHORTHANDS } from '../../constants/tokens'
 import { isAddress } from '../../utils'
 import { isAddressValidForStarknet } from 'utils/addresses'
@@ -82,8 +82,10 @@ type TokenMap = { [address: string]: Token }
  * Returns undefined if tokenAddress is invalid or token does not exist.
  */
 export function useTokenFromMapOrNetwork(tokens: TokenMap, tokenAddress?: string | null): Token | undefined {
+  const { chainId } = useAccountDetails()
   const address = isAddressValidForStarknet(tokenAddress)
-  const token: Token | undefined = address ? tokens[address] : undefined
+  const token: Token | undefined =
+    WETH[chainId].address === address ? WETH[chainId] : address ? tokens[address] : undefined
   const tokenFromNetwork = useTokenFromActiveNetwork(token ? undefined : address ? address : undefined)
 
   return tokenFromNetwork ?? token
