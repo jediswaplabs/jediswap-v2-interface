@@ -216,7 +216,8 @@ function AddLiquidity() {
     chainId ? NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined
   )
 
-  const [allowedSlippage] = useUserSlippageTolerance() // custom from users
+  const [rawAllowedSlippage] = useUserSlippageTolerance() // custom from users
+  const allowedSlippage = new Percent(rawAllowedSlippage, 10_000)
 
   useEffect(() => {
     if (txData) { console.log(txData, 'txData') }
