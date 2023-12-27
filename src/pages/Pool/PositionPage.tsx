@@ -54,6 +54,7 @@ import { useContractRead } from '@starknet-react/core'
 import { cairo, validateAndParseAddress } from 'starknet'
 import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
+import fetchTokenIds from 'api/fetchTokenId'
 
 const PositionPageButtonPrimary = styled(ButtonPrimary)`
   width: 228px;
@@ -396,10 +397,12 @@ function parseTokenId(tokenId: string | undefined): BigNumber | undefined {
 function PositionPageContent() {
   const { tokenId: tokenIdFromUrl } = useParams<{ tokenId?: string }>()
   const { chainId, account, address, provider } = useAccountDetails()
+
   const theme = useTheme()
   const { formatTickPrice } = useFormatter()
 
   const parsedTokenId = parseTokenId(tokenIdFromUrl)
+
   const { loading, positions: positionDetails } = useV3PositionsFromTokenId([1])
 
   const {

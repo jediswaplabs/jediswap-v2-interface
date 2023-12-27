@@ -1,12 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfacePageName } from '@uniswap/analytics-events'
 import { useAccountDetails } from 'hooks/starknet-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, BookOpen, ChevronDown, ChevronsRight, Inbox, Layers } from 'react-feather'
 import { Link } from 'react-router-dom'
 import styled, { css, useTheme } from 'styled-components'
-import { PositionDetails } from 'types/position'
-
 import { Trace, TraceEvent } from 'analytics'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button'
@@ -29,6 +27,8 @@ import { useContractRead } from '@starknet-react/core'
 import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
 import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { cairo } from 'starknet'
+import fetchTokenIds from 'api/fetchTokenId'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -302,11 +302,26 @@ function WrongNetworkCard() {
 
 export default function Pool() {
   const { address, chainId } = useAccountDetails()
+  const [tokenIds, setTokenIds] = useState<number[]>([])
+  //fetch Token Ids
+  useEffect(() => {
+    const getTokenIds = async (address: string, chainId: ChainId) => {
+      const result = await fetchTokenIds(address, chainId)
+      if (result) {
+        setTokenIds(result.data)
+      }
+    }
+
+    if (address && chainId) {
+      getTokenIds(address, chainId)
+    }
+  }, [chainId, address])
+
   const toggleWalletDrawer = useToggleAccountDrawer()
 
   const theme = useTheme()
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
-  const { positions, loading: positionsLoading } = useV3PositionsFromTokenId([1])
+  const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds)
 
   const [openPositions, closedPositions] = positions?.reduce<[FlattenedPositions[], FlattenedPositions[]]>(
     (acc, p) => {

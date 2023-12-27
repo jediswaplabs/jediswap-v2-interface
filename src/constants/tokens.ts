@@ -28,6 +28,11 @@ export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {
   return (cachedNativeCurrency[chainId] = WETH[chainId])
 }
 
+export const STARKSCAN_ADDRESS = {
+  [ChainId.MAINNET]: 'https://starkscan-proxy.jediswap.xyz/api/',
+  [ChainId.GOERLI]: 'https://starkscan-proxy.testnet.jediswap.xyz/api/',
+}
+
 export function getSwapCurrencyId(currency: Currency): string {
   if (currency.isToken) {
     return currency.address
@@ -42,8 +47,8 @@ export const domainURL = (chainId: ChainId) => {
 }
 
 export const ROUTER_ADDRESS: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]: validateAndParseAddress('0x41fd22b238fa21cfcf5dd45a8548974d8263b3a531a60388411c5e230f97023'),
-  [ChainId.GOERLI]: validateAndParseAddress('0x2bcc885342ebbcbcd170ae6cafa8a4bed22bb993479f49806e72d96af94c965'),
+  [ChainId.MAINNET]: '0x067c1ae6f84275a929accf49122c86531259ffb01d3e2a6bf72729ca05566547',
+  [ChainId.GOERLI]: '0x067c1ae6f84275a929accf49122c86531259ffb01d3e2a6bf72729ca05566547',
 }
 
 export const ZAP_IN_ADDRESS: { [chainId in ChainId]: string } = {
