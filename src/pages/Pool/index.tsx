@@ -305,6 +305,7 @@ function PositionDetails(props: any) {
   const { tokenIds, showConnectAWallet, toggleWalletDrawer } = props
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
   const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds)
+  console.log('🚀 ~ file: index.tsx:308 ~ PositionDetails ~ positionsLoading:', positionsLoading)
   const theme = useTheme()
   const [openPositions, closedPositions] = positions?.reduce<[FlattenedPositions[], FlattenedPositions[]]>(
     (acc, p) => {
@@ -372,7 +373,7 @@ export default function Pool() {
       if (address && chainId) {
         setLoadingPositions(true)
         const result = await fetchTokenIds(address, chainId)
-        if (result) {
+        if (result && result.data) {
           const tokenIdsArray: number[] = result.data.map((item: any) => parseInt(item.token_id))
           setTokenIds(tokenIdsArray)
         }
@@ -403,7 +404,7 @@ export default function Pool() {
             </ResponsiveButtonPrimary>
           </ButtonRow>
           <MainContentWrapper>
-            {loadingPositions || !tokenIds.length ? (
+            {loadingPositions ? (
               <PositionsLoadingPlaceholder />
             ) : (
               <PositionDetails
