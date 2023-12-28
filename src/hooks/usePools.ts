@@ -116,13 +116,14 @@ export function usePools(
 
   const poolAddress: (string | undefined)[] = useMemo(
     () =>
-      poolTokens.map((tokens): string | undefined => {
-        if (tokens && tokens[0] && tokens[1] && tokens[2]) {
+      poolTokens.map((items): string | undefined => {
+        if (items && items[0] && items[1] && items[2]) {
           // Check if tokens are defined
-          const [tokenA, tokenB, feeAmount] = tokens
+          const [tokenA, tokenB, feeAmount] = items
 
-          //compute contract address
+          const tokens = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA] // does safety checks
 
+          //compute pool contract address
           const { calculateContractAddressFromHash } = hash
 
           const salt = ec.starkCurve.poseidonHashMany([
@@ -157,7 +158,6 @@ export function usePools(
     if (tick) return toInt(tick)
     return undefined
   }, [tick])
-  console.log('🚀 ~ file: usePools.ts:160 ~ tickCurrent ~ tickCurrent:', tickCurrent)
 
   const { data: liquidity } = useContractRead({
     functionName: 'get_liquidity',

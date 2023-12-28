@@ -5,6 +5,7 @@ import { useSingleCallResult } from 'lib/hooks/multicall'
 import useBlockNumber from 'lib/hooks/useBlockNumber'
 import { useEffect, useState } from 'react'
 import { unwrappedToken } from 'utils/unwrappedToken'
+import { useBlockNumber as uBlockNumber } from '@starknet-react/core'
 
 import { useV3NFTPositionManagerContract } from './useContract'
 
@@ -22,6 +23,9 @@ export function useV3PositionFees(
 
   const tokenIdHexString = tokenId?.toHexString()
   const latestBlockNumber = useBlockNumber()
+  const { data: blockNumber } = uBlockNumber({
+    refetchInterval: false,
+  })
 
   // we can't use multicall for this because we need to simulate the call from a specific address
   // latestBlockNumber is included to ensure data stays up-to-date every block

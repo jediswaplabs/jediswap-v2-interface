@@ -100,6 +100,7 @@ function AddLiquidity() {
     feeAmount?: string
     tokenId?: string
   }>()
+  console.log('🚀 ~ file: index.tsx:103 ~ AddLiquidity ~ tokenId:', tokenId)
   const { address: account, chainId } = useAccountDetails()
   const { provider } = useProvider()
   const theme = useTheme()
@@ -110,7 +111,7 @@ function AddLiquidity() {
   const positionManager = useV3NFTPositionManagerContract()
 
   // check for existing position if tokenId in url
-  const { positions, loading: positionLoading } = useV3PositionsFromTokenId([Number(tokenId ? tokenId : undefined)])
+  const { positions, loading: positionLoading } = useV3PositionsFromTokenId(tokenId ? [Number(tokenId)] : undefined)
   const existingPositionDetails = positions && positions?.[0]
   const hasExistingPosition = !!existingPositionDetails && !positionLoading
   const { position: existingPosition } = useDerivedPositionInfo(existingPositionDetails)
@@ -176,7 +177,8 @@ function AddLiquidity() {
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
 
   // txn values
-  const deadline = useTransactionDeadline() // custom from users settings
+  // const deadline = useTransactionDeadline() // custom from users settings
+  const deadline = '1705014714'
 
   const [txHash, setTxHash] = useState<string>('')
 
@@ -295,11 +297,11 @@ function AddLiquidity() {
         }
         setMintCallData([icalls, approvalA, approvalB, mcalls])
       } else {
-        const hasExistingLiquidity = hasExistingPosition
+        const hasExistingLiquidity = hasExistingPosition && tokenId
         let mintData = {}
         if (hasExistingLiquidity) {
           mintData = {
-            tokenId: cairo.uint256(1),
+            tokenId: cairo.uint256(tokenId),
             amount0_desired: cairo.uint256(amount0Desired.toString()),
             amount1_desired: cairo.uint256(amount1Desired.toString()),
             amount0_min: cairo.uint256(amount0Min.toString()),

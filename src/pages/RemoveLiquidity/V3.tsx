@@ -3,9 +3,9 @@ import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
 import { LiquidityEventName, LiquiditySource } from '@uniswap/analytics-events'
 import { CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
-import { NonfungiblePositionManager } from '@vnaysn/jediswap-sdk-v3'
+import { NonfungiblePositionManager, Position } from '@vnaysn/jediswap-sdk-v3'
 import { useAccountDetails } from 'hooks/starknet-react'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Navigate, useLocation, useParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useTheme } from 'styled-components'
@@ -35,18 +35,16 @@ import { useBurnV3ActionHandlers, useBurnV3State, useDerivedV3BurnInfo } from 's
 import { useTransactionAdder } from 'state/transactions/hooks'
 import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
 import { ThemedText } from 'theme/components'
-import { WrongChainError } from 'utils/errors'
 import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
-import { WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
-import { TransactionType } from '../../state/transactions/types'
-import { calculateGasMargin } from '../../utils/calculateGasMargin'
-import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { ResponsiveHeaderText, SmallMaxButton, Wrapper } from './styled'
-import { useProvider } from '@starknet-react/core'
+import { useContractWrite, useProvider } from '@starknet-react/core'
+import { Call, CallData, cairo } from 'starknet'
+import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from '../../constants/tokens'
+import JSBI from 'jsbi'
 
 const DEFAULT_REMOVE_V3_LIQUIDITY_SLIPPAGE_TOLERANCE = new Percent(5, 100)
-
+const MAX_UINT128 = BigInt(2) ** BigInt(128) - BigInt(1)
 // redirect invalid tokenIds
 export default function RemoveLiquidityV3() {
   const { chainId } = useAccountDetails()
@@ -94,94 +92,99 @@ function Remove({ tokenId }: { tokenId: number }) {
     outOfRange,
     error,
   } = useDerivedV3BurnInfo(position, receiveWETH)
+
   const { onPercentSelect } = useBurnV3ActionHandlers()
   const removed = position?.liquidity?.eq(0)
 
   // boilerplate for the slider
   const [percentForSlider, onPercentSelectForSlider] = useDebouncedChangeHandler(percent, onPercentSelect)
 
-  const deadline = useTransactionDeadline() // custom from users settings
+  const deadline = '1705014714' // custom from users settings
   const allowedSlippage = useUserSlippageToleranceWithDefault(DEFAULT_REMOVE_V3_LIQUIDITY_SLIPPAGE_TOLERANCE) // custom from users
 
   const [showConfirm, setShowConfirm] = useState(false)
   const [attemptingTxn, setAttemptingTxn] = useState(false)
   const [txnHash, setTxnHash] = useState<string | undefined>()
+  const [mintCallData, setMintCallData] = useState<Call[]>([])
+  const { writeAsync, data: txData } = useContractWrite({
+    calls: mintCallData,
+  })
+
+  useEffect(() => {
+    if (mintCallData) {
+      writeAsync()
+        .then((response) => {
+          setAttemptingTxn(false)
+          if (response?.transaction_hash) {
+            setTxnHash(response.transaction_hash)
+          }
+        })
+        .catch((err) => {
+          console.log(err?.message)
+          setAttemptingTxn(false)
+        })
+    }
+  }, [mintCallData])
+
   const addTransaction = useTransactionAdder()
   const positionManager = useV3NFTPositionManagerContract()
   const burn = useCallback(async () => {
-    setAttemptingTxn(true)
     if (
-      !positionManager ||
       !liquidityValue0 ||
       !liquidityValue1 ||
       !deadline ||
       !account ||
       !chainId ||
       !positionSDK ||
-      !liquidityPercentage ||
-      !provider
+      !liquidityPercentage
     ) {
       return
     }
 
-    // we fall back to expecting 0 fees in case the fetch fails, which is safe in the
-    // vast majority of cases
-    const { calldata, value } = NonfungiblePositionManager.removeCallParameters(positionSDK, {
-      tokenId: tokenId.toString(),
-      liquidityPercentage,
-      slippageTolerance: allowedSlippage,
-      deadline: deadline.toString(),
-      collectOptions: {
-        expectedCurrencyOwed0: feeValue0 ?? CurrencyAmount.fromRawAmount(liquidityValue0.currency, 0),
-        expectedCurrencyOwed1: feeValue1 ?? CurrencyAmount.fromRawAmount(liquidityValue1.currency, 0),
-        recipient: account,
-      },
+    // construct a partial position with a percentage of liquidity
+    const partialPosition = new Position({
+      pool: positionSDK.pool,
+      liquidity: liquidityPercentage.multiply(positionSDK.liquidity).quotient,
+      tickLower: positionSDK.tickLower,
+      tickUpper: positionSDK.tickUpper,
     })
 
-    const txn = {
-      to: positionManager.address,
-      data: calldata,
-      value,
+    const { amount0: amount0Min, amount1: amount1Min } = partialPosition.burnAmountsWithSlippage(allowedSlippage)
+
+    const decreaseLiquidityParams = {
+      tokenId: cairo.uint256(tokenId),
+      liquidity: BigInt(partialPosition.liquidity.toString()),
+      amount0_min: cairo.uint256(amount0Min.toString()),
+      amount1_min: cairo.uint256(amount1Min.toString()),
+      deadline: cairo.felt(deadline.toString()),
     }
+    const decreaseLiquidityCallData = CallData.compile(decreaseLiquidityParams)
+    const burnPositionParams = {
+      tokenId: cairo.uint256(tokenId),
+    }
+    const collectFeeParams = {
+      tokenId: cairo.uint256(tokenId),
+      recipient: account,
+      amount0_max: MAX_UINT128,
+      amount1_max: MAX_UINT128,
+    }
+    const burnCallData = CallData.compile(burnPositionParams)
+    const collectFeeCallData = CallData.compile(collectFeeParams)
 
-    // const connectedChainId = await provider.getSigner().getChainId()
-    // if (chainId !== connectedChainId) {
-    //   throw new WrongChainError()
-    // }
+    const createCallObject = (entrypoint: string, calldata: any) => ({
+      contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+      entrypoint,
+      calldata,
+    })
 
-    // provider
-    //   .getSigner()
-    //   .estimateGas(txn)
-    //   .then((estimate) => {
-    //     const newTxn = {
-    //       ...txn,
-    //       gasLimit: calculateGasMargin(estimate),
-    //     }
+    const decreaseLiquidityCall = createCallObject('decrease_liquidity', decreaseLiquidityCallData)
+    const burnCall = createCallObject('burn', burnCallData)
+    const collectFeeCall = createCallObject('collect', collectFeeCallData)
 
-    //     return provider
-    //       .getSigner()
-    //       .sendTransaction(newTxn)
-    //       .then((response: TransactionResponse) => {
-    //         sendAnalyticsEvent(LiquidityEventName.REMOVE_LIQUIDITY_SUBMITTED, {
-    //           source: LiquiditySource.V3,
-    //           label: [liquidityValue0.currency.symbol, liquidityValue1.currency.symbol].join('/'),
-    //           ...trace,
-    //         })
-    //         setTxnHash(response.hash)
-    //         setAttemptingTxn(false)
-    //         addTransaction(response, {
-    //           type: TransactionType.REMOVE_LIQUIDITY_V3,
-    //           baseCurrencyId: currencyId(liquidityValue0.currency),
-    //           quoteCurrencyId: currencyId(liquidityValue1.currency),
-    //           expectedAmountBaseRaw: liquidityValue0.quotient.toString(),
-    //           expectedAmountQuoteRaw: liquidityValue1.quotient.toString(),
-    //         })
-    //       })
-    //   })
-    //   .catch((error) => {
-    //     setAttemptingTxn(false)
-    //     console.error(error)
-    //   })
+    // slippage-adjusted underlying amounts
+    const toBurnPosition: boolean = liquidityPercentage.equalTo(JSBI.BigInt(1))
+    const finalCallData = [decreaseLiquidityCall, ...(toBurnPosition ? [collectFeeCall, burnCall] : [])]
+    setMintCallData(finalCallData)
   }, [
     positionManager,
     liquidityValue0,

@@ -2,8 +2,11 @@ import { BigNumber } from '@ethersproject/bignumber'
 import JSBI from 'jsbi'
 import { NEVER_RELOAD, useSingleCallResult } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
-
+import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
 import { useV3NFTPositionManagerContract } from './useContract'
+import { useContractRead } from '@starknet-react/core'
+import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import { cairo, encode, num } from 'starknet'
 
 type TokenId = number | JSBI | BigNumber
 
@@ -77,4 +80,64 @@ export function usePositionTokenURI(tokenId: TokenId | undefined): UsePositionTo
       return { valid: false, loading: false }
     }
   }, [error, loading, result, tokenId, valid])
+}
+
+const feltArrToStr = (felts: bigint[]): string | undefined => {
+  if (!felts || !felts.length) return undefined
+  return felts.reduce((memo, felt) => memo + Buffer.from(felt.toString(16), 'hex').toString(), '')
+}
+
+const useTokenURI = (tokenId: number) => {
+  const { data, error, isLoading } = useContractRead({
+    functionName: 'token_uri',
+    args: [cairo.uint256(tokenId)],
+    abi: NFTPositionManagerABI,
+    address: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+    watch: true,
+  })
+  return { metadata: data, error, isLoading }
+}
+
+export function useV3PositionTokenURI(tokenId: number) {
+  const { metadata, error, isLoading } = useTokenURI(tokenId)
+  const metadataArray: bigint[] = Array.isArray(metadata) ? metadata : []
+  const slicedMetaData: bigint[] = metadataArray.slice(1)
+  return useMemo(() => {
+    if (error || !tokenId) {
+      return {
+        loading: false,
+        error,
+      }
+    }
+    if (isLoading) {
+      return {
+        loading: true,
+      }
+    }
+    if (!slicedMetaData) {
+      return {
+        loading: false,
+      }
+    }
+
+    try {
+      const result = feltArrToStr(slicedMetaData as any)
+
+      if (typeof result === 'string') {
+        const json = JSON.parse(result)
+        return {
+          loading: false,
+          result: json,
+        }
+      } else {
+        // Handle the case where result is not a string (possibly undefined)
+        return {
+          loading: false,
+          error: new Error('Invalid result'),
+        }
+      }
+    } catch (error) {
+      return { loading: false, error }
+    }
+  }, [metadata, error, isLoading, tokenId])
 }

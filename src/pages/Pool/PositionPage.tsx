@@ -45,7 +45,7 @@ import RangeBadge from '../../components/Badge/RangeBadge'
 import { getPriceOrderingFromPositionForUI } from '../../components/PositionListItem'
 import RateToggle from '../../components/RateToggle'
 import { SwitchLocaleLink } from '../../components/SwitchLocaleLink'
-import { usePositionTokenURI } from '../../hooks/usePositionTokenURI'
+import { usePositionTokenURI, useV3PositionTokenURI } from '../../hooks/usePositionTokenURI'
 import { TransactionType } from '../../state/transactions/types'
 import { calculateGasMargin } from '../../utils/calculateGasMargin'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
@@ -396,11 +396,13 @@ function parseTokenId(tokenId: string | undefined): BigNumber | undefined {
 function PositionPageContent() {
   const { tokenId: tokenIdFromUrl } = useParams<{ tokenId?: string }>()
   const { chainId, account, address, provider } = useAccountDetails()
+
   const theme = useTheme()
   const { formatTickPrice } = useFormatter()
 
-  const parsedTokenId = parseTokenId(tokenIdFromUrl)
-  const { loading, positions: positionDetails } = useV3PositionsFromTokenId([1])
+  const parsedTokenId = parseInt(tokenIdFromUrl)
+
+  const { loading, positions: positionDetails } = useV3PositionsFromTokenId([parsedTokenId])
 
   const {
     token0: token0Address,
@@ -414,7 +416,7 @@ function PositionPageContent() {
 
   const removed = !liquidity
 
-  const metadata = usePositionTokenURI(parsedTokenId)
+  const metadata = useV3PositionTokenURI(parsedTokenId)
 
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)

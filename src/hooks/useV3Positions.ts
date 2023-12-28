@@ -81,25 +81,25 @@ export function useV3PositionsFromTokenId(tokenIds: number[] | undefined) {
   const error = useMemo(() => results.some(({ error }) => error), [results])
 
   const positions = useMemo(() => {
-    if (!loading && !error && tokenIds) {
+    if (!loading && !error && tokenIds?.length) {
       return results.map((call, i) => {
         const tokenId = tokenIds[i]
         const result = call.position as FlattenedPositions
-        const tick_lower = toInt(result.tick_lower)
-        const tick_upper = toInt(result.tick_upper)
+        const tick_lower = toInt(result?.tick_lower)
+        const tick_upper = toInt(result?.tick_upper)
         return {
           tokenId,
-          fee: Number(result.fee),
-          fee_growth_inside_0_last_X128: result.fee_growth_inside_0_last_X128,
-          fee_growth_inside_1_last_X128: result.fee_growth_inside_1_last_X128,
+          fee: Number(result?.fee),
+          fee_growth_inside_0_last_X128: result?.fee_growth_inside_0_last_X128,
+          fee_growth_inside_1_last_X128: result?.fee_growth_inside_1_last_X128,
           liquidity: BigNumber.from(result.liquidity),
-          operator: result.operator,
+          operator: result?.operator,
           tick_lower: tick_lower,
           tick_upper: tick_upper,
-          token0: result.token0,
-          token1: result.token1,
-          tokens_owed_0: result.tokens_owed_0,
-          tokens_owed_1: result.tokens_owed_1,
+          token0: result?.token0,
+          token1: result?.token1,
+          tokens_owed_0: result?.tokens_owed_0,
+          tokens_owed_1: result?.tokens_owed_1,
         }
       })
     }
