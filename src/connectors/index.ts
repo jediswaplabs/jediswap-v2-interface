@@ -11,7 +11,7 @@ export const isTestnetEnvironment = () => {
     return false
   }
   const host = new URL(String(location))?.host || ''
-  return host === 'app.testnet.jediswap.xyz'
+  return host === 'testnet.e2.jediswap.xyz/'
 }
 
 export const isStagingEnvironment = () => {
