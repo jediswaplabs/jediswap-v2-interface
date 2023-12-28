@@ -1,13 +1,15 @@
+// @ts-nocheck
 import { Interface } from '@ethersproject/abi'
 import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
-import IUniswapV2PairJSON from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import { computePairAddress, Pair } from '@vnaysn/jediswap-sdk-v2'
 import { useMemo } from 'react'
+import { Abi } from 'starknet'
+import { Pool } from '@vnaysn/jediswap-sdk-v3'
 
-import { useMultipleContractSingleData } from 'lib/hooks/multicall'
-import { V2_FACTORY_ADDRESSES } from 'constants/addresses'
-
-const PAIR_INTERFACE = new Interface(IUniswapV2PairJSON.abi)
+import JediswapPairABI from '../constants/abis/Pair.json'
+import { useMultipleContractSingleData } from '../state/multicall/hooks'
+import { FACTORY_ADDRESS } from '../contracts/factoryAddress'
+import { useAccountDetails } from './starknet-react'
 
 export enum PairState {
   LOADING,
@@ -22,20 +24,17 @@ export function useV2Pairs(currencies: [Currency | undefined, Currency | undefin
     [currencies]
   )
 
-  debugger
   const pairAddresses = useMemo(
     () => tokens.map(([tokenA, tokenB]) => (tokenA
-          && tokenB
-          && tokenA.chainId === tokenB.chainId
-          && !tokenA.equals(tokenB)
-          && V2_FACTORY_ADDRESSES[tokenA.chainId]
-      ? computePairAddress({ factoryAddress: V2_FACTORY_ADDRESSES[tokenA.chainId], tokenA, tokenB })
+      && tokenB
+      && tokenA.chainId === tokenB.chainId
+      && !tokenA.equals(tokenB)
+      ? Pool.getAddress(tokenA, tokenB, 0)
       : undefined)),
     [tokens]
   )
 
-  debugger
-  const results = useMultipleContractSingleData(pairAddresses, PAIR_INTERFACE, 'getReserves')
+  const results = useMultipleContractSingleData(pairAddresses, JediswapPairABI as Abi, 'getReserves')
 
   return useMemo(() => results.map((result, i) => {
     const { result: reserves, loading } = result
