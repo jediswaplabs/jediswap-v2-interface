@@ -414,7 +414,7 @@ function PositionPageContent() {
     tokenId,
   } = positionDetails?.[0] || {}
 
-  const removed = !liquidity
+  const removed = !parseInt(liquidity?.toString())
 
   const metadata = useV3PositionTokenURI(parsedTokenId)
 
@@ -605,7 +605,7 @@ function PositionPageContent() {
     error,
   } = useContractRead({
     functionName: 'owner_of',
-    args: [cairo.uint256(1)],
+    args: [cairo.uint256(parsedTokenId)],
     abi: NFTPositionManagerABI,
     address: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
     watch: true,

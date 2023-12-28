@@ -183,7 +183,7 @@ function Remove({ tokenId }: { tokenId: number }) {
 
     // slippage-adjusted underlying amounts
     const toBurnPosition: boolean = liquidityPercentage.equalTo(JSBI.BigInt(1))
-    const finalCallData = [decreaseLiquidityCall, ...(toBurnPosition ? [collectFeeCall, burnCall] : [])]
+    const finalCallData = [decreaseLiquidityCall, ...(toBurnPosition ? [collectFeeCall] : [])]
     setMintCallData(finalCallData)
   }, [
     positionManager,

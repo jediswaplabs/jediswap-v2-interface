@@ -15,7 +15,7 @@ export function useDerivedPositionInfo(positionDetails: FlattenedPositions | und
 
   const currency0 = token0 ? unwrappedToken(token0) : undefined
   const currency1 = token1 ? unwrappedToken(token1) : undefined
-  const feeAmount = positionDetails?.fee ? positionDetails.fee / 100 : undefined
+  const feeAmount = positionDetails?.fee ? positionDetails.fee : undefined
 
   // construct pool data
   const [, pool] = usePool(currency0 ?? undefined, currency1 ?? undefined, feeAmount)

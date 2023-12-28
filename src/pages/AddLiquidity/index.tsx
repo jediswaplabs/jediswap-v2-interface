@@ -53,7 +53,7 @@ import { useDerivedPositionInfo } from '../../hooks/useDerivedPositionInfo'
 import { useIsSwapUnsupported } from '../../hooks/useIsSwapUnsupported'
 import { useStablecoinValue } from '../../hooks/useStablecoinPrice'
 import useTransactionDeadline from '../../hooks/useTransactionDeadline'
-import { useV3PositionFromTokenId, useV3PositionsFromTokenId } from '../../hooks/useV3Positions'
+import { useV3PosFromTokenId, useV3PositionFromTokenId, useV3PositionsFromTokenId } from '../../hooks/useV3Positions'
 import { Bound, Field } from '../../state/mint/v3/actions'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { TransactionInfo, TransactionType } from '../../state/transactions/types'
@@ -81,10 +81,9 @@ const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>
 
 export default function AddLiquidityWrapper() {
   const { chainId } = useAccountDetails()
-  if (isSupportedChain(chainId)) {
+  if (true) {
     return <AddLiquidity />
   }
-  return <PositionPageUnsupportedContent />
 }
 
 function AddLiquidity() {
@@ -100,27 +99,21 @@ function AddLiquidity() {
     feeAmount?: string
     tokenId?: string
   }>()
-  console.log('🚀 ~ file: index.tsx:103 ~ AddLiquidity ~ tokenId:', tokenId)
   const { address: account, chainId } = useAccountDetails()
-  const { provider } = useProvider()
   const theme = useTheme()
   const trace = useTrace()
 
   const toggleWalletDrawer = useToggleAccountDrawer() // toggle wallet when disconnected
   const addTransaction = useTransactionAdder()
   const positionManager = useV3NFTPositionManagerContract()
-
+  const parsedTokenId = tokenId ? parseInt(tokenId) : undefined
   // check for existing position if tokenId in url
-  const { positions, loading: positionLoading } = useV3PositionsFromTokenId(tokenId ? [Number(tokenId)] : undefined)
-  const existingPositionDetails = positions && positions?.[0]
+  const { position: existingPositionDetails, loading: positionLoading } = useV3PosFromTokenId(parsedTokenId)
   const hasExistingPosition = !!existingPositionDetails && !positionLoading
   const { position: existingPosition } = useDerivedPositionInfo(existingPositionDetails)
 
   // fee selection from url
-  const feeAmount: FeeAmount | undefined =
-    feeAmountFromUrl && Object.values(FeeAmount).includes(parseFloat(feeAmountFromUrl))
-      ? parseFloat(feeAmountFromUrl)
-      : undefined
+  const feeAmount: FeeAmount | undefined = feeAmountFromUrl ? Number(feeAmountFromUrl) : undefined
 
   const baseCurrency = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
