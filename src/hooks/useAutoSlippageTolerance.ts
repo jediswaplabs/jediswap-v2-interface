@@ -1,14 +1,15 @@
+// @ts-nocheck
 import { MixedRoute, partitionMixedRouteByProtocol, Protocol, Trade } from '@vnaysn/jediswap-router-sdk'
 import { Currency, CurrencyAmount, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
 import { Pool } from '@vnaysn/jediswap-sdk-v3'
+import JSBI from 'jsbi'
+import { useMemo } from 'react'
+
 import { useAccountDetails } from 'hooks/starknet-react'
 import { SUPPORTED_GAS_ESTIMATE_CHAIN_IDS } from 'constants/chains'
-import JSBI from 'jsbi'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
-import { useMemo } from 'react'
 import { ClassicTrade } from 'state/routing/types'
-
 import useGasPrice from './useGasPrice'
 import useStablecoinPrice, { useStablecoinAmountFromFiatValue, useStablecoinValue } from './useStablecoinPrice'
 import { L2_CHAIN_IDS } from 'constants/chainInfo'
@@ -47,12 +48,11 @@ function guesstimateGas(trade: Trade<Currency, Currency, TradeType> | undefined)
         gas += sections.reduce((gas, section) => {
           if (section.every((pool) => pool instanceof Pool)) {
             return gas + V3_SWAP_BASE_GAS_ESTIMATE + section.length * V3_SWAP_HOP_GAS_ESTIMATE
-          } else if (section.every((pool) => pool instanceof Pair)) {
+          } if (section.every((pool) => pool instanceof Pair)) {
             return gas + V2_SWAP_BASE_GAS_ESTIMATE + (section.length - 1) * V2_SWAP_HOP_GAS_ESTIMATE
-          } else {
-            console.warn('Invalid section')
-            return gas
           }
+          console.warn('Invalid section')
+          return gas
         }, 0)
       } else {
         // fallback general gas estimation
@@ -77,7 +77,8 @@ export default function useClassicAutoSlippageTolerance(trade?: ClassicTrade): P
   const { chainId } = useAccountDetails()
   const onL2 = false
   const outputDollarValue = useStablecoinValue(trade?.outputAmount)
-  const nativeGasPrice = useGasPrice()
+  // const nativeGasPrice = useGasPrice()
+  const nativeGasPrice = undefined // TODO fix
 
   const gasEstimate = guesstimateGas(trade)
   const gasEstimateUSD = useStablecoinAmountFromFiatValue(trade?.gasUseEstimateUSD) ?? null
@@ -85,16 +86,14 @@ export default function useClassicAutoSlippageTolerance(trade?: ClassicTrade): P
   const nativeCurrencyPrice = useStablecoinPrice((trade && nativeCurrency) ?? undefined)
 
   return useMemo(() => {
-    if (!trade || onL2) return DEFAULT_AUTO_SLIPPAGE
+    if (!trade || onL2) { return DEFAULT_AUTO_SLIPPAGE }
 
-    const nativeGasCost =
-      nativeGasPrice && typeof gasEstimate === 'number'
-        ? JSBI.multiply(nativeGasPrice, JSBI.BigInt(gasEstimate))
-        : undefined
-    const dollarGasCost =
-      nativeCurrency && nativeGasCost && nativeCurrencyPrice
-        ? nativeCurrencyPrice.quote(CurrencyAmount.fromRawAmount(nativeCurrency, nativeGasCost))
-        : undefined
+    const nativeGasCost = nativeGasPrice && typeof gasEstimate === 'number'
+      ? JSBI.multiply(nativeGasPrice, JSBI.BigInt(gasEstimate))
+      : undefined
+    const dollarGasCost = nativeCurrency && nativeGasCost && nativeCurrencyPrice
+      ? nativeCurrencyPrice.quote(CurrencyAmount.fromRawAmount(nativeCurrency, nativeGasCost))
+      : undefined
 
     // if valid estimate from api and using api trade, use gas estimate from api
     // NOTE - dont use gas estimate for L2s yet - need to verify accuracy
@@ -127,6 +126,6 @@ export default function useClassicAutoSlippageTolerance(trade?: ClassicTrade): P
     nativeCurrencyPrice,
     chainId,
     gasEstimateUSD,
-    outputDollarValue,
+    outputDollarValue
   ])
 }

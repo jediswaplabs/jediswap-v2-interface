@@ -5,7 +5,7 @@ import { ParsedQs } from 'qs'
 import { ReactNode, useCallback, useEffect, useMemo } from 'react'
 import { AnyAction } from 'redux'
 
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountBalance, useAccountDetails, useFoo, useTokenBalance } from 'hooks/starknet-react'
 import { useConnectionReady } from 'connection/eagerlyConnect'
 import { useFotAdjustmentsEnabled } from 'featureFlags/flags/fotAdjustments'
 import useAutoSlippageTolerance from 'hooks/useAutoSlippageTolerance'
@@ -121,25 +121,21 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
   const address = useAddressNormalizer(recipient ?? undefined)
   const to: string | null = (recipient === null ? account : address) ?? null
 
-  const relevantTokenBalances = []
-  // const relevantTokenBalances = useCurrencyBalances(
-  //   account ?? undefined,
-  //   useMemo(() => [inputCurrency ?? undefined, outputCurrency ?? undefined], [inputCurrency, outputCurrency])
-  // )
+  const relevantTokenBalances = [useTokenBalance(inputCurrency), useTokenBalance(outputCurrency)]
 
   const isExactIn: boolean = independentField === Field.INPUT
   const parsedAmount = tryParseCurrencyAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
 
-  const trade = { trade: { maximumAmountIn: () => {} } }
-  // const trade = useDebouncedTrade(
-  //   isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
-  //   parsedAmount,
-  //   (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
-  //   undefined,
-  //   account,
-  //   inputTax,
-  //   outputTax
-  // )
+  // const trade = { trade: { maximumAmountIn: () => {} } }
+  const trade = useDebouncedTrade(
+    isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
+    parsedAmount,
+    (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
+    undefined,
+    account,
+    inputTax,
+    outputTax
+  )
 
   const currencyBalances = useMemo(
     () => ({

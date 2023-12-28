@@ -1,6 +1,5 @@
 import { BrowserEvent, InterfaceElementName, InterfaceEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
-import { currencyEquals } from '@jediswap/sdk'
 import { CSSProperties, MutableRefObject, useCallback, useMemo } from 'react'
 import { Check } from 'react-feather'
 import { FixedSizeList } from 'react-window'
@@ -254,8 +253,8 @@ export default function CurrencyList({ height,
 
       const currency = row
 
-      const isSelected = Boolean(selectedCurrency && currencyEquals(selectedCurrency, currency))
-      const otherSelected = Boolean(otherCurrency && currencyEquals(otherCurrency, currency))
+      const isSelected = Boolean(currency && selectedCurrency && selectedCurrency?.equals?.(currency))
+      const otherSelected = Boolean(currency && otherCurrency && otherCurrency?.equals?.(currency))
       const handleSelect = (hasWarning: boolean) => currency && onCurrencySelect(currency, hasWarning)
 
       const token = currency?.wrapped

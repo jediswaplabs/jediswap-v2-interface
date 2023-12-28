@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Connector, useAccount, useBalance, useConnect, useProvider } from '@starknet-react/core'
 import { AccountInterface, constants } from 'starknet'
-import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
 import { WETH } from '@jediswap/sdk'
+import JSBI from 'jsbi'
 
 import { useDefaultActiveTokens } from './Tokens'
+import { useNativeCurrencyBalances, useTokenBalances } from '../lib/hooks/useCurrencyBalance'
 // Define the type for the balances object
 interface TokenBalance {
   balance: any // Replace 'any' with the correct type of balance
@@ -76,4 +78,21 @@ export const useAccountBalance = (currency: Currency | null | undefined) => {
   })
 
   return { balance: data?.formatted }
+}
+export const useTokenBalance = (currency: Currency | null | undefined) => {
+  const { address } = useAccountDetails()
+  const tokenAddress = (currency as any)?.address
+
+  const { data } = useBalance({
+    token: tokenAddress,
+    address,
+    watch: true
+  })
+
+  const value = data?.value
+  const amount = value ? JSBI.BigInt(value.toString()) : undefined
+  if (amount && currency) {
+    return CurrencyAmount.fromRawAmount(currency, amount)
+  }
+  return undefined
 }
