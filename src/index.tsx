@@ -31,6 +31,7 @@ import RadialGradientByChainUpdater from './theme/components/RadialGradientByCha
 
 import { goerli, mainnet, sepolia } from '@starknet-react/chains'
 import { StarknetConfig, publicProvider, argent, braavos } from '@starknet-react/core'
+import { StarknetProvider } from 'context/StarknetProvider'
 
 function Updaters() {
   const location = useLocation()
@@ -56,12 +57,9 @@ const queryClient = new QueryClient()
 
 const container = document.getElementById('root') as HTMLElement
 
-const chains = [mainnet, sepolia, goerli]
-const connectors = [argent(), braavos()]
-
 createRoot(container).render(
   <StrictMode>
-    <StarknetConfig chains={chains} provider={publicProvider()} connectors={connectors} autoConnect>
+    <StarknetProvider>
       <Provider store={store}>
         <FeatureFlagsProvider>
           <QueryClientProvider client={queryClient}>
@@ -83,6 +81,6 @@ createRoot(container).render(
           </QueryClientProvider>
         </FeatureFlagsProvider>
       </Provider>
-    </StarknetConfig>
+    </StarknetProvider>
   </StrictMode>
 )

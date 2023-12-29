@@ -28,7 +28,7 @@ import { isSupportedChain } from 'constants/chains'
 import { useV3NFTPositionManagerContract } from 'hooks/useContract'
 import useDebouncedChangeHandler from 'hooks/useDebouncedChangeHandler'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { useV3PosFromTokenId, useV3PositionFromTokenId, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
+import { useV3PosFromTokenId, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
 import { PositionPageUnsupportedContent } from 'pages/Pool/PositionPage'
 import { useBurnV3ActionHandlers, useBurnV3State, useDerivedV3BurnInfo } from 'state/burn/v3/hooks'
@@ -47,7 +47,7 @@ const DEFAULT_REMOVE_V3_LIQUIDITY_SLIPPAGE_TOLERANCE = new Percent(5, 100)
 const MAX_UINT128 = BigInt(2) ** BigInt(128) - BigInt(1)
 // redirect invalid tokenIds
 export default function RemoveLiquidityV3() {
-  const { chainId } = useAccountDetails()
+  const { chainId, address } = useAccountDetails()
   const { tokenId } = useParams<{ tokenId: string }>()
   const location = useLocation()
   const parsedTokenId = useMemo(() => {
@@ -58,7 +58,7 @@ export default function RemoveLiquidityV3() {
     }
   }, [tokenId])
 
-  const { positions, loading } = useV3PositionsFromTokenId([Number(tokenId ? tokenId : undefined)])
+  const { positions, loading } = useV3PositionsFromTokenId([Number(tokenId ? tokenId : undefined)], address)
   const existingPositionDetails = positions && positions?.[0]
   if (parsedTokenId === null || parsedTokenId === 0) {
     return <Navigate to={{ ...location, pathname: '/pools' }} replace />

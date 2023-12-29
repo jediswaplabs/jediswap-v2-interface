@@ -1,13 +1,26 @@
 import { jsonRpcProvider } from '@starknet-react/core'
-import { isLocalEnvironment } from 'connectors'
+
+interface NetworkTypes {
+  [key: string]: string
+}
+
+const networks: NetworkTypes = {
+  Starknet: 'mainnet',
+  'Starknet Goerli Testnet': 'goerli',
+  'Starknet Sepolia Testnet': 'sepolia',
+}
 
 const provider = jsonRpcProvider({
   rpc: (chain) => {
+    const chainType: string = networks[chain.name]
+
     let nodeUrl = 'https://rpc.starknet-testnet.lava.build/'
-    if (isLocalEnvironment()) {
-      nodeUrl = 'https://rpc.starknet.lava.build/'
-    } else if (chain.network === 'mainnet') {
+    if (chainType === 'sepolia') {
+      nodeUrl = 'https://starknet-sepolia.public.blastapi.io'
+    } else if (chainType === 'mainnet') {
       nodeUrl = 'https://rpc-proxy.jediswap.xyz/api/'
+    } else if (chainType === 'goerli') {
+      nodeUrl = 'https://rpc.starknet-testnet.lava.build/'
     }
 
     return {

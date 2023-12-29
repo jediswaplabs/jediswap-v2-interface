@@ -16,20 +16,11 @@ import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { isSupportedChain } from 'constants/chains'
 // import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
 import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
-import { FlattenedPositions, useV3Positions, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
+import { FlattenedPositions, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
 import { useUserHideClosedPositions } from 'state/user/hooks'
-import { HideSmall, ThemedText } from 'theme/components'
-import CTACards from './CTACards'
+import { ThemedText } from 'theme/components'
 import { LoadingRows } from './styled'
-import WalletIcon from '../../assets/wallets/Wallet.png'
-import NoPositionsIcon from '../../assets/images/noPosition.png'
-import { useContractRead } from '@starknet-react/core'
-import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
-import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
-import { cairo } from 'starknet'
 import fetchTokenIds from 'api/fetchTokenId'
-import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { BigNumber } from 'ethers'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -302,9 +293,10 @@ function WrongNetworkCard() {
 }
 
 function PositionDetails(props: any) {
+  const { address } = useAccountDetails()
   const { tokenIds, showConnectAWallet, toggleWalletDrawer } = props
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
-  const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds)
+  const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds, address)
   const theme = useTheme()
   const [openPositions, closedPositions] = positions?.reduce<[FlattenedPositions[], FlattenedPositions[]]>(
     (acc, p) => {

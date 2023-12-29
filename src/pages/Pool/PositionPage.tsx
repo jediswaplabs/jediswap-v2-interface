@@ -402,7 +402,7 @@ function PositionPageContent() {
 
   const parsedTokenId = parseInt(tokenIdFromUrl)
 
-  const { loading, positions: positionDetails } = useV3PositionsFromTokenId([parsedTokenId])
+  const { loading, positions: positionDetails } = useV3PositionsFromTokenId([parsedTokenId], address)
 
   const {
     token0: token0Address,

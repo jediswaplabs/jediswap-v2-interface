@@ -8,6 +8,7 @@ import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { cairo } from 'starknet'
 import { useV3NFTPositionManagerContract } from './useContract'
 import { toInt } from 'utils/toInt'
+import { useAccountDetails } from './starknet-react'
 
 export interface TickType {
   mag: BigNumber
@@ -75,7 +76,7 @@ const usePositionsV3 = (tokenIds: number[]): UseV3Positions[] => {
   })
 }
 
-export function useV3PositionsFromTokenId(tokenIds: number[] | undefined) {
+export function useV3PositionsFromTokenId(tokenIds: number[] | undefined, address: string | undefined) {
   const results = usePositionsV3(tokenIds ? tokenIds : [])
   const loading = useMemo(() => results.some(({ loading }) => loading), [results])
   const error = useMemo(() => results.some(({ error }) => error), [results])
@@ -104,7 +105,7 @@ export function useV3PositionsFromTokenId(tokenIds: number[] | undefined) {
       })
     }
     return undefined
-  }, [loading, error, results, tokenIds])
+  }, [loading, error, results, tokenIds, address])
 
   return {
     loading,
@@ -194,7 +195,8 @@ interface UseV3PositionResults {
 }
 
 export function useV3PosFromTokenId(tokenId: number | undefined) {
-  const position = useV3PositionsFromTokenId(tokenId ? [tokenId] : undefined)
+  const { address } = useAccountDetails()
+  const position = useV3PositionsFromTokenId(tokenId ? [tokenId] : undefined, address)
   return {
     loading: position.loading,
     position: position.positions?.[0],

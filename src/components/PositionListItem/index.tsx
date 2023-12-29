@@ -214,7 +214,7 @@ export default function PositionListItem({
           </ThemedText.SubHeader>
 
           <FeeTierText>
-            <Trans>{formatDelta(parseFloat(new Percent(feeAmount, 1_000_000_00).toSignificant()))}</Trans>
+            <Trans>{parseFloat(new Percent(feeAmount, 1_000_000).toSignificant())}%</Trans>
           </FeeTierText>
         </PrimaryPositionIdData>
         <RangeBadge removed={removed} inRange={!outOfRange} />
