@@ -305,7 +305,6 @@ function PositionDetails(props: any) {
   const { tokenIds, showConnectAWallet, toggleWalletDrawer } = props
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
   const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds)
-  console.log('🚀 ~ file: index.tsx:308 ~ PositionDetails ~ positionsLoading:', positionsLoading)
   const theme = useTheme()
   const [openPositions, closedPositions] = positions?.reduce<[FlattenedPositions[], FlattenedPositions[]]>(
     (acc, p) => {

@@ -14,6 +14,17 @@ export const isTestnetEnvironment = () => {
   return host === 'testnet.e2.jediswap.xyz/'
 }
 
+export const isLocalEnvironment = () => {
+  if (!location) {
+    return false
+  }
+  if (String(location) === '//') {
+    return false
+  }
+  const hostname = new URL(String(location))?.hostname || ''
+  return hostname === 'localhost'
+}
+
 export const isStagingEnvironment = () => {
   if (!location) {
     return false
