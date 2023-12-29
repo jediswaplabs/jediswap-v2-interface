@@ -41,10 +41,11 @@ interface SwapDetailsProps {
   syncing: boolean
   loading: boolean
   allowedSlippage: Percent
+  transactionDeadline: number
 }
 
 export default function SwapDetailsDropdown(props: SwapDetailsProps) {
-  const { trade, syncing, loading, allowedSlippage } = props
+  const { trade, syncing, loading, allowedSlippage, transactionDeadline } = props
   const theme = useTheme()
   const [showDetails, setShowDetails] = useState(false)
 
@@ -80,14 +81,14 @@ export default function SwapDetailsDropdown(props: SwapDetailsProps) {
 }
 
 function AdvancedSwapDetails(props: SwapDetailsProps & { open: boolean }) {
-  const { open, trade, allowedSlippage, syncing = false } = props
+  const { open, trade, allowedSlippage, transactionDeadline, syncing = false } = props
   const format = useFormatter()
 
   if (!trade) {
     return null
   }
 
-  const lineItemProps = { trade, allowedSlippage, format, syncing }
+  const lineItemProps = { trade, allowedSlippage, transactionDeadline, format, syncing }
 
   // @ts-ignore
   return (
@@ -102,6 +103,7 @@ function AdvancedSwapDetails(props: SwapDetailsProps & { open: boolean }) {
         <SwapLineItem {...lineItemProps} type={SwapLineItemType.SWAP_FEE} />
         <SwapLineItem {...lineItemProps} type={SwapLineItemType.MINIMUM_OUTPUT} />
         <SwapLineItem {...lineItemProps} type={SwapLineItemType.NETWORK_COST} />
+        <SwapLineItem {...lineItemProps} type={SwapLineItemType.TRANSACTION_DEADLINE} />
         <Separator />
         <SwapRoute data-testid="swap-route-info" trade={trade} />
       </SwapDetailsWrapper>

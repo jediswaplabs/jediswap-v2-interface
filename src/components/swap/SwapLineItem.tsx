@@ -38,6 +38,7 @@ export enum SwapLineItemType {
   MAXIMUM_INPUT,
   MINIMUM_OUTPUT,
   ROUTING_INFO,
+  TRANSACTION_DEADLINE,
 }
 
 const DetailRowValue = styled(ThemedText.BodySmall)`
@@ -120,7 +121,7 @@ type LineItemData = {
 }
 
 function useLineItem(props: SwapLineItemProps): LineItemData | undefined {
-  const { trade, syncing, allowedSlippage, type } = props
+  const { trade, syncing, allowedSlippage, transactionDeadline, type } = props
   const { formatNumber, formatPercent } = useFormatter()
   const isAutoSlippage = useUserSlippageTolerance()[0] === SlippageTolerance.Auto
   const feesEnabled = useFeesEnabled()
@@ -141,7 +142,7 @@ function useLineItem(props: SwapLineItemProps): LineItemData | undefined {
       return {
         Label: () => <Trans>Rate</Trans>,
         Value: () => <TradePrice price={trade.executionPrice} />,
-        TooltipBody: !isPreview ? () => <RoutingTooltip trade={trade} /> : undefined,
+        TooltipBody: !isPreview ? () => <RoutingTooltip trade={trade} /> : undefined
       }
     case SwapLineItemType.NETWORK_COST:
       if (!SUPPORTED_GAS_ESTIMATE_CHAIN_IDS.includes(chainId)) {
@@ -160,13 +161,13 @@ function useLineItem(props: SwapLineItemProps): LineItemData | undefined {
               {formatNumber({ input: trade.totalGasUseEstimateUSD, type: NumberType.FiatGasPrice })}
             </Row>
           )
-        },
+        }
       }
     case SwapLineItemType.PRICE_IMPACT:
       return {
         Label: () => <Trans>Price impact</Trans>,
         TooltipBody: () => <Trans>The impact your trade has on the market price of this pool.</Trans>,
-        Value: () => (isPreview ? <Loading /> : <ColoredPercentRow percent={trade?.priceImpact} estimate />),
+        Value: () => (isPreview ? <Loading /> : <ColoredPercentRow percent={trade?.priceImpact} estimate />)
       }
     case SwapLineItemType.MAX_SLIPPAGE:
       return {
@@ -176,7 +177,7 @@ function useLineItem(props: SwapLineItemProps): LineItemData | undefined {
           <Row gap="8px">
             {isAutoSlippage && <AutoBadge />} {formatPercent(allowedSlippage)}
           </Row>
-        ),
+        )
       }
     case SwapLineItemType.SWAP_FEE: {
       if (!feesEnabled) {
@@ -192,7 +193,7 @@ function useLineItem(props: SwapLineItemProps): LineItemData | undefined {
           </>
         ),
         TooltipBody: () => <SwapFeeTooltipContent hasFee={Boolean(trade.swapFee)} />,
-        Value: () => <FeeRow trade={trade} />,
+        Value: () => <FeeRow trade={trade} />
       }
     }
     case SwapLineItemType.MAXIMUM_INPUT:
@@ -208,7 +209,7 @@ function useLineItem(props: SwapLineItemProps): LineItemData | undefined {
           </Trans>
         ),
         Value: () => <CurrencyAmountRow amount={trade.maximumAmountIn(allowedSlippage)} />,
-        loaderWidth: 70,
+        loaderWidth: 70
       }
     case SwapLineItemType.MINIMUM_OUTPUT:
       if (trade.tradeType === TradeType.EXACT_OUTPUT) {
@@ -220,7 +221,7 @@ function useLineItem(props: SwapLineItemProps): LineItemData | undefined {
           <Trans>Minimum received after slippage {!isAutoSlippage && `(${formatPercent(allowedSlippage)})`}</Trans>
         ),
         Value: () => <CurrencyAmountRow amount={trade.minimumAmountOut(allowedSlippage)} />,
-        loaderWidth: 70,
+        loaderWidth: 70
       }
     case SwapLineItemType.ROUTING_INFO:
       if (isPreview || syncing) {
@@ -230,7 +231,16 @@ function useLineItem(props: SwapLineItemProps): LineItemData | undefined {
         Label: () => <Trans>Order routing</Trans>,
         TooltipBody: () => <SwapRoute data-testid="swap-route-info" trade={trade} />,
         tooltipSize: TooltipSize.Large,
-        Value: () => <RouterLabel trade={trade} />,
+        Value: () => <RouterLabel trade={trade} />
+      }
+    case SwapLineItemType.TRANSACTION_DEADLINE:
+      return {
+        Label: () => <Trans>Transaction Deadline</Trans>,
+        TooltipBody: () => (
+          <Trans>Your transaction will revert if it is pending for more than this period of time.</Trans>
+        ),
+        Value: () => <Row gap="8px">{transactionDeadline / 60} mins.</Row>,
+        loaderWidth: 70
       }
   }
 }
@@ -258,11 +268,11 @@ function ValueWrapper({ children, lineItem, labelHovered, syncing }: ValueWrappe
       placement={isMobile ? 'auto' : 'right'}
       forceShow={labelHovered} // displays tooltip when hovering either both label or value
       size={tooltipSize}
-      text={
+      text={(
         <ThemedText.Caption color="neutral1">
           <TooltipBody />
         </ThemedText.Caption>
-      }
+      )}
     >
       <DetailRowValue>{children}</DetailRowValue>
     </MouseoverTooltip>

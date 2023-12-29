@@ -1,11 +1,12 @@
 import { Trans } from '@lingui/macro'
+import ms from 'ms'
+import React, { useState } from 'react'
+
 import Expand from 'components/Expand'
 import QuestionHelper from 'components/QuestionHelper'
 import Row from 'components/Row'
 import { Input, InputContainer } from 'components/Settings/Input'
 import { DEFAULT_DEADLINE_FROM_NOW } from 'constants/misc'
-import ms from 'ms'
-import React, { useState } from 'react'
 import { useUserTransactionTTL } from 'state/user/hooks'
 import { ThemedText } from 'theme/components'
 
@@ -13,7 +14,7 @@ enum DeadlineError {
   InvalidInput = 'InvalidInput',
 }
 
-const THREE_DAYS_IN_SECONDS = ms(`3d`) / 1000
+const THREE_DAYS_IN_SECONDS = ms('3d') / 1000
 const NUMBERS_ONLY = /^[0-9\b]+$/
 
 export default function TransactionDeadlineSettings() {
@@ -62,16 +63,16 @@ export default function TransactionDeadlineSettings() {
       isOpen={isOpen}
       onToggle={() => setIsOpen(!isOpen)}
       testId="transaction-deadline-settings"
-      header={
+      header={(
         <Row width="auto">
-          <ThemedText.BodySecondary>
+          <ThemedText.BodyPrimary>
             <Trans>Transaction deadline</Trans>
-          </ThemedText.BodySecondary>
+          </ThemedText.BodyPrimary>
           <QuestionHelper
             text={<Trans>Your transaction will revert if it is pending for more than this period of time.</Trans>}
           />
         </Row>
-      }
+      )}
       button={<Trans>{deadline / 60}m</Trans>}
     >
       <Row>

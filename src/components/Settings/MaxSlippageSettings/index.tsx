@@ -11,6 +11,7 @@ import { SlippageTolerance } from 'state/user/types'
 import { CautionTriangle, ThemedText } from 'theme/components'
 import { useFormatter } from 'utils/formatNumbers'
 import { Input, InputContainer } from '../Input'
+import { MAXIMUM_RECOMMENDED_SLIPPAGE, MINIMUM_RECOMMENDED_SLIPPAGE } from '../../../utils/validateUserSlippageTolerance'
 
 enum SlippageError {
   InvalidInput = 'InvalidInput',
@@ -35,8 +36,6 @@ const Switch = styled(Row)`
 `
 
 const NUMBER_WITH_MAX_TWO_DECIMAL_PLACES = /^(?:\d*\.\d{0,2}|\d+)$/
-const MINIMUM_RECOMMENDED_SLIPPAGE = new Percent(5, 10_000)
-const MAXIMUM_RECOMMENDED_SLIPPAGE = new Percent(1, 100)
 
 function useFormatPercentInput() {
   const { formatPercent } = useFormatter()
@@ -52,10 +51,9 @@ export default function MaxSlippageSettings({ autoSlippage }: { autoSlippage: Pe
   // In order to trigger `custom` mode, we need to set `userSlippageTolerance` to a value that is not `auto`.
   // To do so, we use `autoSlippage` value. However, since users are likely to change that value,
   // we render it as a placeholder instead of a value.
-  const defaultSlippageInputValue =
-    userSlippageTolerance !== SlippageTolerance.Auto && !userSlippageTolerance.equalTo(autoSlippage)
-      ? formatPercentInput(userSlippageTolerance)
-      : ''
+  const defaultSlippageInputValue = userSlippageTolerance !== SlippageTolerance.Auto && !userSlippageTolerance.equalTo(autoSlippage)
+    ? formatPercentInput(userSlippageTolerance)
+    : ''
 
   // If user has previously entered a custom slippage, we want to show that value in the input field
   // instead of a placeholder.
@@ -97,17 +95,15 @@ export default function MaxSlippageSettings({ autoSlippage }: { autoSlippage: Pe
     }
   }
 
-  const tooLow =
-    userSlippageTolerance !== SlippageTolerance.Auto && userSlippageTolerance.lessThan(MINIMUM_RECOMMENDED_SLIPPAGE)
-  const tooHigh =
-    userSlippageTolerance !== SlippageTolerance.Auto && userSlippageTolerance.greaterThan(MAXIMUM_RECOMMENDED_SLIPPAGE)
+  const tooLow = userSlippageTolerance !== SlippageTolerance.Auto && userSlippageTolerance.lessThan(MINIMUM_RECOMMENDED_SLIPPAGE)
+  const tooHigh = userSlippageTolerance !== SlippageTolerance.Auto && userSlippageTolerance.greaterThan(MAXIMUM_RECOMMENDED_SLIPPAGE)
 
   return (
     <Expand
       testId="max-slippage-settings"
       isOpen={isOpen}
       onToggle={() => setIsOpen(!isOpen)}
-      header={
+      header={(
         <Row width="auto" alignItems={'center'}>
           <ThemedText.BodyPrimary>
             <Trans>Max. slippage</Trans>
@@ -118,8 +114,8 @@ export default function MaxSlippageSettings({ autoSlippage }: { autoSlippage: Pe
             }
           />
         </Row>
-      }
-      button={
+      )}
+      button={(
         <ThemedText.BodyPrimary>
           {userSlippageTolerance === SlippageTolerance.Auto ? (
             <Trans>Auto</Trans>
@@ -127,7 +123,7 @@ export default function MaxSlippageSettings({ autoSlippage }: { autoSlippage: Pe
             formatPercent(userSlippageTolerance)
           )}
         </ThemedText.BodyPrimary>
-      }
+      )}
     >
       <RowBetween gap="md">
         <Switch>

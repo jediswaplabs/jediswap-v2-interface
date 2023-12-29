@@ -1,18 +1,18 @@
 import { Trans } from '@lingui/macro'
 import { Percent } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
-import SettingsTab from 'components/Settings'
 import { ReactNode } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { Link, useLocation } from 'react-router-dom'
 import { Box } from 'rebass'
+import styled, { useTheme } from 'styled-components'
+
+import { useAccountDetails } from 'hooks/starknet-react'
+import SettingsTab from 'components/Settings'
 import { useAppDispatch } from 'state/hooks'
 import { resetMintState } from 'state/mint/actions'
 import { resetMintState as resetMintV3State } from 'state/mint/v3/actions'
-import styled, { useTheme } from 'styled-components'
 import { ThemedText } from 'theme/components'
 import { flexRowNoWrap } from 'theme/styles'
-
 import { RowBetween } from '../Row'
 
 const Tabs = styled.div`
@@ -66,13 +66,11 @@ const AddRemoveTitleText = styled(ThemedText.SubHeaderLarge)`
   font-weight: 700 !important;
 `
 
-export function AddRemoveTabs({
-  adding,
+export function AddRemoveTabs({ adding,
   creating,
   autoSlippage,
   positionID,
-  children,
-}: {
+  children }: {
   adding: boolean
   creating: boolean
   autoSlippage: Percent
@@ -89,7 +87,7 @@ export function AddRemoveTabs({
   // detect if back should redirect to v3 or v2 pool page
   const poolLink = location.pathname.includes('add/v2')
     ? '/pools/v2'
-    : '/pools' + (positionID ? `/${positionID.toString()}` : '')
+    : `/pools${positionID ? `/${positionID.toString()}` : ''}`
 
   return (
     <Tabs>

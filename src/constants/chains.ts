@@ -1,16 +1,23 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
+import { isLocalEnvironment,
+  isProductionChainId,
+  isProductionEnvironment,
+  isTestnetChainId,
+  isTestnetEnvironment } from '../connectors'
+
 export const CHAIN_IDS_TO_NAMES = {
   [ChainId.MAINNET]: 'mainnet',
-  [ChainId.GOERLI]: 'goerli',
+  [ChainId.GOERLI]: 'goerli'
 } as const
 
-// Include ChainIds in this array if they are not supported by the UX yet, but are already in the SDK.
-
 export function isSupportedChain(
-  chainId: ChainId | null | undefined | ChainId,
-  featureFlags?: Record<number, boolean>
+  chainId: ChainId | null | undefined
 ) {
+  if (isLocalEnvironment()) { return true }
+  if (!(isProductionChainId(chainId) || isTestnetChainId(chainId))) { return false }
+  if (isProductionEnvironment() && !isProductionChainId(chainId)) { return false }
+  if (isTestnetEnvironment() && !isTestnetChainId(chainId)) { return false }
   return true
 }
 

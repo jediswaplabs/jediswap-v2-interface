@@ -1,6 +1,5 @@
 import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { useMemo } from 'react'
-import { ETHER } from '@jediswap/sdk' // TODO replace with new sdk
 
 import { useAccountDetails } from 'hooks/starknet-react'
 import { getChainInfo } from 'constants/chainInfo'

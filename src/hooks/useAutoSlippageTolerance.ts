@@ -75,10 +75,9 @@ const MAX_AUTO_SLIPPAGE_TOLERANCE = new Percent(5, 100) // 5%
  */
 export default function useClassicAutoSlippageTolerance(trade?: ClassicTrade): Percent {
   const { chainId } = useAccountDetails()
-  const onL2 = false
   const outputDollarValue = useStablecoinValue(trade?.outputAmount)
   // const nativeGasPrice = useGasPrice()
-  const nativeGasPrice = undefined // TODO fix
+  const nativeGasPrice = undefined // TODO JediSwap fix
 
   const gasEstimate = guesstimateGas(trade)
   const gasEstimateUSD = useStablecoinAmountFromFiatValue(trade?.gasUseEstimateUSD) ?? null
@@ -86,7 +85,7 @@ export default function useClassicAutoSlippageTolerance(trade?: ClassicTrade): P
   const nativeCurrencyPrice = useStablecoinPrice((trade && nativeCurrency) ?? undefined)
 
   return useMemo(() => {
-    if (!trade || onL2) { return DEFAULT_AUTO_SLIPPAGE }
+    if (!trade) { return DEFAULT_AUTO_SLIPPAGE }
 
     const nativeGasCost = nativeGasPrice && typeof gasEstimate === 'number'
       ? JSBI.multiply(nativeGasPrice, JSBI.BigInt(gasEstimate))
@@ -119,7 +118,6 @@ export default function useClassicAutoSlippageTolerance(trade?: ClassicTrade): P
     return DEFAULT_AUTO_SLIPPAGE
   }, [
     trade,
-    onL2,
     nativeGasPrice,
     gasEstimate,
     nativeCurrency,

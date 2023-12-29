@@ -1,10 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { Percent } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useMemo, useRef } from 'react'
 import { X } from 'react-feather'
 import styled from 'styled-components'
 
+import { useAccountDetails } from 'hooks/starknet-react'
 import { Scrim } from 'components/AccountDrawer'
 import AnimatedDropdown from 'components/AnimatedDropdown'
 import Column, { AutoColumn } from 'components/Column'
@@ -97,12 +97,10 @@ const MobileMenuHeader = styled(Row)`
   margin-bottom: 16px;
 `
 
-export default function SettingsTab({
-  autoSlippage,
+export default function SettingsTab({ autoSlippage,
   chainId,
   trade,
-  hideRoutingSettings = false,
-}: {
+  hideRoutingSettings = false }: {
   autoSlippage: Percent
   chainId?: string
   trade?: InterfaceTrade
@@ -129,12 +127,12 @@ export default function SettingsTab({
       <AnimatedDropdown open={!isUniswapXTrade(trade)}>
         <ExpandColumn>
           <MaxSlippageSettings autoSlippage={autoSlippage} />
+          <TransactionDeadlineSettings />
         </ExpandColumn>
       </AnimatedDropdown>
     ),
     [autoSlippage, trade]
   )
-
   return (
     <Menu ref={node}>
       <MenuButton

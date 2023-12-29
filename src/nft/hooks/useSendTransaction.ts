@@ -1,13 +1,14 @@
+// @ts-nocheck
 import { Interface } from '@ethersproject/abi'
 import { BigNumber } from '@ethersproject/bignumber'
 import { hexStripZeros } from '@ethersproject/bytes'
 import { ContractReceipt } from '@ethersproject/contracts'
 import type { JsonRpcSigner } from '@ethersproject/providers'
 import { NFTEventName } from '@uniswap/analytics-events'
-import { sendAnalyticsEvent } from 'analytics'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 
+import { sendAnalyticsEvent } from 'analytics'
 import ERC721 from '../../abis/erc721.json'
 import ERC1155 from '../../abis/erc1155.json'
 import CryptoPunksMarket from '../abis/CryptoPunksMarket.json'
@@ -42,12 +43,12 @@ export const useSendTransaction = create<TxState>()(
           const txNoGasLimit = {
             to: transactionData.to,
             value: transactionData.valueToSend ? BigNumber.from(transactionData.valueToSend) : undefined,
-            data: transactionData.data,
+            data: transactionData.data
           }
 
           const gasLimit = (await signer.estimateGas(txNoGasLimit)).mul(105).div(100)
           // tx['gasLimit'] = gasLimit
-          const tx = { ...txNoGasLimit, gasLimit } // TODO test this works when firing off tx
+          const tx = { ...txNoGasLimit, gasLimit } // TODO JediSwap test this works when firing off tx
 
           set({ state: TxStateType.Signing })
           const res = await signer.sendTransaction(tx)
@@ -58,7 +59,7 @@ export const useSendTransaction = create<TxState>()(
 
           const txReceipt = await res.wait()
 
-          //tx was mined successfully
+          // tx was mined successfully
           if (txReceipt.status === 1) {
             const nftsPurchased = findNFTsPurchased(txReceipt, address, selectedAssets, transactionData.route)
             const nftsNotPurchased = findNFTsNotPurchased(selectedAssets, nftsPurchased)
@@ -66,15 +67,14 @@ export const useSendTransaction = create<TxState>()(
             return {
               nftsPurchased,
               nftsNotPurchased,
-              txReceipt,
+              txReceipt
             }
-          } else {
-            set({ state: TxStateType.Failed })
-            return {
-              nftsPurchased: [],
-              nftsNotPurchased: selectedAssets,
-              txReceipt,
-            }
+          }
+          set({ state: TxStateType.Failed })
+          return {
+            nftsPurchased: [],
+            nftsNotPurchased: selectedAssets,
+            txReceipt
           }
         } catch (e) {
           console.log('Error creating multiAssetSwap Transaction', e)
@@ -83,9 +83,8 @@ export const useSendTransaction = create<TxState>()(
           } else {
             set({ state: TxStateType.Invalid })
           }
-          return
         }
-      },
+      }
     }),
     { name: 'useSendTransactionState' }
   )
@@ -106,46 +105,40 @@ const findNFTsPurchased = (
 
   // Find successfully purchased NFTs (and assign to state nftsPurchased) by parsing events
   const transferErc721BuyEvents = txReceipt.logs.filter(
-    (x) =>
-      x.topics[0] === erc721Interface.getEventTopic('Transfer') &&
-      hexStripZeros(x.topics[2]).toLowerCase() === signerAddress.toLowerCase()
+    (x) => x.topics[0] === erc721Interface.getEventTopic('Transfer')
+      && hexStripZeros(x.topics[2]).toLowerCase() === signerAddress.toLowerCase()
   )
 
   const transferredErc721 = transferErc721BuyEvents.map((x) => ({
     address: x.address,
-    tokenId: parseInt(x.topics[3]).toString(),
+    tokenId: parseInt(x.topics[3]).toString()
   }))
   const transferErc1155BuyEvents = txReceipt.logs.filter(
-    (x) =>
-      x.topics[0] === erc1155Interface.getEventTopic('TransferSingle') &&
-      hexStripZeros(x.topics[3]).toLowerCase() === signerAddress.toLowerCase()
+    (x) => x.topics[0] === erc1155Interface.getEventTopic('TransferSingle')
+      && hexStripZeros(x.topics[3]).toLowerCase() === signerAddress.toLowerCase()
   )
 
   const transferredErc1155 = transferErc1155BuyEvents.map((x) => ({
     address: x.address,
-    tokenId: erc1155Interface.parseLog(x).args[3].toString(),
+    tokenId: erc1155Interface.parseLog(x).args[3].toString()
   }))
 
   // Find transferred CryptoPunks
   const transferCryptopunkEvents = txReceipt.logs.filter(
-    (x) =>
-      x.topics[0] === cryptopunksMarketInterface.getEventTopic('PunkTransfer') &&
-      hexStripZeros(x.topics[2]).toLowerCase() === signerAddress.toLowerCase()
+    (x) => x.topics[0] === cryptopunksMarketInterface.getEventTopic('PunkTransfer')
+      && hexStripZeros(x.topics[2]).toLowerCase() === signerAddress.toLowerCase()
   )
   const transferredCryptopunks = transferCryptopunkEvents.map((x) => ({
     address: x.address,
-    tokenId: cryptopunksMarketInterface.parseLog(x).args[2].toString(),
+    tokenId: cryptopunksMarketInterface.parseLog(x).args[2].toString()
   }))
 
   const allTransferred = [...transferredErc721, ...transferredErc1155, ...transferredCryptopunks]
 
-  const transferredItems = toBuy.filter((assetToBuy) => {
-    return allTransferred.some(
-      (purchasedNft) =>
-        assetToBuy.address.toLowerCase() === purchasedNft.address.toLowerCase() &&
-        parseInt(assetToBuy.tokenId).toString() === purchasedNft.tokenId
-    )
-  })
+  const transferredItems = toBuy.filter((assetToBuy) => allTransferred.some(
+    (purchasedNft) => assetToBuy.address.toLowerCase() === purchasedNft.address.toLowerCase()
+        && parseInt(assetToBuy.tokenId).toString() === purchasedNft.tokenId
+  ))
 
   return compareAssetsWithTransactionRoute(transferredItems, txRoute).updatedAssets
 }

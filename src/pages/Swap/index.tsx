@@ -63,6 +63,7 @@ import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
 import { getSwapCurrencyId } from 'constants/tokens'
 import {isAddressValidForStarknet} from "../../utils/addresses";
+import {useUserTransactionTTL} from "../../state/user/hooks";
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -146,7 +147,7 @@ export default function SwapPage({ className }: { className?: string }) {
     <PageWrapper>
       <Swap
         className={className}
-        chainId={ChainId.MAINNET}
+        chainId={connectedChainId}
         initialInputCurrencyId={loadedUrlParams?.[Field.INPUT]?.currencyId}
         initialOutputCurrencyId={loadedUrlParams?.[Field.OUTPUT]?.currencyId}
         // disableTokenInputs={supportedChainId === undefined}
@@ -176,9 +177,10 @@ export function Swap({ className,
   disableTokenInputs?: boolean
 }) {
   const { account, chainId: connectedChainId, connector } = useAccountDetails()
+  const [ttl] = useUserTransactionTTL();
 
   // token warning stuff
-  //TODO test how it works
+  //TODO JediSwap test how it works
   const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId)
   const prefilledOutputCurrency = useCurrency(initialOutputCurrencyId, chainId)
 
@@ -239,7 +241,7 @@ export function Swap({ className,
   //   execute: onWrap,
   //   inputError: wrapInputError } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
   // const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
-  const showWrap = false; //TODO we don't need it now
+  const showWrap = false; //TODO JediSwap we don't need it now
 
   const parsedAmounts = useMemo(
     () => (showWrap
@@ -256,7 +258,7 @@ export function Swap({ className,
 
   // const showFiatValueInput = Boolean(parsedAmounts[Field.INPUT])
   // const showFiatValueOutput = Boolean(parsedAmounts[Field.OUTPUT])
-  //TODO probably implement later
+  //TODO JediSwap probably implement later
   const showFiatValueInput = false;
   const showFiatValueOutput = false;
 
@@ -279,7 +281,7 @@ export function Swap({ className,
   const fiatValueInput = undefined;
   const fiatValueOutput = undefined;
 
-  //TODO find out the statuses
+  //TODO JediSwap find out the statuses
   const [routeNotFound, routeIsLoading, routeIsSyncing] = useMemo(
     () => [
       tradeState === TradeState.NO_ROUTE_FOUND,
@@ -361,7 +363,7 @@ export function Swap({ className,
 
   const maximumAmountIn = useMaxAmountIn(trade, allowedSlippage)
 
-  // TODO понять  что это
+  // TODO JediSwap investigate it
   const allowance = {};
   // const allowance = usePermit2Allowance(
   //   maximumAmountIn
@@ -376,7 +378,7 @@ export function Swap({ className,
 
   const showMaxButton = Boolean(maxInputAmount?.greaterThan(0) && !parsedAmounts[Field.INPUT]?.equalTo(maxInputAmount))
 
-  // TODO отключить
+  // TODO JediSwap remove
   const swapFiatValues = null;
   // const swapFiatValues = useMemo(
   //   () => ({ amountIn: fiatValueTradeInput.data, amountOut: fiatValueTradeOutput.data, feeUsd: outputFeeFiatValue }),
@@ -455,7 +457,7 @@ export function Swap({ className,
 
   // warnings on the greater of fiat value price impact and execution price impact
   const { priceImpactSeverity, largerPriceImpact } = useMemo(() => {
-    //TODO заменить
+    //TODO JediSwap fix
     return { priceImpactSeverity: 0, largerPriceImpact: undefined }
 
   //   const marketPriceImpact = undefined
@@ -511,7 +513,6 @@ export function Swap({ className,
 
   const showPriceImpactWarning = largerPriceImpact && priceImpactSeverity > 3
 
-
   const showDetailsDropdown = Boolean(
     !showWrap && userHasSpecifiedInputOutput && (trade || routeIsLoading || routeIsSyncing)
   )
@@ -540,7 +541,7 @@ export function Swap({ className,
       {/*  />*/}
       {/*)}*/}
 
-      {/*//TODO протестить*/}
+      {/*//TODO JediSwap test it*/}
       {showPriceImpactModal && showPriceImpactWarning && (
         <PriceImpactModal
           priceImpact={largerPriceImpact}
@@ -657,14 +658,15 @@ export function Swap({ className,
       {/*    )}*/}
         </div>
 
-      {/*  {showDetailsDropdown && (*/}
-      {/*    <SwapDetailsDropdown*/}
-      {/*      trade={trade}*/}
-      {/*      syncing={routeIsSyncing}*/}
-      {/*      loading={routeIsLoading}*/}
-      {/*      allowedSlippage={allowedSlippage}*/}
-      {/*    />*/}
-      {/*  )}*/}
+        {showDetailsDropdown && (
+          <SwapDetailsDropdown
+            trade={trade}
+            syncing={routeIsSyncing}
+            loading={routeIsLoading}
+            allowedSlippage={allowedSlippage}
+            transactionDeadline={ttl}
+          />
+        )}
       {/*  {showPriceImpactWarning && <PriceImpactWarning priceImpact={largerPriceImpact} />}*/}
       </AutoColumn>
     </SwapWrapper>

@@ -26,7 +26,7 @@ import { isAddress } from '../../utils'
 import { useCurrencyBalances } from '../connection/hooks'
 import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies, typeInput } from './actions'
 import { SwapState } from './reducer'
-import { ZERO_PERCENT } from '../../constants/misc'
+import { DEFAULT_AUTO_SLIPPAGE, ZERO_PERCENT } from '../../constants/misc'
 import { useAddressNormalizer } from '../../hooks/useAddressNormalizer'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
@@ -126,16 +126,16 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
   const isExactIn: boolean = independentField === Field.INPUT
   const parsedAmount = tryParseCurrencyAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined)
 
-  // const trade = { trade: { maximumAmountIn: () => {} } }
-  const trade = useDebouncedTrade(
-    isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
-    parsedAmount,
-    (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
-    undefined,
-    account,
-    inputTax,
-    outputTax
-  )
+  const trade = { trade: { maximumAmountIn: () => {} } }
+  // const trade = useDebouncedTrade(
+  //   isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
+  //   parsedAmount,
+  //   (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
+  //   undefined,
+  //   account,
+  //   inputTax,
+  //   outputTax
+  // )
 
   const currencyBalances = useMemo(
     () => ({
@@ -153,13 +153,8 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     [inputCurrency, outputCurrency]
   )
 
-  // allowed slippage for classic trades is either auto slippage, or custom user defined slippage if auto slippage disabled
-  // const autoSlippage = useAutoSlippageTolerance(trade.trade)
-  // todo раскоментить
-  const autoSlippage = useAutoSlippageTolerance()
-
-  // slippage amount used to submit the trade
-  const allowedSlippage = useUserSlippageToleranceWithDefault(autoSlippage)
+  const autoSlippage = DEFAULT_AUTO_SLIPPAGE
+  const allowedSlippage = useUserSlippageToleranceWithDefault()
 
   const inputError = useMemo(() => {
     let inputErrorNode: ReactNode | undefined

@@ -19,11 +19,9 @@ const HeaderButtonContainer = styled(RowFixed)`
   gap: 16px;
 `
 
-export default function SwapHeader({
-  autoSlippage,
+export default function SwapHeader({ autoSlippage,
   chainId,
-  trade,
-}: {
+  trade }: {
   autoSlippage: Percent
   chainId?: string
   trade?: InterfaceTrade
