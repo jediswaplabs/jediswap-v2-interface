@@ -482,8 +482,7 @@ function AddLiquidity() {
           disabled={!isValid}
           error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
         >
-          {/* <Text fontWeight={535}>{errorMessage || <Trans>Preview</Trans>}</Text> */}
-          <Text fontWeight={535}>{<Trans>Preview</Trans>}</Text>
+          <Text fontWeight={535}>{errorMessage ? errorMessage : <Trans>Preview</Trans>}</Text>
         </ButtonError>
       </AutoColumn>
     )

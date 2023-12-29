@@ -214,8 +214,7 @@ export default function CurrencyInputPanel({
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { address: account, chainId } = useAccountDetails()
-  const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
-  const { formatted } = useAccountBalance(currency as Currency)
+  const { formatted, balance } = useAccountBalance(currency as Currency)
   const theme = useTheme()
 
   const handleDismissSearch = useCallback(() => {
@@ -224,7 +223,12 @@ export default function CurrencyInputPanel({
 
   const chainAllowed = isSupportedChain(chainId)
 
+  const handleMaxAmount = () => {
+    if (balance) onUserInput(balance)
+  }
+
   const containerStyles = hideShadow ? { boxShadow: 'none' } : {}
+  const showMax = balance !== null && Number(value) !== Number(balance)
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>
       {!locked && (
@@ -290,13 +294,13 @@ export default function CurrencyInputPanel({
               <RowBetween>
                 {account && (
                   <RowFixed style={{ height: '17px' }}>
-                    {Boolean(showMaxButton && selectedCurrencyBalance) && (
-                      <StyledBalanceMax onClick={onMax}>
+                    {showMax && formatted && (
+                      <StyledBalanceMax onClick={handleMaxAmount}>
                         <Trans>MAX</Trans>
                       </StyledBalanceMax>
                     )}
                     <ThemedText.DeprecatedBody
-                      onClick={onMax}
+                      onClick={handleMaxAmount}
                       color={theme.neutral3}
                       fontWeight={535}
                       fontSize={14}
