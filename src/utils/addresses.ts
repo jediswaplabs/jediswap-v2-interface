@@ -31,7 +31,7 @@ export function isSameAddress(a?: string, b?: string) {
 
 // Shortens an Ethereum address
 export function shortenAddress(address = '', charsStart = 4, charsEnd = 4): string {
-  const parsed = isAddress(address)
+  const parsed = isAddressValidForStarknet(address)
   if (!parsed) return ''
   return ellipseAddressAdd0x(parsed, charsStart, charsEnd)
 }

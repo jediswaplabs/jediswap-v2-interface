@@ -8,6 +8,7 @@ import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { cairo } from 'starknet'
 import { useV3NFTPositionManagerContract } from './useContract'
 import { toInt } from 'utils/toInt'
+import { useAccountDetails } from './starknet-react'
 
 export interface TickType {
   mag: BigNumber
@@ -56,7 +57,7 @@ const flattenedPositionsV3 = (positionsV3: FlattenedPositions): FlattenedPositio
   return flattened
 }
 
-const getPositionsV3 = (tokenId: number): UseV3Positions => {
+const usePositionResults = (tokenId: number): UseV3Positions => {
   const { data, isLoading, error } = useContractRead({
     functionName: 'get_position',
     args: [cairo.uint256(tokenId)],
@@ -69,14 +70,51 @@ const getPositionsV3 = (tokenId: number): UseV3Positions => {
   return { position, loading: isLoading, error }
 }
 
-const fetchV3Positions = (tokenIds: number[]): UseV3Positions[] => {
+const usePositionsV3 = (tokenIds: number[]): UseV3Positions[] => {
   return tokenIds?.map((tokenId) => {
-    return getPositionsV3(tokenId)
+    return usePositionResults(tokenId)
   })
 }
 
-export function useV3PositionsFromTokenId(tokenIds: number[] | undefined) {
-  const results = fetchV3Positions(tokenIds ? tokenIds : [])
+export function useV3PositionsFromTokenId(tokenIds: number[] | undefined, address: string | undefined) {
+  const results = usePositionsV3(tokenIds ? tokenIds : [])
+  const loading = useMemo(() => results.some(({ loading }) => loading), [results])
+  const error = useMemo(() => results.some(({ error }) => error), [results])
+
+  const positions = useMemo(() => {
+    if (!loading && !error && tokenIds?.length) {
+      return results.map((call, i) => {
+        const tokenId = tokenIds[i]
+        const result = call.position as FlattenedPositions
+        const tick_lower = toInt(result?.tick_lower)
+        const tick_upper = toInt(result?.tick_upper)
+        return {
+          tokenId,
+          fee: Number(result?.fee),
+          fee_growth_inside_0_last_X128: result?.fee_growth_inside_0_last_X128,
+          fee_growth_inside_1_last_X128: result?.fee_growth_inside_1_last_X128,
+          liquidity: BigNumber.from(result.liquidity),
+          operator: result?.operator,
+          tick_lower: tick_lower,
+          tick_upper: tick_upper,
+          token0: result?.token0,
+          token1: result?.token1,
+          tokens_owed_0: result?.tokens_owed_0,
+          tokens_owed_1: result?.tokens_owed_1,
+        }
+      })
+    }
+    return undefined
+  }, [loading, error, results, tokenIds, address])
+
+  return {
+    loading,
+    positions: positions?.map((position, i) => ({ ...position, tokenId: position.tokenId })),
+  }
+}
+
+export function getV3PositionsFromTokenId(tokenIds: number[] | undefined) {
+  const results = usePositionsV3(tokenIds ? tokenIds : [])
   const loading = useMemo(() => results.some(({ loading }) => loading), [results])
   const error = useMemo(() => results.some(({ error }) => error), [results])
 
@@ -157,7 +195,8 @@ interface UseV3PositionResults {
 }
 
 export function useV3PosFromTokenId(tokenId: number | undefined) {
-  const position = useV3PositionsFromTokenId(tokenId ? [tokenId] : undefined)
+  const { address } = useAccountDetails()
+  const position = useV3PositionsFromTokenId(tokenId ? [tokenId] : undefined, address)
   return {
     loading: position.loading,
     position: position.positions?.[0],

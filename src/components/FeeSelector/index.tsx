@@ -62,7 +62,6 @@ export default function FeeSelector({
   currencyB?: Currency
 }) {
   const { chainId } = useAccountDetails()
-  const trace = useTrace()
 
   // const { isLoading, isError, largestUsageFeeTier } = useFeeTierDistribution(currencyA, currencyB)
 
