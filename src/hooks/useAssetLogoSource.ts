@@ -1,13 +1,13 @@
+import { useCallback, useEffect, useState } from 'react'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
+
 import tokenLogoLookup from 'constants/tokenLogoLookup'
 import { isCelo, nativeOnChain } from 'constants/tokens'
 import { checkWarning, WARNING_LEVEL } from 'constants/tokenSafety'
 import { chainIdToNetworkName, getNativeLogoURI } from 'lib/hooks/useCurrencyLogoURIs'
 import uriToHttp from 'lib/utils/uriToHttp'
-import { useCallback, useEffect, useState } from 'react'
-import { isAddressValidForStarknet } from 'utils/addresses'
-
 import celoLogo from '../assets/svg/celo_logo.svg'
-import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { isAddressValidForStarknet } from '../utils'
 
 const BAD_SRCS: { [tokenAddress: string]: true } = {}
 
@@ -24,7 +24,7 @@ function prioritizeLogoSources(uris: string[]) {
   const preferredUris: string[] = []
 
   // Consolidate duplicate coingecko urls into one fallback source
-  let coingeckoUrl: string | undefined = undefined
+  let coingeckoUrl: string | undefined
 
   parsedUris.forEach((uri) => {
     if (uri.startsWith('https://assets.coingecko')) {
@@ -45,7 +45,7 @@ function getInitialUrl(
   isNative?: boolean,
   backupImg?: string | null
 ) {
-  if (chainId && isNative) return getNativeLogoURI(chainId)
+  if (chainId && isNative) { return getNativeLogoURI(chainId) }
 
   const networkName = chainId ? chainIdToNetworkName(chainId) : 'ethereum'
   const checksummedAddress = isAddressValidForStarknet(address)
@@ -56,9 +56,8 @@ function getInitialUrl(
 
   if (checksummedAddress) {
     return `https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/${networkName}/assets/${checksummedAddress}/logo.png`
-  } else {
-    return backupImg ?? undefined
   }
+  return backupImg ?? undefined
 }
 
 export default function useAssetLogoSource(
@@ -74,7 +73,7 @@ export default function useAssetLogoSource(
   const [fallbackSrcs, setFallbackSrcs] = useState<string[] | undefined>(undefined)
 
   useEffect(() => {
-    if (hideLogo) return
+    if (hideLogo) { return }
     setCurrent(getInitialUrl(address, chainId, isNative))
     setFallbackSrcs(undefined)
   }, [address, chainId, hideLogo, isNative])
@@ -86,7 +85,7 @@ export default function useAssetLogoSource(
     // Parses and stores logo sources from tokenlists if assets repo url fails
     if (!fallbackSrcs) {
       const uris = tokenLogoLookup.getIcons(address, chainId) ?? []
-      if (backupImg) uris.push(backupImg)
+      if (backupImg) { uris.push(backupImg) }
       const tokenListIcons = prioritizeLogoSources(parseLogoSources(uris))
 
       setCurrent(tokenListIcons.find((src) => !BAD_SRCS[src]))

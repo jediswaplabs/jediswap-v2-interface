@@ -1,12 +1,12 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { hexZeroPad } from '@ethersproject/bytes'
+import { useEffect, useMemo, useState } from 'react'
+
 import { useAccountDetails } from 'hooks/starknet-react'
 import { NEVER_RELOAD, useMainnetSingleCallResult } from 'lib/hooks/multicall'
 import uriToHttp from 'lib/utils/uriToHttp'
-import { useEffect, useMemo, useState } from 'react'
 import { safeNamehash } from 'utils/safeNamehash'
-
-import { isAddress } from '../utils'
+import { isAddressValidForStarknet } from '../utils'
 import isZero from '../utils/isZero'
 import { useENSRegistrarContract, useENSResolverContract, useERC721Contract, useERC1155Contract } from './useContract'
 import useDebounce from './useDebounce'
@@ -22,12 +22,12 @@ export default function useENSAvatar(
 ): { avatar: string | null; loading: boolean } {
   const debouncedAddress = useDebounce(address, 200)
   const node = useMemo(() => {
-    if (!debouncedAddress || !isAddress(debouncedAddress)) return undefined
+    if (!debouncedAddress || !isAddressValidForStarknet(debouncedAddress)) { return undefined }
     return safeNamehash(`${debouncedAddress.toLowerCase().substr(2)}.addr.reverse`)
   }, [debouncedAddress])
 
   const addressAvatar = useAvatarFromNode(node)
-  const ENSName = useENSName(address).ENSName
+  const { ENSName } = useENSName(address)
   const nameAvatar = useAvatarFromNode(ENSName === null ? undefined : safeNamehash(ENSName))
   let avatar = addressAvatar.avatar || nameAvatar.avatar
 
@@ -40,7 +40,7 @@ export default function useENSAvatar(
   return useMemo(
     () => ({
       avatar: changed ? null : http ?? null,
-      loading: changed || addressAvatar.loading || nameAvatar.loading || nftAvatar.loading,
+      loading: changed || addressAvatar.loading || nameAvatar.loading || nftAvatar.loading
     }),
     [addressAvatar.loading, changed, http, nameAvatar.loading, nftAvatar.loading]
   )
@@ -60,7 +60,7 @@ function useAvatarFromNode(node?: string): { avatar?: string; loading: boolean }
   return useMemo(
     () => ({
       avatar: avatar.result?.[0],
-      loading: resolverAddress.loading || avatar.loading,
+      loading: resolverAddress.loading || avatar.loading
     }),
     [avatar.loading, avatar.result, resolverAddress.loading]
   )
@@ -117,7 +117,7 @@ function useERC721Uri(
   return useMemo(
     () => ({
       uri: !enforceOwnership || account === owner.result?.[0] ? uri.result?.[0] : undefined,
-      loading: owner.loading || uri.loading,
+      loading: owner.loading || uri.loading
     }),
     [account, enforceOwnership, owner.loading, owner.result, uri.loading, uri.result]
   )
@@ -141,7 +141,7 @@ function useERC1155Uri(
       const idHex = id ? hexZeroPad(BigNumber.from(id).toHexString(), 32).substring(2) : id
       return {
         uri: !enforceOwnership || balance.result?.[0] > 0 ? uri.result?.[0]?.replaceAll('{id}', idHex) : undefined,
-        loading: balance.loading || uri.loading,
+        loading: balance.loading || uri.loading
       }
     } catch (error) {
       console.error('Invalid token id', error)

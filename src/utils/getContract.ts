@@ -2,10 +2,10 @@ import { Signer } from '@ethersproject/abstract-signer'
 import { AddressZero } from '@ethersproject/constants'
 import { Contract as ContractV2 } from '@ethersproject/contracts'
 import { JsonRpcProvider, Provider } from '@ethersproject/providers'
-
-import { isAddressValidForStarknet } from './addresses'
 import { Abi, AccountInterface, Contract } from 'starknet'
 import { Connector } from '@starknet-react/core'
+
+import { isAddressValidForStarknet } from './addresses'
 import { ZERO_ADDRESS } from 'constants/tokens'
 
 export function getContract(address: string, ABI: any, provider: JsonRpcProvider, account?: string): ContractV2 {

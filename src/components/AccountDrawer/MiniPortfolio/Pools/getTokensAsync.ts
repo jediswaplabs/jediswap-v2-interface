@@ -1,13 +1,14 @@
 import { ChainId, Token } from '@vnaysn/jediswap-sdk-core'
-import ERC20_ABI from 'abis/erc20.json'
 import { Erc20Interface } from 'abis/types/Erc20'
 import { Erc20Bytes32Interface } from 'abis/types/Erc20Bytes32'
-import { DEFAULT_ERC20_DECIMALS } from 'constants/tokens'
 import { Interface } from 'ethers/lib/utils'
 import { UniswapInterfaceMulticall } from 'types/v3/UniswapInterfaceMulticall'
-import { isAddressValidForStarknet } from 'utils/addresses'
+
+import { DEFAULT_ERC20_DECIMALS } from 'constants/tokens'
+import ERC20_ABI from 'abis/erc20.json'
 import { arrayToSlices } from 'utils/arrays'
 import { buildCurrencyKey, CurrencyKey, currencyKey } from 'utils/currencyKey'
+import { isAddressValidForStarknet } from '../../../../utils'
 
 type TokenMap = { [address: string]: Token | undefined }
 export type Call = { target: string; callData: string; gasLimit: number }
@@ -28,7 +29,7 @@ async function fetchChunk(multicall: UniswapInterfaceMulticall, chunk: Call[]): 
         const half = Math.floor(chunk.length / 2)
         return Promise.all([
           fetchChunk(multicall, chunk.slice(0, half)),
-          fetchChunk(multicall, chunk.slice(half, chunk.length)),
+          fetchChunk(multicall, chunk.slice(half, chunk.length))
         ]).then(([c0, c1]) => [...c0, ...c1])
       }
     }
@@ -44,13 +45,13 @@ function tryParseToken(address: string, chainId: ChainId, data: CallResult[]) {
     const name = nameData.success
       ? (Erc20.decodeFunctionResult('name', nameData.returnData)[0] as string)
       : nameDataBytes32.success
-      ? (Erc20Bytes32.decodeFunctionResult('name', nameDataBytes32.returnData)[0] as string)
-      : undefined
+        ? (Erc20Bytes32.decodeFunctionResult('name', nameDataBytes32.returnData)[0] as string)
+        : undefined
     const symbol = symbolData.success
       ? (Erc20.decodeFunctionResult('symbol', symbolData.returnData)[0] as string)
       : symbolDataBytes32.success
-      ? (Erc20Bytes32.decodeFunctionResult('symbol', symbolDataBytes32.returnData)[0] as string)
-      : undefined
+        ? (Erc20Bytes32.decodeFunctionResult('symbol', symbolDataBytes32.returnData)[0] as string)
+        : undefined
     const decimals = decimalsData.success ? parseInt(decimalsData.returnData) : DEFAULT_ERC20_DECIMALS
 
     return new Token(chainId, address, decimals, symbol, name)
@@ -65,13 +66,12 @@ function parseTokens(addresses: string[], chainId: ChainId, returnData: CallResu
 
   return tokenDataSlices.reduce((acc: TokenMap, slice, index) => {
     const parsedToken = tryParseToken(addresses[index], chainId, slice)
-    if (parsedToken) acc[parsedToken.address] = parsedToken
+    if (parsedToken) { acc[parsedToken.address] = parsedToken }
     return acc
   }, {})
 }
 
-const createCalls = (target: string, callData: string[]): Call[] =>
-  callData.map((callData) => ({ target, callData, gasLimit: DEFAULT_GAS_LIMIT }))
+const createCalls = (target: string, callData: string[]): Call[] => callData.map((callData) => ({ target, callData, gasLimit: DEFAULT_GAS_LIMIT }))
 
 function createCallsForToken(address: string) {
   return createCalls(address, [
@@ -79,7 +79,7 @@ function createCallsForToken(address: string) {
     Erc20.encodeFunctionData('symbol'),
     Erc20.encodeFunctionData('decimals'),
     Erc20Bytes32.encodeFunctionData('name'),
-    Erc20Bytes32.encodeFunctionData('symbol'),
+    Erc20Bytes32.encodeFunctionData('symbol')
   ])
 }
 
@@ -92,7 +92,7 @@ export async function getTokensAsync(
   chainId: ChainId,
   multicall: UniswapInterfaceMulticall
 ): Promise<TokenMap> {
-  if (addresses.length === 0) return {}
+  if (addresses.length === 0) { return {} }
   const formattedAddresses: string[] = []
   const calls: Call[] = []
   const previouslyCalledTokens: Promise<Token | undefined>[] = []
@@ -104,7 +104,7 @@ export async function getTokensAsync(
       previouslyCalledTokens.push(previousCall)
     } else {
       const formattedAddress = isAddressValidForStarknet(tokenAddress)
-      if (!formattedAddress) return
+      if (!formattedAddress) { return }
       formattedAddresses.push(formattedAddress)
       calls.push(...createCallsForToken(formattedAddress))
     }
@@ -114,8 +114,7 @@ export async function getTokensAsync(
 
   // Caches tokens currently being fetched for further calls to use
   formattedAddresses.forEach(
-    (address) =>
-      (TokenPromiseCache[buildCurrencyKey(chainId, address)] = calledTokens.then((tokenMap) => tokenMap[address]))
+    (address) => (TokenPromiseCache[buildCurrencyKey(chainId, address)] = calledTokens.then((tokenMap) => tokenMap[address]))
   )
 
   const tokenMap = await calledTokens

@@ -1,8 +1,8 @@
 import { Currency } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
 import { Text } from 'rebass'
 import styled from 'styled-components'
 
+import { useAccountDetails } from 'hooks/starknet-react'
 import CurrencyLogo from 'components/Logo/CurrencyLogo'
 import { useCachedPortfolioBalancesQuery } from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
 import { AutoRow } from 'components/Row'
@@ -31,18 +31,16 @@ const BaseWrapper = styled.div<{ disable?: boolean }>`
   background-color: ${({ theme, disable }) => disable && theme.deprecated_hoverDefault};
 `
 
-export default function CommonBases({
-  chainId,
+export default function CommonBases({ chainId,
   onSelect,
   selectedCurrency,
   searchQuery,
-  isAddressSearch,
-}: {
+  isAddressValidForStarknetSearch }: {
   chainId?: string
   selectedCurrency?: Currency | null
   onSelect: (currency: Currency) => void
   searchQuery: string
-  isAddressSearch: string | false
+  isAddressValidForStarknetSearch: string | false
   portfolioBalanceUsd?: number
 }) {
   const bases = chainId !== undefined ? COMMON_BASES[chainId] ?? [] : []

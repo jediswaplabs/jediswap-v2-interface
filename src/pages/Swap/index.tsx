@@ -25,7 +25,6 @@ import { GrayCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'
 import SwapCurrencyInputPanel from 'components/CurrencyInputPanel/SwapCurrencyInputPanel'
 import { AutoRow } from 'components/Row'
-import confirmPriceImpactWithoutFee from 'components/swap/confirmPriceImpactWithoutFee'
 import ConfirmSwapModal from 'components/swap/ConfirmSwapModal'
 import PriceImpactModal from 'components/swap/PriceImpactModal'
 import PriceImpactWarning from 'components/swap/PriceImpactWarning'
@@ -57,7 +56,12 @@ import { LinkStyledButton, ThemedText } from 'theme/components'
 import { computeFiatValuePriceImpact } from 'utils/computeFiatValuePriceImpact'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { computeRealizedPriceImpact, warningSeverity } from 'utils/prices'
+import {
+  computeRealizedLPFeeAmount,
+  computeRealizedPriceImpact,
+  computeTradePriceBreakdown,
+  warningSeverity
+} from 'utils/prices'
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
 import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
@@ -179,8 +183,6 @@ export function Swap({ className,
   const { account, chainId: connectedChainId, connector } = useAccountDetails()
   const [ttl] = useUserTransactionTTL();
 
-  // token warning stuff
-  //TODO JediSwap test how it works
   const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId)
   const prefilledOutputCurrency = useCurrency(initialOutputCurrencyId, chainId)
 
@@ -291,19 +293,6 @@ export function Swap({ className,
     [trade, tradeState]
   )
 
-  // const fiatValueTradeInput = useUSDPrice(trade?.inputAmount)
-  // const fiatValueTradeOutput = useUSDPrice(trade?.outputAmount)
-  // const preTaxFiatValueTradeOutput = useUSDPrice(trade?.outputAmount)
-  // const [stablecoinPriceImpact, preTaxStablecoinPriceImpact] = useMemo(
-  //   () => (routeIsSyncing || !isClassicTrade(trade)
-  //     ? [undefined, undefined]
-  //     : [
-  //       computeFiatValuePriceImpact(fiatValueTradeInput.data, fiatValueTradeOutput.data),
-  //       computeFiatValuePriceImpact(fiatValueTradeInput.data, preTaxFiatValueTradeOutput.data)
-  //     ]),
-  //   [fiatValueTradeInput, fiatValueTradeOutput, preTaxFiatValueTradeOutput, routeIsSyncing, trade]
-  // )
-  //
   const { onSwitchTokens, onCurrencySelection, onUserInput, onChangeRecipient } = useSwapActionHandlers(dispatch)
   const dependentField: Field = independentField === Field.INPUT ? Field.OUTPUT : Field.INPUT
 
@@ -454,15 +443,9 @@ export function Swap({ className,
     //   }
   }, [currencies, onUserInput])
 
-
-  // warnings on the greater of fiat value price impact and execution price impact
-  const { priceImpactSeverity, largerPriceImpact } = useMemo(() => {
-    //TODO JediSwap fix
-    return { priceImpactSeverity: 0, largerPriceImpact: undefined }
-
-  //   const marketPriceImpact = undefined
-  //   const newLargerPriceImpact = largerPercentValue(marketPriceImpact, preTaxStablecoinPriceImpact)
-  //   return { priceImpactSeverity: warningSeverity(newLargerPriceImpact), newLargerPriceImpact }
+  const { priceImpactSeverity, priceImpact } = useMemo(() => {
+    const priceImpact = trade?.priceImpact ? computeRealizedPriceImpact(trade) : undefined
+    return { priceImpactSeverity: warningSeverity(priceImpact), priceImpact }
   }, [trade])
 
   const handleConfirmDismiss = useCallback(() => {
@@ -511,7 +494,7 @@ export function Swap({ className,
     [onCurrencyChange, onCurrencySelection, state]
   )
 
-  const showPriceImpactWarning = largerPriceImpact && priceImpactSeverity > 3
+  const showPriceImpactWarning = priceImpact && priceImpactSeverity > 3
 
   const showDetailsDropdown = Boolean(
     !showWrap && userHasSpecifiedInputOutput && (trade || routeIsLoading || routeIsSyncing)
@@ -541,10 +524,9 @@ export function Swap({ className,
       {/*  />*/}
       {/*)}*/}
 
-      {/*//TODO JediSwap test it*/}
       {showPriceImpactModal && showPriceImpactWarning && (
         <PriceImpactModal
-          priceImpact={largerPriceImpact}
+          priceImpact={priceImpact}
           onDismiss={() => setShowPriceImpactModal(false)}
           onContinue={() => {
             setShowPriceImpactModal(false)
@@ -658,16 +640,16 @@ export function Swap({ className,
       {/*    )}*/}
         </div>
 
-        {showDetailsDropdown && (
-          <SwapDetailsDropdown
-            trade={trade}
-            syncing={routeIsSyncing}
-            loading={routeIsLoading}
-            allowedSlippage={allowedSlippage}
-            transactionDeadline={ttl}
-          />
-        )}
-      {/*  {showPriceImpactWarning && <PriceImpactWarning priceImpact={largerPriceImpact} />}*/}
+        {/*{showDetailsDropdown && (*/}
+        {/*  <SwapDetailsDropdown*/}
+        {/*    trade={trade}*/}
+        {/*    syncing={routeIsSyncing}*/}
+        {/*    loading={routeIsLoading}*/}
+        {/*    allowedSlippage={allowedSlippage}*/}
+        {/*    transactionDeadline={ttl}*/}
+        {/*  />*/}
+        {/*)}*/}
+        {showPriceImpactWarning && <PriceImpactWarning priceImpact={priceImpact} />}
       </AutoColumn>
     </SwapWrapper>
   )

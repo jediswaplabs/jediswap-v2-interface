@@ -22,7 +22,7 @@ import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { CloseIcon, ThemedSeparator, ThemedText } from 'theme/components'
 import { UserAddedToken } from 'types/tokens'
 import { useDefaultActiveTokens, useIsUserAddedToken, useSearchInactiveTokenLists, useToken } from '../../hooks/Tokens'
-import { isAddress } from '../../utils'
+import { isAddressValidForStarknet } from '../../utils'
 import Column from '../Column'
 import Row, { RowBetween } from '../Row'
 import CommonBases from './CommonBases'
@@ -69,7 +69,7 @@ export function CurrencySearch({ selectedCurrency,
 
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
-  const isAddressSearch = isAddress(debouncedQuery)
+  const isAddressValidForStarknetSearch = isAddressValidForStarknet(debouncedQuery)
   const searchToken = useToken(debouncedQuery)
   const searchTokenIsAdded = useIsUserAddedToken(searchToken)
 
@@ -196,7 +196,7 @@ export function CurrencySearch({ selectedCurrency,
   const inputRef = useRef<HTMLInputElement>()
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value
-    const checksummedInput = isAddress(input)
+    const checksummedInput = isAddressValidForStarknet(input)
     setSearchQuery(checksummedInput || input)
     fixedList.current?.scrollTo(0)
   }, [])
@@ -227,7 +227,7 @@ export function CurrencySearch({ selectedCurrency,
 
   // if no results on main list, show option to expand into inactive
   const filteredInactiveTokens = useSearchInactiveTokenLists(
-    !onlyShowCurrenciesWithBalance && (sortedTokens.length === 0 || (debouncedQuery.length > 2 && !isAddressSearch))
+    !onlyShowCurrenciesWithBalance && (sortedTokens.length === 0 || (debouncedQuery.length > 2 && !isAddressValidForStarknetSearch))
       ? debouncedQuery
       : undefined
   )
@@ -268,7 +268,7 @@ export function CurrencySearch({ selectedCurrency,
             onSelect={handleCurrencySelect}
             selectedCurrency={selectedCurrency}
             searchQuery={searchQuery}
-            isAddressSearch={isAddressSearch}
+            isAddressValidForStarknetSearch={isAddressValidForStarknetSearch}
           />
         )} */}
       </PaddedColumn>
@@ -286,7 +286,7 @@ export function CurrencySearch({ selectedCurrency,
               0,
               [searchToken],
               searchQuery,
-              isAddressSearch
+              isAddressValidForStarknetSearch
             )}
           />
         </Column>
@@ -305,7 +305,7 @@ export function CurrencySearch({ selectedCurrency,
                 showCurrencyAmount={showCurrencyAmount}
                 isLoading={isLoading}
                 searchQuery={searchQuery}
-                isAddressSearch={isAddressSearch}
+                isAddressValidForStarknetSearch={isAddressValidForStarknetSearch}
               />
             )}
           </AutoSizer>

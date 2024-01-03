@@ -1,8 +1,8 @@
-import { NEVER_RELOAD, useMainnetSingleCallResult } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
-import { safeNamehash } from 'utils/safeNamehash'
 
-import { isAddress } from '../utils'
+import { NEVER_RELOAD, useMainnetSingleCallResult } from 'lib/hooks/multicall'
+import { safeNamehash } from 'utils/safeNamehash'
+import { isAddressValidForStarknet } from '../utils'
 import isZero from '../utils/isZero'
 import { useENSRegistrarContract, useENSResolverContract } from './useContract'
 import useDebounce from './useDebounce'
@@ -15,7 +15,7 @@ import useENSAddress from './useENSAddress'
 export default function useENSName(address?: string): { ENSName: string | null; loading: boolean } {
   const debouncedAddress = useDebounce(address, 200)
   const ensNodeArgument = useMemo(() => {
-    if (!debouncedAddress || !isAddress(debouncedAddress)) return [undefined]
+    if (!debouncedAddress || !isAddressValidForStarknet(debouncedAddress)) { return [undefined] }
     return [safeNamehash(`${debouncedAddress.toLowerCase().substr(2)}.addr.reverse`)]
   }, [debouncedAddress])
   const registrarContract = useENSRegistrarContract()
@@ -38,7 +38,7 @@ export default function useENSName(address?: string): { ENSName: string | null; 
   return useMemo(
     () => ({
       ENSName: changed ? null : checkedName,
-      loading,
+      loading
     }),
     [changed, checkedName, loading]
   )

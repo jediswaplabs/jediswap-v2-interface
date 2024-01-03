@@ -13,12 +13,12 @@ import { TokenDescription } from 'components/Tokens/TokenDetails/TokenDescriptio
 import { getValidUrlChainName, supportedChainIdFromGQLChain } from 'graphql/data/util'
 import { usePoolData } from 'graphql/thegraph/PoolData'
 import { BREAKPOINTS } from 'theme'
-import { isAddressValidForStarknet } from 'utils/addresses'
 import { PoolDetailsHeader } from './PoolDetailsHeader'
 import { PoolDetailsStats } from './PoolDetailsStats'
 import { PoolDetailsStatsButtons } from './PoolDetailsStatsButtons'
 import { PoolDetailsTableSkeleton } from './PoolDetailsTableSkeleton'
 import { DetailBubble, SmallDetailBubble } from './shared'
+import { isAddressValidForStarknet } from '../../utils'
 
 const PageWrapper = styled(Row)`
   padding: 48px;
@@ -109,8 +109,7 @@ export default function PoolDetailsPage() {
   const [isReversed, toggleReversed] = useReducer((x) => !x, false)
   const token0 = isReversed ? poolData?.token1 : poolData?.token0
   const token1 = isReversed ? poolData?.token0 : poolData?.token1
-  const isInvalidPool =
-    !chainName || !poolAddress || !getValidUrlChainName(chainName) || !isAddressValidForStarknet(poolAddress)
+  const isInvalidPool = !chainName || !poolAddress || !getValidUrlChainName(chainName) || !isAddressValidForStarknet(poolAddress)
   const poolNotFound = (!loading && !poolData) || isInvalidPool
 
   if (poolNotFound) {
@@ -144,8 +143,8 @@ export default function PoolDetailsPage() {
           loading={loading}
         />
         <PoolDetailsStats poolData={poolData} isReversed={isReversed} chainId={chainId} loading={loading} />
-        {(token0 || token1 || loading) &&
-          (loading ? (
+        {(token0 || token1 || loading)
+          && (loading ? (
             <LinkColumn data-testid="pdp-links-loading-skeleton">
               <DetailBubble $height={24} $width={116} />
               {Array.from({ length: 3 }).map((_, i) => (

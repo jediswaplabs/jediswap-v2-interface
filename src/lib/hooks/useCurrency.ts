@@ -2,18 +2,17 @@ import { arrayify } from '@ethersproject/bytes'
 import { parseBytes32String } from '@ethersproject/strings'
 import { InterfaceEventName } from '@uniswap/analytics-events'
 import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
+import { useEffect, useMemo } from 'react'
+
 import { useAccountDetails } from 'hooks/starknet-react'
 import { sendAnalyticsEvent } from 'analytics'
 import { isSupportedChain } from 'constants/chains'
 import { useBytes32TokenContract, useTokenContract } from 'hooks/useContract'
 import { NEVER_RELOAD, useSingleCallResult } from 'lib/hooks/multicall'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
-import { useEffect, useMemo } from 'react'
-
 import { DEFAULT_CHAIN_ID, DEFAULT_ERC20_DECIMALS, WETH } from '../../constants/tokens'
 // import { TOKEN_SHORTHANDS } from '../../constants/tokens'
-import { isAddress } from '../../utils'
-import { isAddressValidForStarknet } from 'utils/addresses'
+import { isAddressValidForStarknet } from '../../utils'
 
 // parse a name or symbol from a token response
 const BYTES32_REGEX = /^0x[a-fA-F0-9]{64}$/
@@ -23,8 +22,8 @@ function parseStringOrBytes32(str: string | undefined, bytes32: string | undefin
     ? str
     : // need to check for proper bytes string and valid terminator
     bytes32 && BYTES32_REGEX.test(bytes32) && arrayify(bytes32)[31] === 0
-    ? parseBytes32String(bytes32)
-    : defaultValue
+      ? parseBytes32String(bytes32)
+      : defaultValue
 }
 
 export const UNKNOWN_TOKEN_SYMBOL = 'UNKNOWN'
@@ -38,9 +37,9 @@ const UNKNOWN_TOKEN_NAME = 'Unknown Token'
 export function useTokenFromActiveNetwork(tokenAddress: string | undefined): Token | null | undefined {
   const { chainId } = useAccountDetails()
 
-  const formattedAddress = isAddress(tokenAddress)
-  const tokenContract = useTokenContract(formattedAddress ? formattedAddress : undefined, false)
-  const tokenContractBytes32 = useBytes32TokenContract(formattedAddress ? formattedAddress : undefined, false)
+  const formattedAddress = isAddressValidForStarknet(tokenAddress)
+  const tokenContract = useTokenContract(formattedAddress || undefined, false)
+  const tokenContractBytes32 = useBytes32TokenContract(formattedAddress || undefined, false)
 
   // TODO (WEB-1709): reduce this to one RPC call instead of 5
   // TODO: Fix redux-multicall so that these values do not reload.
@@ -67,8 +66,8 @@ export function useTokenFromActiveNetwork(tokenAddress: string | undefined): Tok
 
   return useMemo(() => {
     // If the token is on another chain, we cannot fetch it on-chain, and it is invalid.
-    if (typeof tokenAddress !== 'string' || !isSupportedChain(chainId) || !formattedAddress) return undefined
-    if (isLoading || !chainId) return null
+    if (typeof tokenAddress !== 'string' || !isSupportedChain(chainId) || !formattedAddress) { return undefined }
+    if (isLoading || !chainId) { return null }
 
     return new Token(chainId, formattedAddress, parsedDecimals, parsedSymbol, parsedName)
   }, [chainId, tokenAddress, formattedAddress, isLoading, parsedDecimals, parsedSymbol, parsedName])
@@ -84,9 +83,8 @@ type TokenMap = { [address: string]: Token }
 export function useTokenFromMapOrNetwork(tokens: TokenMap, tokenAddress?: string | null): Token | undefined {
   const { chainId } = useAccountDetails()
   const address = isAddressValidForStarknet(tokenAddress)
-  const token: Token | undefined =
-    WETH[chainId].address === address ? WETH[chainId] : address ? tokens[address] : undefined
-  const tokenFromNetwork = useTokenFromActiveNetwork(token ? undefined : address ? address : undefined)
+  const token: Token | undefined = WETH[chainId].address === address ? WETH[chainId] : address ? tokens[address] : undefined
+  const tokenFromNetwork = useTokenFromActiveNetwork(token ? undefined : address || undefined)
 
   return tokenFromNetwork ?? token
 }
@@ -110,10 +108,10 @@ export function useCurrencyFromMap(
 
   const token = useTokenFromMapOrNetwork(tokens, isNative ? undefined : shorthandMatchAddress ?? currencyId)
 
-  if (currencyId === null || currencyId === undefined || !isSupportedChain(chainId)) return
+  if (currencyId === null || currencyId === undefined || !isSupportedChain(chainId)) { return }
 
   // this case so we use our builtin wrapped token instead of wrapped tokens on token lists
   const wrappedNative = nativeCurrency?.wrapped
-  if (wrappedNative?.address?.toUpperCase() === currencyId?.toUpperCase()) return wrappedNative
+  if (wrappedNative?.address?.toUpperCase() === currencyId?.toUpperCase()) { return wrappedNative }
   return isNative ? nativeCurrency : token
 }

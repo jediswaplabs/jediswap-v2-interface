@@ -16,7 +16,7 @@ module.exports = {
     }
   },
   globals: {
-    document: true, window: true, Fragment: true
+    document: true, window: true, Fragment: true, location: true
   },
   overrides: [{
     files: ['**/*.test.js', '**/*.test.jsx', '**/*.stories.jsx'],

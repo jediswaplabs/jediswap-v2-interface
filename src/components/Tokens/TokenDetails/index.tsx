@@ -1,11 +1,12 @@
 import { Trans } from '@lingui/macro'
 import { InterfacePageName } from '@uniswap/analytics-events'
-import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useMemo, useState, useTransition } from 'react'
 import { ArrowLeft } from 'react-feather'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
+import { useAccountDetails } from 'hooks/starknet-react'
 import { Trace } from 'analytics'
 import { PortfolioLogo } from 'components/AccountDrawer/MiniPortfolio/PortfolioLogo'
 import { AboutSection } from 'components/Tokens/TokenDetails/About'
@@ -15,14 +16,12 @@ import { BreadcrumbNavLink } from 'components/Tokens/TokenDetails/BreadcrumbNavL
 import ChartSection, { OnChangeTimePeriod } from 'components/Tokens/TokenDetails/ChartSection'
 import MobileBalanceSummaryFooter from 'components/Tokens/TokenDetails/MobileBalanceSummaryFooter'
 import ShareButton from 'components/Tokens/TokenDetails/ShareButton'
-import TokenDetailsSkeleton, {
-  Hr,
+import TokenDetailsSkeleton, { Hr,
   LeftPanel,
   RightPanel,
   TokenDetailsLayout,
   TokenInfoContainer,
-  TokenNameCell,
-} from 'components/Tokens/TokenDetails/Skeleton'
+  TokenNameCell } from 'components/Tokens/TokenDetails/Skeleton'
 import StatsSection from 'components/Tokens/TokenDetails/StatsSection'
 import TokenSafetyMessage from 'components/TokenSafety/TokenSafetyMessage'
 import TokenSafetyModal from 'components/TokenSafety/TokenSafetyModal'
@@ -38,10 +37,9 @@ import { UNKNOWN_TOKEN_SYMBOL, useTokenFromActiveNetwork } from 'lib/hooks/useCu
 import { Swap } from 'pages/Swap'
 import { Field } from 'state/swap/actions'
 import { SwapState } from 'state/swap/reducer'
-import { isAddressValidForStarknet } from 'utils/addresses'
 import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
 import InvalidTokenDetails from './InvalidTokenDetails'
-import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { isAddressValidForStarknet } from '../../../utils'
 
 const TokenSymbol = styled.span`
   text-transform: uppercase;
@@ -107,14 +105,12 @@ type TokenDetailsProps = {
   tokenPriceQuery?: TokenPriceQuery
   onChangeTimePeriod: OnChangeTimePeriod
 }
-export default function TokenDetails({
-  urlAddress,
+export default function TokenDetails({ urlAddress,
   inputTokenAddress,
   chain,
   tokenQuery,
   tokenPriceQuery,
-  onChangeTimePeriod,
-}: TokenDetailsProps) {
+  onChangeTimePeriod }: TokenDetailsProps) {
   if (!urlAddress) {
     throw new Error('Invalid token details route: tokenAddress param is undefined')
   }
@@ -127,13 +123,12 @@ export default function TokenDetails({
   const pageChainId = supportedChainIdFromGQLChain(chain)
   const tokenQueryData = tokenQuery.token
   const crossChainMap = useMemo(
-    () =>
-      tokenQueryData?.project?.tokens.reduce((map, current) => {
-        if (current) {
-          map[current.chain] = current.address
-        }
-        return map
-      }, {} as { [key: string]: string | undefined }) ?? {},
+    () => tokenQueryData?.project?.tokens.reduce((map, current) => {
+      if (current) {
+        map[current.chain] = current.address
+      }
+      return map
+    }, {} as { [key: string]: string | undefined }) ?? {},
     [tokenQueryData]
   )
   const isInfoTDPEnabled = useInfoTDPEnabled()
@@ -155,15 +150,13 @@ export default function TokenDetails({
       }
       const bridgedAddress = crossChainMap[update]
       if (bridgedAddress) {
-        startTokenTransition(() =>
-          navigate(
-            getTokenDetailsURL({
-              address: bridgedAddress,
-              chain: update,
-              isInfoExplorePageEnabled,
-            })
-          )
-        )
+        startTokenTransition(() => navigate(
+          getTokenDetailsURL({
+            address: bridgedAddress,
+            chain: update,
+            isInfoExplorePageEnabled
+          })
+        ))
       } else if (didFetchFromChain || detailedToken?.isNative) {
         startTokenTransition(() => navigate(getTokenDetailsURL({ address, chain: update, isInfoExplorePageEnabled })))
       }
@@ -175,34 +168,32 @@ export default function TokenDetails({
   const handleCurrencyChange = useCallback(
     (tokens: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => {
       if (
-        addressesAreEquivalent(tokens[Field.INPUT]?.currencyId, address) ||
-        addressesAreEquivalent(tokens[Field.OUTPUT]?.currencyId, address)
+        addressesAreEquivalent(tokens[Field.INPUT]?.currencyId, address)
+        || addressesAreEquivalent(tokens[Field.OUTPUT]?.currencyId, address)
       ) {
         return
       }
 
       const newDefaultTokenID = tokens[Field.OUTPUT]?.currencyId ?? tokens[Field.INPUT]?.currencyId
-      startTokenTransition(() =>
-        navigate(
-          getTokenDetailsURL({
-            // The function falls back to "NATIVE" if the address is null
-            address: newDefaultTokenID === 'ETH' ? null : newDefaultTokenID,
-            chain,
-            inputAddress:
+      startTokenTransition(() => navigate(
+        getTokenDetailsURL({
+          // The function falls back to "NATIVE" if the address is null
+          address: newDefaultTokenID === 'ETH' ? null : newDefaultTokenID,
+          chain,
+          inputAddress:
               // If only one token was selected before we navigate, then it was the default token and it's being replaced.
               // On the new page, the *new* default token becomes the output, and we don't have another option to set as the input token.
               tokens[Field.INPUT] && tokens[Field.INPUT]?.currencyId !== newDefaultTokenID
                 ? tokens[Field.INPUT]?.currencyId
                 : null,
-            isInfoExplorePageEnabled,
-          })
-        )
-      )
+          isInfoExplorePageEnabled
+        })
+      ))
     },
     [address, chain, isInfoExplorePageEnabled, navigate]
   )
 
-  const [continueSwap, setContinueSwap] = useState<{ resolve: (value: boolean | PromiseLike<boolean>) => void }>()
+  const [continueSwap, setContinueSwap] = useState<{ resolve:(value: boolean | PromiseLike<boolean>) => void }>()
 
   const [openTokenSafetyModal, setOpenTokenSafetyModal] = useState(false)
 

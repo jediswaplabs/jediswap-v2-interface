@@ -1,14 +1,14 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import useHttpLocations from 'hooks/useHttpLocations'
 import { useMemo } from 'react'
-import { isAddressValidForStarknet } from 'utils/addresses'
 
+import useHttpLocations from 'hooks/useHttpLocations'
 import EthereumLogo from '../../assets/images/ethereum-logo.png'
 import AvaxLogo from '../../assets/svg/avax_logo.svg'
 import BnbLogo from '../../assets/svg/bnb-logo.svg'
 import CeloLogo from '../../assets/svg/celo_logo.svg'
 import MaticLogo from '../../assets/svg/matic-token-icon.svg'
 import { isCelo, NATIVE_CHAIN_ID, nativeOnChain } from '../../constants/tokens'
+import { isAddressValidForStarknet } from '../../utils'
 
 type Network = 'ethereum' | 'arbitrum' | 'optimism' | 'polygon' | 'smartchain' | 'celo' | 'avalanchec' | 'base'
 
@@ -46,7 +46,7 @@ function getTokenLogoURI(address: string, chainId: ChainId = ChainId.MAINNET): s
     ChainId.MAINNET,
     ChainId.MAINNET,
     ChainId.MAINNET,
-    ChainId.MAINNET,
+    ChainId.MAINNET
   ]
   // if (isCelo(chainId) && address === nativeOnChain(chainId).wrapped.address) {
   //   return CeloLogo

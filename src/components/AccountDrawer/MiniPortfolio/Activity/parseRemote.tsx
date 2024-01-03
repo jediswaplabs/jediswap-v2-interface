@@ -6,8 +6,7 @@ import { useEffect, useState } from 'react'
 import UniswapXBolt from 'assets/svg/bolt.svg'
 import moonpayLogoSrc from 'assets/svg/moonpay.svg'
 import { nativeOnChain } from 'constants/tokens'
-import {
-  ActivityType,
+import { ActivityType,
   AssetActivityPartsFragment,
   Currency as GQLCurrency,
   NftApprovalPartsFragment,
@@ -18,11 +17,9 @@ import {
   TokenApprovalPartsFragment,
   TokenAssetPartsFragment,
   TokenTransferPartsFragment,
-  TransactionDetailsPartsFragment,
-} from 'graphql/data/types-and-hooks'
+  TransactionDetailsPartsFragment } from 'graphql/data/types-and-hooks'
 import { gqlToCurrency, logSentryErrorForUnsupportedChain, supportedChainIdFromGQLChain } from 'graphql/data/util'
-import { isAddressValidForStarknet } from 'utils/addresses'
-import { isSameAddress } from 'utils/addresses'
+import { isAddressValidForStarknet, isSameAddress } from 'utils/addresses'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { MOONPAY_SENDER_ADDRESSES, OrderStatusTable, OrderTextTable } from '../constants'
 import { Activity } from './types'
@@ -38,39 +35,37 @@ type TransactionChanges = {
 type FormatNumberOrStringFunctionType = ReturnType<typeof useFormatter>['formatNumberOrString']
 
 // TODO: Move common contract metadata to a backend service
-const UNI_IMG =
-  'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png'
+const UNI_IMG = 'https://raw.githubusercontent.com/Uniswap/assets/master/blockchains/ethereum/assets/0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984/logo.png'
 
-const ENS_IMG =
-  'https://464911102-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/collections%2F2TjMAeHSzwlQgcOdL48E%2Ficon%2FKWP0gk2C6bdRPliWIA6o%2Fens%20transparent%20background.png?alt=media&token=bd28b063-5a75-4971-890c-97becea09076'
+const ENS_IMG = 'https://464911102-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/collections%2F2TjMAeHSzwlQgcOdL48E%2Ficon%2FKWP0gk2C6bdRPliWIA6o%2Fens%20transparent%20background.png?alt=media&token=bd28b063-5a75-4971-890c-97becea09076'
 
 const COMMON_CONTRACTS: { [key: string]: Partial<Activity> | undefined } = {
   // TODO(cartcrom): Add permit2-specific logo
   '0x000000000022d473030f116ddee9f6b43ac78ba3': {
     title: t`Permit2`,
     descriptor: t`Uniswap Protocol`,
-    logos: [UNI_IMG],
+    logos: [UNI_IMG]
   },
   '0x4976fb03c32e5b8cfe2b6ccb31c09ba78ebaba41': {
     title: t`Ethereum Name Service`,
     descriptor: t`Public Resolver`,
-    logos: [ENS_IMG],
+    logos: [ENS_IMG]
   },
   '0x58774bb8acd458a640af0b88238369a167546ef2': {
     title: t`Ethereum Name Service`,
     descriptor: t`DNS Registrar`,
-    logos: [ENS_IMG],
+    logos: [ENS_IMG]
   },
   '0x084b1c3c81545d370f3634392de611caabff8148': {
     title: t`Ethereum Name Service`,
     descriptor: t`Reverse Registrar`,
-    logos: [ENS_IMG],
+    logos: [ENS_IMG]
   },
   '0x283af0b28c62c092c9727f1ee09c02ca627eb7f5': {
     title: t`Ethereum Name Service`,
     descriptor: t`ETH Registrar Controller`,
-    logos: [ENS_IMG],
-  },
+    logos: [ENS_IMG]
+  }
 }
 
 function callsPositionManagerContract(assetActivity: TransactionActivity) {
@@ -98,31 +93,29 @@ function getSwapTitle(sent: TokenTransferPartsFragment, received: TokenTransferP
   if (!supportedSentChain || !supportedReceivedChain) {
     logSentryErrorForUnsupportedChain({
       extras: { sentAsset: sent.asset, receivedAsset: received.asset },
-      errorMessage: 'Invalid activity from unsupported chain received from GQL',
+      errorMessage: 'Invalid activity from unsupported chain received from GQL'
     })
     return undefined
   }
   if (
-    sent.tokenStandard === 'NATIVE' &&
-    isSameAddress(nativeOnChain(supportedSentChain).wrapped.address, received.asset.address)
+    sent.tokenStandard === 'NATIVE'
+    && isSameAddress(nativeOnChain(supportedSentChain).wrapped.address, received.asset.address)
   ) {
     return t`Wrapped`
   }
   if (
-    received.tokenStandard === 'NATIVE' &&
-    isSameAddress(nativeOnChain(supportedReceivedChain).wrapped.address, received.asset.address)
+    received.tokenStandard === 'NATIVE'
+    && isSameAddress(nativeOnChain(supportedReceivedChain).wrapped.address, received.asset.address)
   ) {
     return t`Unwrapped`
   }
   return t`Swapped`
 }
 
-function getSwapDescriptor({
-  tokenIn,
+function getSwapDescriptor({ tokenIn,
   inputAmount,
   tokenOut,
-  outputAmount,
-}: {
+  outputAmount }: {
   tokenIn: TokenAssetPartsFragment
   outputAmount: string
   tokenOut: TokenAssetPartsFragment
@@ -171,7 +164,7 @@ function parseSwap(changes: TransactionChanges, formatNumberOrString: FormatNumb
       return {
         title: getSwapTitle(sent, received),
         descriptor: getSwapDescriptor({ tokenIn: sent.asset, inputAmount, tokenOut: received.asset, outputAmount }),
-        currencies: [gqlToCurrency(sent.asset), gqlToCurrency(received.asset)],
+        currencies: [gqlToCurrency(sent.asset), gqlToCurrency(received.asset)]
       }
     }
   }
@@ -215,7 +208,7 @@ function parseLPTransfers(changes: TransactionChanges, formatNumberOrString: For
   return {
     descriptor: `${tokenAQuanitity} ${poolTokenA.asset.symbol} and ${tokenBQuantity} ${poolTokenB.asset.symbol}`,
     logos: [poolTokenA.asset.project?.logo?.url, poolTokenB.asset.project?.logo?.url],
-    currencies: [gqlToCurrency(poolTokenA.asset), gqlToCurrency(poolTokenB.asset)],
+    currencies: [gqlToCurrency(poolTokenA.asset), gqlToCurrency(poolTokenB.asset)]
   }
 }
 
@@ -255,26 +248,26 @@ function parseSendReceive(
     if (transfer.direction === 'IN') {
       return isMoonpayPurchase && transfer.__typename === 'TokenTransfer'
         ? {
-            title: t`Purchased`,
-            descriptor: `${amount} ${assetName} ${t`for`} ${formatNumberOrString({
-              input: getTransactedValue(transfer.transactedValue),
-              type: NumberType.FiatTokenPrice,
-            })}`,
-            logos: [moonpayLogoSrc],
-            currencies,
-          }
+          title: t`Purchased`,
+          descriptor: `${amount} ${assetName} ${t`for`} ${formatNumberOrString({
+            input: getTransactedValue(transfer.transactedValue),
+            type: NumberType.FiatTokenPrice
+          })}`,
+          logos: [moonpayLogoSrc],
+          currencies
+        }
         : {
-            title: t`Received`,
-            descriptor: `${amount} ${assetName} ${t`from`} `,
-            otherAccount: isAddressValidForStarknet(transfer.sender) || undefined,
-            currencies,
-          }
+          title: t`Received`,
+          descriptor: `${amount} ${assetName} ${t`from`} `,
+          otherAccount: isAddressValidForStarknet(transfer.sender) || undefined,
+          currencies
+        }
     }
     return {
       title: t`Sent`,
       descriptor: `${amount} ${assetName} ${t`to`} `,
       otherAccount: isAddressValidForStarknet(transfer.recipient) || undefined,
-      currencies,
+      currencies
     }
   }
   return { title: t`Unknown Send` }
@@ -319,7 +312,7 @@ const ActivityParserByType: { [key: string]: ActivityTypeParser | undefined } = 
   [ActivityType.Send]: parseSendReceive,
   [ActivityType.Receive]: parseSendReceive,
   [ActivityType.Mint]: parseMint,
-  [ActivityType.Unknown]: parseUnknown,
+  [ActivityType.Unknown]: parseUnknown
 }
 
 function getLogoSrcs(changes: TransactionChanges): Array<string | undefined> {
@@ -349,14 +342,14 @@ function parseUniswapXOrder({ details, chain, timestamp }: OrderActivity): Activ
     tokenIn: inputToken,
     inputAmount: inputTokenQuantity,
     tokenOut: outputToken,
-    outputAmount: outputTokenQuantity,
+    outputAmount: outputTokenQuantity
   })
 
   const supportedChain = supportedChainIdFromGQLChain(chain)
   if (!supportedChain) {
     logSentryErrorForUnsupportedChain({
       extras: { details },
-      errorMessage: 'Invalid activity from unsupported chain received from GQL',
+      errorMessage: 'Invalid activity from unsupported chain received from GQL'
     })
     return undefined
   }
@@ -373,7 +366,7 @@ function parseUniswapXOrder({ details, chain, timestamp }: OrderActivity): Activ
     title,
     descriptor,
     from: details.offerer,
-    prefixIconSrc: UniswapXBolt,
+    prefixIconSrc: UniswapXBolt
   }
 }
 
@@ -408,7 +401,7 @@ function parseRemoteActivity(
     if (!supportedChain) {
       logSentryErrorForUnsupportedChain({
         extras: { assetActivity },
-        errorMessage: 'Invalid activity from unsupported chain received from GQL',
+        errorMessage: 'Invalid activity from unsupported chain received from GQL'
       })
       return undefined
     }
@@ -422,7 +415,7 @@ function parseRemoteActivity(
       title: assetActivity.details.type,
       descriptor: assetActivity.details.to,
       from: assetActivity.details.from,
-      nonce: assetActivity.details.nonce,
+      nonce: assetActivity.details.nonce
     }
 
     const parsedFields = ActivityParserByType[assetActivity.details.type]?.(
@@ -482,13 +475,12 @@ export function useTimeSince(timestamp: number) {
   const [timeSince, setTimeSince] = useState<string>(getTimeSince(timestamp))
 
   useEffect(() => {
-    const refreshTime = () =>
-      setTimeout(() => {
-        if (Math.floor(Date.now() - timestamp * 1000) / ms('61s') <= 1) {
-          setTimeSince(getTimeSince(timestamp))
-          timeout = refreshTime()
-        }
-      }, ms('1s'))
+    const refreshTime = () => setTimeout(() => {
+      if (Math.floor(Date.now() - timestamp * 1000) / ms('61s') <= 1) {
+        setTimeSince(getTimeSince(timestamp))
+        timeout = refreshTime()
+      }
+    }, ms('1s'))
 
     let timeout = refreshTime()
 

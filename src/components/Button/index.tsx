@@ -278,11 +278,9 @@ const ButtonErrorStyle = styled(ButtonPrimary)`
   }
 `
 
-export function ButtonConfirmed({
-  confirmed,
+export function ButtonConfirmed({ confirmed,
   altDisabledStyle,
-  ...rest
-}: { confirmed?: boolean; altDisabledStyle?: boolean } & ButtonProps) {
+  ...rest }: { confirmed?: boolean; altDisabledStyle?: boolean } & ButtonProps) {
   if (confirmed) {
     return <ButtonConfirmedStyle {...rest} />
   }
@@ -388,6 +386,67 @@ interface BaseThemeButtonProps {
   emphasis?: ButtonEmphasis
 }
 
+function pickThemeButtonBackgroundColor({ theme, emphasis }: { theme: DefaultTheme; emphasis: ButtonEmphasis }) {
+  switch (emphasis) {
+    case ButtonEmphasis.high:
+    case ButtonEmphasis.promotional:
+    case ButtonEmphasis.highSoft:
+      return theme.brandedGradient
+    case ButtonEmphasis.low:
+      return 'transparent'
+    case ButtonEmphasis.warning:
+      return theme.deprecated_accentWarningSoft
+    case ButtonEmphasis.destructive:
+      return theme.critical
+    case ButtonEmphasis.failure:
+      return theme.deprecated_accentFailureSoft
+    case ButtonEmphasis.medium:
+    default:
+      return theme.brandedGradient
+  }
+}
+
+function pickThemeButtonBackgroundColorHoverAndActive({ theme, emphasis }: { theme: DefaultTheme; emphasis: ButtonEmphasis }) {
+  switch (emphasis) {
+    case ButtonEmphasis.high:
+    case ButtonEmphasis.promotional:
+    case ButtonEmphasis.highSoft:
+      return theme.brandedGradientReversed
+    case ButtonEmphasis.low:
+      return 'transparent'
+    case ButtonEmphasis.warning:
+      return darken(0.1, theme.deprecated_accentWarningSoft)
+    case ButtonEmphasis.destructive:
+      return darken(0.1, theme.critical)
+    case ButtonEmphasis.failure:
+      return darken(0.1, theme.deprecated_accentFailureSoft)
+    case ButtonEmphasis.medium:
+    default:
+      return theme.brandedGradientReversed
+  }
+}
+
+function pickThemeButtonTextColor({ theme, emphasis }: { theme: DefaultTheme; emphasis: ButtonEmphasis }) {
+  switch (emphasis) {
+    case ButtonEmphasis.high:
+    case ButtonEmphasis.promotional:
+      return theme.white
+    case ButtonEmphasis.highSoft:
+      return theme.white
+    case ButtonEmphasis.low:
+      return theme.neutral2
+    case ButtonEmphasis.warning:
+      return theme.deprecated_accentWarning
+    case ButtonEmphasis.destructive:
+      return theme.neutral1
+    case ButtonEmphasis.failure:
+      return theme.critical
+    case ButtonEmphasis.medium:
+    default:
+      return theme.white
+  }
+}
+
 function pickThemeButtonFontSize({ size }) {
   switch (size) {
     case ButtonSize.large:
@@ -427,10 +486,10 @@ function pickThemeButtonPadding({ size }) {
 
 const BaseThemeButton = styled.button<BaseThemeButtonProps>`
   align-items: center;
-  background: ${({ theme }) => theme.brandedGradient};
+  background: ${pickThemeButtonBackgroundColor};
   border-radius: 8px;
   border: 0;
-  color: ${({ theme }) => theme.white};
+  color: ${pickThemeButtonTextColor};
   cursor: pointer;
   display: flex;
   flex-direction: row;
@@ -449,15 +508,12 @@ const BaseThemeButton = styled.button<BaseThemeButtonProps>`
     background: ${({ theme }) => theme.brandedGradientReversed};
   }
 
-  :active {
-    background: ${({ theme }) => theme.brandedGradientReversed};
-  }
-  :focus {
-    background: ${({ theme }) => theme.brandedGradientReversed};
-  }
+  :active,
+  :focus,
   :hover {
-    background: ${({ theme }) => theme.brandedGradientReversed};
+    background: ${pickThemeButtonBackgroundColorHoverAndActive};
   }
+
   :disabled {
     cursor: default;
     opacity: 0.6;

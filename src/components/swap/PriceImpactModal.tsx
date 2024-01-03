@@ -1,13 +1,13 @@
 import { Trans } from '@lingui/macro'
 import { Percent } from '@vnaysn/jediswap-sdk-core'
+import { AlertTriangle } from 'react-feather'
+import styled from 'styled-components'
+
 import { ButtonEmphasis, ButtonSize, ThemeButton } from 'components/Button'
 import { ColumnCenter } from 'components/Column'
 import Row from 'components/Row'
-import { AlertTriangle } from 'react-feather'
-import styled from 'styled-components'
 import { CloseIcon, ThemedText } from 'theme/components'
 import { useFormatter } from 'utils/formatNumbers'
-
 import Modal from '../Modal'
 
 const Wrapper = styled(ColumnCenter)`
@@ -63,10 +63,10 @@ export default function PriceImpactModal({ priceImpact, onDismiss, onContinue }:
           </ThemedText.BodyPrimary>
         </ColumnCenter>
         <ButtonContainer gap="md">
-          <StyledThemeButton size={ButtonSize.large} emphasis={ButtonEmphasis.failure} onClick={onContinue}>
+          <StyledThemeButton size={ButtonSize.medium} emphasis={ButtonEmphasis.failure} onClick={onContinue}>
             <Trans>Continue</Trans>
           </StyledThemeButton>
-          <StyledThemeButton size={ButtonSize.medium} emphasis={ButtonEmphasis.low} onClick={onDismiss}>
+          <StyledThemeButton size={ButtonSize.medium} emphasis={ButtonEmphasis.high} onClick={onDismiss}>
             <Trans>Cancel</Trans>
           </StyledThemeButton>
         </ButtonContainer>

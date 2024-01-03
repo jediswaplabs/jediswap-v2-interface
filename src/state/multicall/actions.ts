@@ -1,8 +1,8 @@
 import { FunctionAbi, Calldata } from 'starknet'
 import { createAction } from '@reduxjs/toolkit'
-import { isAddress } from '../../utils'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { isAddressValidForStarknet } from 'utils/addresses'
+
+import { isAddressValidForStarknet } from '../../utils'
 
 export interface Call {
   address: string
@@ -47,7 +47,7 @@ export function parseCallKey(callKey: string): Call {
     address: pcs[0],
     methodName: pcs[1],
     calldata_len: pcs[2],
-    calldata: pcs.slice(3),
+    calldata: pcs.slice(3)
   }
 }
 

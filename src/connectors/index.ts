@@ -5,60 +5,49 @@ import { ChainId } from '@vnaysn/jediswap-sdk-core'
 export const NETWORK_CHAIN_ID: number = parseInt(process.env.REACT_APP_CHAIN_ID ?? '5')
 
 export const isTestnetEnvironment = () => {
-  if (!location) {
+  if (!window.location) {
     return false
   }
-  if (String(location) === '//') {
+  if (String(window.location) === '//') {
     return false
   }
-  const host = new URL(String(location))?.host || ''
+  const host = new URL(String(window.location))?.host || ''
   return host === 'testnet.e2.jediswap.xyz'
 }
 
 export const isLocalEnvironment = () => {
-  if (!location) {
+  if (!window.location) {
     return false
   }
-  if (String(location) === '//') {
+  if (String(window.location) === '//') {
     return false
   }
-  const hostname = new URL(String(location))?.hostname || ''
+  const hostname = new URL(String(window.location))?.hostname || ''
   return hostname === 'localhost'
 }
 
 export const isStagingEnvironment = () => {
-  if (!location) {
+  if (!window.location) {
     return false
   }
-  if (String(location) === '//') {
+  if (String(window.location) === '//') {
     return false
   }
-  const host = new URL(String(location))?.host || ''
+  const host = new URL(String(window.location))?.host || ''
   // TODO JediSwap replace with new address once the migration is over
   return host === 'staging.e2.jediswap.xyz'
 }
 
 export const isProductionEnvironment = () => {
-  if (!location) {
+  if (!window.location) {
     return false
   }
-  if (String(location) === '//') {
+  if (String(window.location) === '//') {
     return false
   }
-  const host = new URL(String(location))?.host || ''
+  const host = new URL(String(window.location))?.host || ''
   // TODO JediSwap replace with new address once the migration is over
   return host === 'app.e2.jediswap.xyz'
-}
-
-export const isLocalEnvironment = () => {
-  if (!location) {
-    return false
-  }
-  if (String(location) === '//') {
-    return false
-  }
-  const hostname = new URL(String(location))?.hostname || ''
-  return hostname === 'localhost'
 }
 
 export const isProductionChainId = (id: ChainId | null | undefined) => id === ChainId.MAINNET

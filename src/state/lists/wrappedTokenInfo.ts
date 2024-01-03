@@ -1,8 +1,7 @@
 import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { Tags, TokenInfo, TokenList } from '@uniswap/token-lists'
 
-import { isAddress } from '../../utils'
-import { isAddressValidForStarknet } from 'utils/addresses'
+import { isAddressValidForStarknet } from '../../utils'
 
 type TagDetails = Tags[keyof Tags]
 interface TagInfo extends TagDetails {
@@ -13,8 +12,11 @@ interface TagInfo extends TagDetails {
  */
 export class WrappedTokenInfo implements Token {
   public readonly isNative = false as const
+
   public readonly isToken = true as const
+
   public readonly list?: TokenList
+
   public readonly tokenInfo: TokenInfo
 
   private _checksummedAddress: string
@@ -54,18 +56,17 @@ export class WrappedTokenInfo implements Token {
   }
 
   private _tags: TagInfo[] | null = null
-  public get tags(): TagInfo[] {
-    if (this._tags !== null) return this._tags
-    if (!this.tokenInfo.tags) return (this._tags = [])
-    const listTags = this.list?.tags
-    if (!listTags) return (this._tags = [])
 
-    return (this._tags = this.tokenInfo.tags.map((tagId) => {
-      return {
-        ...listTags[tagId],
-        id: tagId,
-      }
-    }))
+  public get tags(): TagInfo[] {
+    if (this._tags !== null) { return this._tags }
+    if (!this.tokenInfo.tags) { return (this._tags = []) }
+    const listTags = this.list?.tags
+    if (!listTags) { return (this._tags = []) }
+
+    return (this._tags = this.tokenInfo.tags.map((tagId) => ({
+      ...listTags[tagId],
+      id: tagId
+    })))
   }
 
   equals(other: Currency): boolean {
@@ -73,7 +74,7 @@ export class WrappedTokenInfo implements Token {
   }
 
   sortsBefore(other: Token): boolean {
-    if (this.equals(other)) throw new Error('Addresses should not be equal')
+    if (this.equals(other)) { throw new Error('Addresses should not be equal') }
     return this.address.toLowerCase() < other.address.toLowerCase()
   }
 

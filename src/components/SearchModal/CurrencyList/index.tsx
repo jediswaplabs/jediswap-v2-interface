@@ -195,7 +195,7 @@ export const formatAnalyticsEventProperties = (
   index: number,
   data: any[],
   searchQuery: string,
-  isAddressSearch: string | false
+  isAddressValidForStarknetSearch: string | false
 ) => ({
   token_symbol: token?.symbol,
   token_address: token?.address,
@@ -204,9 +204,9 @@ export const formatAnalyticsEventProperties = (
   scroll_position: '',
   token_list_index: index,
   token_list_length: data.length,
-  ...(isAddressSearch === false
+  ...(isAddressValidForStarknetSearch === false
     ? { search_token_symbol_input: searchQuery }
-    : { search_token_address_input: isAddressSearch })
+    : { search_token_address_input: isAddressValidForStarknetSearch })
 })
 
 const LoadingRow = () => (
@@ -227,7 +227,7 @@ export default function CurrencyList({ height,
   showCurrencyAmount,
   isLoading,
   searchQuery,
-  isAddressSearch }: {
+  isAddressValidForStarknetSearch }: {
   height: number
   currencies: Currency[]
   otherListTokens?: WrappedTokenInfo[]
@@ -238,7 +238,7 @@ export default function CurrencyList({ height,
   showCurrencyAmount?: boolean
   isLoading: boolean
   searchQuery: string
-  isAddressSearch: string | false
+  isAddressValidForStarknetSearch: string | false
 }) {
   const itemData: Currency[] = useMemo(() => {
     if (otherListTokens && otherListTokens?.length > 0) {
@@ -271,7 +271,7 @@ export default function CurrencyList({ height,
             onSelect={handleSelect}
             otherSelected={otherSelected}
             showCurrencyAmount={showCurrencyAmount}
-            eventProperties={formatAnalyticsEventProperties(token, index, data, searchQuery, isAddressSearch)}
+            eventProperties={formatAnalyticsEventProperties(token, index, data, searchQuery, isAddressValidForStarknetSearch)}
           />
         )
       }
@@ -284,7 +284,7 @@ export default function CurrencyList({ height,
       onCurrencySelect,
       showCurrencyAmount,
       searchQuery,
-      isAddressSearch
+      isAddressValidForStarknetSearch
     ]
   )
 

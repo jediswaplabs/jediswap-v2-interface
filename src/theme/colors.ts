@@ -141,9 +141,9 @@ export const colors = {
   accent1_light: jediBlue,
   accent2_light: '#FFEFFF',
   success: '#40B66B',
-  critical: '#FF3257',
+  critical: '#f33d62',
   scrim: 'rgba(0, 0, 0, 0.60)',
-  divider: 'rgba(255, 255, 255, 0.40)',
+  divider: 'rgba(255, 255, 255, 0.40)'
 }
 
 type Theme = typeof darkTheme
@@ -186,7 +186,7 @@ const commonTheme = {
   jediNavyBlue,
   signalGreen,
   jediGreyBorder,
-  signalRed,
+  signalRed
 }
 
 export const darkTheme = {
@@ -210,5 +210,5 @@ export const darkTheme = {
   success: colors.success,
   critical: colors.critical,
   scrim: colors.scrim,
-  divider: colors.divider,
+  divider: colors.divider
 }

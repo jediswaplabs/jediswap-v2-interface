@@ -20,17 +20,13 @@ export const isCelo = false
 export const NATIVE_CHAIN_ID = 'NATIVE'
 export const ZERO_ADDRESS_STARKNET = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-const cachedNativeCurrency: { [chainId: string]: NativeCurrency | Token } = {}
 export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {
-  if (cachedNativeCurrency[chainId]) return cachedNativeCurrency[chainId]
-  let nativeCurrency: NativeCurrency | Token
-
-  return (cachedNativeCurrency[chainId] = WETH[chainId])
+  return WETH[chainId]
 }
 
 export const STARKSCAN_ADDRESS = {
   [ChainId.MAINNET]: 'https://starkscan-proxy.jediswap.xyz/api/',
-  [ChainId.GOERLI]: 'https://starkscan-proxy.testnet.jediswap.xyz/api/',
+  [ChainId.GOERLI]: 'https://starkscan-proxy.testnet.jediswap.xyz/api/'
 }
 
 export function getSwapCurrencyId(currency: Currency): string {
@@ -40,20 +36,18 @@ export function getSwapCurrencyId(currency: Currency): string {
   return NATIVE_CHAIN_ID
 }
 
-export const domainURL = (chainId: ChainId) => {
-  return chainId === ChainId.MAINNET
-    ? 'https://app.starknet.id/api/indexer/addr_to_domain?addr='
-    : 'https://goerli.app.starknet.id/api/indexer/addr_to_domain?addr='
-}
+export const domainURL = (chainId: ChainId) => (chainId === ChainId.MAINNET
+  ? 'https://app.starknet.id/api/indexer/addr_to_domain?addr='
+  : 'https://goerli.app.starknet.id/api/indexer/addr_to_domain?addr=')
 
 export const ROUTER_ADDRESS: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: '0x067c1ae6f84275a929accf49122c86531259ffb01d3e2a6bf72729ca05566547',
-  [ChainId.GOERLI]: '0x067c1ae6f84275a929accf49122c86531259ffb01d3e2a6bf72729ca05566547',
+  [ChainId.GOERLI]: '0x067c1ae6f84275a929accf49122c86531259ffb01d3e2a6bf72729ca05566547'
 }
 
 export const ZAP_IN_ADDRESS: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: validateAndParseAddress('0x29a303b928b9391ce797ec27d011d3937054bee783ca7831df792bae00c925c'),
-  [ChainId.GOERLI]: validateAndParseAddress('0x73e3ccd627283aed4fa3940aa2bdb4d2c702e8e44c99b6851c019222558310f'),
+  [ChainId.GOERLI]: validateAndParseAddress('0x73e3ccd627283aed4fa3940aa2bdb4d2c702e8e44c99b6851c019222558310f')
 }
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -77,11 +71,11 @@ export const WETH: { [chainId in ChainId]: Token } = {
     18,
     'ETH',
     'ETHER'
-  ),
+  )
 }
 
 export const WRAPPED_NATIVE_CURRENCY: { [chainId: string]: Token | undefined } = {
-  ...(WETH as Record<ChainId, Token>),
+  ...(WETH as Record<ChainId, Token>)
 }
 
 export const DAI = {
@@ -98,21 +92,21 @@ export const DAI = {
     18,
     'DAI',
     'Dai Stablecoin'
-  ),
+  )
 }
 export const USDC = {
   [ChainId.GOERLI]: new Token(ChainId.GOERLI, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDC', 'USD//C'),
-  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDC', 'USD//C'),
+  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDC', 'USD//C')
 }
 
 export const USDT = {
   [ChainId.GOERLI]: new Token(ChainId.GOERLI, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDT', 'Tether USD'),
-  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDT', 'Tether USD'),
+  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDT', 'Tether USD')
 }
 
 export const WBTC = {
   [ChainId.GOERLI]: new Token(ChainId.GOERLI, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 8, 'WBTC', 'Wrapped BTC'),
-  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 8, 'WBTC', 'Wrapped BTC'),
+  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 8, 'WBTC', 'Wrapped BTC')
 }
 
 export const wstETH = {
@@ -123,7 +117,7 @@ export const wstETH = {
     18,
     'wstETH',
     'Wrapped stETH'
-  ),
+  )
 }
 
 // export const USDT = new Token(ChainId.MAINNET, '0xdAC17F958D2ee523a2206206994597C13D831ec7', 6, 'USDT', 'Tether USD')
@@ -137,7 +131,7 @@ export const PROPOSAL_LENGTH_IN_DAYS = 7
 
 const WETH_ONLY: ChainTokenList = {
   [ChainId.MAINNET]: [WETH[ChainId.MAINNET]],
-  [ChainId.GOERLI]: [WETH[ChainId.GOERLI]],
+  [ChainId.GOERLI]: [WETH[ChainId.GOERLI]]
 }
 
 // const TOKEN0_ONLY: ChainTokenList = {
@@ -156,8 +150,8 @@ export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
     ...WETH_ONLY[ChainId.MAINNET],
     DAI[ChainId.MAINNET],
     USDC[ChainId.MAINNET],
-    USDT[ChainId.MAINNET],
-  ],
+    USDT[ChainId.MAINNET]
+  ]
   // [ChainId.GOERLI]: [TOKEN0]
   // [ChainId.MAINNET]: [TOKEN0, TOKEN1],
 }
@@ -180,8 +174,8 @@ export const SUGGESTED_BASES: ChainTokenList = {
     ...WETH_ONLY[ChainId.MAINNET],
     DAI[ChainId.MAINNET],
     USDC[ChainId.MAINNET],
-    USDT[ChainId.MAINNET],
-  ],
+    USDT[ChainId.MAINNET]
+  ]
 }
 
 // used to construct the list of all pairs we consider by default in the frontend
@@ -191,7 +185,7 @@ export const BASES_TO_TRACK_LIQUIDITY_FOR: ChainTokenList = {
     ...WETH_ONLY[ChainId.GOERLI],
     DAI[ChainId.GOERLI],
     USDC[ChainId.GOERLI],
-    USDT[ChainId.GOERLI],
+    USDT[ChainId.GOERLI]
     // WBTC[ChainId.GOERLI],
     // wstETH[ChainId.GOERLI]
   ],
@@ -201,8 +195,8 @@ export const BASES_TO_TRACK_LIQUIDITY_FOR: ChainTokenList = {
     USDC[ChainId.MAINNET],
     USDT[ChainId.MAINNET],
     WBTC[ChainId.MAINNET],
-    wstETH[ChainId.MAINNET],
-  ],
+    wstETH[ChainId.MAINNET]
+  ]
 }
 
 export const BASES_TO_BUILD_ZAPPER_LIST_AGAINST: ChainTokenList = {
@@ -211,7 +205,7 @@ export const BASES_TO_BUILD_ZAPPER_LIST_AGAINST: ChainTokenList = {
     ...WETH_ONLY[ChainId.GOERLI],
     DAI[ChainId.GOERLI],
     USDC[ChainId.GOERLI],
-    USDT[ChainId.GOERLI],
+    USDT[ChainId.GOERLI]
     // WBTC[ChainId.GOERLI],
     // wstETH[ChainId.GOERLI]
   ],
@@ -221,8 +215,8 @@ export const BASES_TO_BUILD_ZAPPER_LIST_AGAINST: ChainTokenList = {
     USDC[ChainId.MAINNET],
     USDT[ChainId.MAINNET],
     WBTC[ChainId.MAINNET],
-    wstETH[ChainId.MAINNET],
-  ],
+    wstETH[ChainId.MAINNET]
+  ]
 }
 
 export const PINNED_PAIRS: { readonly [chainId in ChainId]?: [Token, Token][] } = {}

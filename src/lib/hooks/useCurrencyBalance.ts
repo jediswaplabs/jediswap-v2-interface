@@ -1,14 +1,14 @@
 import { Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
-import ERC20ABI from 'abis/erc20.json'
 import { Erc20Interface } from 'abis/types/Erc20'
 import JSBI from 'jsbi'
-import { useMultipleContractSingleData, useSingleContractMultipleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
 
+import { useAccountDetails } from 'hooks/starknet-react'
+import ERC20ABI from 'abis/erc20.json'
+import { useMultipleContractSingleData, useSingleContractMultipleData } from 'lib/hooks/multicall'
 import { nativeOnChain } from '../../constants/tokens'
 import { useInterfaceMulticall } from '../../hooks/useContract'
-import { isAddress } from '../../utils'
+import { isAddressValidForStarknet } from '../../utils'
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
@@ -20,27 +20,24 @@ export function useNativeCurrencyBalances(uncheckedAddresses?: (string | undefin
   const multicallContract = useInterfaceMulticall()
 
   const validAddressInputs: [string][] = useMemo(
-    () =>
-      uncheckedAddresses
-        ? uncheckedAddresses
-            .map(isAddress)
-            .filter((a): a is string => a !== false)
-            .sort()
-            .map((addr) => [addr])
-        : [],
+    () => (uncheckedAddresses
+      ? uncheckedAddresses
+        .map(isAddressValidForStarknet)
+        .filter((a): a is string => a !== false)
+        .sort()
+        .map((addr) => [addr])
+      : []),
     [uncheckedAddresses]
   )
 
   const results = useSingleContractMultipleData(multicallContract, 'getEthBalance', validAddressInputs)
 
   return useMemo(
-    () =>
-      validAddressInputs.reduce<{ [address: string]: CurrencyAmount<Currency> }>((memo, [address], i) => {
-        const value = results?.[i]?.result?.[0]
-        if (value && chainId)
-          memo[address] = CurrencyAmount.fromRawAmount(nativeOnChain(chainId), JSBI.BigInt(value.toString()))
-        return memo
-      }, {}),
+    () => validAddressInputs.reduce<{ [address: string]: CurrencyAmount<Currency> }>((memo, [address], i) => {
+      const value = results?.[i]?.result?.[0]
+      if (value && chainId) { memo[address] = CurrencyAmount.fromRawAmount(nativeOnChain(chainId), JSBI.BigInt(value.toString())) }
+      return memo
+    }, {}),
     [validAddressInputs, chainId, results]
   )
 }
@@ -57,7 +54,7 @@ export function useTokenBalancesWithLoadingIndicator(
 ): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
   const { chainId } = useAccountDetails() // we cannot fetch balances cross-chain
   // const validatedTokens: Token[] = useMemo(
-  //   () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId) ?? [],
+  //   () => tokens?.filter((t?: Token): t is Token => isAddressValidForStarknet(t?.address) !== false && t?.chainId === chainId) ?? [],
   //   [chainId, tokens]
   // )
   const validatedTokens: Token[] = []
@@ -89,7 +86,7 @@ export function useTokenBalance(account?: string, token?: Token): CurrencyAmount
     account,
     useMemo(() => [token], [token])
   )
-  if (!token) return undefined
+  if (!token) { return undefined }
   return tokenBalances[token.address]
 }
 
@@ -108,13 +105,12 @@ export function useCurrencyBalances(
   const ethBalance = useNativeCurrencyBalances(useMemo(() => (containsETH ? [account] : []), [containsETH, account]))
 
   return useMemo(
-    () =>
-      currencies?.map((currency) => {
-        if (!account || !currency || currency.chainId !== chainId) return undefined
-        if (currency.isToken) return tokenBalances[currency.address]
-        if (currency.isNative) return ethBalance[account]
-        return undefined
-      }) ?? [],
+    () => currencies?.map((currency) => {
+      if (!account || !currency || currency.chainId !== chainId) { return undefined }
+      if (currency.isToken) { return tokenBalances[currency.address] }
+      if (currency.isNative) { return ethBalance[account] }
+      return undefined
+    }) ?? [],
     [account, chainId, currencies, ethBalance, tokenBalances]
   )
 }

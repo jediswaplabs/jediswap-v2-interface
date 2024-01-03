@@ -22,7 +22,7 @@ import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
 import { useCurrency } from '../../hooks/Tokens'
 import useENS from '../../hooks/useENS'
 import useParsedQueryString from '../../hooks/useParsedQueryString'
-import { isAddress } from '../../utils'
+import { isAddressValidForStarknet } from '../../utils'
 import { useCurrencyBalances } from '../connection/hooks'
 import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies, typeInput } from './actions'
 import { SwapState } from './reducer'
@@ -171,7 +171,7 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
       inputErrorNode = inputErrorNode ?? <Trans>Enter an amount</Trans>
     }
 
-    const formattedTo = isAddress(to)
+    const formattedTo = isAddressValidForStarknet(to)
     if (!to || !formattedTo) {
       inputErrorNode = inputErrorNode ?? <Trans>Enter a recipient</Trans>
     }
@@ -214,7 +214,7 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
 
 function parseCurrencyFromURLParameter(urlParam: ParsedQs[string]): string {
   if (typeof urlParam === 'string') {
-    const valid = isAddress(urlParam)
+    const valid = isAddressValidForStarknet(urlParam)
     if (valid) { return valid }
     const upper = urlParam.toUpperCase()
     if (upper === 'ETH') { return 'ETH' }
@@ -235,7 +235,7 @@ const ENS_NAME_REGEX = /^[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-
 const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
 function validatedRecipient(recipient: any): string | null {
   if (typeof recipient !== 'string') { return null }
-  const address = isAddress(recipient)
+  const address = isAddressValidForStarknet(recipient)
   if (address) { return address }
   if (ENS_NAME_REGEX.test(recipient)) { return recipient }
   if (ADDRESS_REGEX.test(recipient)) { return recipient }

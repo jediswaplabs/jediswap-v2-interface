@@ -1,9 +1,9 @@
-import { isAddress } from '@ethersproject/address'
 import { Trans } from '@lingui/macro'
-import { useAccountDetails } from 'hooks/starknet-react'
 import { ReactNode, useState } from 'react'
 import { X } from 'react-feather'
 import styled from 'styled-components'
+
+import { useAccountDetails } from 'hooks/starknet-react'
 import { ThemedText } from 'theme/components'
 import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 
@@ -17,6 +17,7 @@ import { AutoColumn } from '../Column'
 import Modal from '../Modal'
 import { LoadingView, SubmittedView } from '../ModalViews'
 import { RowBetween } from '../Row'
+import { isAddressValidForStarknet } from '../../utils'
 
 const ContentWrapper = styled(AutoColumn)`
   width: 100%;
@@ -105,7 +106,7 @@ export default function DelegateModal({ isOpen, onDismiss, title }: VoteModalPro
               <Trans>You can either vote on each proposal yourself or delegate your votes to a third party.</Trans>
             </ThemedText.DeprecatedBody>
             {usingDelegate && <AddressInputPanel value={typed} onChange={handleRecipientType} />}
-            <ButtonPrimary disabled={!isAddress(parsedAddress ?? '')} onClick={onDelegate}>
+            <ButtonPrimary disabled={!isAddressValidForStarknet(parsedAddress ?? '')} onClick={onDelegate}>
               <ThemedText.DeprecatedMediumHeader color="white">
                 {usingDelegate ? <Trans>Delegate votes</Trans> : <Trans>Self-delegate</Trans>}
               </ThemedText.DeprecatedMediumHeader>

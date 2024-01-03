@@ -1,13 +1,13 @@
 import { NativeCurrency, Token } from '@vnaysn/jediswap-sdk-core'
 import { TokenInfo } from '@uniswap/token-lists'
 
-import { isAddress } from '../../../utils'
+import { isAddressValidForStarknet } from '../../../utils'
 
 const alwaysTrue = () => true
 
 /** Creates a filter function that filters tokens that do not match the query. */
 export function getTokenFilter<T extends Token | TokenInfo>(query: string): (token: T | NativeCurrency) => boolean {
-  const searchingAddress = isAddress(query)
+  const searchingAddress = isAddressValidForStarknet(query)
 
   if (searchingAddress) {
     const address = searchingAddress.toLowerCase()
@@ -19,7 +19,7 @@ export function getTokenFilter<T extends Token | TokenInfo>(query: string): (tok
     .split(/\s+/)
     .filter((s) => s.length > 0)
 
-  if (queryParts.length === 0) return alwaysTrue
+  if (queryParts.length === 0) { return alwaysTrue }
 
   const match = (s: string): boolean => {
     const parts = s
