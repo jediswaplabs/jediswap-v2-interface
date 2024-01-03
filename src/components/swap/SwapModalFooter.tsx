@@ -78,27 +78,21 @@ function DropdownController({ open, onClick }: { open: boolean; onClick: () => v
   )
 }
 
-export default function SwapModalFooter({
-  trade,
+export default function SwapModalFooter({ trade,
   allowedSlippage,
   swapResult,
   onConfirm,
   swapErrorMessage,
   disabledConfirm,
-  fiatValueInput,
-  fiatValueOutput,
   showAcceptChanges,
   onAcceptChanges,
-  isLoading,
-}: {
+  isLoading }: {
   trade: InterfaceTrade
   swapResult?: SwapResult
   allowedSlippage: Percent
   onConfirm: () => void
   swapErrorMessage?: ReactNode
   disabledConfirm: boolean
-  fiatValueInput: { data?: number; isLoading: boolean }
-  fiatValueOutput: { data?: number; isLoading: boolean }
   showAcceptChanges: boolean
   onAcceptChanges: () => void
   isLoading: boolean
@@ -173,7 +167,7 @@ function AnimatedLineItem(props: SwapLineItemProps & { open: boolean; delay: num
   const animatedProps = useSpring({
     animatedOpacity: open ? 1 : 0,
     config: { duration: ms('300ms'), easing: easings.easeOutSine },
-    delay,
+    delay
   })
 
   return <SwapLineItem {...props} {...animatedProps} />
@@ -195,8 +189,8 @@ function ExpandableLineItems(props: { trade: InterfaceTrade; allowedSlippage: Pe
         marginTop: open ? 0 : -12,
         config: {
           duration: ms('200ms'),
-          easing: easings.easeOutSine,
-        },
+          easing: easings.easeOutSine
+        }
       }}
     >
       <Column gap="md">

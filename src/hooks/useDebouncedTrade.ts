@@ -121,9 +121,7 @@ export function useDebouncedTrade(
   amountSpecified?: CurrencyAmount<Currency>,
   otherCurrency?: Currency,
   routerPreferenceOverride?: RouterPreference,
-  account?: string,
-  inputTax?: Percent,
-  outputTax?: Percent
+  account?: string
 ): {
   state: TradeState
   trade?: InterfaceTrade

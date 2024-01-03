@@ -222,7 +222,6 @@ interface SwapCurrencyInputPanelProps {
     pair?: Pair | null
     hideInput?: boolean
     otherCurrency?: Currency | null
-    fiatValue?: { data?: number; isLoading: boolean }
     priceImpact?: Percent
     id: string
     showCommonBases?: boolean
@@ -253,7 +252,6 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
       showCurrencyAmount,
       disableNonToken,
       renderBalance,
-      fiatValue,
       hideBalance = false,
       pair = null, // used for double token logo
       hideInput = false,

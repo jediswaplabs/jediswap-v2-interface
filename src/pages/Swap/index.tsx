@@ -44,7 +44,6 @@ import usePrevious from 'hooks/usePrevious'
 import { SwapResult, useSwapCallback } from 'hooks/useSwapCallback'
 import { useSwitchChain } from 'hooks/useSwitchChain'
 import { useUSDPrice } from 'hooks/useUSDPrice'
-import useWrapCallback, { WrapErrorText, WrapType } from 'hooks/useWrapCallback'
 import { formatSwapQuoteReceivedEventProperties } from 'lib/utils/analytics'
 import { useAppSelector } from 'state/hooks'
 import { InterfaceTrade, TradeState } from 'state/routing/types'
@@ -230,39 +229,15 @@ export function Swap({ className,
     parsedAmount,
     currencies,
     inputError: swapInputError,
-    inputTax,
-    outputTax,
     outputFeeFiatValue } = swapInfo
 
-  const [inputTokenHasTax, outputTokenHasTax] = useMemo(
-    () => [!inputTax.equalTo(0), !outputTax.equalTo(0)],
-    [inputTax, outputTax]
-  )
-
-  // const { wrapType,
-  //   execute: onWrap,
-  //   inputError: wrapInputError } = useWrapCallback(currencies[Field.INPUT], currencies[Field.OUTPUT], typedValue)
-  // const showWrap: boolean = wrapType !== WrapType.NOT_APPLICABLE
-  const showWrap = false; //TODO JediSwap we don't need it now
-
   const parsedAmounts = useMemo(
-    () => (showWrap
-      ? {
-        [Field.INPUT]: parsedAmount,
-        [Field.OUTPUT]: parsedAmount
-      }
-      : {
+    () => ({
         [Field.INPUT]: independentField === Field.INPUT ? parsedAmount : trade?.inputAmount,
         [Field.OUTPUT]: independentField === Field.OUTPUT ? parsedAmount : trade?.outputAmount
       }),
-    [independentField, parsedAmount, showWrap, trade]
+    [independentField, parsedAmount, trade]
   )
-
-  // const showFiatValueInput = Boolean(parsedAmounts[Field.INPUT])
-  // const showFiatValueOutput = Boolean(parsedAmounts[Field.OUTPUT])
-  //TODO JediSwap probably implement later
-  const showFiatValueInput = false;
-  const showFiatValueOutput = false;
 
   const getSingleUnitAmount = (currency?: Currency) => {
     if (!currency) {
@@ -270,18 +245,6 @@ export function Swap({ className,
     }
     return CurrencyAmount.fromRawAmount(currency, JSBI.BigInt(10 ** currency.decimals))
   }
-
-  // const fiatValueInput = useUSDPrice(
-  //   parsedAmounts[Field.INPUT] ?? getSingleUnitAmount(currencies[Field.INPUT]),
-  //   currencies[Field.INPUT]
-  // )
-  // const fiatValueOutput = useUSDPrice(
-  //   parsedAmounts[Field.OUTPUT] ?? getSingleUnitAmount(currencies[Field.OUTPUT]),
-  //   currencies[Field.OUTPUT]
-  // )
-
-  const fiatValueInput = undefined;
-  const fiatValueOutput = undefined;
 
   //TODO JediSwap find out the statuses
   const [routeNotFound, routeIsLoading, routeIsSyncing] = useMemo(
@@ -335,15 +298,13 @@ export function Swap({ className,
   const formattedAmounts = useMemo(
     () => ({
       [independentField]: typedValue,
-      [dependentField]: showWrap
-        ? parsedAmounts[independentField]?.toExact() ?? ''
-        : formatCurrencyAmount({
+      [dependentField]: formatCurrencyAmount({
           amount: parsedAmounts[dependentField],
           type: NumberType.SwapTradeAmount,
           placeholder: ''
         })
     }),
-    [dependentField, formatCurrencyAmount, independentField, parsedAmounts, showWrap, typedValue]
+    [dependentField, formatCurrencyAmount, independentField, parsedAmounts, typedValue]
   )
 
   const userHasSpecifiedInputOutput = Boolean(
@@ -420,29 +381,6 @@ export function Swap({ className,
       })
   }, [swapCallback, ])
 
-  const handleOnWrap = useCallback(async () => {
-    return;
-    //   if (!onWrap) {
-    //     return
-    //   }
-    //   try {
-    //     const txHash = await onWrap()
-    //     setSwapState((currentState) => ({
-    //       ...currentState,
-    //       swapError: undefined,
-    //       txHash
-    //     }))
-    //     onUserInput(Field.INPUT, '')
-    //   } catch (error) {
-    //     console.error('Could not wrap/unwrap', error)
-    //     setSwapState((currentState) => ({
-    //       ...currentState,
-    //       swapError: error,
-    //       txHash: undefined
-    //     }))
-    //   }
-  }, [currencies, onUserInput])
-
   const { priceImpactSeverity, priceImpact } = useMemo(() => {
     const priceImpact = trade?.priceImpact ? computeRealizedPriceImpact(trade) : undefined
     return { priceImpactSeverity: warningSeverity(priceImpact), priceImpact }
@@ -497,7 +435,7 @@ export function Swap({ className,
   const showPriceImpactWarning = priceImpact && priceImpactSeverity > 3
 
   const showDetailsDropdown = Boolean(
-    !showWrap && userHasSpecifiedInputOutput && (trade || routeIsLoading || routeIsSyncing)
+    userHasSpecifiedInputOutput && (trade || routeIsLoading || routeIsSyncing)
   )
 
   const inputCurrency = currencies[Field.INPUT] ?? undefined
@@ -519,8 +457,6 @@ export function Swap({ className,
       {/*    allowance={allowance}*/}
       {/*    swapError={swapError}*/}
       {/*    onDismiss={handleConfirmDismiss}*/}
-      {/*    fiatValueInput={fiatValueTradeInput}*/}
-      {/*    fiatValueOutput={fiatValueTradeOutput}*/}
       {/*  />*/}
       {/*)}*/}
 
@@ -545,7 +481,6 @@ export function Swap({ className,
             currency={currencies[Field.INPUT] ?? null}
             onUserInput={handleTypeInput}
             onMax={handleMaxInput}
-            fiatValue={showFiatValueInput ? fiatValueInput : undefined}
             onCurrencySelect={handleInputSelect}
             otherCurrency={currencies[Field.OUTPUT]}
             showCommonBases
@@ -561,7 +496,7 @@ export function Swap({ className,
               if (disableTokenInputs) {
                 return
               }
-              onSwitchTokens(inputTokenHasTax, formattedAmounts[dependentField])
+              onSwitchTokens(formattedAmounts[dependentField])
             }}
             color={theme.neutral1}
           >
@@ -579,7 +514,6 @@ export function Swap({ className,
               label={<Trans>To</Trans>}
               showMaxButton={false}
               hideBalance={false}
-              fiatValue={showFiatValueOutput ? fiatValueOutput : undefined}
               currency={currencies[Field.OUTPUT] ?? null}
               onCurrencySelect={handleOutputSelect}
               otherCurrency={currencies[Field.INPUT]}
@@ -587,11 +521,8 @@ export function Swap({ className,
               id={InterfaceSectionName.CURRENCY_OUTPUT_PANEL}
               loading={independentField === Field.INPUT && routeIsSyncing}
               numericalInputSettings={{
-                // We disable numerical input here if the selected token has tax, since we cannot guarantee exact_outputs for FOT tokens
-                disabled: outputTokenHasTax,
                 // Focus the input currency panel if the user tries to type into the disabled output currency panel
-                onDisabledClick: () => inputCurrencyNumericalInputRef.current?.focus(),
-                disabledTooltipBody: <OutputTaxTooltipBody currencySymbol={currencies[Field.OUTPUT]?.symbol} />
+                onDisabledClick: () => inputCurrencyNumericalInputRef.current?.focus()
               }}
             />
           </OutputSwapSection>

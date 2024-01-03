@@ -6,11 +6,8 @@ import { ReactNode, useCallback, useEffect, useMemo } from 'react'
 import { AnyAction } from 'redux'
 
 import { useAccountBalance, useAccountDetails, useFoo, useTokenBalance } from 'hooks/starknet-react'
-import { useConnectionReady } from 'connection/eagerlyConnect'
-import { useFotAdjustmentsEnabled } from 'featureFlags/flags/fotAdjustments'
 import useAutoSlippageTolerance from 'hooks/useAutoSlippageTolerance'
 import { useDebouncedTrade } from 'hooks/useDebouncedTrade'
-import { useSwapTaxes } from 'hooks/useSwapTaxes'
 import { useUSDPrice } from 'hooks/useUSDPrice'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { useAppDispatch } from 'state/hooks'
@@ -31,7 +28,7 @@ import { useAddressNormalizer } from '../../hooks/useAddressNormalizer'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
-  onSwitchTokens: (newOutputHasTax: boolean, previouslyEstimatedOutput: string) => void
+  onSwitchTokens: (previouslyEstimatedOutput: string) => void
   onUserInput: (field: Field, typedValue: string) => void
   onChangeRecipient: (recipient: string | null) => void
 } {
@@ -48,8 +45,8 @@ export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   )
 
   const onSwitchTokens = useCallback(
-    (newOutputHasTax: boolean, previouslyEstimatedOutput: string) => {
-      dispatch(switchCurrencies({ newOutputHasTax, previouslyEstimatedOutput }))
+    (previouslyEstimatedOutput: string) => {
+      dispatch(switchCurrencies({ previouslyEstimatedOutput }))
     },
     [dispatch]
   )
@@ -85,8 +82,6 @@ const BAD_RECIPIENT_ADDRESSES: { [address: string]: true } = {
 export type SwapInfo = {
   currencies: { [field in Field]?: Currency }
   currencyBalances: { [field in Field]?: CurrencyAmount<Currency> }
-  inputTax: Percent
-  outputTax: Percent
   outputFeeFiatValue?: number
   parsedAmount?: CurrencyAmount<Currency>
   inputError?: ReactNode
@@ -113,10 +108,6 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
 
   const inputCurrency = useCurrency(inputCurrencyId)
   const outputCurrency = useCurrency(outputCurrencyId)
-
-  // const fotAdjustmentsEnabled = useFotAdjustmentsEnabled()
-  const inputTax = ZERO_PERCENT
-  const outputTax = ZERO_PERCENT
 
   const address = useAddressNormalizer(recipient ?? undefined)
   const to: string | null = (recipient === null ? account : address) ?? null
@@ -194,9 +185,7 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
       inputError,
       trade,
       autoSlippage,
-      allowedSlippage,
-      inputTax,
-      outputTax
+      allowedSlippage
     }),
     [
       allowedSlippage,
@@ -204,8 +193,6 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
       currencies,
       currencyBalances,
       inputError,
-      inputTax,
-      outputTax,
       parsedAmount,
       trade
     ]

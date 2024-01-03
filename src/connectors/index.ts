@@ -12,7 +12,8 @@ export const isTestnetEnvironment = () => {
     return false
   }
   const host = new URL(String(window.location))?.host || ''
-  return host === 'testnet.e2.jediswap.xyz'
+  // TODO JediSwap clean up once the migration is over
+  return (host === 'testnet.e2.jediswap.xyz' || host === 'testnet.jediswap.xyz')
 }
 
 export const isLocalEnvironment = () => {
@@ -34,8 +35,8 @@ export const isStagingEnvironment = () => {
     return false
   }
   const host = new URL(String(window.location))?.host || ''
-  // TODO JediSwap replace with new address once the migration is over
-  return host === 'staging.e2.jediswap.xyz'
+  // TODO JediSwap clean up once the migration is over
+  return (host === 'staging.e2.jediswap.xyz' || host === 'staging.jediswap.xyz')
 }
 
 export const isProductionEnvironment = () => {
@@ -46,8 +47,8 @@ export const isProductionEnvironment = () => {
     return false
   }
   const host = new URL(String(window.location))?.host || ''
-  // TODO JediSwap replace with new address once the migration is over
-  return host === 'app.e2.jediswap.xyz'
+  // TODO JediSwap clean up once the migration is over
+  return (host === 'app.e2.jediswap.xyz' || host === 'app.jediswap.xyz')
 }
 
 export const isProductionChainId = (id: ChainId | null | undefined) => id === ChainId.MAINNET
