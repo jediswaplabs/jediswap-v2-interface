@@ -170,8 +170,7 @@ function AddLiquidity() {
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
 
   // txn values
-  // const deadline = useTransactionDeadline() // custom from users settings
-  const deadline = '1705014714'
+  const deadline = useTransactionDeadline() // custom from users settings
 
   const [txHash, setTxHash] = useState<string>('')
 

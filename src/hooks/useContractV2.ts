@@ -45,7 +45,7 @@ export function useFactoryContract(): Contract | null {
 // }
 
 export function useMulticallContract(): Contract | null {
-  const { account, chainId } = useAccountDetails()
+  const { chainId } = useAccountDetails()
 
   return useContract(MULTICALL_NETWORKS[chainId ?? DEFAULT_CHAIN_ID], MULTICALL_ABI, false)
 }
