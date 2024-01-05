@@ -3,8 +3,8 @@ import React from 'react'
 import { constants } from 'starknet'
 
 export const useAccountDetails = () => {
-  const { account, address, isConnected } = useAccount()
-  return { account, address, isConnected }
+  const { account, address, isConnected , connector} = useAccount()
+  return { account, address, isConnected, connector }
 }
 
 export const useConnectors = () => {

@@ -4880,6 +4880,17 @@
   resolved "https://registry.yarnpkg.com/@starknet-react/chains/-/chains-0.1.0-next.0.tgz#c9e5e1c1788e4166292852287769a980306cfb91"
   integrity sha512-g5wxh8yoD1upym0onHFifODpw1Eb0TF+C3J/Kso+hopTIIq3goRw7uQ1i4dBlrIlx9uP8iNA/yKdED24uwvWJQ==
 
+"@starknet-react/core@2.0.0-next.0":
+  version "2.0.0-next.0"
+  resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-2.0.0-next.0.tgz#3aae8f84af791a0b29e0f83fc177b1c2dd66aeab"
+  integrity sha512-OZf45Na0NyfDyd4utFkY32I4x0MWzpbA5XG6Q6tWHbsYSWBA7YIxdOktY5iLqhzUgxzN6g/9QMWaRtxx5Iw5WA==
+  dependencies:
+    "@starknet-react/chains" "^0.1.0-next.0"
+    "@tanstack/react-query" "^4.35.3"
+    eventemitter3 "^5.0.1"
+    immutable "^4.3.4"
+    zod "^3.22.2"
+
 "@starknet-react/core@^2.0.0-next.3":
   version "2.0.0-next.3"
   resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-2.0.0-next.3.tgz#18469392f5bdb42a5b39a9a5f1bd2e1cc1d9b3b4"
@@ -12364,15 +12375,10 @@ get-source@^2.0.12:
     data-uri-to-buffer "^2.0.0"
     source-map "^0.6.1"
 
-get-starknet-core@^3.2.0:
+get-starknet-core@^3.0.1, get-starknet-core@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/get-starknet-core/-/get-starknet-core-3.2.0.tgz#44cabcbd573262340d575cb6b9a38e469a8029ed"
   integrity sha512-SZhxtLlKoPKLZ2H3l9WIU7CiNmkL3qLWGksALmvZdAXa/9PykYfLtvIB5B8A2UZMpf2ojTZlWLfuo1KhgmVobA==
-
-get-stream@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/get-stream/-/get-stream-3.0.0.tgz"
-  integrity sha1-jpQ9E1jcN1VQVOy+LtsFqhdO3hQ=
 
 get-stream@^5.0.0, get-stream@^5.1.0:
   version "5.2.0"
@@ -13110,11 +13116,6 @@ immer@^9.0.21, immer@^9.0.6, immer@^9.0.7:
   integrity sha512-bc4NBHqOqSfRW7POMkHd51LvClaeMXpm8dx0e8oE2GORbq5aRK7Bxl4FyzVLdGtLmvLKL7BTDBG5ACQm4HWjTA==
 
 immutable@^4.0.0-rc.12, immutable@^4.3.4:
-  version "4.3.4"
-  resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.3.4.tgz#2e07b33837b4bb7662f288c244d1ced1ef65a78f"
-  integrity sha512-fsXeu4J4i6WNWSikpI88v/PcVflZz+6kMhUfIwc5SY+poQRPnaf5V7qds6SUyUN3cVxEzuCab7QIoLOQ+DQ1wA==
-
-immutable@^4.3.4:
   version "4.3.4"
   resolved "https://registry.yarnpkg.com/immutable/-/immutable-4.3.4.tgz#2e07b33837b4bb7662f288c244d1ced1ef65a78f"
   integrity sha512-fsXeu4J4i6WNWSikpI88v/PcVflZz+6kMhUfIwc5SY+poQRPnaf5V7qds6SUyUN3cVxEzuCab7QIoLOQ+DQ1wA==
