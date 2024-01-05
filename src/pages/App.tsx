@@ -17,6 +17,7 @@ import { useRouterPreference, useUserOptedOutOfUniswapX } from 'state/user/hooks
 import { flexRowNoWrap } from 'theme/styles'
 import { Z_INDEX } from 'theme/zIndex'
 import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions'
+import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
   display: flex;
@@ -132,6 +133,7 @@ export default function App() {
           )}
         </Suspense>
       </BodyWrapper>
+      <Footer />
       <MobileBottomBar>
         <PageTabs />
       </MobileBottomBar>
