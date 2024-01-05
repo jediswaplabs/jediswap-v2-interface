@@ -109,8 +109,8 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     recipient,
   } = state
 
-  const inputCurrency = useCurrency(inputCurrencyId, chainId)
-  const outputCurrency = useCurrency(outputCurrencyId, chainId)
+  const inputCurrency = useCurrency(inputCurrencyId)
+  const outputCurrency = useCurrency(outputCurrencyId)
 
   const fotAdjustmentsEnabled = useFotAdjustmentsEnabled()
   const { inputTax, outputTax } = useSwapTaxes(

@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Currency, CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import ms from 'ms'
 import { darken } from 'polished'
 import { forwardRef, ReactNode, useCallback, useEffect, useState } from 'react'
@@ -289,6 +289,8 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
 
     const chainAllowed = isSupportedChain(chainId)
 
+    const { formatted, balance } = useAccountBalance(currency as Currency)
+
     // reset tooltip state when currency changes
     useEffect(() => setTooltipVisible(false), [currency])
 
@@ -389,19 +391,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
                 {account ? (
                   <RowFixed style={{ height: '16px' }}>
                     <ThemedText.LabelSmall color={'neutral1'}>
-                      {!hideBalance && currency && selectedCurrencyBalance ? (
-                        renderBalance ? (
-                          renderBalance(selectedCurrencyBalance)
-                        ) : (
-                          <Trans>
-                            Balance:{' '}
-                            {formatCurrencyAmount({
-                              amount: selectedCurrencyBalance,
-                              type: NumberType.TokenNonTx,
-                            })}
-                          </Trans>
-                        )
-                      ) : null}
+                      {currency && formatted && <>Bal: {formatted}</>}
                     </ThemedText.LabelSmall>
                   </RowFixed>
                 ) : (
