@@ -29,7 +29,7 @@ import {
 import { ThemedText } from 'theme/components'
 import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
 import { WrongChainError } from 'utils/errors'
-import { ButtonError, ButtonLight, ButtonPrimary, ButtonText } from '../../components/Button'
+import { ButtonError, ButtonPrimary, ButtonText } from '../../components/Button'
 import { BlueCard, LightCard, OutlineCard, YellowCard } from '../../components/Card'
 import { AutoColumn } from '../../components/Column'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
@@ -69,7 +69,7 @@ import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, Style
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
-const StyledBodyWrapper = styled(BodyWrapper) <{ $hasExistingPosition: boolean }>`
+const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>`
   padding: ${({ $hasExistingPosition }) => ($hasExistingPosition ? '10px' : 0)};
   max-width: 640px;
 `
@@ -225,18 +225,18 @@ function AddLiquidity() {
       const { calldata, value } =
         hasExistingPosition && tokenId
           ? NonfungiblePositionManager.addCallParameters(position, {
-            tokenId,
-            slippageTolerance: allowedSlippage,
-            deadline: deadline.toString(),
-            useNative,
-          })
+              tokenId,
+              slippageTolerance: allowedSlippage,
+              deadline: deadline.toString(),
+              useNative,
+            })
           : NonfungiblePositionManager.addCallParameters(position, {
-            slippageTolerance: allowedSlippage,
-            recipient: account,
-            deadline: deadline.toString(),
-            useNative,
-            createPool: noLiquidity,
-          })
+              slippageTolerance: allowedSlippage,
+              recipient: account,
+              deadline: deadline.toString(),
+              useNative,
+              createPool: noLiquidity,
+            })
 
       let txn: { to: string; data: string; value: string } = {
         to: NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
@@ -411,9 +411,11 @@ function AddLiquidity() {
   const showApprovalB =
     !argentWalletContract && approvalB !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_B]
 
-  const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${!depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
-    } ${!outOfRange ? 'and' : ''} ${!depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) : ''} ${!depositBDisabled ? currencies[Field.CURRENCY_B]?.symbol : ''
-    }`
+  const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${
+    !depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
+  } ${!outOfRange ? 'and' : ''} ${!depositBDisabled ? parsedAmounts[Field.CURRENCY_B]?.toSignificant(6) : ''} ${
+    !depositBDisabled ? currencies[Field.CURRENCY_B]?.symbol : ''
+  }`
 
   const [searchParams, setSearchParams] = useSearchParams()
 
@@ -480,9 +482,9 @@ function AddLiquidity() {
         properties={{ received_swap_quote: false }}
         element={InterfaceElementName.CONNECT_WALLET_BUTTON}
       >
-        <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
+        <ButtonPrimary onClick={toggleWalletDrawer} style={{ padding: '12px' }}>
           <Trans>Connect wallet</Trans>
-        </ButtonLight>
+        </ButtonPrimary>
       </TraceEvent>
     ) : (
       <AutoColumn gap="md">
@@ -704,7 +706,8 @@ function AddLiquidity() {
                                 onFieldAInput(formattedAmounts[Field.CURRENCY_B] ?? '')
                               }
                               navigate(
-                                `/add/${currencyIdB as string}/${currencyIdA as string}${feeAmount ? `/${feeAmount}` : ''
+                                `/add/${currencyIdB as string}/${currencyIdA as string}${
+                                  feeAmount ? `/${feeAmount}` : ''
                                 }`
                               )
                             }}
@@ -802,13 +805,11 @@ function AddLiquidity() {
                               padding: '1rem 1rem',
                             }}
                           >
-                            <ThemedText.DeprecatedBody
-                              fontSize={12}
-                              textAlign="left"
-                              color={theme.accent1}
-                            >
+                            <ThemedText.DeprecatedBody fontSize={12} textAlign="left" color={theme.accent1}>
                               <Trans>
-                                This pool must be initialized before you can add liquidity. To initialize, select a starting price for the pool. Then, enter your liquidity price range and deposit amount. Gas fees will be higher than usual due to the initialization transaction.
+                                This pool must be initialized before you can add liquidity. To initialize, select a
+                                starting price for the pool. Then, enter your liquidity price range and deposit amount.
+                                Gas fees will be higher than usual due to the initialization transaction.
                               </Trans>
                             </ThemedText.DeprecatedBody>
                           </BlueCard>
