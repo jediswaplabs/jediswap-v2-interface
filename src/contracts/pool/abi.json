@@ -334,6 +334,38 @@
         "state_mutability": "view"
       },
       {
+        "name": "static_collect",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "owner",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "tick_lower",
+            "type": "yas_core::numbers::signed_integer::i32::i32"
+          },
+          {
+            "name": "tick_upper",
+            "type": "yas_core::numbers::signed_integer::i32::i32"
+          },
+          {
+            "name": "amount0_requested",
+            "type": "core::integer::u128"
+          },
+          {
+            "name": "amount1_requested",
+            "type": "core::integer::u128"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "(core::integer::u128, core::integer::u128)"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
         "name": "initialize",
         "type": "function",
         "inputs": [
@@ -461,6 +493,30 @@
         "outputs": [
           {
             "type": "(yas_core::numbers::signed_integer::i256::i256, yas_core::numbers::signed_integer::i256::i256)"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "collect_protocol",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "recipient",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "amount0_requested",
+            "type": "core::integer::u128"
+          },
+          {
+            "name": "amount1_requested",
+            "type": "core::integer::u128"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "(core::integer::u128, core::integer::u128)"
           }
         ],
         "state_mutability": "external"
@@ -716,6 +772,33 @@
     ]
   },
   {
+    "kind": "struct",
+    "name": "jediswap_v2_core::jediswap_v2_pool::JediSwapV2Pool::CollectProtocol",
+    "type": "event",
+    "members": [
+      {
+        "kind": "data",
+        "name": "sender",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "data",
+        "name": "recipient",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "data",
+        "name": "amount0",
+        "type": "core::integer::u128"
+      },
+      {
+        "kind": "data",
+        "name": "amount1",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
     "kind": "enum",
     "name": "jediswap_v2_core::libraries::position::PositionComponent::Event",
     "type": "event",
@@ -762,6 +845,11 @@
         "kind": "nested",
         "name": "Swap",
         "type": "jediswap_v2_core::jediswap_v2_pool::JediSwapV2Pool::Swap"
+      },
+      {
+        "kind": "nested",
+        "name": "CollectProtocol",
+        "type": "jediswap_v2_core::jediswap_v2_pool::JediSwapV2Pool::CollectProtocol"
       },
       {
         "kind": "flat",

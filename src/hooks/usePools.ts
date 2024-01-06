@@ -208,3 +208,35 @@ export function usePool(
 
   return usePools(poolKeys)[0]
 }
+
+export function usePoolAddress(
+  currencyA: Currency | undefined,
+  currencyB: Currency | undefined,
+  feeAmount: FeeAmount | undefined
+): string | undefined {
+  return useMemo(() => {
+    if (currencyA && currencyB && feeAmount) {
+      const tokenA = currencyA.wrapped
+      const tokenB = currencyB.wrapped
+      if (tokenA.equals(tokenB)) return undefined
+      const tokens = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA] // does safety checks
+
+      //compute pool contract address
+      const { calculateContractAddressFromHash } = hash
+
+      const salt = ec.starkCurve.poseidonHashMany([
+        BigInt(tokens[0].address),
+        BigInt(tokens[1].address),
+        BigInt(feeAmount),
+      ])
+
+      const contructorCalldata = CallData.compile([tokens[0].address, tokens[1].address, feeAmount, feeAmount / 50])
+
+      return tokenA && tokenB && !tokenA.equals(tokenB)
+        ? calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS)
+        : undefined
+    }
+
+    return undefined
+  }, [currencyA, currencyB, feeAmount])
+}
