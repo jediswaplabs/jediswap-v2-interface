@@ -45,15 +45,12 @@ import RangeBadge from '../../components/Badge/RangeBadge'
 import { getPriceOrderingFromPositionForUI } from '../../components/PositionListItem'
 import RateToggle from '../../components/RateToggle'
 import { SwitchLocaleLink } from '../../components/SwitchLocaleLink'
-import { usePositionTokenURI, useV3PositionTokenURI } from '../../hooks/usePositionTokenURI'
-import { TransactionType } from '../../state/transactions/types'
-import { calculateGasMargin } from '../../utils/calculateGasMargin'
+import { useV3PositionTokenURI } from '../../hooks/usePositionTokenURI'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { LoadingRows } from './styled'
-import { useContractRead } from '@starknet-react/core'
-import { cairo, validateAndParseAddress } from 'starknet'
-import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
-import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
+import { useContractWrite } from '@starknet-react/core'
+import { cairo, Call, validateAndParseAddress } from 'starknet'
+import { MAX_UINT128, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 
 const PositionPageButtonPrimary = styled(ButtonPrimary)`
   width: 228px;
@@ -640,6 +637,10 @@ function PositionPageContent() {
   const [txHash, setTxHash] = useState<string>('')
   const isCollectPending = useIsTransactionPending(collectMigrationHash ?? undefined)
   const [showConfirm, setShowConfirm] = useState(false)
+  const [callData, setCallData] = useState<Call[]>([])
+  const { writeAsync, data: txData } = useContractWrite({
+    calls: callData,
+  })
 
   // usdc prices always in terms of tokens
   const price0 = useStablecoinPrice(token0 ?? undefined)
@@ -672,81 +673,47 @@ function PositionPageContent() {
     return amount0.add(amount1)
   }, [price0, price1, position])
 
+  useEffect(() => {
+    if (callData) {
+      writeAsync()
+        .then((response) => {
+          setCollecting(false)
+          if (response?.transaction_hash) {
+            setTxHash(response.transaction_hash)
+          }
+        })
+        .catch((err) => {
+          console.log(err?.message)
+          setCollecting(false)
+        })
+    }
+  }, [callData])
+
   const addTransaction = useTransactionAdder()
   const positionManager = useV3NFTPositionManagerContract()
   const collect = useCallback(async () => {
-    if (
-      !currency0ForFeeCollectionPurposes ||
-      !currency1ForFeeCollectionPurposes ||
-      !chainId ||
-      !positionManager ||
-      !account ||
-      !tokenId ||
-      !provider
-    ) {
+    if (!chainId || !account || !tokenId) {
       return
     }
 
     setCollecting(true)
 
-    // we fall back to expecting 0 fees in case the fetch fails, which is safe in the
-    // vast majority of cases
-    const { calldata, value } = NonfungiblePositionManager.collectCallParameters({
-      tokenId: tokenId.toString(),
-      expectedCurrencyOwed0: feeValue0 ?? CurrencyAmount.fromRawAmount(currency0ForFeeCollectionPurposes, 0),
-      expectedCurrencyOwed1: feeValue1 ?? CurrencyAmount.fromRawAmount(currency1ForFeeCollectionPurposes, 0),
+    const collectFeeParams = {
+      tokenId: cairo.uint256(tokenId),
       recipient: account,
-    })
-
-    const txn = {
-      to: positionManager.address,
-      data: calldata,
-      value,
+      amount0_max: MAX_UINT128,
+      amount1_max: MAX_UINT128,
     }
 
-    const connectedChainId = await provider.getSigner().getChainId()
-    if (chainId !== connectedChainId) {
-      throw new WrongChainError()
+    const compiledParams = CallData.compile(collectFeeParams)
+
+    const callData = {
+      contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+      entrypoint: 'collect',
+      calldata: compiledParams,
     }
 
-    provider
-      .getSigner()
-      .estimateGas(txn)
-      .then((estimate) => {
-        const newTxn = {
-          ...txn,
-          gasLimit: calculateGasMargin(estimate),
-        }
-
-        return provider
-          .getSigner()
-          .sendTransaction(newTxn)
-          .then((response: TransactionResponse) => {
-            setCollectMigrationHash(response.hash)
-            setCollecting(false)
-
-            sendAnalyticsEvent(LiquidityEventName.COLLECT_LIQUIDITY_SUBMITTED, {
-              source: LiquiditySource.V3,
-              label: [currency0ForFeeCollectionPurposes.symbol, currency1ForFeeCollectionPurposes.symbol].join('/'),
-            })
-
-            addTransaction(response, {
-              type: TransactionType.COLLECT_FEES,
-              currencyId0: currencyId(currency0ForFeeCollectionPurposes),
-              currencyId1: currencyId(currency1ForFeeCollectionPurposes),
-              expectedCurrencyOwed0:
-                feeValue0?.quotient.toString() ??
-                CurrencyAmount.fromRawAmount(currency0ForFeeCollectionPurposes, 0).toExact(),
-              expectedCurrencyOwed1:
-                feeValue1?.quotient.toString() ??
-                CurrencyAmount.fromRawAmount(currency1ForFeeCollectionPurposes, 0).toExact(),
-            })
-          })
-      })
-      .catch((error) => {
-        setCollecting(false)
-        console.error(error)
-      })
+    setCallData([callData])
   }, [
     chainId,
     feeValue0,
