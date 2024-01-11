@@ -47,11 +47,7 @@ function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
   const SubMenu = useMemo(() => {
     switch (menu) {
       case MenuState.DEFAULT:
-        return isAuthenticated ? (
-          <AuthenticatedHeader account={account} openSettings={openSettings} />
-        ) : (
-          <WalletModal openSettings={openSettings} />
-        )
+        return isAuthenticated ? <AuthenticatedHeader account={account} /> : <WalletModal openSettings={openSettings} />
       case MenuState.SETTINGS:
         return (
           <SettingsMenu

@@ -34,6 +34,11 @@ export const STARKSCAN_ADDRESS = {
   [ChainId.GOERLI]: 'https://starkscan-proxy.testnet.jediswap.xyz/api/',
 }
 
+export const STARKSCAN_PREFIXES: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: '',
+  [ChainId.GOERLI]: 'testnet.',
+}
+
 export function getSwapCurrencyId(currency: Currency): string {
   if (currency.isToken) {
     return currency.address

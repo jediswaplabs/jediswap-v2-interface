@@ -1,31 +1,20 @@
-import { Trans } from '@lingui/macro'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useState } from 'react'
 import styled from 'styled-components'
-
-import { ThemeButton } from 'components/Button'
 import Column from 'components/Column'
 import { Power } from 'components/Icons/Power'
-import { Settings } from 'components/Icons/Settings'
-import { AutoRow } from 'components/Row'
-import { LoadingBubble } from 'components/Tokens/loading'
-import { DeltaArrow } from 'components/Tokens/TokenDetails/Delta'
-import { getConnection } from 'connection'
-import useENSName from 'hooks/useENSName'
-import { useAppDispatch } from 'state/hooks'
-import { updateSelectedWallet } from 'state/user/reducer'
-import { CopyHelper, ExternalLink, ThemedText } from 'theme/components'
+import { Redirect } from 'components/Icons/Redirect'
+import { CopyHelper, ThemedText } from 'theme/components'
 import { shortenAddress } from 'utils'
-import { NumberType, useFormatter } from 'utils/formatNumbers'
-import { useCloseModal, useFiatOnrampAvailability, useOpenModal, useToggleModal } from '../../state/application/hooks'
+import { useOpenModal } from '../../state/application/hooks'
 import { ApplicationModal } from '../../state/application/reducer'
 import StatusIcon from '../Identicon/StatusIcon'
-import { useCachedPortfolioBalancesQuery } from '../PrefetchBalancesWrapper/PrefetchBalancesWrapper'
 import { useToggleAccountDrawer } from '.'
 import IconButton, { IconHoverText, IconWithConfirmTextButton } from './IconButton'
-import MiniPortfolio from './MiniPortfolio'
 import { portfolioFadeInAnimation } from './MiniPortfolio/PortfolioRow'
 import { useDisconnect, useStarkName } from '@starknet-react/core'
+import { NONFUNGIBLE_POOL_MANAGER_ADDRESS, STARKSCAN_PREFIXES } from 'constants/tokens'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const AuthenticatedHeaderWrapper = styled.div`
   padding: 20px 16px;
@@ -87,11 +76,9 @@ const PortfolioDrawerContainer = styled(Column)`
   flex: 1;
 `
 
-export default function AuthenticatedHeader({ account, openSettings }: { account: string; openSettings: () => void }) {
-  const { connector, address } = useAccountDetails()
+export default function AuthenticatedHeader({ account }: { account: string }) {
+  const { connector, address, chainId } = useAccountDetails()
   const { data: starkName } = useStarkName({ address })
-  const dispatch = useAppDispatch()
-  const { formatNumber, formatDelta } = useFormatter()
   const { disconnect } = useDisconnect()
 
   // const connection = getConnection(connector)
@@ -99,38 +86,22 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
     if (connector) {
       disconnect()
     }
-    // connector.resetState()
-    // dispatch(updateSelectedWallet({ wallet: undefined }))
   }, [connector])
 
-  const toggleWalletDrawer = useToggleAccountDrawer()
-
-  const openFiatOnrampModal = useOpenModal(ApplicationModal.FIAT_ONRAMP)
-  const openFoRModalWithAnalytics = useCallback(() => {
-    toggleWalletDrawer()
-    openFiatOnrampModal()
-  }, [openFiatOnrampModal, toggleWalletDrawer])
-
-  const [shouldCheck, setShouldCheck] = useState(false)
-  const {
-    available: fiatOnrampAvailable,
-    availabilityChecked: fiatOnrampAvailabilityChecked,
-    error,
-    loading: fiatOnrampAvailabilityLoading,
-  } = useFiatOnrampAvailability(shouldCheck, openFoRModalWithAnalytics)
-
-  const { data: portfolioBalances } = useCachedPortfolioBalancesQuery({ account })
-  const portfolio = portfolioBalances?.portfolios?.[0]
-  const totalBalance = portfolio?.tokensTotalDenominatedValue?.value
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false)
 
   const addressShort = account ? `${account.slice(0, 6)}...${account.slice(-4)}` : null
+
+  const handleStarkScanRedirect = () => {
+    const prefix = `https://${STARKSCAN_PREFIXES[chainId] || STARKSCAN_PREFIXES[ChainId.MAINNET]}starkscan.co`
+    window.open(`${prefix}/contract/${address}`, '_blank')
+  }
 
   return (
     <AuthenticatedHeaderWrapper>
       <HeaderWrapper>
         <StatusWrapper>
-          {/* <StatusIcon account={account} connection={connection} size={40} /> */}
+          <StatusIcon account={account} connection={connector} size={40} />
           {account && (
             <AccountNamesWrapper>
               <ThemedText.SubHeader>
@@ -149,8 +120,8 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           <IconButton
             hideHorizontal={showDisconnectConfirm}
             data-testid="wallet-settings"
-            onClick={openSettings}
-            Icon={Settings}
+            onClick={handleStarkScanRedirect}
+            Icon={Redirect}
           />
           <IconWithConfirmTextButton
             data-testid="wallet-disconnect"
@@ -162,19 +133,7 @@ export default function AuthenticatedHeader({ account, openSettings }: { account
           />
         </IconContainer>
       </HeaderWrapper>
-      <PortfolioDrawerContainer>
-        {totalBalance !== undefined ? (
-          <FadeInColumn gap="xs">
-            <ThemedText.HeadlineLarge fontWeight={535} data-testid="portfolio-total-balance"></ThemedText.HeadlineLarge>
-            <AutoRow></AutoRow>
-          </FadeInColumn>
-        ) : (
-          <Column gap="xs">
-            <LoadingBubble height="44px" width="170px" />
-            <LoadingBubble height="16px" width="100px" margin="4px 0 20px 0" />
-          </Column>
-        )}
-      </PortfolioDrawerContainer>
+      <PortfolioDrawerContainer></PortfolioDrawerContainer>
     </AuthenticatedHeaderWrapper>
   )
 }

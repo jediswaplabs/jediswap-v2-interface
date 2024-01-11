@@ -95,12 +95,13 @@ function Web3StatusInner() {
   const handleWalletDropdownClick = useCallback(() => {
     toggleAccountDrawer()
   }, [toggleAccountDrawer])
-  const { address } = useAccountDetails()
+  const { address, connector } = useAccountDetails()
   const { data: starkName } = useStarkName({ address })
 
   if (address) {
     return (
       <Web3StatusConnected data-testid="web3-status-connected" onClick={handleWalletDropdownClick}>
+        <StatusIcon account={address} connection={connector} size={40} />
         <AddressAndChevronContainer>
           <Text>{starkName ?? shortenAddress(address)}</Text>
         </AddressAndChevronContainer>

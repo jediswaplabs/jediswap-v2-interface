@@ -1,12 +1,14 @@
 import styled from 'styled-components'
 
-import { Unicon } from 'components/Unicon';
-import { Connection, ConnectionType } from 'connection/types';
-import useENSAvatar from 'hooks/useENSAvatar';
-import { flexColumnNoWrap } from 'theme/styles';
-import sockImg from '../../assets/svg/socks.svg';
-import { useHasSocks } from '../../hooks/useSocksBalance';
-import Identicon from '.';
+import { Unicon } from 'components/Unicon'
+import { Connection, ConnectionType } from 'connection/types'
+import useENSAvatar from 'hooks/useENSAvatar'
+import { flexColumnNoWrap } from 'theme/styles'
+import sockImg from '../../assets/svg/socks.svg'
+import Identicon from '.'
+import { Connector } from '@starknet-react/core'
+import ArgentXIcon from 'assets/wallets/argentx.png'
+import braavosIcon from 'assets/wallets/Braavos.svg'
 // import { useIsDarkMode } from 'theme/components/index'
 
 export const IconWrapper = styled.div<{ size?: number }>`
@@ -83,31 +85,24 @@ export default function StatusIcon({
   showMiniIcons = true,
 }: {
   account: string
-  connection: Connection
+  connection: Connector | undefined
   size?: number
   showMiniIcons?: boolean
 }) {
-  // return (
-  //   <IconWrapper size={size} data-testid="StatusIconRoot">
-  //     <MainWalletIcon account={account} connection={connection} size={size} />
-  //     {showMiniIcons && <MiniWalletIcon connection={connection} side="right" />}
-  //     {hasSocks && showMiniIcons && <Socks />}
-  //   </IconWrapper>
-  // );
-  // if (connector.id() === 'argentX' || connector.id() === 'argentWebWallet') {
-  //   return (
-  //       <IconWrapper size={20}>
-  //         <img src={ArgentXIcon} alt="ArgentX" />
-  //       </IconWrapper>
-  //   )
-  // }
-  //
-  // if (connector.id() === 'braavos') {
-  //   return (
-  //       <IconWrapper size={20}>
-  //         <img src={braavosIcon} alt="myBraavos" />
-  //       </IconWrapper>
-  //   )
-  // }
+  if (connection?.id === 'argentX' || connection?.id === 'argentWebWallet') {
+    return (
+      <IconWrapper size={20}>
+        <img src={ArgentXIcon} alt="ArgentX" />
+      </IconWrapper>
+    )
+  }
+
+  if (connection?.id === 'braavos') {
+    return (
+      <IconWrapper size={20}>
+        <img src={braavosIcon} alt="myBraavos" />
+      </IconWrapper>
+    )
+  }
   return null
 }
