@@ -1,9 +1,9 @@
 import { ChainId } from '@uniswap/sdk-core'
 
 const BLOCK_EXPLORER_PREFIXES: { [chainId: number]: string } = {
-  [ChainId.MAINNET]: 'https://etherscan.io',
-  [ChainId.GOERLI]: 'https://goerli.etherscan.io',
-  [ChainId.SEPOLIA]: 'https://sepolia.etherscan.io',
+  [ChainId.MAINNET]: 'https://starkscan.co',
+  [ChainId.GOERLI]: 'https://testnet.starkscan.co',
+  [ChainId.SEPOLIA]: 'https://sepolia.starkscan.co',
   [ChainId.OPTIMISM]: 'https://optimistic.etherscan.io',
   [ChainId.OPTIMISM_GOERLI]: 'https://goerli-optimism.etherscan.io',
   [ChainId.POLYGON]: 'https://polygonscan.com',
@@ -57,7 +57,7 @@ export function getExplorerLink(chainId: number, data: string, type: ExplorerDat
     }
   }
 
-  const prefix = BLOCK_EXPLORER_PREFIXES[chainId] ?? 'https://etherscan.io'
+  const prefix = BLOCK_EXPLORER_PREFIXES[chainId] ?? 'https://starkscan.co/'
 
   switch (type) {
     case ExplorerDataType.TRANSACTION:
