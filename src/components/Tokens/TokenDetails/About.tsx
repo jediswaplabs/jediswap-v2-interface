@@ -74,7 +74,7 @@ export function AboutSection({ address, chainId, description, homepageUrl, twitt
       </ThemedText.SubHeaderSmall>
       <ResourcesContainer data-cy="resources-container">
         <Resource
-          name={chainId === ChainId.MAINNET ? 'Etherscan' : 'Block Explorer'}
+          name={chainId === ChainId.MAINNET ? 'Starkscan' : 'Block Explorer'}
           link={`${explorer}${address === 'NATIVE' ? '' : 'address/' + address}`}
         />
         <Resource name="More analytics" link={`${infoLink}tokens/${address}`} />

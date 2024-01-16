@@ -110,7 +110,7 @@ function TransactionSubmittedContent({ onDismiss,
       .catch(() => setSuccess(false));
   }, [connector, logoURL, token]);
 
-  const explorerText = chainId === ChainId.MAINNET ? t`View on  Etherscan` : t`View on Block Explorer`;
+  const explorerText = chainId === ChainId.MAINNET ? t`View on  Starkscan` : t`View on Block Explorer`;
 
   return (
     <Wrapper>
