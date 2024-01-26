@@ -4,7 +4,7 @@ import { DebounceSwapQuoteVariant, useDebounceSwapQuoteFlag } from 'featureFlags
 import { useMemo } from 'react'
 import { InterfaceTrade, QuoteMethod, RouterPreference, TradeState } from 'state/routing/types'
 import { usePreviewTrade } from 'state/routing/usePreviewTrade'
-// import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade'
+import { useRoutingAPITrade } from 'state/routing/useRoutingAPITrade'
 import { useRouterPreference } from 'state/user/hooks'
 
 import useAutoRouterSupported from './useAutoRouterSupported'
@@ -106,16 +106,19 @@ export function useDebouncedTrade(
     inputTax,
     outputTax
   )
-  // const routingApiTradeResult = useRoutingAPITrade(
-  //   skipRoutingFetch,
-  //   tradeType,
-  //   amountSpecified,
-  //   otherCurrency,
-  //   routerPreferenceOverride ?? routerPreference,
-  //   account,
-  //   inputTax,
-  //   outputTax
-  // )
 
-  return previewTradeResult
+  const routingApiTradeResult = useRoutingAPITrade(
+    skipRoutingFetch,
+    tradeType,
+    amountSpecified,
+    otherCurrency,
+    routerPreferenceOverride ?? routerPreference,
+    account,
+    inputTax,
+    outputTax
+  )
+
+  return previewTradeResult.currentTrade && !routingApiTradeResult.currentTrade
+    ? previewTradeResult
+    : routingApiTradeResult
 }

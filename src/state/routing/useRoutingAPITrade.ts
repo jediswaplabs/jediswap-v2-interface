@@ -6,7 +6,7 @@ import { useRoutingAPIArguments } from 'lib/hooks/routing/useRoutingAPIArguments
 import ms from 'ms'
 import { useMemo } from 'react'
 
-// import { useGetQuoteQuery, useGetQuoteQueryState } from './slice'
+import { useGetQuoteQuery, useGetQuoteQueryState } from './slice'
 import {
   ClassicTrade,
   INTERNAL_ROUTER_PREFERENCE_PRICE,
@@ -67,6 +67,79 @@ export function useRoutingAPITrade<TTradeType extends TradeType>(
   account?: string,
   inputTax = ZERO_PERCENT,
   outputTax = ZERO_PERCENT
-) {
-  return {}
+): {
+  state: TradeState
+  trade?: SubmittableTrade
+  currentTrade?: SubmittableTrade
+  method?: QuoteMethod
+  swapQuoteLatency?: number
+} {
+  const [currencyIn, currencyOut]: [Currency | undefined, Currency | undefined] = useMemo(
+    () =>
+      tradeType === TradeType.EXACT_INPUT
+        ? [amountSpecified?.currency, otherCurrency]
+        : [otherCurrency, amountSpecified?.currency],
+    [amountSpecified, otherCurrency, tradeType]
+  )
+
+  const queryArgs = useRoutingAPIArguments({
+    account,
+    tokenIn: currencyIn,
+    tokenOut: currencyOut,
+    amount: amountSpecified,
+    tradeType,
+    routerPreference,
+    inputTax,
+    outputTax,
+  })
+
+  const { isError, data: tradeResult, error, currentData } = useGetQuoteQueryState(queryArgs)
+  useGetQuoteQuery(skipFetch ? skipToken : queryArgs, {
+    // Price-fetching is informational and costly, so it's done less frequently.
+    pollingInterval: routerPreference === INTERNAL_ROUTER_PREFERENCE_PRICE ? ms(`1m`) : AVERAGE_L1_BLOCK_TIME,
+    // If latest quote from cache was fetched > 2m ago, instantly repoll for another instead of waiting for next poll period
+    refetchOnMountOrArgChange: 2 * 60,
+  })
+
+  const isFetching = currentData !== tradeResult || !currentData
+
+  return useMemo(() => {
+    if (amountSpecified && otherCurrency && queryArgs === skipToken) {
+      return {
+        state: TradeState.STALE,
+        trade: tradeResult?.trade,
+        currentTrade: currentData?.trade,
+        swapQuoteLatency: tradeResult?.latencyMs,
+      }
+    } else if (!amountSpecified || isError || queryArgs === skipToken) {
+      return {
+        state: TradeState.INVALID,
+        trade: undefined,
+        currentTrade: currentData?.trade,
+        error: JSON.stringify(error),
+      }
+    } else if (tradeResult?.state === QuoteState.NOT_FOUND && !isFetching) {
+      return TRADE_NOT_FOUND
+    } else if (!tradeResult?.trade) {
+      return TRADE_LOADING
+    } else {
+      return {
+        state: isFetching ? TradeState.LOADING : TradeState.VALID,
+        trade: tradeResult?.trade,
+        currentTrade: currentData?.trade,
+        swapQuoteLatency: tradeResult?.latencyMs,
+      }
+    }
+  }, [
+    amountSpecified,
+    error,
+    isError,
+    isFetching,
+    queryArgs,
+    tradeResult?.latencyMs,
+    tradeResult?.state,
+    tradeResult?.trade,
+    currentData?.trade,
+    otherCurrency,
+  ])
 }

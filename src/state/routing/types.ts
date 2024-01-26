@@ -10,7 +10,6 @@ import {
   TradeType,
 } from '@vnaysn/jediswap-sdk-core'
 import { DutchOrderInfoJSON, DutchOrderTrade as IDutchOrderTrade } from '@uniswap/uniswapx-sdk'
-import { ZERO_PERCENT } from 'constants/misc'
 import { Route as V2Route } from '@vnaysn/jediswap-sdk-v2'
 import { Route as V3Route } from '@vnaysn/jediswap-sdk-v3'
 
@@ -204,7 +203,6 @@ export type SwapFeeInfo = { recipient: string; percent: Percent; amount: string 
 
 export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
   public readonly fillType = TradeFillType.Classic
-  approveInfo: ApproveInfo
   gasUseEstimateUSD?: number // gas estimate for swaps
   blockNumber: string | null | undefined
   requestId: string | undefined
@@ -216,16 +214,17 @@ export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
     blockNumber,
     requestId,
     quoteMethod,
-    approveInfo,
     swapFee,
     ...routes
   }: {
     gasUseEstimateUSD?: number
     totalGasUseEstimateUSD?: number
     blockNumber?: string | null
+    isUniswapXBetter?: boolean
     requestId?: string
     quoteMethod: QuoteMethod
-    approveInfo: ApproveInfo
+    inputTax: Percent
+    outputTax: Percent
     swapFee?: SwapFeeInfo
     v2Routes: {
       routev2: V2Route<Currency, Currency>
@@ -249,7 +248,6 @@ export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
     this.gasUseEstimateUSD = gasUseEstimateUSD
     this.requestId = requestId
     this.quoteMethod = quoteMethod
-    this.approveInfo = approveInfo
     this.swapFee = swapFee
   }
 
@@ -268,14 +266,14 @@ export class ClassicTrade extends Trade<Currency, Currency, TradeType> {
     return this.outputAmount.subtract(swapFeeAmount)
   }
 
-  // gas estimate for maybe approve + swap
-  public get totalGasUseEstimateUSD(): number | undefined {
-    if (this.approveInfo.needsApprove && this.gasUseEstimateUSD) {
-      return this.approveInfo.approveGasEstimateUSD + this.gasUseEstimateUSD
-    }
+  // // gas estimate for maybe approve + swap
+  // public get totalGasUseEstimateUSD(): number | undefined {
+  //   if (this.approveInfo.needsApprove && this.gasUseEstimateUSD) {
+  //     return this.approveInfo.approveGasEstimateUSD + this.gasUseEstimateUSD
+  //   }
 
-    return this.gasUseEstimateUSD
-  }
+  //   return this.gasUseEstimateUSD
+  // }
 }
 
 export class PreviewTrade {
@@ -385,11 +383,17 @@ export type QuoteResult =
       data: URAQuoteResponse
     }
 
-export type TradeResult = {
-  state: QuoteState.NOT_FOUND
-  trade?: undefined
-  latencyMs?: number
-}
+export type TradeResult =
+  | {
+      state: QuoteState.NOT_FOUND
+      trade?: undefined
+      latencyMs?: number
+    }
+  | {
+      state: QuoteState.SUCCESS
+      trade: SubmittableTrade
+      latencyMs?: number
+    }
 
 export type PreviewTradeResult =
   | {

@@ -1,14 +1,12 @@
-import { BigNumber } from '@ethersproject/bignumber'
 import { MixedRouteSDK } from '@vnaysn/jediswap-router-sdk'
 import { Currency, CurrencyAmount, Percent, Token, TradeType } from '@vnaysn/jediswap-sdk-core'
-import { DutchOrderInfo, DutchOrderInfoJSON } from '@uniswap/uniswapx-sdk'
+// import { DutchOrderInfo, DutchOrderInfoJSON } from '@uniswap/uniswapx-sdk'
 import { Pair, Route as V2Route } from '@vnaysn/jediswap-sdk-v2'
 import { FeeAmount, Pool, Route as V3Route } from '@vnaysn/jediswap-sdk-v3'
 import { BIPS_BASE } from 'constants/misc'
-import { isAvalanche, isBsc, isPolygon, nativeOnChain } from 'constants/tokens'
-import { toSlippagePercent } from 'utils/slippage'
+import { nativeOnChain } from 'constants/tokens'
 
-// import { getApproveInfo, getWrapInfo } from './gas'
+// import { getApproveInfo } from './gas'
 import {
   ClassicQuoteData,
   ClassicTrade,
@@ -22,7 +20,6 @@ import {
   QuickRouteResponse,
   QuoteMethod,
   QuoteState,
-  RouterPreference,
   SubmittableTrade,
   SwapFeeInfo,
   SwapRouterNativeAssets,
@@ -47,46 +44,46 @@ interface RouteResult {
  * Transforms a Routing API quote into an array of routes that can be used to
  * create a `Trade`.
  */
-// export function computeRoutes(
-//   currencyIn: Currency,
-//   currencyOut: Currency,
-//   routes: ClassicQuoteData['route']
-// ): RouteResult[] | undefined {
-//   if (routes.length === 0) return []
+export function computeRoutes(
+  currencyIn: Currency,
+  currencyOut: Currency,
+  routes: ClassicQuoteData['route']
+): RouteResult[] | undefined {
+  if (routes.length === 0) return []
 
-//   const tokenIn = routes[0]?.[0]?.tokenIn
-//   const tokenOut = routes[0]?.[routes[0]?.length - 1]?.tokenOut
-//   if (!tokenIn || !tokenOut) throw new Error('Expected both tokenIn and tokenOut to be present')
+  const tokenIn = routes[0]?.[0]?.tokenIn
+  const tokenOut = routes[0]?.[routes[0]?.length - 1]?.tokenOut
+  if (!tokenIn || !tokenOut) throw new Error('Expected both tokenIn and tokenOut to be present')
 
-//   try {
-//     return routes.map((route) => {
-//       if (route.length === 0) {
-//         throw new Error('Expected route to have at least one pair or pool')
-//       }
-//       const rawAmountIn = route[0].amountIn
-//       const rawAmountOut = route[route.length - 1].amountOut
+  try {
+    return routes.map((route) => {
+      if (route.length === 0) {
+        throw new Error('Expected route to have at least one pair or pool')
+      }
+      const rawAmountIn = route[0].amountIn
+      const rawAmountOut = route[route.length - 1].amountOut
 
-//       if (!rawAmountIn || !rawAmountOut) {
-//         throw new Error('Expected both amountIn and amountOut to be present')
-//       }
+      if (!rawAmountIn || !rawAmountOut) {
+        throw new Error('Expected both amountIn and amountOut to be present')
+      }
 
-//       const isOnlyV2 = isVersionedRoute<V2PoolInRoute>(PoolType.V2Pool, route)
-//       const isOnlyV3 = isVersionedRoute<V3PoolInRoute>(PoolType.V3Pool, route)
+      const isOnlyV2 = isVersionedRoute<V2PoolInRoute>(PoolType.V2Pool, route)
+      const isOnlyV3 = isVersionedRoute<V3PoolInRoute>(PoolType.V3Pool, route)
 
-//       return {
-//         routev3: isOnlyV3 ? new V3Route(route.map(parsePool), currencyIn, currencyOut) : null,
-//         routev2: isOnlyV2 ? new V2Route(route.map(parsePair), currencyIn, currencyOut) : null,
-//         mixedRoute:
-//           !isOnlyV3 && !isOnlyV2 ? new MixedRouteSDK(route.map(parsePoolOrPair), currencyIn, currencyOut) : null,
-//         inputAmount: CurrencyAmount.fromRawAmount(currencyIn, rawAmountIn),
-//         outputAmount: CurrencyAmount.fromRawAmount(currencyOut, rawAmountOut),
-//       }
-//     })
-//   } catch (e) {
-//     console.error('Error computing routes', e)
-//     return
-//   }
-// }
+      return {
+        routev3: isOnlyV3 ? new V3Route(route.map(parsePool), currencyIn, currencyOut) : null,
+        routev2: isOnlyV2 ? new V2Route(route.map(parsePair), currencyIn, currencyOut) : null,
+        mixedRoute:
+          !isOnlyV3 && !isOnlyV2 ? new MixedRouteSDK(route.map(parsePoolOrPair), currencyIn, currencyOut) : null,
+        inputAmount: CurrencyAmount.fromRawAmount(currencyIn, rawAmountIn),
+        outputAmount: CurrencyAmount.fromRawAmount(currencyOut, rawAmountOut),
+      }
+    })
+  } catch (e) {
+    console.error('Error computing routes', e)
+    return
+  }
+}
 
 const parsePoolOrPair = (pool: V3PoolInRoute | V2PoolInRoute): Pool | Pair => {
   return pool.type === PoolType.V3Pool ? parsePool(pool) : parsePair(pool)
@@ -97,25 +94,6 @@ function isVersionedRoute<T extends V2PoolInRoute | V3PoolInRoute>(
   route: (V3PoolInRoute | V2PoolInRoute)[]
 ): route is T[] {
   return route.every((pool) => pool.type === type)
-}
-
-function toDutchOrderInfo(orderInfoJSON: DutchOrderInfoJSON): DutchOrderInfo {
-  const { nonce, input, outputs, exclusivityOverrideBps } = orderInfoJSON
-  return {
-    ...orderInfoJSON,
-    nonce: BigNumber.from(nonce),
-    exclusivityOverrideBps: BigNumber.from(exclusivityOverrideBps),
-    input: {
-      ...input,
-      startAmount: BigNumber.from(input.startAmount),
-      endAmount: BigNumber.from(input.endAmount),
-    },
-    outputs: outputs.map((output) => ({
-      ...output,
-      startAmount: BigNumber.from(output.startAmount),
-      endAmount: BigNumber.from(output.endAmount),
-    })),
-  }
 }
 
 // Prepares the currencies used for the actual Swap (either UniswapX or Universal Router)
@@ -167,7 +145,7 @@ function getSwapFee(data: ClassicQuoteData | URADutchOrderQuoteData): SwapFeeInf
   }
 }
 
-/* function getClassicTradeDetails(
+function getClassicTradeDetails(
   currencyIn: Currency,
   currencyOut: Currency,
   data: URAQuoteResponse
@@ -190,7 +168,7 @@ function getSwapFee(data: ClassicQuoteData | URADutchOrderQuoteData): SwapFeeInf
     routes: computeRoutes(currencyIn, currencyOut, classicQuote.route),
     swapFee: getSwapFee(classicQuote),
   }
-} */
+}
 
 export function transformQuickRouteToTrade(args: GetQuickQuoteArgs, data: QuickRouteResponse): PreviewTrade {
   const { amount, tradeType, inputTax, outputTax } = args
@@ -203,8 +181,62 @@ export function transformQuickRouteToTrade(args: GetQuickQuoteArgs, data: QuickR
   return new PreviewTrade({ inputAmount, outputAmount, tradeType, inputTax, outputTax })
 }
 
-export async function transformRoutesToTrade(args: GetQuoteArgs, data: URAQuoteResponse, quoteMethod: QuoteMethod) {
-  return {}
+export async function transformRoutesToTrade(
+  args: GetQuoteArgs,
+  data: URAQuoteResponse,
+  quoteMethod: QuoteMethod
+): Promise<TradeResult> {
+  const { tradeType, inputTax, outputTax } = args
+
+  const [currencyIn, currencyOut] = getTradeCurrencies(args, false)
+  const { gasUseEstimateUSD, blockNumber, routes, gasUseEstimate, swapFee } = getClassicTradeDetails(
+    currencyIn,
+    currencyOut,
+    data
+  )
+
+  // Some sus javascript float math but it's ok because its just an estimate for display purposes
+  // const usdCostPerGas = gasUseEstimateUSD && gasUseEstimate ? gasUseEstimateUSD / gasUseEstimate : undefined
+
+  // const approveInfo = await getApproveInfo(account, currencyIn, amount, usdCostPerGas)
+  const classicTrade = new ClassicTrade({
+    v2Routes:
+      routes
+        ?.filter((r): r is RouteResult & { routev2: NonNullable<RouteResult['routev2']> } => r.routev2 !== null)
+        .map(({ routev2, inputAmount, outputAmount }) => ({
+          routev2,
+          inputAmount,
+          outputAmount,
+        })) ?? [],
+    v3Routes:
+      routes
+        ?.filter((r): r is RouteResult & { routev3: NonNullable<RouteResult['routev3']> } => r.routev3 !== null)
+        .map(({ routev3, inputAmount, outputAmount }) => ({
+          routev3,
+          inputAmount,
+          outputAmount,
+        })) ?? [],
+    mixedRoutes:
+      routes
+        ?.filter(
+          (r): r is RouteResult & { mixedRoute: NonNullable<RouteResult['mixedRoute']> } => r.mixedRoute !== null
+        )
+        .map(({ mixedRoute, inputAmount, outputAmount }) => ({
+          mixedRoute,
+          inputAmount,
+          outputAmount,
+        })) ?? [],
+    tradeType,
+    gasUseEstimateUSD,
+    blockNumber,
+    requestId: data.quote.requestId,
+    quoteMethod,
+    inputTax,
+    outputTax,
+    swapFee,
+  })
+
+  return { state: QuoteState.SUCCESS, trade: classicTrade }
 }
 
 function parseToken({ address, chainId, decimals, symbol }: ClassicQuoteData['route'][0][0]['tokenIn']): Token {
@@ -234,14 +266,7 @@ export function isExactInput(tradeType: TradeType): boolean {
 }
 
 export function currencyAddressForSwapQuote(currency: Currency): string {
-  if (currency.isNative) {
-    // if (isPolygon(currency.chainId)) return SwapRouterNativeAssets.MATIC
-    // if (isBsc(currency.chainId)) return SwapRouterNativeAssets.BNB
-    // if (isAvalanche(currency.chainId)) return SwapRouterNativeAssets.AVAX
-    return SwapRouterNativeAssets.ETH
-  }
-
-  return currency.address
+  return (currency as any).address
 }
 
 export function isClassicTrade(trade?: InterfaceTrade): trade is ClassicTrade {

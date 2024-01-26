@@ -6,12 +6,12 @@ import { updateVersion } from './global/actions'
 import { sentryEnhancer } from './logging'
 import reducer from './reducer'
 import { quickRouteApi } from './routing/quickRouteSlice'
-// import { routingApi } from './routing/slice'
+import { routingApi } from './routing/slice'
 
 export function createDefaultStore() {
   return configureStore({
     reducer,
-    enhancers: (defaultEnhancers) => defaultEnhancers.concat(sentryEnhancer),
+    // enhancers: (defaultEnhancers) => defaultEnhancers.concat(sentryEnhancer),
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         thunk: true,
@@ -31,9 +31,9 @@ export function createDefaultStore() {
             'persist/FLUSH',
           ],
         },
-      }),
-    // .concat(routingApi.middleware)
-    // .concat(quickRouteApi.middleware),
+      })
+        .concat(routingApi.middleware)
+        .concat(quickRouteApi.middleware),
   })
 }
 

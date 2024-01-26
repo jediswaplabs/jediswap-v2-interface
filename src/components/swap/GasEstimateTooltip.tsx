@@ -33,10 +33,10 @@ export default function GasEstimateTooltip({ trade, loading }: { trade?: Submitt
         <ThemedText.BodySmall color="neutral1">
           <Row gap="xs">
             <div>
-              {formatNumber({
+              {/* {formatNumber({
                 input: trade.totalGasUseEstimateUSD,
                 type: NumberType.FiatGasPrice,
-              })}
+              })} */}
             </div>
           </Row>
         </ThemedText.BodySmall>
