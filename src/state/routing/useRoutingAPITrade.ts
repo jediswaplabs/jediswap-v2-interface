@@ -92,7 +92,7 @@ export function useRoutingAPITrade<TTradeType extends TradeType>(
     inputTax,
     outputTax,
   })
-
+  const dfknd = useGetQuoteQueryState(queryArgs)
   const { isError, data: tradeResult, error, currentData } = useGetQuoteQueryState(queryArgs)
   useGetQuoteQuery(skipFetch ? skipToken : queryArgs, {
     // Price-fetching is informational and costly, so it's done less frequently.

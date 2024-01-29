@@ -363,7 +363,8 @@ export default function ConfirmSwapModal({
           swapResult={swapResult}
           allowedSlippage={allowedSlippage}
           isLoading={isPreviewTrade(trade)}
-          disabledConfirm={showAcceptChanges || isPreviewTrade(trade) || allowance.state === AllowanceState.LOADING}
+          // disabledConfirm={showAcceptChanges || isPreviewTrade(trade) || allowance.state === AllowanceState.LOADING}
+          disabledConfirm={false}
           fiatValueInput={fiatValueInput}
           fiatValueOutput={fiatValueOutput}
           showAcceptChanges={showAcceptChanges}

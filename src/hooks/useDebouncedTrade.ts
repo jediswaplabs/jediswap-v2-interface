@@ -98,14 +98,14 @@ export function useDebouncedTrade(
 
   const skipPreviewTradeFetch = skipBothFetches || isPreviewTradeDebouncing
 
-  const previewTradeResult = usePreviewTrade(
-    skipPreviewTradeFetch,
-    tradeType,
-    amountSpecified,
-    otherCurrency,
-    inputTax,
-    outputTax
-  )
+  // const previewTradeResult = usePreviewTrade(
+  //   skipPreviewTradeFetch,
+  //   tradeType,
+  //   amountSpecified,
+  //   otherCurrency,
+  //   inputTax,
+  //   outputTax
+  // )
 
   const routingApiTradeResult = useRoutingAPITrade(
     skipRoutingFetch,
@@ -118,7 +118,9 @@ export function useDebouncedTrade(
     outputTax
   )
 
-  return previewTradeResult.currentTrade && !routingApiTradeResult.currentTrade
-    ? previewTradeResult
-    : routingApiTradeResult
+  // return previewTradeResult.currentTrade && !routingApiTradeResult.currentTrade
+  //   ? previewTradeResult
+  //   : routingApiTradeResult
+
+  return routingApiTradeResult
 }

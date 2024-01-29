@@ -7025,6 +7025,20 @@
     "@vnaysn/jediswap-sdk-v2" "^8.0.0"
     "@vnaysn/jediswap-sdk-v3" "^15.0.0"
 
+"@vnaysn/jediswap-router-sdk@^12.0.0":
+  version "12.0.0"
+  resolved "https://registry.yarnpkg.com/@vnaysn/jediswap-router-sdk/-/jediswap-router-sdk-12.0.0.tgz#32250e709fde4a1b14df9813fec1a38b78481050"
+  integrity sha512-DZ9A7N6SVvMzlKD5IUP2Rtej3zUS9W2C+XqW1W2aGJQJ/sgrxWVcymbACsgXB1MQpikco6S1N7klsS8kCIkD2g==
+  dependencies:
+    "@ethersproject/abi" "^5.5.0"
+    "@jediswap/sdk" "^2.3.5"
+    "@uniswap/sdk-core" "^4.0.7"
+    "@uniswap/swap-router-contracts" "^1.1.0"
+    "@uniswap/v3-sdk" "^3.10.0"
+    "@vnaysn/jediswap-sdk-core" "^9.3.0"
+    "@vnaysn/jediswap-sdk-v2" "^8.0.0"
+    "@vnaysn/jediswap-sdk-v3" "^16.0.0"
+
 "@vnaysn/jediswap-sdk-core@^9.3.0":
   version "9.3.0"
   resolved "https://registry.yarnpkg.com/@vnaysn/jediswap-sdk-core/-/jediswap-sdk-core-9.3.0.tgz#178c804f97f0d2e05081fa72f7c00f179c6c5cb8"
@@ -7054,6 +7068,22 @@
   version "15.0.0"
   resolved "https://registry.yarnpkg.com/@vnaysn/jediswap-sdk-v3/-/jediswap-sdk-v3-15.0.0.tgz#c632c1c37ffdeaf6b9c05dc1a4f2e569e21fcff3"
   integrity sha512-VzlJfUTFvDK4EwvjvV85YZF5P8T4/ROwS1i3cTe2/UTAWAK9ZvgKZMrAGN2yl45FwCja7y/PZ4x1d0Gwl4ivgA==
+  dependencies:
+    "@ethersproject/abi" "^5.0.12"
+    "@ethersproject/solidity" "^5.0.9"
+    "@uniswap/sdk-core" "^4"
+    "@uniswap/swap-router-contracts" "^1.2.1"
+    "@uniswap/v3-periphery" "^1.1.1"
+    "@uniswap/v3-staker" "1.0.0"
+    "@vnaysn/jediswap-sdk-core" "^9.3.0"
+    starknet "^5.24.3"
+    tiny-invariant "^1.1.0"
+    tiny-warning "^1.0.3"
+
+"@vnaysn/jediswap-sdk-v3@^16.0.0":
+  version "16.0.0"
+  resolved "https://registry.yarnpkg.com/@vnaysn/jediswap-sdk-v3/-/jediswap-sdk-v3-16.0.0.tgz#e0ef67a34baeeb583ef7035118a73dc16cb9ae63"
+  integrity sha512-rhGh65cUWZbW8dQMlRLrEzyxsq4dbInooAEKPp765O2r2d1p1hQTSCeRqeHGJVUa8/fVbPIpQGmL/0vgjRJxeA==
   dependencies:
     "@ethersproject/abi" "^5.0.12"
     "@ethersproject/solidity" "^5.0.9"

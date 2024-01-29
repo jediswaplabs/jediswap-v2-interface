@@ -95,56 +95,55 @@ export const routingApi = createApi({
   }),
   endpoints: (build) => ({
     getQuote: build.query<TradeResult, GetQuoteArgs>({
-      // async onQueryStarted(args: GetQuoteArgs, { queryFulfilled }) {},
+      async onQueryStarted(args: GetQuoteArgs, { queryFulfilled }) {},
       async queryFn(args, _api, _extraOptions, fetch) {
         const quoteStartMark = performance.mark(`quote-fetch-start-${Date.now()}`)
-        // try {
-        const {
-          tokenInAddress: tokenIn,
-          tokenInChainId,
-          tokenOutAddress: tokenOut,
-          tokenOutChainId,
-          amount,
-          tradeType,
-          sendPortionEnabled,
-        } = args
+        // // try {
+        // const {
+        //   tokenInAddress: tokenIn,
+        //   tokenInChainId,
+        //   tokenOutAddress: tokenOut,
+        //   tokenOutChainId,
+        //   amount,
+        //   tradeType,
+        //   sendPortionEnabled,
+        // } = args
 
-        const requestBody = {
-          tokenInChainId,
-          tokenIn,
-          tokenOutChainId,
-          tokenOut,
-          amount,
-          sendPortionEnabled,
-          type: isExactInput(tradeType) ? 'EXACT_INPUT' : 'EXACT_OUTPUT',
-          intent: args.routerPreference === INTERNAL_ROUTER_PREFERENCE_PRICE ? 'pricing' : undefined,
-          configs: getRoutingAPIConfig(args),
-        }
+        // const requestBody = {
+        //   tokenInChainId,
+        //   tokenIn,
+        //   tokenOutChainId,
+        //   tokenOut,
+        //   amount,
+        //   sendPortionEnabled,
+        //   type: isExactInput(tradeType) ? 'EXACT_INPUT' : 'EXACT_OUTPUT',
+        //   intent: args.routerPreference === INTERNAL_ROUTER_PREFERENCE_PRICE ? 'pricing' : undefined,
+        //   configs: getRoutingAPIConfig(args),
+        // }
 
-        const response = await fetch({
-          method: 'POST',
-          url: '/quote',
-          body: JSON.stringify(requestBody),
-        })
+        // const response = await fetch({
+        //   method: 'POST',
+        //   url: '/quote',
+        //   body: JSON.stringify(requestBody),
+        // })
 
-        if (response.error) {
-          try {
-            // cast as any here because we do a runtime check on it being an object before indexing into .errorCode
-            const errorData = response.error.data as { errorCode?: string; detail?: string }
-            // NO_ROUTE should be treated as a valid response to prevent retries.
-            if (
-              typeof errorData === 'object' &&
-              (errorData?.errorCode === 'NO_ROUTE' || errorData?.detail === 'No quotes available')
-            ) {
-              return {
-                data: { state: QuoteState.NOT_FOUND, latencyMs: getQuoteLatencyMeasure(quoteStartMark).duration },
-              }
-            }
-          } catch {
-            throw response.error
-          }
-        }
-
+        // if (response.error) {
+        //   try {
+        //     // cast as any here because we do a runtime check on it being an object before indexing into .errorCode
+        //     const errorData = response.error.data as { errorCode?: string; detail?: string }
+        //     // NO_ROUTE should be treated as a valid response to prevent retries.
+        //     if (
+        //       typeof errorData === 'object' &&
+        //       (errorData?.errorCode === 'NO_ROUTE' || errorData?.detail === 'No quotes available')
+        //     ) {
+        //       return {
+        //         data: { state: QuoteState.NOT_FOUND, latencyMs: getQuoteLatencyMeasure(quoteStartMark).duration },
+        //       }
+        //     }
+        //   } catch {
+        //     throw response.error
+        //   }
+        // }
         const uraQuoteResponse = quoteResult as any
         const tradeResult = await transformRoutesToTrade(args, uraQuoteResponse, QuoteMethod.ROUTING_API)
         return { data: { ...tradeResult, latencyMs: getQuoteLatencyMeasure(quoteStartMark).duration } }
