@@ -146,14 +146,6 @@ const WETH_ONLY: ChainTokenList = {
   [ChainId.GOERLI]: [WETH[ChainId.GOERLI]],
 }
 
-// const TOKEN0_ONLY: ChainTokenList = {
-//   [ChainId.GOERLI]: [TOKEN0],
-//   [ChainId.MAINNET]: [TOKEN0],
-//   [ChainId.KOVAN]: [TOKEN0],
-//   [ChainId.ROPSTEN]: [TOKEN0],
-//   [ChainId.RINKEBY]: [TOKEN0]
-// }
-
 // used to construct intermediary pairs for trading
 export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
   ...WETH_ONLY,
@@ -164,19 +156,7 @@ export const BASES_TO_CHECK_TRADES_AGAINST: ChainTokenList = {
     USDC[ChainId.MAINNET],
     USDT[ChainId.MAINNET],
   ],
-  // [ChainId.GOERLI]: [TOKEN0]
-  // [ChainId.MAINNET]: [TOKEN0, TOKEN1],
 }
-
-/**
- * Some tokens can only be swapped via certain pairs, so we override the list of bases that are considered for these
- * tokens.
- */
-// export const CUSTOM_BASES: { [chainId in ChainId]?: { [tokenAddress: string]: Token[] } } = {
-//   [ChainId.MAINNET]: {
-//     [AMPL.address]: [DAI, WETH[ChainId.MAINNET]]
-//   }
-// }
 
 // used for display in the default list when adding liquidity
 export const SUGGESTED_BASES: ChainTokenList = {
@@ -189,6 +169,16 @@ export const SUGGESTED_BASES: ChainTokenList = {
     USDT[ChainId.MAINNET],
   ],
 }
+
+/**
+ * Some tokens can only be swapped via certain pairs, so we override the list of bases that are considered for these
+ * tokens.
+ */
+// export const CUSTOM_BASES: { [chainId in ChainId]?: { [tokenAddress: string]: Token[] } } = {
+//   [ChainId.MAINNET]: {
+//     [AMPL.address]: [DAI, WETH[ChainId.MAINNET]]
+//   }
+// }
 
 // used to construct the list of all pairs we consider by default in the frontend
 export const BASES_TO_TRACK_LIQUIDITY_FOR: ChainTokenList = {
