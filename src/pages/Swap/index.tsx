@@ -64,6 +64,9 @@ import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
 import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
 import { getSwapCurrencyId } from 'constants/tokens'
+import fetchAllPools from 'api/fetchAllPools'
+import { validateAndParseAddress } from 'starknet'
+import { LoadingRows } from 'components/Loader/styled'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -139,19 +142,51 @@ function largerPercentValue(a?: Percent, b?: Percent) {
   return undefined
 }
 
+function PositionsLoadingPlaceholder() {
+  return (
+    <LoadingRows>
+      <div style={{ height: 450 }} />
+    </LoadingRows>
+  )
+}
+
 export default function SwapPage({ className }: { className?: string }) {
   const { chainId: connectedChainId } = useAccountDetails()
   const loadedUrlParams = useDefaultsFromURLSearch()
+  const [allPools, setAllPools] = useState<any>([])
+  const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
+
+  //fetch Token Ids
+  useEffect(() => {
+    const getTokenIds = async () => {
+      if (connectedChainId) {
+        setLoadingPositions(true)
+        const result = await fetchAllPools(connectedChainId)
+        if (result && result.data) {
+          const allPoolsArray: number[] = result.data.map((item: any) => validateAndParseAddress(item.contract_address))
+          setAllPools(allPoolsArray)
+        }
+        setLoadingPositions(false)
+      }
+    }
+
+    getTokenIds()
+  }, [connectedChainId])
 
   return (
     <PageWrapper>
-      <Swap
-        className={className}
-        chainId={ChainId.MAINNET}
-        initialInputCurrencyId={loadedUrlParams?.[Field.INPUT]?.currencyId}
-        initialOutputCurrencyId={loadedUrlParams?.[Field.OUTPUT]?.currencyId}
-        // disableTokenInputs={supportedChainId === undefined}
-      />
+      {loadingPositions && !allPools.length ? (
+        <PositionsLoadingPlaceholder />
+      ) : (
+        <Swap
+          className={className}
+          chainId={ChainId.MAINNET}
+          initialInputCurrencyId={loadedUrlParams?.[Field.INPUT]?.currencyId}
+          initialOutputCurrencyId={loadedUrlParams?.[Field.OUTPUT]?.currencyId}
+          allPools={allPools}
+          // disableTokenInputs={supportedChainId === undefined}
+        />
+      )}
     </PageWrapper>
   )
 }
@@ -167,6 +202,7 @@ export function Swap({
   className,
   initialInputCurrencyId,
   initialOutputCurrencyId,
+  allPools,
   chainId,
   onCurrencyChange,
   disableTokenInputs = false,
@@ -174,12 +210,13 @@ export function Swap({
   className?: string
   initialInputCurrencyId?: string | null
   initialOutputCurrencyId?: string | null
+  allPools: [] | string[]
   chainId?: ChainId
   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
   disableTokenInputs?: boolean
 }) {
   const connectionReady = useConnectionReady()
-  const { account, chainId: connectedChainId, connector } = useAccountDetails()
+  const { account, chainId: connectedChainId } = useAccountDetails()
 
   // token warning stuff
   const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId)
@@ -272,7 +309,7 @@ export function Swap({
     }
   }, [connectedChainId, prefilledState, previousConnectedChainId, previousPrefilledState])
 
-  const swapInfo = useDerivedSwapInfo(state, chainId)
+  const swapInfo = useDerivedSwapInfo(state, chainId, allPools)
   const {
     trade: { state: tradeState, trade, swapQuoteLatency },
     allowedSlippage,

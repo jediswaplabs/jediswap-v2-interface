@@ -19,10 +19,10 @@ export enum V3TradeState {
  * @param amountIn the amount to swap in
  * @param currencyOut the desired output currency
  */
-export function useBestV3TradeExactIn(amountIn?: any, currencyOut?: Currency) {
+export function useBestV3TradeExactIn(allPools: string[], amountIn?: any, currencyOut?: Currency) {
   // : { state: V3TradeState; trade: any | null }
   // const quoter = useV3Quoter()
-  const { routes, loading: routesLoading } = useAllV3Routes(amountIn?.currency, currencyOut)
+  const { routes, loading: routesLoading } = useAllV3Routes(allPools, amountIn?.currency, currencyOut)
 
   // const quoteExactInInputs = useMemo(() => {
   //   return routes.map((route) => [
@@ -101,10 +101,10 @@ export function useBestV3TradeExactIn(amountIn?: any, currencyOut?: Currency) {
  * @param currencyIn the desired input currency
  * @param amountOut the amount to swap out
  */
-export function useBestV3TradeExactOut(currencyIn?: Currency, amountOut?: any) {
+export function useBestV3TradeExactOut(allPools: string[], currencyIn?: Currency, amountOut?: any) {
   // : { state: V3TradeState; trade: any | null }
   // const quoter = useV3Quoter()
-  const { routes, loading: routesLoading } = useAllV3Routes(currencyIn, amountOut?.currency)
+  const { routes, loading: routesLoading } = useAllV3Routes(allPools, currencyIn, amountOut?.currency)
 
   // const quoteExactOutInputs = useMemo(() => {
   //   return routes.map((route) => [

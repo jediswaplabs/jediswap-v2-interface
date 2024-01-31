@@ -274,6 +274,7 @@ export default function TokenDetails({
               initialOutputCurrencyId={address === NATIVE_CHAIN_ID ? 'ETH' : address}
               onCurrencyChange={handleCurrencyChange}
               disableTokenInputs={pageChainId !== connectedChainId}
+              allPools={[]}
             />
           </div>
           {tokenWarning && <TokenSafetyMessage tokenAddress={address} warning={tokenWarning} />}
