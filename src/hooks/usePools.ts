@@ -1,16 +1,17 @@
+import { useToken } from 'hooks/Tokens'
+import { useAccountDetails } from './starknet-react'
 // import { Interface } from '@ethersproject/abi'
 import { BigintIsh, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import IUniswapV3PoolStateJSON from '@uniswap/v3-core/artifacts/contracts/interfaces/pool/IUniswapV3PoolState.sol/IUniswapV3PoolState.json'
 import { computePoolAddress, toHex } from '@vnaysn/jediswap-sdk-v3'
 import { FeeAmount, Pool } from '@vnaysn/jediswap-sdk-v3'
-import { useAccountDetails } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import { useMultipleContractSingleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
 import { IUniswapV3PoolStateInterface } from '../types/v3/IUniswapV3PoolState'
 import { V3_CORE_FACTORY_ADDRESSES } from 'constants/addresses'
 import { useAllPairs } from 'state/pairs/hooks'
-import { BigNumberish, CallData, ec, hash, num, uint256, validateAndParseAddress } from 'starknet'
+import { BigNumberish, CallData, Contract, ec, hash, num } from 'starknet'
 import { useContractRead } from '@starknet-react/core'
 import POOL_ABI from 'contracts/pool/abi.json'
 import FACTORY_ABI from 'contracts/factoryAddress/abi.json'
@@ -21,7 +22,7 @@ import { toInt } from 'utils/toInt'
 
 // Classes are expensive to instantiate, so this caches the recently instantiated pools.
 // This avoids re-instantiating pools as the other pools in the same request are loaded.
-class PoolCache {
+export class PoolCache {
   // Evict after 128 entries. Empirically, a swap uses 64 entries.
   private static MAX_ENTRIES = 128
 
@@ -97,7 +98,7 @@ interface CustomBigNumber {
 export function usePools(
   poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][]
 ): [PoolState, Pool | null][] {
-  const { chainId, address } = useAccountDetails()
+  const { chainId } = useAccountDetails()
 
   const poolTokens: ([Token, Token, FeeAmount] | undefined)[] = useMemo(() => {
     if (!chainId) return new Array(poolKeys.length)
@@ -132,19 +133,21 @@ export function usePools(
             BigInt(feeAmount),
           ])
 
-          const contructorCalldata = CallData.compile([tokens[0].address, tokens[1].address, feeAmount, feeAmount / 50])
+          const constructorCalldata = CallData.compile([
+            tokens[0].address,
+            tokens[1].address,
+            feeAmount,
+            feeAmount / 50,
+          ])
 
-          calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS)
           return tokenA && tokenB && !tokenA.equals(tokenB)
-            ? calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS)
+            ? calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, constructorCalldata, FACTORY_ADDRESS)
             : undefined
         }
         return undefined
       }),
     [poolTokens]
   )
-
-  // if (!poolAddress || !poolAddress.length) return [PoolState.NOT_EXISTS, null]
 
   const { data: tick } = useContractRead({
     functionName: 'get_tick',
@@ -194,6 +197,25 @@ export function usePools(
       }
     })
   }, [liquidity, poolKeys, tickCurrent, poolTokens])
+}
+
+export function usePoolsForSwap(results: any): [PoolState, Pool | null][] {
+  // return useMemo(() => {
+  return results.map((result: any) => {
+    const { tickCurrent, liquidity, sqrtPriceX96, token0, token1, fee } = result
+    const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(num.toHex(sqrtPriceX96 as BigNumberish))
+    const liquidityHex = Boolean(liquidity) ? JSBI.BigInt(num.toHex(liquidity as BigNumberish)) : JSBI.BigInt('0x0')
+
+    if (!tickCurrent || !liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
+    try {
+      const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, tickCurrent)
+      return [PoolState.EXISTS, pool]
+    } catch (error) {
+      console.error('Error when constructing the pool', error)
+      return [PoolState.NOT_EXISTS, null]
+    }
+  })
+  // }, [results, poolKeys, poolTokens])
 }
 
 export function usePool(

@@ -29,9 +29,9 @@ export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {
   return (cachedNativeCurrency[chainId] = WETH[chainId])
 }
 
-export const STARKSCAN_ADDRESS = {
-  [ChainId.MAINNET]: 'https://starkscan-proxy.jediswap.xyz/api/',
-  [ChainId.GOERLI]: 'https://starkscan-proxy.testnet.jediswap.xyz/api/',
+export const STARKSCAN_PROXY_ADDRESS = {
+  [ChainId.MAINNET]: 'https://starkscan-proxy.jediswap.xyz/api/v0/',
+  [ChainId.GOERLI]: 'https://starkscan-proxy.testnet.jediswap.xyz/api/v0/',
 }
 
 export const STARKSCAN_PREFIXES: { [chainId in ChainId]: string } = {

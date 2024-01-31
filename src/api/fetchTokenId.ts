@@ -1,5 +1,5 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { ROUTER_ADDRESS, STARKSCAN_ADDRESS } from 'constants/tokens'
+import { ROUTER_ADDRESS, STARKSCAN_PROXY_ADDRESS } from 'constants/tokens'
 
 const options = {
   method: 'GET',
@@ -8,9 +8,9 @@ const options = {
 
 const fetchTokenIds = async (address: string, chainId: ChainId) => {
   try {
-    const api = STARKSCAN_ADDRESS[chainId]
+    const api = STARKSCAN_PROXY_ADDRESS[chainId]
     const router_address = ROUTER_ADDRESS[chainId]
-    const response = await fetch(`${api}?contract_address=${router_address}&owner_address=${address}`, options)
+    const response = await fetch(`${api}nfts?contract_address=${router_address}&owner_address=${address}`, options)
     if (!response.ok) {
       throw new Error('Failed to fetch data')
     }

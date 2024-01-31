@@ -3,8 +3,6 @@ import { useMemo } from 'react'
 import { useAppSelector } from 'state/hooks'
 import { AppState } from 'state/reducer'
 import sortByListPriority from 'utils/listSort'
-
-import BROKEN_LIST from '../../constants/tokenLists/broken.tokenlist.json'
 import { DEFAULT_ACTIVE_LIST_URLS, UNSUPPORTED_LIST_URLS } from './../../constants/lists'
 
 type Mutable<T> = {
