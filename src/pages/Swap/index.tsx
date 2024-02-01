@@ -63,10 +63,13 @@ import { computeRealizedPriceImpact, warningSeverity } from 'utils/prices'
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
 import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
-import { getSwapCurrencyId } from 'constants/tokens'
+import { SWAP_ROUTER_ADDRESS, getSwapCurrencyId } from 'constants/tokens'
 import fetchAllPools from 'api/fetchAllPools'
-import { validateAndParseAddress } from 'starknet'
+import { Call, CallData, cairo, validateAndParseAddress } from 'starknet'
 import { LoadingRows } from 'components/Loader/styled'
+import { useContractWrite } from '@starknet-react/core'
+import useTransactionDeadline from 'hooks/useTransactionDeadline'
+import { useApprovalCall } from 'hooks/useApproveCall'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -216,7 +219,7 @@ export function Swap({
   disableTokenInputs?: boolean
 }) {
   const connectionReady = useConnectionReady()
-  const { account, chainId: connectedChainId } = useAccountDetails()
+  const { address, account, chainId: connectedChainId } = useAccountDetails()
 
   // token warning stuff
   const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId)
@@ -310,7 +313,6 @@ export function Swap({
   }, [connectedChainId, prefilledState, previousConnectedChainId, previousPrefilledState])
 
   const swapInfo = useDerivedSwapInfo(state, chainId, allPools)
-  console.log('🚀 ~ swapInfo:', swapInfo)
   const {
     trade: { state: tradeState, trade, swapQuoteLatency },
     allowedSlippage,
@@ -499,29 +501,63 @@ export function Swap({
       swapResult: undefined,
     }))
   }, [])
+  const [swapCallData, setSwapCallData] = useState<Call[]>([])
+
+  const { writeAsync, data: txData } = useContractWrite({
+    calls: swapCallData,
+  })
+
+  const deadline = useTransactionDeadline() // custom from users settings
+
+  useEffect(() => {
+    if (swapCallData) {
+      writeAsync()
+        .then((response) => {
+          // setAttemptingTxn(false)
+          // if (response?.transaction_hash) {
+          //   setTxHash(response.transaction_hash)
+          // }
+        })
+        .catch((err) => {
+          console.log(err?.message)
+          // setAttemptingTxn(false)
+        })
+    }
+  }, [swapCallData])
+
+  const amountToApprove = useMemo(
+    () => (trade ? trade.maximumAmountIn(allowedSlippage) : undefined),
+    [trade, allowedSlippage]
+  )
+  const approveCallback = useApprovalCall(amountToApprove, SWAP_ROUTER_ADDRESS)
 
   const handleSwap = useCallback(() => {
-    if (!swapCallback) {
-      return
+    if (!trade || !address || !deadline) return
+    const handleApproval = approveCallback()
+    if (!handleApproval) return
+    const { inputAmount, outputAmount } = trade
+    const route = (trade as any).route
+
+    const swapCalls = {
+      token_in: route.input.address,
+      token_out: route.output.address,
+      fee: route.pools[0].fee,
+      recipient: address,
+      deadline: cairo.felt(deadline.toString()),
+      amount_in: cairo.uint256(inputAmount.raw.toString()),
+      amount_out_minimum: cairo.uint256(0),
+      sqrt_price_limit_X96: cairo.uint256(0),
     }
-    if (preTaxStablecoinPriceImpact && !confirmPriceImpactWithoutFee(preTaxStablecoinPriceImpact)) {
-      return
+
+    const compiledSwapCalls = CallData.compile(swapCalls)
+
+    const calls = {
+      contractAddress: SWAP_ROUTER_ADDRESS,
+      entrypoint: 'exact_input_single',
+      calldata: compiledSwapCalls,
     }
-    swapCallback()
-      .then((result) => {
-        setSwapState((currentState) => ({
-          ...currentState,
-          swapError: undefined,
-          swapResult: result,
-        }))
-      })
-      .catch((error) => {
-        setSwapState((currentState) => ({
-          ...currentState,
-          swapError: error,
-          swapResult: undefined,
-        }))
-      })
+
+    setSwapCallData([handleApproval, calls])
   }, [swapCallback, preTaxStablecoinPriceImpact])
 
   const handleOnWrap = useCallback(async () => {
