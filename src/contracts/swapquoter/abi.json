@@ -1,0 +1,240 @@
+[
+  {
+    "name": "JediSwapV2SwapQuoterImpl",
+    "type": "impl",
+    "interface_name": "jediswap_v2_periphery::jediswap_v2_swap_quoter::IJediSwapV2SwapQuoter"
+  },
+  {
+    "name": "core::integer::u256",
+    "type": "struct",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "name": "jediswap_v2_periphery::jediswap_v2_swap_quoter::QuoteExactInputSingleParams",
+    "type": "struct",
+    "members": [
+      {
+        "name": "token_in",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "token_out",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "fee",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "amount_in",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "sqrt_price_limit_X96",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "name": "jediswap_v2_periphery::jediswap_v2_swap_quoter::QuoteExactInputParams",
+    "type": "struct",
+    "members": [
+      {
+        "name": "path",
+        "type": "core::array::Array::<core::felt252>"
+      },
+      {
+        "name": "amount_in",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "name": "jediswap_v2_periphery::jediswap_v2_swap_quoter::QuoteExactOutputSingleParams",
+    "type": "struct",
+    "members": [
+      {
+        "name": "token_in",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "token_out",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "fee",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "amount_out",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "sqrt_price_limit_X96",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "name": "jediswap_v2_periphery::jediswap_v2_swap_quoter::QuoteExactOutputParams",
+    "type": "struct",
+    "members": [
+      {
+        "name": "path",
+        "type": "core::array::Array::<core::felt252>"
+      },
+      {
+        "name": "amount_out",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "name": "core::bool",
+    "type": "enum",
+    "variants": [
+      {
+        "name": "False",
+        "type": "()"
+      },
+      {
+        "name": "True",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "name": "yas_core::numbers::signed_integer::i256::i256",
+    "type": "struct",
+    "members": [
+      {
+        "name": "mag",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "sign",
+        "type": "core::bool"
+      }
+    ]
+  },
+  {
+    "name": "core::array::Span::<core::felt252>",
+    "type": "struct",
+    "members": [
+      {
+        "name": "snapshot",
+        "type": "@core::array::Array::<core::felt252>"
+      }
+    ]
+  },
+  {
+    "name": "jediswap_v2_periphery::jediswap_v2_swap_quoter::IJediSwapV2SwapQuoter",
+    "type": "interface",
+    "items": [
+      {
+        "name": "get_factory",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "quote_exact_input_single",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "params",
+            "type": "jediswap_v2_periphery::jediswap_v2_swap_quoter::QuoteExactInputSingleParams"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "view"
+      },
+      {
+        "name": "quote_exact_input",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "params",
+            "type": "jediswap_v2_periphery::jediswap_v2_swap_quoter::QuoteExactInputParams"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "view"
+      },
+      {
+        "name": "quote_exact_output_single",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "params",
+            "type": "jediswap_v2_periphery::jediswap_v2_swap_quoter::QuoteExactOutputSingleParams"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "view"
+      },
+      {
+        "name": "quote_exact_output",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "params",
+            "type": "jediswap_v2_periphery::jediswap_v2_swap_quoter::QuoteExactOutputParams"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "view"
+      },
+      {
+        "name": "jediswap_v2_swap_callback",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "amount0_delta",
+            "type": "yas_core::numbers::signed_integer::i256::i256"
+          },
+          {
+            "name": "amount1_delta",
+            "type": "yas_core::numbers::signed_integer::i256::i256"
+          },
+          {
+            "name": "callback_data_span",
+            "type": "core::array::Span::<core::felt252>"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "name": "constructor",
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "factory",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "jediswap_v2_periphery::jediswap_v2_swap_quoter::JediSwapV2SwapQuoter::Event",
+    "type": "event",
+    "variants": []
+  }
+]

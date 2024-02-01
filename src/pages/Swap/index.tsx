@@ -310,6 +310,7 @@ export function Swap({
   }, [connectedChainId, prefilledState, previousConnectedChainId, previousPrefilledState])
 
   const swapInfo = useDerivedSwapInfo(state, chainId, allPools)
+  console.log('🚀 ~ swapInfo:', swapInfo)
   const {
     trade: { state: tradeState, trade, swapQuoteLatency },
     allowedSlippage,
@@ -775,14 +776,14 @@ export function Swap({
           )}
         </div>
 
-        {showDetailsDropdown && (
+        {/* {showDetailsDropdown && (
           <SwapDetailsDropdown
             trade={trade}
             syncing={routeIsSyncing}
             loading={routeIsLoading}
             allowedSlippage={allowedSlippage}
           />
-        )}
+        )} */}
         {showPriceImpactWarning && <PriceImpactWarning priceImpact={largerPriceImpact} />}
       </AutoColumn>
     </SwapWrapper>

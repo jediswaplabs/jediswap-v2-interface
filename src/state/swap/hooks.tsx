@@ -133,21 +133,20 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     [inputCurrency, isExactIn, outputCurrency, typedValue]
   )
 
-  const bestV3TradeExactIn = useBestV3TradeExactIn(
-    allPools,
-    isExactIn ? parsedAmount : undefined,
-    outputCurrency ?? undefined
-  )
+  const trade = useBestV3TradeExactIn(allPools, isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined)
+  //   inputAmount.token.equals(this.token0) ? this.token1 : this.token0,
+  //   trade?.trade?.outputAmount
+  // ))
 
-  const trade = useDebouncedTrade(
-    isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
-    parsedAmount,
-    (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
-    undefined,
-    account,
-    inputTax,
-    outputTax
-  )
+  // const trade = useDebouncedTrade(
+  //   isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
+  //   parsedAmount,
+  //   (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
+  //   undefined,
+  //   account,
+  //   inputTax,
+  //   outputTax
+  // )
 
   const { data: outputFeeFiatValue } = useUSDPrice(undefined, trade.trade?.outputAmount.currency)
 
