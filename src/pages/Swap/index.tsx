@@ -65,11 +65,12 @@ import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
 import { SWAP_ROUTER_ADDRESS, getSwapCurrencyId } from 'constants/tokens'
 import fetchAllPools from 'api/fetchAllPools'
-import { Call, CallData, cairo, validateAndParseAddress } from 'starknet'
+import { Call, CallData, cairo, num, validateAndParseAddress } from 'starknet'
 import { LoadingRows } from 'components/Loader/styled'
 import { useContractWrite } from '@starknet-react/core'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useApprovalCall } from 'hooks/useApproveCall'
+import { toHex } from '@vnaysn/jediswap-sdk-v3'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -531,12 +532,19 @@ export function Swap({
   )
   const approveCallback = useApprovalCall(amountToApprove, SWAP_ROUTER_ADDRESS)
 
+  // function toHex(currencyAmount: CurrencyAmount<Currency>) {
+  //   return `0x${currencyAmount.raw.toString(16)}`
+  // }
+
   const handleSwap = useCallback(() => {
     if (!trade || !address || !deadline) return
     const handleApproval = approveCallback()
     if (!handleApproval) return
     const { inputAmount, outputAmount } = trade
     const route = (trade as any).route
+
+    const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
+    const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
 
     const swapCalls = {
       token_in: route.input.address,
@@ -545,7 +553,7 @@ export function Swap({
       recipient: address,
       deadline: cairo.felt(deadline.toString()),
       amount_in: cairo.uint256(inputAmount.raw.toString()),
-      amount_out_minimum: cairo.uint256(0),
+      amount_out_minimum: cairo.uint256(amountOut),
       sqrt_price_limit_X96: cairo.uint256(0),
     }
 
