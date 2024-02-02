@@ -70,7 +70,7 @@ import { LoadingRows } from 'components/Loader/styled'
 import { useContractWrite } from '@starknet-react/core'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useApprovalCall } from 'hooks/useApproveCall'
-import { toHex } from '@vnaysn/jediswap-sdk-v3'
+import { TradeType, toHex } from '@vnaysn/jediswap-sdk-v3'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -532,41 +532,59 @@ export function Swap({
   )
   const approveCallback = useApprovalCall(amountToApprove, SWAP_ROUTER_ADDRESS)
 
-  // function toHex(currencyAmount: CurrencyAmount<Currency>) {
-  //   return `0x${currencyAmount.raw.toString(16)}`
-  // }
-
   const handleSwap = useCallback(() => {
     if (!trade || !address || !deadline) return
     const handleApproval = approveCallback()
     if (!handleApproval) return
     const { inputAmount, outputAmount } = trade
     const route = (trade as any).route
-
+    const callData = []
+    callData.push(handleApproval)
     const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
+    if (trade.tradeType === TradeType.EXACT_INPUT) {
+      const exactInputSingleParams = {
+        token_in: route.tokenPath[0].address,
+        token_out: route.tokenPath[1].address,
+        fee: route.pools[0].fee,
+        recipient: address,
+        deadline: cairo.felt(deadline.toString()),
+        amount_in: cairo.uint256(inputAmount.raw.toString()),
+        amount_out_minimum: cairo.uint256(amountOut),
+        sqrt_price_limit_X96: cairo.uint256(0),
+      }
+      const compiledSwapCalls = CallData.compile(exactInputSingleParams)
 
-    const swapCalls = {
-      token_in: route.input.address,
-      token_out: route.output.address,
-      fee: route.pools[0].fee,
-      recipient: address,
-      deadline: cairo.felt(deadline.toString()),
-      amount_in: cairo.uint256(inputAmount.raw.toString()),
-      amount_out_minimum: cairo.uint256(amountOut),
-      sqrt_price_limit_X96: cairo.uint256(0),
+      const calls = {
+        contractAddress: SWAP_ROUTER_ADDRESS,
+        entrypoint: 'exact_input_single',
+        calldata: compiledSwapCalls,
+      }
+      callData.push(calls)
+    } else {
+      const exactOutputSingleParams = {
+        token_in: route.tokenPath[0].address,
+        token_out: route.tokenPath[1].address,
+        fee: route.pools[0].fee,
+        recipient: address,
+        deadline: cairo.felt(deadline.toString()),
+        amount_out: cairo.uint256(outputAmount.raw.toString()),
+        amount_in_maximum: cairo.uint256(amountIn),
+        sqrt_price_limit_X96: cairo.uint256(0),
+      }
+
+      const compiledSwapCalls = CallData.compile(exactOutputSingleParams)
+
+      const calls = {
+        contractAddress: SWAP_ROUTER_ADDRESS,
+        entrypoint: 'exact_output_single',
+        calldata: compiledSwapCalls,
+      }
+      callData.push(calls)
     }
 
-    const compiledSwapCalls = CallData.compile(swapCalls)
-
-    const calls = {
-      contractAddress: SWAP_ROUTER_ADDRESS,
-      entrypoint: 'exact_input_single',
-      calldata: compiledSwapCalls,
-    }
-
-    setSwapCallData([handleApproval, calls])
-  }, [swapCallback, preTaxStablecoinPriceImpact])
+    setSwapCallData(callData)
+  }, [trade, address, deadline, approveCallback])
 
   const handleOnWrap = useCallback(async () => {
     if (!onWrap) {

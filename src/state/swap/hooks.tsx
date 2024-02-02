@@ -25,7 +25,7 @@ import { useCurrencyBalances } from '../connection/hooks'
 import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies, typeInput } from './actions'
 import { SwapState } from './reducer'
 import { isAddressValidForStarknet } from 'utils/addresses'
-import { useBestV3TradeExactIn } from 'hooks/useBestV3Trade'
+import { useBestV3TradeExactIn, useBestV3TradeExactOut } from 'hooks/useBestV3Trade'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
@@ -133,7 +133,18 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     [inputCurrency, isExactIn, outputCurrency, typedValue]
   )
 
-  const trade = useBestV3TradeExactIn(allPools, isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined)
+  const bestV3TradeExactIn = useBestV3TradeExactIn(
+    allPools,
+    isExactIn ? parsedAmount : undefined,
+    outputCurrency ?? undefined
+  )
+  const bestV3TradeExactOut = useBestV3TradeExactOut(
+    allPools,
+    inputCurrency ?? undefined,
+    !isExactIn ? parsedAmount : undefined
+  )
+  const trade = isExactIn ? bestV3TradeExactIn : bestV3TradeExactOut
+
   //   inputAmount.token.equals(this.token0) ? this.token1 : this.token0,
   //   trade?.trade?.outputAmount
   // ))

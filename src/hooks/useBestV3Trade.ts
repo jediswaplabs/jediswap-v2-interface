@@ -104,7 +104,7 @@ export function useBestV3TradeExactIn(
       }
     }
 
-    const bestRoute = routes[0]
+    const bestRoute = routes[1]
     const amountOut = failureReason?.toString()
 
     // const { bestRoute, amountOut } = quotesResults.reduce(
@@ -157,79 +157,106 @@ export function useBestV3TradeExactIn(
  * @param currencyIn the desired input currency
  * @param amountOut the amount to swap out
  */
-export function useBestV3TradeExactOut(allPools: string[], currencyIn?: Currency, amountOut?: any) {
+export function useBestV3TradeExactOut(
+  allPools: string[],
+  currencyIn?: Currency,
+  amountOut?: any
+): { state: TradeState; trade: any | null } {
   // : { state: V3TradeState; trade: any | null }
   // const quoter = useV3Quoter()
   const { routes, loading: routesLoading } = useAllV3Routes(allPools, currencyIn, amountOut?.currency)
 
-  // const quoteExactOutInputs = useMemo(() => {
-  //   return routes.map((route) => [
-  //     encodeRouteToPath(route, true),
-  //     amountOut ? `0x${amountOut.raw.toString(16)}` : undefined,
-  //   ])
-  // }, [amountOut, routes])
+  const quoteExactInInputs = useMemo(() => {
+    if (routesLoading || !amountOut) return []
+    return routes.map((route: Route<Currency, Currency>, index: number) => {
+      const isCurrencyInFirst = amountOut?.currency?.address === route.pools[0].token0.address
+      const sortedTokens = isCurrencyInFirst
+        ? [route.pools[0].token0.address, route.pools[0].token1.address]
+        : [route.pools[0].token1.address, route.pools[0].token0.address]
+      return {
+        path: [...sortedTokens, route.pools[0].fee],
+        amountOut: amountOut ? cairo.uint256(`0x${amountOut.raw.toString(16)}`) : 0,
+      }
+    })
+  }, [routes])
 
-  // const quotesResults = useSingleContractMultipleData(quoter, 'quoteExactOutput', quoteExactOutInputs)
+  const callData = useMemo(() => {
+    if (!quoteExactInInputs || !quoteExactInInputs.length) return
+    return quoteExactInInputs[0]
+  }, [quoteExactInInputs])
 
-  // return useMemo(() => {
-  //   if (!amountOut || !currencyIn || quotesResults.some(({ valid }) => !valid)) {
-  //     return {
-  //       state: V3TradeState.INVALID,
-  //       trade: null,
-  //     }
-  //   }
+  const compiledCallData = useMemo(() => {
+    if (!callData) return
+    return CallData.compile(callData)
+  }, [callData])
 
-  //   if (routesLoading || quotesResults.some(({ loading }) => loading)) {
-  //     return {
-  //       state: V3TradeState.LOADING,
-  //       trade: null,
-  //     }
-  //   }
+  const { data, error } = useQuoteExactInput(compiledCallData)
 
-  //   const { bestRoute, amountIn } = quotesResults.reduce(
-  //     (currentBest: { bestRoute: Route | null; amountIn: BigNumber | null }, { result }, i) => {
-  //       if (!result) return currentBest
+  return useMemo(() => {
+    if (!amountOut || !currencyIn || !error) {
+      return {
+        state: TradeState.INVALID,
+        trade: null,
+      }
+    }
 
-  //       if (currentBest.amountIn === null) {
-  //         return {
-  //           bestRoute: routes[i],
-  //           amountIn: result.amountIn,
-  //         }
-  //       } else if (currentBest.amountIn.gt(result.amountIn)) {
-  //         return {
-  //           bestRoute: routes[i],
-  //           amountIn: result.amountIn,
-  //         }
-  //       }
+    const errorString = error?.message
 
-  //       return currentBest
-  //     },
-  //     {
-  //       bestRoute: null,
-  //       amountIn: null,
-  //     }
-  //   )
+    // Use a regular expression to extract the value
+    const match = errorString.match(/Failure reason: (0x[0-9a-fA-F]+)/)
 
-  //   if (!bestRoute || !amountIn) {
-  //     return {
-  //       state: V3TradeState.NO_ROUTE_FOUND,
-  //       trade: null,
-  //     }
-  //   }
+    // Check if there's a match and retrieve the value
+    const failureReason = match ? match[1] : null
 
-  //   const isSyncing = quotesResults.some(({ syncing }) => syncing)
+    if (routesLoading) {
+      return {
+        state: TradeState.LOADING,
+        trade: null,
+      }
+    }
 
-  //   return {
-  //     state: isSyncing ? V3TradeState.SYNCING : V3TradeState.VALID,
-  //     trade: Trade.createUncheckedTrade({
-  //       route: bestRoute,
-  //       tradeType: TradeType.EXACT_OUTPUT,
-  //       inputAmount:
-  //         currencyIn instanceof Token
-  //           ? new TokenAmount(currencyIn, amountIn.toString())
-  //           : CurrencyAmount.ether(amountIn.toString()),
-  //       outputAmount: amountOut,
-  //     }),
-  //   }
-  // }, [amountOut, currencyIn, quotesResults, routes, routesLoading])
+    const bestRoute = routes[1]
+    const amountIn = failureReason?.toString()
+
+    // const { bestRoute, amountOut } = quotesResults.reduce(
+    //   (currentBest: { bestRoute: Route | null; amountOut: BigNumber | null }, { result }, i) => {
+    //     if (!result) return currentBest
+
+    //     if (currentBest.amountOut === null) {
+    //       return {
+    //         bestRoute: routes[i],
+    //         amountOut: result.amountOut,
+    //       }
+    //     } else if (currentBest.amountOut.lt(result.amountOut)) {
+    //       return {
+    //         bestRoute: routes[i],
+    //         amountOut: result.amountOut,
+    //       }
+    //     }
+
+    //     return currentBest
+    //   },
+    //   {
+    //     bestRoute: null,
+    //     amountOut: null,
+    //   }
+    // )
+
+    if (!bestRoute || !amountIn) {
+      return {
+        state: TradeState.NO_ROUTE_FOUND,
+        trade: null,
+      }
+    }
+
+    return {
+      state: TradeState.VALID,
+      trade: Trade.createUncheckedTrade({
+        route: bestRoute,
+        tradeType: TradeType.EXACT_OUTPUT,
+        inputAmount: CurrencyAmount.fromRawAmount(currencyIn, num.hexToDecimalString(amountIn)),
+        outputAmount: amountOut,
+      }),
+    }
+  }, [amountOut, currencyIn, routes, routesLoading])
 }
