@@ -32,6 +32,18 @@ const useQuoteExactInput = (compiledCallData: any) => {
   return { data, error }
 }
 
+const useQuoteExactOutput = (compiledCallData: any) => {
+  const { data, isError, error } = useContractRead({
+    functionName: 'quote_exact_output',
+    args: [compiledCallData],
+    abi: SWAP_QUOTER_ABI,
+    address: SWAP_QUOTER_ADDRESS,
+    watch: true,
+  })
+
+  return { data, error }
+}
+
 /**
  * Returns the best v3 trade for a desired exact input swap
  * @param amountIn the amount to swap in
@@ -166,13 +178,13 @@ export function useBestV3TradeExactOut(
   // const quoter = useV3Quoter()
   const { routes, loading: routesLoading } = useAllV3Routes(allPools, currencyIn, amountOut?.currency)
 
-  const quoteExactInInputs = useMemo(() => {
+  const quoteExactOutInputs = useMemo(() => {
     if (routesLoading || !amountOut) return []
     return routes.map((route: Route<Currency, Currency>, index: number) => {
       const isCurrencyInFirst = amountOut?.currency?.address === route.pools[0].token0.address
       const sortedTokens = isCurrencyInFirst
-        ? [route.pools[0].token0.address, route.pools[0].token1.address]
-        : [route.pools[0].token1.address, route.pools[0].token0.address]
+        ? [route.pools[0].token1.address, route.pools[0].token0.address]
+        : [route.pools[0].token0.address, route.pools[0].token1.address]
       return {
         path: [...sortedTokens, route.pools[0].fee],
         amountOut: amountOut ? cairo.uint256(`0x${amountOut.raw.toString(16)}`) : 0,
@@ -181,16 +193,16 @@ export function useBestV3TradeExactOut(
   }, [routes])
 
   const callData = useMemo(() => {
-    if (!quoteExactInInputs || !quoteExactInInputs.length) return
-    return quoteExactInInputs[0]
-  }, [quoteExactInInputs])
+    if (!quoteExactOutInputs || !quoteExactOutInputs.length) return
+    return quoteExactOutInputs[0]
+  }, [quoteExactOutInputs])
 
   const compiledCallData = useMemo(() => {
     if (!callData) return
     return CallData.compile(callData)
   }, [callData])
 
-  const { data, error } = useQuoteExactInput(compiledCallData)
+  const { data, error } = useQuoteExactOutput(compiledCallData)
 
   return useMemo(() => {
     if (!amountOut || !currencyIn || !error) {
@@ -215,7 +227,7 @@ export function useBestV3TradeExactOut(
       }
     }
 
-    const bestRoute = routes[1]
+    const bestRoute = routes[0]
     const amountIn = failureReason?.toString()
 
     // const { bestRoute, amountOut } = quotesResults.reduce(
