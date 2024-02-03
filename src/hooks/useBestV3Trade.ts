@@ -116,7 +116,7 @@ export function useBestV3TradeExactIn(
       }
     }
 
-    const bestRoute = routes[1]
+    const bestRoute = routes[0]
     const amountOut = failureReason?.toString()
 
     // const { bestRoute, amountOut } = quotesResults.reduce(
@@ -183,8 +183,9 @@ export function useBestV3TradeExactOut(
     return routes.map((route: Route<Currency, Currency>, index: number) => {
       const isCurrencyInFirst = amountOut?.currency?.address === route.pools[0].token0.address
       const sortedTokens = isCurrencyInFirst
-        ? [route.pools[0].token1.address, route.pools[0].token0.address]
-        : [route.pools[0].token0.address, route.pools[0].token1.address]
+        ? [route.pools[0].token0.address, route.pools[0].token1.address]
+        : [route.pools[0].token1.address, route.pools[0].token0.address]
+
       return {
         path: [...sortedTokens, route.pools[0].fee],
         amountOut: amountOut ? cairo.uint256(`0x${amountOut.raw.toString(16)}`) : 0,
