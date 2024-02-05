@@ -17,7 +17,7 @@ const V2_DEFAULT_FEE_TIER = 3000
  */
 export default function getRoutingDiagramEntries(trade: ClassicTrade): RoutingDiagramEntry[] {
   return trade.swaps.map(({ route, inputAmount, outputAmount }) => {
-    const { pools, path: tokenPath, protocol } = route
+    const { pools, tokenPath, protocol } = route as any
     const portion =
       trade.tradeType === TradeType.EXACT_INPUT
         ? inputAmount.divide(trade.inputAmount)

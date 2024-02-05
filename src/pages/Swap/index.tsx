@@ -837,14 +837,14 @@ export function Swap({
           )}
         </div>
 
-        {/* {showDetailsDropdown && (
+        {showDetailsDropdown && (
           <SwapDetailsDropdown
             trade={trade}
             syncing={routeIsSyncing}
             loading={routeIsLoading}
             allowedSlippage={allowedSlippage}
           />
-        )} */}
+        )}
         {showPriceImpactWarning && <PriceImpactWarning priceImpact={largerPriceImpact} />}
       </AutoColumn>
     </SwapWrapper>
