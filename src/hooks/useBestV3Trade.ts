@@ -13,6 +13,7 @@ import { ec, hash, json, Contract, WeierstrassSignatureType } from 'starknet'
 import { useAccountDetails } from './starknet-react'
 import { useApprovalCall } from './useApproveCall'
 import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
+import useTransactionDeadline from './useTransactionDeadline'
 // import { useV3Quoter } from './useContract'
 
 export enum V3TradeState {
@@ -41,6 +42,7 @@ export function useBestV3TradeExactIn(
   amountIn?: any,
   currencyOut?: Currency
 ): { state: TradeState; trade: any | null } {
+  const deadline = useTransactionDeadline()
   const { routes, loading: routesLoading } = useAllV3Routes(allPools, amountIn?.currency, currencyOut)
   // State to store the resolved result
 
@@ -52,7 +54,7 @@ export function useBestV3TradeExactIn(
 
   const { account, address } = useAccountDetails()
   const quoteExactInInputs = useMemo(() => {
-    if (routesLoading || !amountIn || !address || !routes) return [{}]
+    if (routesLoading || !amountIn || !address || !routes || !deadline) return [{}]
     return routes.map((route: Route<Currency, Currency>) => {
       const isRouteSingleHop = route.pools.length === 1
 
@@ -60,7 +62,7 @@ export function useBestV3TradeExactIn(
       if (!isRouteSingleHop) {
         const firstInputToken: Token = route.input.wrapped
         //create path
-        const { path, types } = route.pools.reduce(
+        const { path } = route.pools.reduce(
           (
             { inputToken, path, types }: { inputToken: Token; path: (string | number)[]; types: string[] },
             pool: Pool,
@@ -91,7 +93,7 @@ export function useBestV3TradeExactIn(
           call_data_length: path.length + 7,
           path,
           recipient: address,
-          deadline: cairo.felt('0x6bb311a1'),
+          deadline: cairo.felt(deadline.toString()),
           amount_in: amountIn ? cairo.uint256(`0x${amountIn.raw.toString(16)}`) : 0,
           amount_out_minimum: cairo.uint256(0),
         }
@@ -110,7 +112,7 @@ export function useBestV3TradeExactIn(
           token_out: sortedTokens[1],
           fee: route.pools[0].fee,
           recipient: address,
-          deadline: cairo.felt('0x6bb311a1'),
+          deadline: cairo.felt(deadline.toString()),
           amount_in: amountIn ? cairo.uint256(`0x${amountIn.raw.toString(16)}`) : 0,
           amount_out_minimum: cairo.uint256(0),
           sqrt_price_limit_X96: cairo.uint256(0),
@@ -154,7 +156,11 @@ export function useBestV3TradeExactIn(
 
   const msgHash = hash.computeHashOnElements(message)
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
-
+  // const nonces = useMemo(async () => {
+  //   if (!account) return
+  //   const response = await account.getNonce()
+  //   return response
+  // }, [account])
   const callsArr = useMemo(() => {
     if (!nonce || !quoteExactInInputs || !quoteExactInInputs.length) return
     const results = quoteExactInInputs.map((input, index) => {
@@ -234,33 +240,12 @@ export function useBestV3TradeExactIn(
           return currentBest
         }, bestRouteResults)
       })
-
       return bestRouteResults
     } catch (error) {
       console.error('Error resolving promises:', error)
       return null
     }
   }, [amountOutResults])
-
-  // useEffect(() => {
-  //   // Define an async function within useEffect
-  //   async function fetchData() {
-  //     try {
-  //       // Check if filteredAmountOutResults is truthy
-  //       if (filteredAmountOutResults) {
-  //         // Await the resolved value from the promise
-  //         const result = await filteredAmountOutResults
-  //         // Update the state with the resolved result
-  //         setResultProps(result)
-  //       }
-  //     } catch (error) {
-  //       console.error('Error resolving promise:', error)
-  //     }
-  //   }
-
-  //   // Call the async function
-  //   fetchData()
-  // }, [filteredAmountOutResults])
 
   return useMemo(() => {
     if (!amountIn || !currencyOut || !filteredAmountOutResults) {
@@ -318,10 +303,11 @@ export function useBestV3TradeExactOut(
 ): { state: TradeState; trade: any | null } {
   // : { state: V3TradeState; trade: any | null }
   // const quoter = useV3Quoter()
+  const deadline = useTransactionDeadline()
   const { routes, loading: routesLoading } = useAllV3Routes(allPools, currencyIn, amountOut?.currency)
   const { address, account } = useAccountDetails()
   const quoteExactOutInputs = useMemo(() => {
-    if (routesLoading || !amountOut || !address || !routes) return [{}]
+    if (routesLoading || !amountOut || !address || !routes || !deadline) return [{}]
     return routes.map((route: Route<Currency, Currency>) => {
       const isRouteSingleHop = route.pools.length === 1
 
@@ -362,7 +348,7 @@ export function useBestV3TradeExactOut(
           call_data_length: reversePath.length + 7,
           path: reversePath,
           recipient: address,
-          deadline: cairo.felt('0x6bb311a1'),
+          deadline: cairo.felt(deadline.toString()),
           amount_out: amountOut ? cairo.uint256(`0x${amountOut.raw.toString(16)}`) : 0,
           amount_in_maximum: cairo.uint256(2 ** 128),
         }
@@ -381,7 +367,7 @@ export function useBestV3TradeExactOut(
           token_out: sortedTokens[0],
           fee: route.pools[0].fee,
           recipient: address,
-          deadline: cairo.felt('0x6bb311a1'),
+          deadline: cairo.felt(deadline.toString()),
           amount_out: amountOut ? cairo.uint256(`0x${amountOut.raw.toString(16)}`) : 0,
           amount_in_maximum: cairo.uint256(2 ** 128),
           sqrt_price_limit_X96: cairo.uint256(0),
@@ -530,30 +516,6 @@ export function useBestV3TradeExactOut(
 
     const bestRoute = null
     const amountIn = null
-
-    // const { bestRoute, amountOut } = quotesResults.reduce(
-    //   (currentBest: { bestRoute: Route | null; amountOut: BigNumber | null }, { result }, i) => {
-    //     if (!result) return currentBest
-
-    //     if (currentBest.amountOut === null) {
-    //       return {
-    //         bestRoute: routes[i],
-    //         amountOut: result.amountOut,
-    //       }
-    //     } else if (currentBest.amountOut.lt(result.amountOut)) {
-    //       return {
-    //         bestRoute: routes[i],
-    //         amountOut: result.amountOut,
-    //       }
-    //     }
-
-    //     return currentBest
-    //   },
-    //   {
-    //     bestRoute: null,
-    //     amountOut: null,
-    //   }
-    // )
 
     if (!bestRoute || !amountIn) {
       return {
