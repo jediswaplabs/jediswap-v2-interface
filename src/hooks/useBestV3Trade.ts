@@ -162,7 +162,6 @@ export function useBestV3TradeExactIn(
     },
     onSuccess: (data) => {
       // Handle the successful data fetching here if needed
-      console.log('🚀 ~ onSuccess ~ data:', data)
     },
   })
 
@@ -235,28 +234,28 @@ export function useBestV3TradeExactIn(
     const data = amountOutResults?.data
 
     if (!data) return
-
+    const subRoutesArray = data.map((subArray) => subArray[1])
     const bestRouteResults = { bestRoute: null, amountOut: null }
-
-    data.forEach((results) => {
-      const { bestRoute, amountOut } = results.reduce((currentBest: any, result: any, i: any) => {
-        const selected_tx: any = results[1]
-        const selected_tx_result = selected_tx?.transaction_trace?.execute_invocation?.result
-        const amountOut = fromUint256ToNumber({ high: selected_tx_result[2], low: selected_tx_result[3] })
-
-        if (!result) return currentBest
-        if (currentBest.amountOut === null) {
-          bestRouteResults.bestRoute = routes[i]
-          bestRouteResults.amountOut = amountOut
-        } else if (Number(cairo.felt(currentBest.amountOut)) < Number(cairo.felt(amountOut))) {
-          bestRouteResults.bestRoute = routes[i]
-          bestRouteResults.amountOut = amountOut
+    const { bestRoute, amountOut } = subRoutesArray.reduce((currentBest: any, result: any, i: any) => {
+      const selected_tx_result = result?.transaction_trace?.execute_invocation?.result
+      const amountOut = fromUint256ToNumber({ high: selected_tx_result[2], low: selected_tx_result[3] })
+      if (!result) return currentBest
+      if (currentBest.amountOut === null) {
+        return {
+          bestRoute: routes[i],
+          amountOut,
         }
+      } else if (Number(cairo.felt(currentBest.amountOut)) < Number(cairo.felt(amountOut))) {
+        return {
+          bestRoute: routes[i],
+          amountOut,
+        }
+      }
 
-        return currentBest
-      }, bestRouteResults)
-    })
-    return bestRouteResults
+      return currentBest
+    }, bestRouteResults)
+
+    return { bestRoute, amountOut }
   }, [amountOutResults])
 
   const { bestRoute, amountOut } = useMemo(() => {
@@ -427,7 +426,6 @@ export function useBestV3TradeExactOut(
     },
     onSuccess: (data) => {
       // Handle the successful data fetching here if needed
-      console.log('🚀 ~ onSuccess ~ data:', data)
     },
   })
 
@@ -488,7 +486,6 @@ export function useBestV3TradeExactOut(
     },
     onSuccess: (data) => {
       // Handle the successful data fetching here if needed
-      console.log('🚀 ~ onSuccess ~ data:', data)
     },
   })
 
@@ -503,29 +500,28 @@ export function useBestV3TradeExactOut(
     const data = amountInResults?.data
 
     if (!data) return
-
+    const subRoutesArray = data.map((subArray) => subArray[1])
     const bestRouteResults = { bestRoute: null, amountIn: null }
-
-    data.forEach((results) => {
-      const { bestRoute, amountIn } = results.reduce((currentBest: any, result: any, i: any) => {
-        const selected_tx = results[1]
-        const selected_tx_result = selected_tx?.transaction_trace?.execute_invocation?.result
-        const amountIn = fromUint256ToNumber({ high: selected_tx_result[2], low: selected_tx_result[3] })
-
-        if (!result) return currentBest
-        if (currentBest.amountIn === null) {
-          bestRouteResults.bestRoute = routes[i]
-          bestRouteResults.amountIn = amountIn
-        } else if (Number(cairo.felt(currentBest.amountIn)) < Number(cairo.felt(amountIn))) {
-          bestRouteResults.bestRoute = routes[i]
-          bestRouteResults.amountIn = amountIn
+    const { bestRoute, amountIn } = subRoutesArray.reduce((currentBest: any, result: any, i: any) => {
+      const selected_tx_result = result?.transaction_trace?.execute_invocation?.result
+      const amountIn = fromUint256ToNumber({ high: selected_tx_result[2], low: selected_tx_result[3] })
+      if (!result) return currentBest
+      if (currentBest.amountIn === null) {
+        return {
+          bestRoute: routes[i],
+          amountIn,
         }
+      } else if (Number(cairo.felt(currentBest.amountIn)) < Number(cairo.felt(amountIn))) {
+        return {
+          bestRoute: routes[i],
+          amountIn,
+        }
+      }
 
-        return currentBest
-      }, bestRouteResults)
-    })
+      return currentBest
+    }, bestRouteResults)
 
-    return bestRouteResults
+    return { bestRoute, amountIn }
   }, [amountInResults])
 
   const { bestRoute, amountIn } = useMemo(() => {

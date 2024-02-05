@@ -42,6 +42,7 @@ import { PendingConfirmModalState, PendingModalContent } from './PendingModalCon
 import { ErrorModalContent, PendingModalError } from './PendingModalContent/ErrorModalContent'
 import SwapModalFooter from './SwapModalFooter'
 import SwapModalHeader from './SwapModalHeader'
+import { InvokeFunctionResponse } from 'starknet'
 
 export enum ConfirmModalState {
   REVIEWING,
@@ -273,6 +274,7 @@ export default function ConfirmSwapModal({
   swapResult,
   fiatValueInput,
   fiatValueOutput,
+  txData,
 }: {
   trade: InterfaceTrade
   inputCurrency?: Currency
@@ -288,6 +290,7 @@ export default function ConfirmSwapModal({
   onCurrencySelection: (field: Field, currency: Currency) => void
   fiatValueInput: { data?: number; isLoading: boolean }
   fiatValueOutput: { data?: number; isLoading: boolean }
+  txData: InvokeFunctionResponse | undefined
 }) {
   const { chainId } = useAccountDetails()
   const doesTradeDiffer = false
@@ -305,6 +308,7 @@ export default function ConfirmSwapModal({
     })
 
   const swapStatus = useSwapTransactionStatus(swapResult)
+  const swapTxStatus = !txData ? 'PENDING' : txData?.transaction_hash ? 'CONFIRMED' : 'FAILED'
 
   // Swap was reverted onchain.
   const swapReverted = swapStatus === TransactionStatus.Failed

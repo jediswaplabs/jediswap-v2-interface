@@ -236,7 +236,6 @@ export function Swap({
 
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
   const [showPriceImpactModal, setShowPriceImpactModal] = useState<boolean>(false)
-  const [txHash, setTxHash] = useState<string>('')
 
   const urlLoadedTokens: Token[] = useMemo(
     () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c?.isToken ?? false) ?? [],
@@ -516,7 +515,6 @@ export function Swap({
       writeAsync()
         .then((response) => {
           if (response?.transaction_hash) {
-            setTxHash(response.transaction_hash)
           }
         })
         .catch((err) => {
@@ -705,6 +703,7 @@ export function Swap({
           onDismiss={handleConfirmDismiss}
           fiatValueInput={fiatValueTradeInput}
           fiatValueOutput={fiatValueTradeOutput}
+          txData={txData}
         />
       )}
       {showPriceImpactModal && showPriceImpactWarning && (
