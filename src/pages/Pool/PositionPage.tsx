@@ -789,7 +789,7 @@ function PositionPageContent() {
                 </ThemedText.DeprecatedLabel>
                 <Badge style={{ marginRight: '8px' }}>
                   <BadgeText>
-                    <Trans>{new Percent(feeAmount, 1_000_000_00).toSignificant()}%</Trans>
+                    <Trans>{new Percent(feeAmount, 1_000_000).toSignificant()}%</Trans>
                   </BadgeText>
                 </Badge>
                 <RangeBadge removed={removed} inRange={inRange} />
