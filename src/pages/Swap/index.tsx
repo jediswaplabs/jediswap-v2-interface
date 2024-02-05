@@ -236,6 +236,7 @@ export function Swap({
 
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
   const [showPriceImpactModal, setShowPriceImpactModal] = useState<boolean>(false)
+  const [txHash, setTxHash] = useState<string>('')
 
   const urlLoadedTokens: Token[] = useMemo(
     () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c?.isToken ?? false) ?? [],
@@ -514,14 +515,12 @@ export function Swap({
     if (swapCallData) {
       writeAsync()
         .then((response) => {
-          // setAttemptingTxn(false)
-          // if (response?.transaction_hash) {
-          //   setTxHash(response.transaction_hash)
-          // }
+          if (response?.transaction_hash) {
+            setTxHash(response.transaction_hash)
+          }
         })
         .catch((err) => {
           console.log(err?.message)
-          // setAttemptingTxn(false)
         })
     }
   }, [swapCallData])

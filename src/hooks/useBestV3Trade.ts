@@ -14,6 +14,7 @@ import { useAccountDetails } from './starknet-react'
 import { useApprovalCall } from './useApproveCall'
 import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
 import useTransactionDeadline from './useTransactionDeadline'
+import { useQuery } from 'react-query'
 // import { useV3Quoter } from './useContract'
 
 export enum V3TradeState {
@@ -24,13 +25,15 @@ export enum V3TradeState {
   SYNCING,
 }
 
-function queryResults(data: any) {
-  return async function () {
-    if (!data) throw new Error('address is required')
+// const useResults = (promise: any) => {
+//   const [data, setData] = useState()
+//   const results = useMemo(() => {
+//     if (!promise) return
+//     promise.then((res: any) => setData(res))
+//   }, [promise])
 
-    return await data
-  }
-}
+//   // return data
+// }
 
 /**
  * Returns the best v3 trade for a desired exact input swap
@@ -54,7 +57,7 @@ export function useBestV3TradeExactIn(
 
   const { account, address } = useAccountDetails()
   const quoteExactInInputs = useMemo(() => {
-    if (routesLoading || !amountIn || !address || !routes || !deadline) return [{}]
+    if (routesLoading || !amountIn || !address || !routes || !routes.length || !deadline) return
     return routes.map((route: Route<Currency, Currency>) => {
       const isRouteSingleHop = route.pools.length === 1
 
@@ -148,27 +151,30 @@ export function useBestV3TradeExactIn(
     blockIdentifier: 'latest' as BlockNumber,
   })
 
-  const nonce = useMemo(async () => {
-    if (!account) return
-    const nonce = await account?.getNonce()
-    return nonce
-  }, [account])
-
   const msgHash = hash.computeHashOnElements(message)
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
-  // const nonces = useMemo(async () => {
-  //   if (!account) return
-  //   const response = await account.getNonce()
-  //   return response
-  // }, [account])
+  const nonce_results = useQuery({
+    queryKey: [`nonce/${address}`],
+    queryFn: async () => {
+      if (!account) return
+      const results = await account?.getNonce()
+      return cairo.felt(results.toString())
+    },
+    onSuccess: (data) => {
+      // Handle the successful data fetching here if needed
+      console.log('🚀 ~ onSuccess ~ data:', data)
+    },
+  })
+
   const callsArr = useMemo(() => {
-    if (!nonce || !quoteExactInInputs || !quoteExactInInputs.length) return
+    if (!nonce_results || !quoteExactInInputs || !quoteExactInInputs.length || !nonce_results.data) return
+    const nonce = Number(nonce_results.data)
     const results = quoteExactInInputs.map((input, index) => {
       const approveCallWithInvocations = {
         contractAddress: address,
         calldata: compiledApprovedCall,
         type: TransactionType.INVOKE,
-        nonce: 110,
+        nonce,
         signature,
         maxFee: '0x0',
       }
@@ -178,33 +184,45 @@ export function useBestV3TradeExactIn(
         contractAddress: address,
         calldata: compiledInputs,
         type: TransactionType.INVOKE,
-        nonce: 111,
+        nonce: nonce + 1,
         signature,
         maxFee: '0x0',
       }
+
       return [approveCallWithInvocations, compiledInputWithInvocations]
       // const inputCall = [approveCall, inputs]
     })
 
     return results
-  }, [quoteExactInInputs, nonce, compiledApprovedCall])
+  }, [quoteExactInInputs, nonce_results, compiledApprovedCall])
 
-  const amountOutResults = useMemo(() => {
-    if (!address || !account || !callsArr || !callsArr.length) return
+  // const fetchResults = useFetchResults(account, blockNumber, callsArr)
+  const amountOutResults = useQuery({
+    queryKey: ['get_simulation', address, amountIn],
+    queryFn: async () => {
+      if (!address || !account || !callsArr || !callsArr.length) return
 
-    const callPromises = callsArr.map(async (call) => {
-      const result = await account.getSimulateTransaction(call as any, {
-        blockIdentifier: blockNumber,
-        skipValidate: true,
+      const callPromises = callsArr.map(async (call: any) => {
+        const res = await account.getSimulateTransaction(call, {
+          blockIdentifier: blockNumber,
+          skipValidate: true,
+        })
+
+        return res
       })
-      return result
-    })
 
-    return callPromises
+      const settledResults = await Promise.allSettled(callPromises as any)
 
-    // const nonce = await account.getNonce()
-    // if (!nonce) return
-  }, [address, account, callsArr])
+      const resolvedResults = settledResults
+        .filter((result) => result.status === 'fulfilled')
+        .map((result: any) => result.value)
+
+      return resolvedResults
+    },
+    onSuccess: (data) => {
+      // Handle the successful data fetching here if needed
+    },
+  })
 
   function fromUint256ToNumber(uint256: any) {
     // Assuming uint256 is an object with 'high' and 'low' properties
@@ -212,40 +230,39 @@ export function useBestV3TradeExactIn(
     return high
   }
 
-  const filteredAmountOutResults = useMemo(async () => {
-    try {
-      const settledResults = await Promise.allSettled(amountOutResults as any)
+  const filteredAmountOutResults = useMemo(() => {
+    if (!amountOutResults) return
+    const data = amountOutResults?.data
 
-      const resolvedResults = settledResults
-        .filter((result) => result.status === 'fulfilled')
-        .map((result: any) => result.value)
+    if (!data) return
 
-      const bestRouteResults = { bestRoute: null, amountOut: null }
+    const bestRouteResults = { bestRoute: null, amountOut: null }
 
-      resolvedResults.forEach((results) => {
-        const { bestRoute, amountOut } = results.reduce((currentBest: any, result: any, i: any) => {
-          const selected_tx = results[1]
-          const selected_tx_result = selected_tx?.transaction_trace?.execute_invocation?.result
-          const amountOut = fromUint256ToNumber({ high: selected_tx_result[2], low: selected_tx_result[3] })
+    data.forEach((results) => {
+      const { bestRoute, amountOut } = results.reduce((currentBest: any, result: any, i: any) => {
+        const selected_tx: any = results[1]
+        const selected_tx_result = selected_tx?.transaction_trace?.execute_invocation?.result
+        const amountOut = fromUint256ToNumber({ high: selected_tx_result[2], low: selected_tx_result[3] })
 
-          if (!result) return currentBest
-          if (currentBest.amountOut === null) {
-            bestRouteResults.bestRoute = routes[i]
-            bestRouteResults.amountOut = amountOut
-          } else if (Number(cairo.felt(currentBest.amountOut)) < Number(cairo.felt(amountOut))) {
-            bestRouteResults.bestRoute = routes[i]
-            bestRouteResults.amountOut = amountOut
-          }
+        if (!result) return currentBest
+        if (currentBest.amountOut === null) {
+          bestRouteResults.bestRoute = routes[i]
+          bestRouteResults.amountOut = amountOut
+        } else if (Number(cairo.felt(currentBest.amountOut)) < Number(cairo.felt(amountOut))) {
+          bestRouteResults.bestRoute = routes[i]
+          bestRouteResults.amountOut = amountOut
+        }
 
-          return currentBest
-        }, bestRouteResults)
-      })
-      return bestRouteResults
-    } catch (error) {
-      console.error('Error resolving promises:', error)
-      return null
-    }
+        return currentBest
+      }, bestRouteResults)
+    })
+    return bestRouteResults
   }, [amountOutResults])
+
+  const { bestRoute, amountOut } = useMemo(() => {
+    if (!filteredAmountOutResults) return { bestRoute: null, amountOut: null }
+    return { bestRoute: filteredAmountOutResults.bestRoute, amountOut: filteredAmountOutResults.amountOut }
+  }, [filteredAmountOutResults])
 
   return useMemo(() => {
     if (!amountIn || !currencyOut || !filteredAmountOutResults) {
@@ -261,14 +278,12 @@ export function useBestV3TradeExactIn(
         trade: null,
       }
     }
-    let bestRoute: any = null
-    let amountOut: any = null
-    filteredAmountOutResults.then((res) => {
-      if (res) {
-        bestRoute = res.bestRoute
-        amountOut = res.amountOut
-      }
-    })
+
+    // const results = await filteredAmountOutResults
+    // const bestRoute = results?.bestRoute
+    // const amountOut = results?.amountOut
+
+    // bestRoute = results?.bestRoute;
 
     if (!bestRoute || !amountOut) {
       return {
@@ -307,7 +322,7 @@ export function useBestV3TradeExactOut(
   const { routes, loading: routesLoading } = useAllV3Routes(allPools, currencyIn, amountOut?.currency)
   const { address, account } = useAccountDetails()
   const quoteExactOutInputs = useMemo(() => {
-    if (routesLoading || !amountOut || !address || !routes || !deadline) return [{}]
+    if (routesLoading || !amountOut || !address || !routes || !routes.length || !deadline) return
     return routes.map((route: Route<Currency, Currency>) => {
       const isRouteSingleHop = route.pools.length === 1
 
@@ -374,7 +389,7 @@ export function useBestV3TradeExactOut(
         }
       }
     })
-  }, [routes])
+  }, [routes && routes.length, amountOut])
 
   const approveCall = useMemo(() => {
     if (!amountOut) return
@@ -403,23 +418,32 @@ export function useBestV3TradeExactOut(
     blockIdentifier: 'latest' as BlockNumber,
   })
 
-  const nonce = useMemo(async () => {
-    if (!account) return
-    const nonce = await account?.getNonce()
-    return nonce
-  }, [account])
+  const nonce_results = useQuery({
+    queryKey: [`nonce/${address}`],
+    queryFn: async () => {
+      if (!account) return
+      const results = await account?.getNonce()
+      return cairo.felt(results.toString())
+    },
+    onSuccess: (data) => {
+      // Handle the successful data fetching here if needed
+      console.log('🚀 ~ onSuccess ~ data:', data)
+    },
+  })
 
   const msgHash = hash.computeHashOnElements(message)
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
 
   const callsArr = useMemo(() => {
-    if (!nonce || !quoteExactOutInputs || !quoteExactOutInputs.length) return
+    if (!nonce_results || !quoteExactOutInputs || !quoteExactOutInputs.length || !nonce_results.data) return
+    const nonce = Number(nonce_results.data)
+
     const results = quoteExactOutInputs.map((input, index) => {
       const approveCallWithInvocations = {
         contractAddress: address,
         calldata: compiledApprovedCall,
         type: TransactionType.INVOKE,
-        nonce: 110,
+        nonce,
         signature,
         maxFee: '0x0',
       }
@@ -429,7 +453,7 @@ export function useBestV3TradeExactOut(
         contractAddress: address,
         calldata: compiledInputs,
         type: TransactionType.INVOKE,
-        nonce: 111,
+        nonce: nonce + 1,
         signature,
         maxFee: '0x0',
       }
@@ -438,69 +462,79 @@ export function useBestV3TradeExactOut(
     })
 
     return results
-  }, [quoteExactOutInputs, nonce, compiledApprovedCall])
+  }, [quoteExactOutInputs, nonce_results, compiledApprovedCall])
 
-  const amountOutResults = useMemo(() => {
-    if (!address || !account || !callsArr || !callsArr.length) return
+  const amountInResults = useQuery({
+    queryKey: [address, amountOut],
+    queryFn: async () => {
+      if (!address || !account || !callsArr || !callsArr.length) return
 
-    const callPromises = callsArr.map(async (call) => {
-      const result = await account.getSimulateTransaction(call as any, {
-        blockIdentifier: blockNumber,
-        skipValidate: true,
+      const callPromises = callsArr.map(async (call: any) => {
+        const res = await account.getSimulateTransaction(call, {
+          blockIdentifier: blockNumber,
+          skipValidate: true,
+        })
+
+        return res
       })
-      return result
-    })
 
-    return callPromises
-
-    // const nonce = await account.getNonce()
-    // if (!nonce) return
-  }, [address, account, callsArr])
-
-  function fromUint256ToNumber(uint256: any) {
-    // Assuming uint256 is an object with 'high' and 'low' properties
-    const { high, low } = uint256
-    return high
-  }
-
-  const filteredAmountOutResults = useMemo(async () => {
-    try {
-      const settledResults = await Promise.allSettled(amountOutResults as any)
+      const settledResults = await Promise.allSettled(callPromises as any)
 
       const resolvedResults = settledResults
         .filter((result) => result.status === 'fulfilled')
         .map((result: any) => result.value)
 
-      const bestRouteResults = { bestRoute: null, amountOut: null }
+      return resolvedResults
+    },
+    onSuccess: (data) => {
+      // Handle the successful data fetching here if needed
+      console.log('🚀 ~ onSuccess ~ data:', data)
+    },
+  })
 
-      resolvedResults.forEach((results) => {
-        const { bestRoute, amountOut } = results.reduce((currentBest: any, result: any, i: any) => {
-          const selected_tx = results[1]
-          const selected_tx_result = selected_tx?.transaction_trace?.execute_invocation?.result
-          const amountOut = fromUint256ToNumber({ high: selected_tx_result[2], low: selected_tx_result[3] })
+  function fromUint256ToNumber(uint256: any) {
+    // Assuming uint256 is an object with 'high' and 'low' properties
+    const { high } = uint256
+    return high
+  }
 
-          if (!result) return currentBest
-          if (currentBest.amountOut === null) {
-            bestRouteResults.bestRoute = routes[i]
-            bestRouteResults.amountOut = amountOut
-          } else if (Number(cairo.felt(currentBest.amountOut)) < Number(cairo.felt(amountOut))) {
-            bestRouteResults.bestRoute = routes[i]
-            bestRouteResults.amountOut = amountOut
-          }
+  const filteredAmountInResults = useMemo(() => {
+    if (!amountInResults) return
+    const data = amountInResults?.data
 
-          return currentBest
-        }, bestRouteResults)
-      })
+    if (!data) return
 
-      return bestRouteResults
-    } catch (error) {
-      console.error('Error resolving promises:', error)
-      return null
-    }
-  }, [amountOutResults])
+    const bestRouteResults = { bestRoute: null, amountIn: null }
+
+    data.forEach((results) => {
+      const { bestRoute, amountIn } = results.reduce((currentBest: any, result: any, i: any) => {
+        const selected_tx = results[1]
+        const selected_tx_result = selected_tx?.transaction_trace?.execute_invocation?.result
+        const amountIn = fromUint256ToNumber({ high: selected_tx_result[2], low: selected_tx_result[3] })
+
+        if (!result) return currentBest
+        if (currentBest.amountIn === null) {
+          bestRouteResults.bestRoute = routes[i]
+          bestRouteResults.amountIn = amountIn
+        } else if (Number(cairo.felt(currentBest.amountIn)) < Number(cairo.felt(amountIn))) {
+          bestRouteResults.bestRoute = routes[i]
+          bestRouteResults.amountIn = amountIn
+        }
+
+        return currentBest
+      }, bestRouteResults)
+    })
+
+    return bestRouteResults
+  }, [amountInResults])
+
+  const { bestRoute, amountIn } = useMemo(() => {
+    if (!filteredAmountInResults) return { bestRoute: null, amountIn: null }
+    return { bestRoute: filteredAmountInResults.bestRoute, amountIn: filteredAmountInResults.amountIn }
+  }, [filteredAmountInResults])
 
   return useMemo(() => {
-    if (!amountOut || !currencyIn) {
+    if (!amountOut || !currencyIn || !filteredAmountInResults) {
       return {
         state: TradeState.INVALID,
         trade: null,
@@ -513,9 +547,6 @@ export function useBestV3TradeExactOut(
         trade: null,
       }
     }
-
-    const bestRoute = null
-    const amountIn = null
 
     if (!bestRoute || !amountIn) {
       return {
@@ -533,5 +564,5 @@ export function useBestV3TradeExactOut(
         outputAmount: amountOut,
       }),
     }
-  }, [amountOut, currencyIn, routes, routesLoading])
+  }, [amountOut, currencyIn, filteredAmountInResults])
 }
