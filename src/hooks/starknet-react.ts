@@ -19,7 +19,7 @@ declare enum StarknetChainId {
 }
 
 // Function to convert StarknetChainId to ChainId
-const convertStarknetToChainId = (starknetId: StarknetChainId): ChainId => {
+const convertStarknetToChainId = (starknetId: StarknetChainId): ChainId | undefined => {
   switch (starknetId) {
     case StarknetChainId.SN_MAIN:
       return ChainId.MAINNET
@@ -27,7 +27,7 @@ const convertStarknetToChainId = (starknetId: StarknetChainId): ChainId => {
     case StarknetChainId.SN_GOERLI2:
       return ChainId.GOERLI
     default:
-      return ChainId.MAINNET // Return undefined if no match found
+      return undefined // Return undefined if no match found
   }
 }
 
@@ -35,11 +35,11 @@ export const useAccountDetails = (): {
   account: AccountInterface | undefined
   address: string | undefined
   isConnected: boolean | undefined
-  chainId: ChainId
+  chainId: ChainId | undefined
   connector: Connector | undefined
 } => {
   const { account, address, isConnected, status, connector } = useAccount()
-  const [chainId, setChainId] = useState<ChainId>(ChainId.MAINNET)
+  const [chainId, setChainId] = useState<ChainId | undefined>(undefined)
 
   const { provider } = useProvider()
 
@@ -47,7 +47,7 @@ export const useAccountDetails = (): {
     const fetchChainId = async () => {
       try {
         const Id = await provider.getChainId()
-        const convertedId: ChainId = convertStarknetToChainId(Id)
+        const convertedId: ChainId | undefined = convertStarknetToChainId(Id)
         setChainId(convertedId)
       } catch (error) {
         console.error('Error fetching chainId:', error)

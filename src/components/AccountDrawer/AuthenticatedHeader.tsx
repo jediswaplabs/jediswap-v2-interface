@@ -13,7 +13,7 @@ import { useToggleAccountDrawer } from '.'
 import IconButton, { IconHoverText, IconWithConfirmTextButton } from './IconButton'
 import { portfolioFadeInAnimation } from './MiniPortfolio/PortfolioRow'
 import { useDisconnect, useStarkName } from '@starknet-react/core'
-import { NONFUNGIBLE_POOL_MANAGER_ADDRESS, STARKSCAN_PREFIXES } from 'constants/tokens'
+import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS, STARKSCAN_PREFIXES } from 'constants/tokens'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const AuthenticatedHeaderWrapper = styled.div`
@@ -93,7 +93,9 @@ export default function AuthenticatedHeader({ account }: { account: string }) {
   const addressShort = account ? `${account.slice(0, 6)}...${account.slice(-4)}` : null
 
   const handleStarkScanRedirect = () => {
-    const prefix = `https://${STARKSCAN_PREFIXES[chainId] || STARKSCAN_PREFIXES[ChainId.MAINNET]}starkscan.co`
+    const prefix = `https://${
+      STARKSCAN_PREFIXES[chainId ?? DEFAULT_CHAIN_ID] || STARKSCAN_PREFIXES[ChainId.MAINNET ?? DEFAULT_CHAIN_ID]
+    }starkscan.co`
     window.open(`${prefix}/contract/${address}`, '_blank')
   }
 

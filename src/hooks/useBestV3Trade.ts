@@ -302,7 +302,7 @@ export function useBestV3TradeExactIn(
         outputAmount: CurrencyAmount.fromRawAmount(currencyOut, num.hexToDecimalString(amountOut)),
       }),
     }
-  }, [amountIn, currencyOut, filteredAmountOutResults])
+  }, [amountIn, currencyOut, filteredAmountOutResults, routes, routesLoading])
 }
 
 /**
@@ -560,5 +560,5 @@ export function useBestV3TradeExactOut(
         outputAmount: amountOut,
       }),
     }
-  }, [amountOut, currencyIn, filteredAmountInResults])
+  }, [amountOut, currencyIn, routesLoading, routes, filteredAmountInResults])
 }

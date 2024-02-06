@@ -85,7 +85,11 @@ export function useTokenFromMapOrNetwork(tokens: TokenMap, tokenAddress?: string
   const { chainId } = useAccountDetails()
   const address = isAddressValidForStarknet(tokenAddress)
   const token: Token | undefined =
-    WETH[chainId].address === address ? WETH[chainId] : address ? tokens[address] : undefined
+    WETH[chainId ?? DEFAULT_CHAIN_ID].address === address
+      ? WETH[chainId ?? DEFAULT_CHAIN_ID]
+      : address
+      ? tokens[address]
+      : undefined
   const tokenFromNetwork = useTokenFromActiveNetwork(token ? undefined : address ? address : undefined)
 
   return tokenFromNetwork ?? token
