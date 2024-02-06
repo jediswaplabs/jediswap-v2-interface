@@ -200,22 +200,22 @@ export function usePools(
 }
 
 export function usePoolsForSwap(results: any): [PoolState, Pool | null][] {
-  // return useMemo(() => {
-  return results.map((result: any) => {
-    const { tickCurrent, liquidity, sqrtPriceX96, token0, token1, fee } = result
-    const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(num.toHex(sqrtPriceX96 as BigNumberish))
-    const liquidityHex = Boolean(liquidity) ? JSBI.BigInt(num.toHex(liquidity as BigNumberish)) : JSBI.BigInt('0x0')
+  return useMemo(() => {
+    return results.map((result: any) => {
+      const { tickCurrent, liquidity, sqrtPriceX96, token0, token1, fee } = result
+      const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(num.toHex(sqrtPriceX96 as BigNumberish))
+      const liquidityHex = Boolean(liquidity) ? JSBI.BigInt(num.toHex(liquidity as BigNumberish)) : JSBI.BigInt('0x0')
 
-    if (!tickCurrent || !liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
-    try {
-      const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, tickCurrent)
-      return [PoolState.EXISTS, pool]
-    } catch (error) {
-      console.error('Error when constructing the pool', error)
-      return [PoolState.NOT_EXISTS, null]
-    }
-  })
-  // }, [results, poolKeys, poolTokens])
+      if (!tickCurrent || !liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
+      try {
+        const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, tickCurrent)
+        return [PoolState.EXISTS, pool]
+      } catch (error) {
+        console.error('Error when constructing the pool', error)
+        return [PoolState.NOT_EXISTS, null]
+      }
+    })
+  }, [results])
 }
 
 export function usePool(

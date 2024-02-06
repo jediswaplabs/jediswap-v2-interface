@@ -73,7 +73,11 @@ const getPoolProps = (address: string) => {
   return { liquidity, sqrtPriceX96, tickCurrent, token0, token1, fee: Number(fee) }
 }
 
-export function useV3SwapPools(allPools: string[]): {
+export function useV3SwapPools(
+  allPools: string[],
+  currencyIn?: Currency,
+  currencyOut?: Currency
+): {
   pools: Pool[]
   loading: boolean
 } {

@@ -264,6 +264,13 @@ export function useBestV3TradeExactIn(
   }, [filteredAmountOutResults])
 
   return useMemo(() => {
+    if (!routes.length) {
+      return {
+        state: TradeState.NO_ROUTE_FOUND,
+        trade: null,
+      }
+    }
+
     if (!amountIn || !currencyOut || !filteredAmountOutResults) {
       return {
         state: TradeState.INVALID,
@@ -277,12 +284,6 @@ export function useBestV3TradeExactIn(
         trade: null,
       }
     }
-
-    // const results = await filteredAmountOutResults
-    // const bestRoute = results?.bestRoute
-    // const amountOut = results?.amountOut
-
-    // bestRoute = results?.bestRoute;
 
     if (!bestRoute || !amountOut) {
       return {
@@ -530,6 +531,13 @@ export function useBestV3TradeExactOut(
   }, [filteredAmountInResults])
 
   return useMemo(() => {
+    if (!routes.length) {
+      return {
+        state: TradeState.NO_ROUTE_FOUND,
+        trade: null,
+      }
+    }
+
     if (!amountOut || !currencyIn || !filteredAmountInResults) {
       return {
         state: TradeState.INVALID,
