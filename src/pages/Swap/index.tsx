@@ -164,13 +164,20 @@ export default function SwapPage({ className }: { className?: string }) {
   useEffect(() => {
     const getTokenIds = async () => {
       if (connectedChainId) {
-        setLoadingPositions(true)
-        const result = await fetchAllPools(connectedChainId)
-        if (result && result.data) {
-          const allPoolsArray: number[] = result.data.map((item: any) => validateAndParseAddress(item.contract_address))
-          setAllPools(allPoolsArray)
+        try {
+          setLoadingPositions(true)
+          const result = await fetchAllPools(connectedChainId)
+          if (result && result.data) {
+            const allPoolsArray: number[] = result.data.map((item: any) =>
+              validateAndParseAddress(item.contract_address)
+            )
+            setAllPools(allPoolsArray)
+            setLoadingPositions(false)
+          }
+        } catch (e) {
+          console.error(e)
+          setLoadingPositions(false)
         }
-        setLoadingPositions(false)
       }
     }
 
@@ -179,7 +186,7 @@ export default function SwapPage({ className }: { className?: string }) {
 
   return (
     <PageWrapper>
-      {loadingPositions && !allPools.length ? (
+      {loadingPositions ? (
         <PositionsLoadingPlaceholder />
       ) : (
         <Swap
