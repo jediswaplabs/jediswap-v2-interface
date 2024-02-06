@@ -311,7 +311,7 @@ export default function ConfirmSwapModal({
   const swapTxStatus = !txData ? 'PENDING' : txData?.transaction_hash ? 'CONFIRMED' : 'FAILED'
 
   // Swap was reverted onchain.
-  const swapReverted = swapStatus === TransactionStatus.Failed
+  const swapReverted = swapTxStatus === TransactionStatus.Failed
   // Swap failed locally and was not broadcast to the blockchain.
   const localSwapFailure = Boolean(swapError) && !didUserReject(swapError)
   const swapFailed = localSwapFailure || swapReverted
@@ -389,6 +389,7 @@ export default function ConfirmSwapModal({
         revocationPending={allowance.state === AllowanceState.REQUIRED && allowance.isRevocationPending}
         swapError={swapError}
         onRetryUniswapXSignature={onConfirm}
+        swapTxStatus={txData}
       />
     )
   }, [

@@ -33,6 +33,7 @@ import {
 } from './Logos'
 import { TransitionText } from './TransitionText'
 import { TradeSummary } from './TradeSummary'
+import { InvokeFunctionResponse } from 'starknet'
 
 export const PendingModalContainer = styled(ColumnCenter)`
   margin: 48px 0 8px;
@@ -109,6 +110,7 @@ interface PendingModalContentProps {
   revocationPending?: boolean
   swapError?: Error | string
   onRetryUniswapXSignature?: () => void
+  swapTxStatus?: InvokeFunctionResponse | undefined
 }
 
 interface ContentArgs {
@@ -124,6 +126,7 @@ interface ContentArgs {
   order?: UniswapXOrderDetails
   swapError?: Error | string
   onRetryUniswapXSignature?: () => void
+  swapTxStatus?: InvokeFunctionResponse | undefined
 }
 
 function getPendingConfirmationContent({
@@ -134,27 +137,17 @@ function getPendingConfirmationContent({
   swapResult,
   swapError,
   onRetryUniswapXSignature,
+  swapTxStatus,
 }: Pick<
   ContentArgs,
   'swapConfirmed' | 'swapPending' | 'trade' | 'chainId' | 'swapResult' | 'swapError' | 'onRetryUniswapXSignature'
 >): PendingModalStep {
-  const title = swapPending ? t`Swap submitted` : swapConfirmed ? t`Swap success!` : t`Confirm Swap`
+  const title = swapConfirmed ? t`Swap submitted` : swapConfirmed ? t`Swap success!` : t`Confirm Swap`
   const tradeSummary = trade ? <TradeSummary trade={trade} /> : null
-  if (swapPending && trade?.fillType === TradeFillType.UniswapX) {
-    return {
-      title,
-      subtitle: tradeSummary,
-      bottomLabel: (
-        <ExternalLink href="https://support.uniswap.org/hc/en-us/articles/17515415311501" color="neutral2">
-          <Trans>Learn more about swapping with UniswapX</Trans>
-        </ExternalLink>
-      ),
-    }
-  }
-  if ((swapPending || swapConfirmed) && chainId && swapResult?.type === TradeFillType.Classic) {
+  if ((swapPending || swapConfirmed) && chainId && swapTxStatus) {
     const explorerLink = (
       <ExternalLink
-        href={getExplorerLink(chainId, swapResult.response.hash, ExplorerDataType.TRANSACTION)}
+        href={getExplorerLink(chainId, swapTxStatus?.transaction_hash, ExplorerDataType.TRANSACTION)}
         color="neutral2"
       >
         <Trans>View on Explorer</Trans>
@@ -208,6 +201,7 @@ function useStepContents(args: ContentArgs): Record<PendingConfirmModalState, Pe
     chainId,
     swapError,
     onRetryUniswapXSignature,
+    swapTxStatus,
   } = args
 
   return useMemo(
@@ -252,6 +246,7 @@ function useStepContents(args: ContentArgs): Record<PendingConfirmModalState, Pe
         trade,
         swapError,
         onRetryUniswapXSignature,
+        swapTxStatus,
       }),
     }),
     [
@@ -281,16 +276,17 @@ export function PendingModalContent({
   revocationPending = false,
   swapError,
   onRetryUniswapXSignature,
+  swapTxStatus,
 }: PendingModalContentProps) {
   const { chainId } = useAccountDetails()
 
   const swapStatus = useSwapTransactionStatus(swapResult)
   const order = useOrder(swapResult?.type === TradeFillType.UniswapX ? swapResult.response.orderHash : '')
 
-  const swapConfirmed = swapStatus === TransactionStatus.Confirmed || order?.status === UniswapXOrderStatus.FILLED
+  const swapConfirmed = swapTxStatus?.transaction_hash
   const wrapConfirmed = useIsTransactionConfirmed(wrapTxHash)
 
-  const swapPending = swapResult !== undefined && !swapConfirmed
+  const swapPending = swapTxStatus !== undefined && !swapConfirmed
   const wrapPending = wrapTxHash != undefined && !wrapConfirmed
 
   const stepContents = useStepContents({
@@ -305,6 +301,7 @@ export function PendingModalContent({
     chainId,
     swapError,
     onRetryUniswapXSignature,
+    swapTxStatus,
   })
 
   const currentStepContainerRef = useRef<HTMLDivElement>(null)
