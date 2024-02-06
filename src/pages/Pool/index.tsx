@@ -327,7 +327,7 @@ function PositionDetails(props: any) {
             <ThemedText.BodyPrimary color={theme.neutral3} textAlign="center">
               <InboxIcon strokeWidth={1} style={{ marginTop: '2em' }} />
               <div>
-                <Trans>Your active V3 liquidity positions will appear here.</Trans>
+                <Trans>Your active liquidity positions will appear here.</Trans>
               </div>
             </ThemedText.BodyPrimary>
             {!showConnectAWallet && closedPositions.length > 0 && (
