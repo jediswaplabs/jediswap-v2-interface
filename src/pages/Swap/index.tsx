@@ -504,7 +504,11 @@ export function Swap({
   }, [])
   const [swapCallData, setSwapCallData] = useState<Call[]>([])
 
-  const { writeAsync, data: txData } = useContractWrite({
+  const {
+    writeAsync,
+    data: txData,
+    error,
+  } = useContractWrite({
     calls: swapCallData,
   })
 
@@ -704,6 +708,7 @@ export function Swap({
           fiatValueInput={fiatValueTradeInput}
           fiatValueOutput={fiatValueTradeOutput}
           txData={txData}
+          error={error}
         />
       )}
       {showPriceImpactModal && showPriceImpactWarning && (

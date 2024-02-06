@@ -275,6 +275,7 @@ export default function ConfirmSwapModal({
   fiatValueInput,
   fiatValueOutput,
   txData,
+  error,
 }: {
   trade: InterfaceTrade
   inputCurrency?: Currency
@@ -291,6 +292,7 @@ export default function ConfirmSwapModal({
   fiatValueInput: { data?: number; isLoading: boolean }
   fiatValueOutput: { data?: number; isLoading: boolean }
   txData: InvokeFunctionResponse | undefined
+  error: Error | null
 }) {
   const { chainId } = useAccountDetails()
   const doesTradeDiffer = false
@@ -313,7 +315,7 @@ export default function ConfirmSwapModal({
   // Swap was reverted onchain.
   const swapReverted = swapTxStatus === TransactionStatus.Failed
   // Swap failed locally and was not broadcast to the blockchain.
-  const localSwapFailure = Boolean(swapError) && !didUserReject(swapError)
+  const localSwapFailure = Boolean(error) && !didUserReject(error)
   const swapFailed = localSwapFailure || swapReverted
 
   useEffect(() => {
@@ -373,7 +375,7 @@ export default function ConfirmSwapModal({
           fiatValueOutput={fiatValueOutput}
           showAcceptChanges={showAcceptChanges}
           onAcceptChanges={onAcceptChanges}
-          swapErrorMessage={swapFailed ? swapError?.message : undefined}
+          swapErrorMessage={swapFailed ? error?.message : undefined}
         />
       )
     }
@@ -390,6 +392,7 @@ export default function ConfirmSwapModal({
         swapError={swapError}
         onRetryUniswapXSignature={onConfirm}
         swapTxStatus={txData}
+        error={error}
       />
     )
   }, [

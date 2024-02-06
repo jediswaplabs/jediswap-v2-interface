@@ -111,6 +111,7 @@ interface PendingModalContentProps {
   swapError?: Error | string
   onRetryUniswapXSignature?: () => void
   swapTxStatus?: InvokeFunctionResponse | undefined
+  error?: Error | null
 }
 
 interface ContentArgs {
@@ -127,6 +128,7 @@ interface ContentArgs {
   swapError?: Error | string
   onRetryUniswapXSignature?: () => void
   swapTxStatus?: InvokeFunctionResponse | undefined
+  error?: Error | null
 }
 
 function getPendingConfirmationContent({
@@ -138,6 +140,7 @@ function getPendingConfirmationContent({
   swapError,
   onRetryUniswapXSignature,
   swapTxStatus,
+  error,
 }: Pick<
   ContentArgs,
   'swapConfirmed' | 'swapPending' | 'trade' | 'chainId' | 'swapResult' | 'swapError' | 'onRetryUniswapXSignature'
@@ -167,7 +170,7 @@ function getPendingConfirmationContent({
       bottomLabel: null,
     }
   }
-  if (swapError instanceof SignatureExpiredError) {
+  if (error instanceof SignatureExpiredError) {
     return {
       title: (
         <TransitionText
@@ -202,6 +205,7 @@ function useStepContents(args: ContentArgs): Record<PendingConfirmModalState, Pe
     swapError,
     onRetryUniswapXSignature,
     swapTxStatus,
+    error,
   } = args
 
   return useMemo(
@@ -247,6 +251,7 @@ function useStepContents(args: ContentArgs): Record<PendingConfirmModalState, Pe
         swapError,
         onRetryUniswapXSignature,
         swapTxStatus,
+        error,
       }),
     }),
     [
@@ -277,6 +282,7 @@ export function PendingModalContent({
   swapError,
   onRetryUniswapXSignature,
   swapTxStatus,
+  error,
 }: PendingModalContentProps) {
   const { chainId } = useAccountDetails()
 
@@ -302,6 +308,7 @@ export function PendingModalContent({
     swapError,
     onRetryUniswapXSignature,
     swapTxStatus,
+    error,
   })
 
   const currentStepContainerRef = useRef<HTMLDivElement>(null)
