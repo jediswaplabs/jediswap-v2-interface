@@ -184,7 +184,7 @@ export default function SwapPage({ className }: { className?: string }) {
       ) : (
         <Swap
           className={className}
-          chainId={ChainId.MAINNET}
+          chainId={connectedChainId}
           initialInputCurrencyId={loadedUrlParams?.[Field.INPUT]?.currencyId}
           initialOutputCurrencyId={loadedUrlParams?.[Field.OUTPUT]?.currencyId}
           allPools={allPools}
