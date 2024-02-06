@@ -1,8 +1,8 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const BLOCK_EXPLORER_PREFIXES: { [chainId: string]: string } = {
-  [ChainId.MAINNET]: 'https://etherscan.io',
-  [ChainId.GOERLI]: 'https://goerli.etherscan.io',
+  [ChainId.MAINNET]: 'https://starkscan.co',
+  [ChainId.GOERLI]: 'https://testnet.starkscan.co',
 }
 
 export enum ExplorerDataType {
