@@ -81,7 +81,7 @@ export function useV3SwapPools(
   pools: Pool[]
   loading: boolean
 } {
-  if (!allPools?.length) return { pools: [], loading: false }
+  if (!allPools || !allPools?.length) return { pools: [], loading: false }
 
   const poolProps = allPools.map((poolAddress: string) => getPoolProps(poolAddress))
 

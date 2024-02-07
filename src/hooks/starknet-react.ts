@@ -45,12 +45,14 @@ export const useAccountDetails = (): {
 
   useEffect(() => {
     const fetchChainId = async () => {
-      try {
-        const Id = await provider.getChainId()
-        const convertedId: ChainId | undefined = convertStarknetToChainId(Id)
-        setChainId(convertedId)
-      } catch (error) {
-        console.error('Error fetching chainId:', error)
+      if (account) {
+        try {
+          const Id = await provider.getChainId()
+          const convertedId: ChainId | undefined = convertStarknetToChainId(Id)
+          setChainId(convertedId)
+        } catch (error) {
+          console.error('Error fetching chainId:', error)
+        }
       }
     }
 
