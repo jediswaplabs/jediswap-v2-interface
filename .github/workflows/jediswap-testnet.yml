@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: testnet
-      url: https://app.v2.goerli.jediswap.xyz
+      url: https://app.v2.goerli.jediswap.xyz/
 
     steps:
       - name: Checkout
