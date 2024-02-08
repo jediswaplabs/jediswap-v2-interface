@@ -8,7 +8,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment:
-      name: testnet
+      name: goerli
       url: https://app.v2.goerli.jediswap.xyz/
 
     steps:
