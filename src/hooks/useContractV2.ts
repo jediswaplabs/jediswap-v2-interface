@@ -57,6 +57,11 @@ export function useMulticallContract(): Contract | null {
 // }
 
 export function useV3NFTPositionManagerContract(withSignerIfPossible?: boolean) {
-  const contract = useContract(NONFUNGIBLE_POOL_MANAGER_ADDRESS, NFTPositionManagerABI, withSignerIfPossible)
+  const { chainId } = useAccountDetails()
+  const contract = useContract(
+    NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID],
+    NFTPositionManagerABI,
+    withSignerIfPossible
+  )
   return contract
 }

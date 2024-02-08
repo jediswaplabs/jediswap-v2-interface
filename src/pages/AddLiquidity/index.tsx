@@ -44,7 +44,7 @@ import Row, { RowBetween, RowFixed } from '../../components/Row'
 import { SwitchLocaleLink } from '../../components/SwitchLocaleLink'
 import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
 import { ZERO_PERCENT } from '../../constants/misc'
-import { NONFUNGIBLE_POOL_MANAGER_ADDRESS, WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
+import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS, WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
 import { useCurrency } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallback } from '../../hooks/useApproveCallback'
 import { useArgentWalletContract } from '../../hooks/useArgentWalletContract'
@@ -184,10 +184,11 @@ function AddLiquidity() {
     [Field.CURRENCY_A]: useStablecoinValue(parsedAmounts[Field.CURRENCY_A]),
     [Field.CURRENCY_B]: useStablecoinValue(parsedAmounts[Field.CURRENCY_B]),
   }
+  const spenderAddress: string = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
 
   // check whether the user has approved the router on the tokens
-  const approvalACallback = useApprovalCall(parsedAmounts[Field.CURRENCY_A], NONFUNGIBLE_POOL_MANAGER_ADDRESS)
-  const approvalBCallback = useApprovalCall(parsedAmounts[Field.CURRENCY_B], NONFUNGIBLE_POOL_MANAGER_ADDRESS)
+  const approvalACallback = useApprovalCall(parsedAmounts[Field.CURRENCY_A], spenderAddress)
+  const approvalBCallback = useApprovalCall(parsedAmounts[Field.CURRENCY_B], spenderAddress)
   // get the max amounts user can add
   const maxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
     (accumulator, field) => ({
@@ -251,6 +252,7 @@ function AddLiquidity() {
       const minimumAmounts = position.mintAmountsWithSlippage(allowedSlippage)
       const amount0Min = minimumAmounts.amount0
       const amount1Min = minimumAmounts.amount1
+      const router_address: string = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
 
       if (hasExistingPosition && tokenId) {
         const hasExistingLiquidity = hasExistingPosition && tokenId
@@ -268,7 +270,7 @@ function AddLiquidity() {
         const callData = CallData.compile(mintData)
 
         const calls = {
-          contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+          contractAddress: router_address,
           entrypoint: 'increase_liquidity',
           calldata: callData,
         }
@@ -287,7 +289,7 @@ function AddLiquidity() {
 
           const initializeCallData = CallData.compile(initializeData)
           const icalls = {
-            contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+            contractAddress: router_address,
             entrypoint: 'create_and_initialize_pool',
             calldata: initializeCallData,
           }
@@ -309,7 +311,7 @@ function AddLiquidity() {
         }
         const mintCallData = CallData.compile(mintData)
         const mcalls = {
-          contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+          contractAddress: router_address,
           entrypoint: 'mint',
           calldata: mintCallData,
         }

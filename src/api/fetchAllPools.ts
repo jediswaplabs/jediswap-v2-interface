@@ -1,5 +1,5 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { DEFAULT_POOL_HASH, STARKSCAN_PROXY_ADDRESS } from 'constants/tokens'
+import { POOL_CLASS_HASH, STARKSCAN_PROXY_ADDRESS } from 'constants/tokens'
 
 const options = {
   method: 'GET',
@@ -9,7 +9,8 @@ const options = {
 const fetchAllPools = async (chainId: ChainId) => {
   try {
     const api = STARKSCAN_PROXY_ADDRESS[chainId]
-    const response = await fetch(`${api}contracts/?class_hash=${DEFAULT_POOL_HASH}`, options)
+    const classHash = POOL_CLASS_HASH[chainId]
+    const response = await fetch(`${api}contracts/?class_hash=${classHash}`, options)
 
     if (!response.ok) {
       throw new Error('Failed to fetch data')

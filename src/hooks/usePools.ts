@@ -15,7 +15,7 @@ import { BigNumberish, CallData, Contract, ec, hash, num } from 'starknet'
 import { useContractRead } from '@starknet-react/core'
 import POOL_ABI from 'contracts/pool/abi.json'
 import FACTORY_ABI from 'contracts/factoryAddress/abi.json'
-import { DEFAULT_POOL_ADDRESS, DEFAULT_POOL_HASH, FACTORY_ADDRESS } from 'constants/tokens'
+import { POOL_CLASS_HASH, FACTORY_ADDRESS } from 'constants/tokens'
 import { toInt } from 'utils/toInt'
 
 // const POOL_STATE_INTERFACE = new Interface(IUniswapV3PoolStateJSON.abi) as IUniswapV3PoolStateInterface
@@ -118,7 +118,7 @@ export function usePools(
   const poolAddress: (string | undefined)[] = useMemo(
     () =>
       poolTokens.map((items): string | undefined => {
-        if (items && items[0] && items[1] && items[2]) {
+        if (items && items[0] && items[1] && items[2] && chainId) {
           // Check if tokens are defined
           const [tokenA, tokenB, feeAmount] = items
 
@@ -141,7 +141,12 @@ export function usePools(
           ])
 
           return tokenA && tokenB && !tokenA.equals(tokenB)
-            ? calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, constructorCalldata, FACTORY_ADDRESS)
+            ? calculateContractAddressFromHash(
+                salt,
+                POOL_CLASS_HASH[chainId],
+                constructorCalldata,
+                FACTORY_ADDRESS[chainId]
+              )
             : undefined
         }
         return undefined
@@ -237,7 +242,8 @@ export function usePoolAddress(
   feeAmount: FeeAmount | undefined
 ): string | undefined {
   return useMemo(() => {
-    if (currencyA && currencyB && feeAmount) {
+    const { chainId } = useAccountDetails()
+    if (currencyA && currencyB && feeAmount && chainId) {
       const tokenA = currencyA.wrapped
       const tokenB = currencyB.wrapped
       if (tokenA.equals(tokenB)) return undefined
@@ -255,7 +261,7 @@ export function usePoolAddress(
       const contructorCalldata = CallData.compile([tokens[0].address, tokens[1].address, feeAmount, feeAmount / 50])
 
       return tokenA && tokenB && !tokenA.equals(tokenB)
-        ? calculateContractAddressFromHash(salt, DEFAULT_POOL_HASH, contructorCalldata, FACTORY_ADDRESS)
+        ? calculateContractAddressFromHash(salt, POOL_CLASS_HASH[chainId], contructorCalldata, FACTORY_ADDRESS[chainId])
         : undefined
     }
 

@@ -6,7 +6,7 @@ import { useSingleContractMultipleData } from '../state/multicall/hooks'
 import { useAllV3Routes } from './useAllV3Routes'
 import { useBlockNumber, useContractRead } from '@starknet-react/core'
 import SWAP_QUOTER_ABI from 'contracts/swapquoter/abi.json'
-import { SWAP_QUOTER_ADDRESS, SWAP_ROUTER_ADDRESS } from 'constants/tokens'
+import { DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS } from 'constants/tokens'
 import { BigNumberish, BlockNumber, CallData, TransactionType, cairo, encode, num } from 'starknet'
 import { TradeState } from 'state/routing/types'
 import { ec, hash, json, Contract, WeierstrassSignatureType } from 'starknet'
@@ -56,7 +56,9 @@ export function useBestV3TradeExactIn(
       trade: null,
     }
 
-  const { account, address } = useAccountDetails()
+  const { account, address, chainId } = useAccountDetails()
+  const swapRouterAddress = SWAP_ROUTER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+
   const quoteExactInInputs = useMemo(() => {
     if (routesLoading || !amountIn || !address || !routes || !routes.length || !deadline) return
     return routes.map((route: Route<Currency, Currency>) => {
@@ -99,7 +101,7 @@ export function useBestV3TradeExactIn(
         }
 
         const call = {
-          contractAddress: SWAP_ROUTER_ADDRESS,
+          contractAddress: swapRouterAddress,
           entrypoint: 'exact_input',
           calldata: CallData.compile(exactInputSingleParams),
         }
@@ -123,7 +125,7 @@ export function useBestV3TradeExactIn(
         }
 
         const call = {
-          contractAddress: SWAP_ROUTER_ADDRESS,
+          contractAddress: swapRouterAddress,
           entrypoint: 'exact_input_single',
           calldata: CallData.compile(exactInputSingleParams),
         }
@@ -136,7 +138,7 @@ export function useBestV3TradeExactIn(
   const approveCall = useMemo(() => {
     if (!amountIn) return
     const approveParams = {
-      spender: SWAP_ROUTER_ADDRESS,
+      spender: swapRouterAddress,
       approveAmount: cairo.uint256(2 ** 128),
     }
 
@@ -286,7 +288,9 @@ export function useBestV3TradeExactOut(
   // const quoter = useV3Quoter()
   const deadline = useTransactionDeadline()
   const { routes, loading: routesLoading } = useAllV3Routes(allPools, currencyIn, amountOut?.currency)
-  const { address, account } = useAccountDetails()
+  const { address, account, chainId } = useAccountDetails()
+  const swapRouterAddress = SWAP_ROUTER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+
   const quoteExactOutInputs = useMemo(() => {
     if (routesLoading || !amountOut || !address || !routes || !routes.length || !deadline) return
     return routes.map((route: Route<Currency, Currency>) => {
@@ -331,7 +335,7 @@ export function useBestV3TradeExactOut(
         }
 
         const call = {
-          contractAddress: SWAP_ROUTER_ADDRESS,
+          contractAddress: swapRouterAddress,
           entrypoint: 'exact_output',
           calldata: CallData.compile(exactOutputSingleParams),
         }
@@ -355,7 +359,7 @@ export function useBestV3TradeExactOut(
         }
 
         const call = {
-          contractAddress: SWAP_ROUTER_ADDRESS,
+          contractAddress: swapRouterAddress,
           entrypoint: 'exact_output_single',
           calldata: CallData.compile(exactOutputSingleParams),
         }
@@ -368,7 +372,7 @@ export function useBestV3TradeExactOut(
   const approveCall = useMemo(() => {
     if (!amountOut || !currencyIn) return
     const approveParams = {
-      spender: SWAP_ROUTER_ADDRESS,
+      spender: swapRouterAddress,
       approveAmount: cairo.uint256(2 ** 128),
     }
 
@@ -379,23 +383,9 @@ export function useBestV3TradeExactOut(
     }
   }, [amountOut, currencyIn])
 
-  const compiledApprovedCall = useMemo(() => {
-    if (!approveCall) return
-    return CallData.compile(approveCall)
-  }, [approveCall])
-
   // const { data, error } = useQuoteExactInput(compiledCallData)
-  const privateKey = '0x1234567890987654321'
 
   const message: BigNumberish[] = [1, 128, 18, 14]
-
-  const { data: blockNumber } = useBlockNumber({
-    refetchInterval: false,
-    blockIdentifier: 'latest' as BlockNumber,
-  })
-
-  const msgHash = hash.computeHashOnElements(message)
-  const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
 
   const callsArr = useMemo(() => {
     if (!quoteExactOutInputs || !quoteExactOutInputs.length) return

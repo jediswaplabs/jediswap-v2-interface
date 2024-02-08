@@ -5,8 +5,9 @@ import { useMemo } from 'react'
 import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
 import { useV3NFTPositionManagerContract } from './useContract'
 import { useContractRead } from '@starknet-react/core'
-import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { cairo, encode, num } from 'starknet'
+import { useAccountDetails } from './starknet-react'
 
 type TokenId = number | JSBI | BigNumber
 
@@ -88,11 +89,12 @@ const feltArrToStr = (felts: bigint[]): string | undefined => {
 }
 
 const useTokenURI = (tokenId: number) => {
+  const { chainId } = useAccountDetails()
   const { data, error, isLoading } = useContractRead({
     functionName: 'token_uri',
     args: [cairo.uint256(tokenId)],
     abi: NFTPositionManagerABI,
-    address: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+    address: NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID],
     watch: true,
   })
   return { metadata: data, error, isLoading }

@@ -63,7 +63,7 @@ import { computeRealizedPriceImpact, warningSeverity } from 'utils/prices'
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
 import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
-import { SWAP_ROUTER_ADDRESS, getSwapCurrencyId } from 'constants/tokens'
+import { SWAP_ROUTER_ADDRESS, getSwapCurrencyId, DEFAULT_CHAIN_ID } from 'constants/tokens'
 import fetchAllPools from 'api/fetchAllPools'
 import { Call, CallData, cairo, num, validateAndParseAddress } from 'starknet'
 import { LoadingRows } from 'components/Loader/styled'
@@ -228,6 +228,7 @@ export function Swap({
 }) {
   const connectionReady = useConnectionReady()
   const { address, account, chainId: connectedChainId } = useAccountDetails()
+  const swapRouterAddress = SWAP_ROUTER_ADDRESS[connectedChainId ?? DEFAULT_CHAIN_ID]
 
   // token warning stuff
   const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId)
@@ -538,7 +539,7 @@ export function Swap({
     () => (trade ? trade.maximumAmountIn(allowedSlippage) : undefined),
     [trade, allowedSlippage]
   )
-  const approveCallback = useApprovalCall(amountToApprove, SWAP_ROUTER_ADDRESS)
+  const approveCallback = useApprovalCall(amountToApprove, swapRouterAddress)
 
   const handleSwap = useCallback(() => {
     if (!trade || !address || !deadline) return
@@ -564,7 +565,7 @@ export function Swap({
       const compiledSwapCalls = CallData.compile(exactInputSingleParams)
 
       const calls = {
-        contractAddress: SWAP_ROUTER_ADDRESS,
+        contractAddress: swapRouterAddress,
         entrypoint: 'exact_input_single',
         calldata: compiledSwapCalls,
       }
@@ -584,7 +585,7 @@ export function Swap({
       const compiledSwapCalls = CallData.compile(exactOutputSingleParams)
 
       const calls = {
-        contractAddress: SWAP_ROUTER_ADDRESS,
+        contractAddress: swapRouterAddress,
         entrypoint: 'exact_output_single',
         calldata: compiledSwapCalls,
       }

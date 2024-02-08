@@ -50,7 +50,7 @@ import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { LoadingRows } from './styled'
 import { useContractWrite } from '@starknet-react/core'
 import { cairo, Call, validateAndParseAddress } from 'starknet'
-import { MAX_UINT128, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import { DEFAULT_CHAIN_ID, MAX_UINT128, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 
 const PositionPageButtonPrimary = styled(ButtonPrimary)`
   width: 228px;
@@ -708,7 +708,7 @@ function PositionPageContent() {
     const compiledParams = CallData.compile(collectFeeParams)
 
     const callData = {
-      contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+      contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID],
       entrypoint: 'collect',
       calldata: compiledParams,
     }

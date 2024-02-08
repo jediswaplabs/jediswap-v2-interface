@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 import { PositionDetails } from 'types/position'
 import { useContractRead } from '@starknet-react/core'
 import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
-import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { cairo } from 'starknet'
 import { useV3NFTPositionManagerContract } from './useContract'
 import { toInt } from 'utils/toInt'
@@ -58,11 +58,13 @@ const flattenedPositionsV3 = (positionsV3: FlattenedPositions): FlattenedPositio
 }
 
 const usePositionResults = (tokenId: number): UseV3Positions => {
+  const { chainId } = useAccountDetails()
+
   const { data, isLoading, error } = useContractRead({
     functionName: 'get_position',
     args: [cairo.uint256(tokenId)],
     abi: NFTPositionManagerABI,
-    address: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+    address: NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID],
     watch: true,
   })
 

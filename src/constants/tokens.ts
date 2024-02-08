@@ -6,12 +6,6 @@ import JSBI from 'jsbi'
 
 export const DEFAULT_CHAIN_ID = ChainId.MAINNET
 export const NONFUNGIBLE_POSITION_MANAGER_ADDRESSES = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
-export const DEFAULT_POOL_ADDRESS = '0x0087c11c97290c2a57f579d306675280032e5261b3d4bb681c90f1cd2bf5d392'
-export const NONFUNGIBLE_POOL_MANAGER_ADDRESS = '0x00d61e6af51443e01bc62cc5ce2692c26ce7b3a228ded99b3c5cfc84ae3ac6a3'
-export const DEFAULT_POOL_HASH = '0x06b8ae9efb0dbe07d7d047fb377734d4e8b881febd38f480cd1dc4f077fd3d84'
-export const SWAP_QUOTER_ADDRESS = '0x02aefF6063985f26e4DA978B810342002C427FB907e390Dd4858d58BDf01569b'
-export const SWAP_ROUTER_ADDRESS = '0x038EaEfEB9950c40a0A85f35378055e4C9739a1Eb20e87E122Ff66b4223D65AB'
-export const FACTORY_ADDRESS = '0x06b4115fa43c48118d3f79fbc500c75917c8a28d0f867479acb81893ea1e036c'
 export const MULTICALL_ADDRESSES = '0x1F98415757620B543A52E61c46B32eB19261F984'
 export const UNIVERSAL_ROUTER_ADDRESS = '0x3fC91A3afd70395Cd496C647d5a6CC9D4B2b7FAD'
 export const isAvalanche = false
@@ -26,9 +20,25 @@ export const ZERO_ADDRESS_STARKNET = '0x0000000000000000000000000000000000000000
 const cachedNativeCurrency: { [chainId: string]: NativeCurrency | Token } = {}
 export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {
   if (cachedNativeCurrency[chainId]) return cachedNativeCurrency[chainId]
-  let nativeCurrency: NativeCurrency | Token
 
   return (cachedNativeCurrency[chainId] = WETH[chainId])
+}
+
+export const POOL_CLASS_HASH = {
+  [ChainId.MAINNET]: '0x28f45f8cb529a51c5beead847c659802b978801e5303201859175f6d9a5939e',
+  [ChainId.GOERLI]: '0x06b8ae9efb0dbe07d7d047fb377734d4e8b881febd38f480cd1dc4f077fd3d84',
+}
+export const FACTORY_ADDRESS = {
+  [ChainId.MAINNET]: '0x04ba0de31008f4e3edd42b3c31db8f49490505885d684b78f5aa1572850b3a5a',
+  [ChainId.GOERLI]: '0x06b4115fa43c48118d3f79fbc500c75917c8a28d0f867479acb81893ea1e036c',
+}
+export const NONFUNGIBLE_POOL_MANAGER_ADDRESS: { [chainId in ChainId]: string } = {
+  [ChainId.MAINNET]: '0x04d367b511dec42e5207c616e50afc8471ee8bdf53f46d1def9fc7d8411f1eec',
+  [ChainId.GOERLI]: '0x00d61e6af51443e01bc62cc5ce2692c26ce7b3a228ded99b3c5cfc84ae3ac6a3',
+}
+export const SWAP_ROUTER_ADDRESS = {
+  [ChainId.MAINNET]: '0x031a0c1ec4b27d0d0ce75a56b0d35d7ca79138aed511857627b33295b1175ffa',
+  [ChainId.GOERLI]: '0x038EaEfEB9950c40a0A85f35378055e4C9739a1Eb20e87E122Ff66b4223D65AB',
 }
 
 export const STARKSCAN_PROXY_ADDRESS = {
@@ -52,11 +62,6 @@ export const domainURL = (chainId: ChainId) => {
   return chainId === ChainId.MAINNET
     ? 'https://app.starknet.id/api/indexer/addr_to_domain?addr='
     : 'https://goerli.app.starknet.id/api/indexer/addr_to_domain?addr='
-}
-
-export const ROUTER_ADDRESS: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
-  [ChainId.GOERLI]: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
 }
 
 export const ZAP_IN_ADDRESS: { [chainId in ChainId]: string } = {

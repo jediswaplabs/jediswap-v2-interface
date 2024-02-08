@@ -8,7 +8,7 @@ import { unwrappedToken } from 'utils/unwrappedToken'
 import { useBlockNumber as uBlockNumber, useContract, useContractRead } from '@starknet-react/core'
 import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
 import { useV3NFTPositionManagerContract } from './useContract'
-import { MAX_UINT128, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import { DEFAULT_CHAIN_ID, MAX_UINT128, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { CallData, cairo, validateAndParseAddress } from 'starknet'
 import POOL_ABI from 'contracts/pool/abi.json'
 import { toI32 } from 'utils/toI32'
@@ -67,6 +67,7 @@ export function useV3PositionFees(
 }
 
 export const usePositionOwner = (tokenId: number) => {
+  const { chainId } = useAccountDetails()
   const {
     data: ownerOf,
     isLoading,
@@ -75,7 +76,7 @@ export const usePositionOwner = (tokenId: number) => {
     functionName: 'owner_of',
     args: [cairo.uint256(tokenId)],
     abi: NFTPositionManagerABI,
-    address: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+    address: NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID],
     watch: true,
   })
   return { ownerOf: ownerOf ? validateAndParseAddress(ownerOf.toString()) : undefined, isLoading, error }

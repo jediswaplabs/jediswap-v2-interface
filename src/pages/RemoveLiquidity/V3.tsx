@@ -40,7 +40,7 @@ import AppBody from '../AppBody'
 import { ResponsiveHeaderText, SmallMaxButton, Wrapper } from './styled'
 import { useContractWrite, useProvider } from '@starknet-react/core'
 import { Call, CallData, cairo } from 'starknet'
-import { NONFUNGIBLE_POOL_MANAGER_ADDRESS } from '../../constants/tokens'
+import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from '../../constants/tokens'
 import JSBI from 'jsbi'
 
 const DEFAULT_REMOVE_V3_LIQUIDITY_SLIPPAGE_TOLERANCE = new Percent(5, 100)
@@ -172,7 +172,7 @@ function Remove({ tokenId }: { tokenId: number }) {
     const collectFeeCallData = CallData.compile(collectFeeParams)
 
     const createCallObject = (entrypoint: string, calldata: any) => ({
-      contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS,
+      contractAddress: NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID],
       entrypoint,
       calldata,
     })
