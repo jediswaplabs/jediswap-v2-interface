@@ -49,7 +49,7 @@ import { useV3PositionTokenURI } from '../../hooks/usePositionTokenURI'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { LoadingRows } from './styled'
 import { useContractWrite } from '@starknet-react/core'
-import { cairo, Call, validateAndParseAddress } from 'starknet'
+import { cairo, Call, CallData, validateAndParseAddress } from 'starknet'
 import { DEFAULT_CHAIN_ID, MAX_UINT128, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 
 const PositionPageButtonPrimary = styled(ButtonPrimary)`
@@ -395,8 +395,11 @@ function CollectFees(props) {
     txHash,
     isCollectPending,
     showCollectAsWeth,
+    parsedTokenId,
   } = props
-  const [feeValue0, feeValue1] = useStaticFeeResults(poolAddress, owner, position, showCollectAsWeth)
+  const [feeValue0, feeValue1] = useStaticFeeResults(poolAddress, owner, position, showCollectAsWeth, parsedTokenId)
+
+  const theme = useTheme()
 
   const feeValueUpper = inverted ? feeValue0 : feeValue1
   const feeValueLower = inverted ? feeValue1 : feeValue0
@@ -700,7 +703,7 @@ function PositionPageContent() {
 
     const collectFeeParams = {
       tokenId: cairo.uint256(tokenId),
-      recipient: account,
+      recipient: address,
       amount0_max: MAX_UINT128,
       amount1_max: MAX_UINT128,
     }
@@ -930,6 +933,7 @@ function PositionPageContent() {
                   txHash={txHash}
                   isCollectPending={isCollectPending}
                   showCollectAsWeth={showCollectAsWeth}
+                  parsedTokenId={parsedTokenId}
                 />
               ) : null}
             </AutoColumn>

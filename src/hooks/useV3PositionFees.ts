@@ -9,10 +9,25 @@ import { useBlockNumber as uBlockNumber, useContract, useContractRead } from '@s
 import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
 import { useV3NFTPositionManagerContract } from './useContract'
 import { DEFAULT_CHAIN_ID, MAX_UINT128, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
-import { CallData, cairo, validateAndParseAddress } from 'starknet'
+import {
+  BigNumberish,
+  CallData,
+  RpcProvider,
+  TransactionType,
+  WeierstrassSignatureType,
+  cairo,
+  ec,
+  hash,
+  validateAndParseAddress,
+} from 'starknet'
 import POOL_ABI from 'contracts/pool/abi.json'
 import { toI32 } from 'utils/toI32'
 import { useAccountDetails } from './starknet-react'
+import { useQuery } from 'react-query'
+
+const provider = new RpcProvider({
+  nodeUrl: 'https://starknet-testnet.public.blastapi.io/rpc/v0_6',
+})
 
 // compute current + counterfactual fees for a v3 position
 export function useV3PositionFees(
@@ -82,38 +97,125 @@ export const usePositionOwner = (tokenId: number) => {
   return { ownerOf: ownerOf ? validateAndParseAddress(ownerOf.toString()) : undefined, isLoading, error }
 }
 
-export const useStaticFeeResults = (poolAddress: string, owner: string, position: Position, asWETH: false) => {
-  const callData = {
-    owner,
-    tick_lower: toI32(position.tickLower),
-    tick_upper: toI32(position.tickUpper),
-    amount0_requested: MAX_UINT128,
-    amount1_requested: MAX_UINT128,
+export const useStaticFeeResults = (
+  poolAddress: string,
+  owner: string,
+  position: Position,
+  asWETH: false,
+  parsedTokenId: number
+) => {
+  const { account, address, connector, chainId } = useAccountDetails()
+
+  const privateKey = '0x1234567890987654321'
+
+  const message: BigNumberish[] = [1, 128, 18, 14]
+
+  const msgHash = hash.computeHashOnElements(message)
+  const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
+
+  const collectSelector = useMemo(() => {
+    if (!chainId) return
+    return {
+      contract_address: NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId],
+      selector: hash.getSelectorFromName('collect'),
+    }
+  }, [chainId])
+
+  const totalTx = {
+    totalTx: '0x1',
   }
-  position.pool.token0
+  const collect_call_data_length = { approve_call_data_length: '0x05' }
 
-  const compiledData = CallData.compile(callData)
-
-  const { data } = useContractRead({
-    functionName: 'static_collect',
-    args: [compiledData],
-    abi: POOL_ABI,
-    address: poolAddress,
-    watch: true,
+  const nonce_results = useQuery({
+    queryKey: [`nonce/${poolAddress}/${parsedTokenId}/${account?.address}`],
+    queryFn: async () => {
+      if (!account) return
+      const results = await account?.getNonce()
+      return cairo.felt(results.toString())
+    },
+    onSuccess: (data) => {
+      // Handle the successful data fetching here if needed
+    },
   })
 
-  if (data) {
-    const dataObj = data as any
-    return [
-      CurrencyAmount.fromRawAmount(
-        asWETH ? position.pool.token0 : unwrappedToken(position.pool.token0),
-        dataObj[0].toString()
-      ),
-      CurrencyAmount.fromRawAmount(
-        asWETH ? position.pool.token1 : unwrappedToken(position.pool.token1),
-        dataObj[1].toString()
-      ),
-    ]
+  const fee_results = useQuery({
+    queryKey: [`fee/${address}/${nonce_results.data}/${parsedTokenId}`],
+    queryFn: async () => {
+      if (!account || !address || !nonce_results || !parsedTokenId || !connector || !collectSelector) return
+      const nonce_data = nonce_results.data
+      if (!nonce_data) return undefined
+      const nonce = Number(nonce_data)
+      const isConnectorBraavos = connector.id === 'braavos'
+
+      const collect_call_data = {
+        tokenId: cairo.uint256(parsedTokenId),
+        recipient: address,
+        amount0_max: MAX_UINT128,
+        amount1_max: MAX_UINT128,
+      }
+      const payload = isConnectorBraavos
+        ? {
+            contractAddress: address,
+            calldata: CallData.compile({
+              ...totalTx,
+              ...collectSelector,
+              ...{ collect_offset: '0x0' },
+              ...collect_call_data_length,
+              ...{ total_call_data_length: '0x5' },
+              ...collect_call_data,
+            }),
+          }
+        : {
+            contractAddress: address,
+            calldata: CallData.compile({
+              ...totalTx,
+              ...collectSelector,
+              ...collect_call_data_length,
+              ...collect_call_data,
+            }),
+          }
+
+      // const compiledCall = CallData.
+      const response = await provider.simulateTransaction(
+        [
+          {
+            type: TransactionType.INVOKE,
+            ...payload,
+            signature,
+            nonce,
+          },
+        ],
+        {
+          skipValidate: true,
+        }
+      )
+
+      // return response
+
+      const typedResponse: any = response
+
+      const tx_response: any = typedResponse
+        ? typedResponse[0]?.transaction_trace.execute_invocation?.result
+        : undefined
+
+      return tx_response
+    },
+  })
+
+  if (fee_results && fee_results.data) {
+    const results: string[] = fee_results.data
+    if (results) {
+      return [
+        CurrencyAmount.fromRawAmount(
+          asWETH ? position.pool.token0 : unwrappedToken(position.pool.token0),
+          results[results.length - 2].toString()
+        ),
+        CurrencyAmount.fromRawAmount(
+          asWETH ? position.pool.token1 : unwrappedToken(position.pool.token1),
+          results[results.length - 1].toString()
+        ),
+      ]
+    } else return [undefined, undefined]
   } else {
     return [undefined, undefined]
   }
