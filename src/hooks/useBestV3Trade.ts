@@ -116,9 +116,8 @@ export function useBestV3TradeExactIn(
         }
 
         const call = {
-          contractAddress: swapRouterAddress,
-          entrypoint: 'exact_input',
           calldata: CallData.compile(exactInputSingleParams),
+          route,
         }
 
         return call
@@ -141,6 +140,7 @@ export function useBestV3TradeExactIn(
 
         const call = {
           calldata: exactInputSingleParams,
+          route,
         }
 
         return call
@@ -241,10 +241,14 @@ export function useBestV3TradeExactIn(
       })
 
       const settledResults = await Promise.allSettled(callPromises as any)
+      const settledResultsWithRoute = settledResults.map((result, i) => ({ ...result, route: routes[i] }))
 
-      const resolvedResults = settledResults
+      const resolvedResults = settledResultsWithRoute
         .filter((result) => result.status === 'fulfilled')
-        .map((result: any) => result.value)
+        .map((result: any) => {
+          const response = { ...result.value, route: result.route }
+          return response
+        })
 
       return resolvedResults
     },
@@ -264,8 +268,9 @@ export function useBestV3TradeExactIn(
     const data = amountOutResults?.data
 
     if (!data) return
-    const subRoutesArray = data.map((subArray) => subArray[0])
+    const subRoutesArray = data.map((subArray) => ({ ...subArray[0], route: subArray.route }))
     const bestRouteResults = { bestRoute: null, amountOut: null }
+
     const { bestRoute, amountOut } = subRoutesArray
       .filter((result: any) => result?.transaction_trace?.execute_invocation?.result)
       .reduce((currentBest: any, result: any, i: any) => {
@@ -275,12 +280,12 @@ export function useBestV3TradeExactIn(
         if (!result) return currentBest
         if (currentBest.amountOut === null) {
           return {
-            bestRoute: routes[i],
+            bestRoute: result?.route,
             amountOut,
           }
         } else if (Number(cairo.felt(currentBest.amountOut)) < Number(cairo.felt(amountOut))) {
           return {
-            bestRoute: routes[i],
+            bestRoute: result?.route,
             amountOut,
           }
         }
@@ -401,6 +406,7 @@ export function useBestV3TradeExactOut(
 
         const call = {
           calldata: exactOutputSingleParams,
+          route,
         }
 
         return call
@@ -423,6 +429,7 @@ export function useBestV3TradeExactOut(
 
         const call = {
           calldata: exactOutputSingleParams,
+          route,
         }
 
         return call
@@ -524,11 +531,14 @@ export function useBestV3TradeExactOut(
       })
 
       const settledResults = await Promise.allSettled(callPromises as any)
+      const settledResultsWithRoute = settledResults.map((result, i) => ({ ...result, route: routes[i] }))
 
-      const resolvedResults = settledResults
+      const resolvedResults = settledResultsWithRoute
         .filter((result) => result.status === 'fulfilled')
-        .map((result: any) => result.value)
-
+        .map((result: any) => {
+          const response = { ...result.value, route: result.route }
+          return response
+        })
       return resolvedResults
     },
     onSuccess: (data) => {
@@ -547,7 +557,7 @@ export function useBestV3TradeExactOut(
     const data = amountInResults?.data
 
     if (!data) return
-    const subRoutesArray = data.map((subArray) => subArray[0])
+    const subRoutesArray = data.map((subArray) => ({ ...subArray[0], route: subArray.route }))
     const bestRouteResults = { bestRoute: null, amountIn: null }
     const { bestRoute, amountIn } = subRoutesArray
       .filter((result: any) => result?.transaction_trace?.execute_invocation?.result)
@@ -558,12 +568,12 @@ export function useBestV3TradeExactOut(
         if (!result) return currentBest
         if (currentBest.amountIn === null) {
           return {
-            bestRoute: routes[i],
+            bestRoute: result?.route,
             amountIn,
           }
         } else if (Number(cairo.felt(currentBest.amountIn)) < Number(cairo.felt(amountIn))) {
           return {
-            bestRoute: routes[i],
+            bestRoute: result?.route,
             amountIn,
           }
         }
