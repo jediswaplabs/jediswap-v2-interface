@@ -296,7 +296,7 @@ function PositionDetails(props: any) {
   const { address } = useAccountDetails()
   const { tokenIds, showConnectAWallet, toggleWalletDrawer } = props
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
-  const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds, address)
+  const { positions, loading: positionsLoading } = useV3PositionsFromTokenId([7], address)
   const theme = useTheme()
   const [openPositions, closedPositions] = positions?.reduce<[FlattenedPositions[], FlattenedPositions[]]>(
     (acc, p) => {
