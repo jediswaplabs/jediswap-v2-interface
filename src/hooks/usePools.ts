@@ -241,8 +241,8 @@ export function usePoolAddress(
   currencyB: Currency | undefined,
   feeAmount: FeeAmount | undefined
 ): string | undefined {
+  const { chainId } = useAccountDetails()
   return useMemo(() => {
-    const { chainId } = useAccountDetails()
     if (currencyA && currencyB && feeAmount && chainId) {
       const tokenA = currencyA.wrapped
       const tokenB = currencyB.wrapped
@@ -266,5 +266,5 @@ export function usePoolAddress(
     }
 
     return undefined
-  }, [currencyA, currencyB, feeAmount])
+  }, [currencyA, currencyB, feeAmount, chainId])
 }
