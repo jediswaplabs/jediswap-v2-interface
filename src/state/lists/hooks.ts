@@ -3,8 +3,6 @@ import { useMemo } from 'react'
 import { useAppSelector } from 'state/hooks'
 import { AppState } from 'state/reducer'
 import sortByListPriority from 'utils/listSort'
-
-import BROKEN_LIST from '../../constants/tokenLists/broken.tokenlist.json'
 import { DEFAULT_ACTIVE_LIST_URLS, UNSUPPORTED_LIST_URLS } from './../../constants/lists'
 
 type Mutable<T> = {
@@ -28,7 +26,7 @@ function combineMaps(map1: TokenAddressMap, map2: TokenAddressMap): TokenAddress
         memo[value] = true
         return memo
       }, {})
-  ).map((id) => parseInt(id))
+  )
 
   return chainIds.reduce<Mutable<TokenAddressMap>>((memo, chainId) => {
     memo[chainId] = {
@@ -52,6 +50,7 @@ export function useCombinedTokenMapFromUrls(urls: string[] | undefined): TokenAd
         .sort(sortByListPriority)
         .reduce((allTokens, currentUrl) => {
           const current = lists[currentUrl]?.current
+
           if (!current) return allTokens
           try {
             return combineMaps(allTokens, tokensToChainTokenMap(current))
@@ -71,13 +70,7 @@ export function useCombinedActiveList(): TokenAddressMap {
 }
 
 // list of tokens not supported on interface for various reasons, used to show warnings and prevent swaps and adds
-export function useUnsupportedTokenList(): TokenAddressMap {
+export function useUnsupportedTokenList() {
   // get hard-coded broken tokens
-  const brokenListMap = useMemo(() => tokensToChainTokenMap(BROKEN_LIST), [])
-
-  // get dynamic list of unsupported tokens
-  const loadedUnsupportedListMap = useCombinedTokenMapFromUrls(UNSUPPORTED_LIST_URLS)
-
-  // format into one token address map
-  return useMemo(() => combineMaps(brokenListMap, loadedUnsupportedListMap), [brokenListMap, loadedUnsupportedListMap])
+  return [{}]
 }

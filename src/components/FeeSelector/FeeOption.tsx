@@ -1,15 +1,15 @@
-import { Trans } from '@lingui/macro';
-import { FeeAmount } from '@uniswap/v3-sdk';
-import React from 'react';
-import styled from 'styled-components';
+import { Trans } from '@lingui/macro'
+import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
+import React from 'react'
+import styled from 'styled-components'
 
-import { ButtonRadioChecked } from 'components/Button';
-import { AutoColumn } from 'components/Column';
-import { useFeeTierDistribution } from 'hooks/useFeeTierDistribution';
-import { PoolState } from 'hooks/usePools';
-import { ThemedText } from 'theme/components';
-import { FeeTierPercentageBadge } from './FeeTierPercentageBadge';
-import { FEE_AMOUNT_DETAIL } from './shared';
+import { ButtonRadioChecked } from 'components/Button'
+import { AutoColumn } from 'components/Column'
+import { useFeeTierDistribution } from 'hooks/useFeeTierDistribution'
+import { PoolState } from 'hooks/usePools'
+import { ThemedText } from 'theme/components'
+import { FeeTierPercentageBadge } from './FeeTierPercentageBadge'
+import { FEE_AMOUNT_DETAIL } from './shared'
 
 const ResponsiveText = styled(ThemedText.DeprecatedLabel)`
   line-height: 16px;
@@ -19,7 +19,7 @@ const ResponsiveText = styled(ThemedText.DeprecatedLabel)`
     font-size: 12px;
     line-height: 12px;
   `};
-`;
+`
 
 interface FeeOptionProps {
   feeAmount: FeeAmount
@@ -31,7 +31,7 @@ interface FeeOptionProps {
 
 export function FeeOption({ feeAmount, active, poolState, distributions, onClick }: FeeOptionProps) {
   return (
-    <ButtonRadioChecked active={active} onClick={onClick} style={{ border: '1px solid #444', borderRadius: '8px'}}>
+    <ButtonRadioChecked active={active} onClick={onClick} style={{ border: '1px solid #444', borderRadius: '8px' }}>
       <AutoColumn gap="sm" justify="flex-start">
         <AutoColumn justify="flex-start" gap="6px">
           <ResponsiveText>
@@ -42,10 +42,10 @@ export function FeeOption({ feeAmount, active, poolState, distributions, onClick
           </ThemedText.DeprecatedMain>
         </AutoColumn>
 
-        {distributions && (
+        {/*  {distributions && (
           <FeeTierPercentageBadge distributions={distributions} feeAmount={feeAmount} poolState={poolState} />
-        )}
+        )} */}
       </AutoColumn>
     </ButtonRadioChecked>
-  );
+  )
 }

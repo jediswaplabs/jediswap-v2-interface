@@ -1,12 +1,10 @@
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfacePageName } from '@uniswap/analytics-events'
-import { useWeb3React } from '@web3-react/core'
-import { useMemo, useState } from 'react'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, BookOpen, ChevronDown, ChevronsRight, Inbox, Layers } from 'react-feather'
 import { Link } from 'react-router-dom'
 import styled, { css, useTheme } from 'styled-components'
-import { PositionDetails } from 'types/position'
-
 import { Trace, TraceEvent } from 'analytics'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button'
@@ -16,15 +14,13 @@ import PositionList from 'components/PositionList'
 import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { isSupportedChain } from 'constants/chains'
-import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
+// import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
 import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
-import { useV3Positions } from 'hooks/useV3Positions'
+import { FlattenedPositions, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
 import { useUserHideClosedPositions } from 'state/user/hooks'
-import { HideSmall, ThemedText } from 'theme/components'
-import CTACards from './CTACards'
+import { ThemedText } from 'theme/components'
 import { LoadingRows } from './styled'
-import WalletIcon from '../../assets/wallets/Wallet.png'
-import NoPositionsIcon from '../../assets/images/noPosition.png'
+import fetchTokenIds from 'api/fetchTokenId'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -296,20 +292,15 @@ function WrongNetworkCard() {
   )
 }
 
-export default function Pool() {
-  const { account, chainId } = useWeb3React()
-  const [isWalletConnected, setIsWalletConnected] = useState(true)
-  const networkSupportsV2 = useNetworkSupportsV2()
-  const toggleWalletDrawer = useToggleAccountDrawer()
-
-  const theme = useTheme()
+function PositionDetails(props: any) {
+  const { address } = useAccountDetails()
+  const { tokenIds, showConnectAWallet, toggleWalletDrawer } = props
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
-
-  const { positions, loading: positionsLoading } = useV3Positions(account)
-
-  const [openPositions, closedPositions] = positions?.reduce<[PositionDetails[], PositionDetails[]]>(
+  const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds, address)
+  const theme = useTheme()
+  const [openPositions, closedPositions] = positions?.reduce<[FlattenedPositions[], FlattenedPositions[]]>(
     (acc, p) => {
-      acc[p.liquidity?.isZero() ? 1 : 0].push(p)
+      acc[!parseInt(p.liquidity.toString()) ? 1 : 0].push(p)
       return acc
     },
     [[], []]
@@ -320,177 +311,103 @@ export default function Pool() {
     [closedPositions, openPositions, userHideClosedPositions]
   )
 
-  const filteredPositions = useFilterPossiblyMaliciousPositions(userSelectedPositionSet)
+  return (
+    <>
+      <>
+        {positionsLoading ? (
+          <PositionsLoadingPlaceholder />
+        ) : userSelectedPositionSet && userSelectedPositionSet.length > 0 ? (
+          <PositionList
+            positions={userSelectedPositionSet}
+            setUserHideClosedPositions={setUserHideClosedPositions}
+            userHideClosedPositions={userHideClosedPositions}
+          />
+        ) : (
+          <ErrorContainer>
+            <ThemedText.BodyPrimary color={theme.neutral3} textAlign="center">
+              <InboxIcon strokeWidth={1} style={{ marginTop: '2em' }} />
+              <div>
+                <Trans>Your active liquidity positions will appear here.</Trans>
+              </div>
+            </ThemedText.BodyPrimary>
+            {!showConnectAWallet && closedPositions.length > 0 && (
+              <ButtonText
+                style={{ marginTop: '.5rem' }}
+                onClick={() => setUserHideClosedPositions(!userHideClosedPositions)}
+              >
+                <Trans>Show closed positions</Trans>
+              </ButtonText>
+            )}
+            {showConnectAWallet && (
+              <ButtonPrimary
+                style={{ marginTop: '2em', marginBottom: '2em', padding: '8px 16px', width: 'fit-content' }}
+                onClick={toggleWalletDrawer}
+              >
+                <Trans>Connect wallet</Trans>
+              </ButtonPrimary>
+            )}
+          </ErrorContainer>
+        )}
+      </>
+      {/* {userSelectedPositionSet.length ? null : <CTACards />} */}
+    </>
+  )
+}
+
+export default function Pool() {
+  const { address, chainId } = useAccountDetails()
+  const [tokenIds, setTokenIds] = useState<number[]>([])
+  const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
+  //fetch Token Ids
+  useEffect(() => {
+    const getTokenIds = async () => {
+      if (address && chainId) {
+        setLoadingPositions(true)
+        const result = await fetchTokenIds(address, chainId)
+        if (result && result.data) {
+          const tokenIdsArray: number[] = result.data.map((item: any) => parseInt(item.token_id))
+          setTokenIds(tokenIdsArray)
+        }
+        setLoadingPositions(false)
+      }
+    }
+
+    getTokenIds()
+  }, [chainId, address])
+
+  const toggleWalletDrawer = useToggleAccountDrawer()
+  // const filteredPositions = useFilterPossiblyMaliciousPositions(userSelectedPositionSet)
 
   if (!isSupportedChain(chainId)) {
     return <WrongNetworkCard />
   }
 
-  const showConnectAWallet = Boolean(!account)
-
-  const menuItems = [
-    {
-      content: (
-        <PoolMenuItem>
-          <Trans>Migrate</Trans>
-          <ChevronsRight size={16} />
-        </PoolMenuItem>
-      ),
-      link: '/migrate/v2',
-      external: false,
-    },
-    {
-      content: (
-        <PoolMenuItem>
-          <Trans>V2 liquidity</Trans>
-          <Layers size={16} />
-        </PoolMenuItem>
-      ),
-      link: '/pools/v2',
-      external: false,
-    },
-    {
-      content: (
-        <PoolMenuItem>
-          <Trans>Learn</Trans>
-          <BookOpen size={16} />
-        </PoolMenuItem>
-      ),
-      link: 'https://support.uniswap.org/hc/en-us/categories/8122334631437-Providing-Liquidity-',
-      external: true,
-    },
-  ]
+  const showConnectAWallet = Boolean(!address)
 
   return (
-    <Trace page={InterfacePageName.POOL_PAGE} shouldLogImpression>
-      <PageWrapper>
-        <AutoColumn gap="lg" justify="center">
-          <AutoColumn gap="lg" style={{ width: '100%' }}>
-            <TitleRow padding="0">
-              <ThemedText.LargeHeader>
-                <PoolsHeading>Pools</PoolsHeading>
-              </ThemedText.LargeHeader>
-              {/* <ButtonRow>
-                {networkSupportsV2 && (
-                  <PoolMenu
-                    menuItems={menuItems}
-                    flyoutAlignment={FlyoutAlignment.LEFT}
-                    ToggleUI={(props: any) => (
-                      <MoreOptionsButton {...props}>
-                        <MoreOptionsText>
-                          <Trans>More</Trans>
-                          <ChevronDown size={15} />
-                        </MoreOptionsText>
-                      </MoreOptionsButton>
-                    )}
-                  />
-                )}
-                <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
-                  + <Trans>New position</Trans>
-                </ResponsiveButtonPrimary>
-              </ButtonRow> */}
-            </TitleRow>
-            <PoolStats>
-              <PoolsCard>
-                <PoolsCardHeader>Total Liquidity</PoolsCardHeader>
-                <PoolsCardDetails>
-                  <PoolsCardNumbers>US$16,006,030</PoolsCardNumbers>
-                  <PoolsCardPercent>+0.70%</PoolsCardPercent>
-                </PoolsCardDetails>
-              </PoolsCard>
-              <PoolsCard>
-                <PoolsCardHeader>Total Volume (24hr)</PoolsCardHeader>
-                <PoolsCardDetails>
-                  <PoolsCardNumbers>US$3,001,359</PoolsCardNumbers>
-                  <PoolsCardPercent>+40.09%</PoolsCardPercent>
-                </PoolsCardDetails>
-              </PoolsCard>
-              <PoolsCard>
-                <PoolsCardHeader>Total Fees (24hr)</PoolsCardHeader>
-                <PoolsCardDetails>
-                  <PoolsCardNumbers>US$16,006,030</PoolsCardNumbers>
-                  <PoolsCardPercentNegative>-1.96%</PoolsCardPercentNegative>
-                </PoolsCardDetails>
-              </PoolsCard>
-            </PoolStats>
-
-            <ButtonRow justifyContent={'space-between'}>
-              <PositionsText>My Positions</PositionsText>
-              <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
-                + <Trans>New position</Trans>
-              </ResponsiveButtonPrimary>
-            </ButtonRow>
-
-            <MainContentWrapper isWalletConnected={isWalletConnected} filteredPositions={filteredPositions.length}>
-              {isWalletConnected ? (
-                !filteredPositions.length && !positionsLoading ? (
-                  <NoPositions>
-                    <IconWrapper>
-                      <img src={NoPositionsIcon} alt={'Icon'} />
-                    </IconWrapper>
-                    <NewPositionText>
-                      <Trans>Open a new position</Trans>
-                    </NewPositionText>
-                    <ResponsiveButtonPrimary
-                      data-cy="join-pool-button"
-                      id="join-pool-button"
-                      as={Link}
-                      to="/add/ETH"
-                      style={{ marginLeft: '0' }}
-                    >
-                      + <Trans>New position</Trans>
-                    </ResponsiveButtonPrimary>
-                  </NoPositions>
-                ) : positionsLoading ? (
-                  <PositionsLoadingPlaceholder />
-                ) : (
-                  <PositionList
-                    positions={filteredPositions}
-                    setUserHideClosedPositions={setUserHideClosedPositions}
-                    userHideClosedPositions={userHideClosedPositions}
-                  />
-                )
-              ) : (
-                <ErrorContainer>
-                  <ThemedText.BodyPrimary color={theme.neutral3} textAlign="center">
-                    <IconWrapper>
-                      <img src={WalletIcon} alt={'Icon'} />
-                    </IconWrapper>
-                    <div>
-                      <Trans>Connect wallet to see your positions or open a new position</Trans>
-                    </div>
-                  </ThemedText.BodyPrimary>
-                  {!showConnectAWallet && closedPositions.length > 0 && (
-                    <ButtonText
-                      style={{ marginTop: '.5rem' }}
-                      onClick={() => setUserHideClosedPositions(!userHideClosedPositions)}
-                    >
-                      <Trans>Show closed positions</Trans>
-                    </ButtonText>
-                  )}
-                  {showConnectAWallet && (
-                    <TraceEvent
-                      events={[BrowserEvent.onClick]}
-                      name={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
-                      properties={{ received_swap_quote: false }}
-                      element={InterfaceElementName.CONNECT_WALLET_BUTTON}
-                    >
-                      <ButtonPrimary
-                        style={{ marginTop: '2em', marginBottom: '2em', padding: '8px 16px', width: 'fit-content' }}
-                        onClick={toggleWalletDrawer}
-                      >
-                        <Trans>Connect wallet</Trans>
-                      </ButtonPrimary>
-                    </TraceEvent>
-                  )}
-                </ErrorContainer>
-              )}
-            </MainContentWrapper>
-            {/* {filteredPositions.length ? null : <CTACards />} */}
-          </AutoColumn>
+    <PageWrapper>
+      <AutoColumn gap="lg" justify="center">
+        <AutoColumn gap="lg" style={{ width: '100%' }}>
+          <ButtonRow justifyContent={'space-between'}>
+            <PositionsText>My Positions</PositionsText>
+            <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
+              + <Trans>New position</Trans>
+            </ResponsiveButtonPrimary>
+          </ButtonRow>
+          <MainContentWrapper>
+            {loadingPositions ? (
+              <PositionsLoadingPlaceholder />
+            ) : (
+              <PositionDetails
+                tokenIds={tokenIds}
+                showConnectAWallet={showConnectAWallet}
+                toggleWalletDrawer={toggleWalletDrawer}
+              />
+            )}
+          </MainContentWrapper>
+          {/* {userSelectedPositionSet.length ? null : <CTACards />} */}
         </AutoColumn>
-      </PageWrapper>
-      <SwitchLocaleLink />
-    </Trace>
+      </AutoColumn>
+    </PageWrapper>
   )
 }

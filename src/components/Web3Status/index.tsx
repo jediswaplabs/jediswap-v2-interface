@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import styled from 'styled-components'
 
@@ -19,9 +19,10 @@ import { flexRowNoWrap } from 'theme/styles'
 import { shortenAddress } from 'utils'
 import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
 import { RowBetween } from '../Row'
-import { useAccountDetails } from 'hooks/starknet-react'
-import ARGENTX_ICON from '../../assets/wallets/argentx.png'
-import braavosIcon from '../../assets/wallets/Braavos.svg'
+import { useStarkName } from '@starknet-react/core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
+
+const FULL_BORDER_RADIUS = 9999
 
 const Web3StatusGeneric = styled(ButtonSecondary)`
   ${flexRowNoWrap};
@@ -33,13 +34,15 @@ const Web3StatusGeneric = styled(ButtonSecondary)`
   height: 38px;
   font-size: 16px;
   font-weight: 600;
-
-  :focus {
-    outline: none;
-  }
 `
 
-const Web3StatusConnectWrapper = styled.div``
+const Web3StatusConnectWrapper = styled.div`
+  font-family: 'Avenir LT Std';
+  background-color: ${({ theme }) => theme.surface5};
+  border: none;
+  color: ${({ theme }) => theme.white};
+  padding: 10px 24px;
+`
 
 const Web3StatusConnected = styled(Web3StatusGeneric)<{
   pending?: boolean
@@ -50,16 +53,32 @@ const Web3StatusConnected = styled(Web3StatusGeneric)<{
   border: none;
   color: ${({ theme }) => theme.white};
   padding: 10px 24px;
-  :hover,
-  :focus {
-    border: 2px solid ${({ theme }) => theme.white};
-  }
 `
 
-const Web3StatusConnecting = styled(Web3StatusConnected)`
-  &:disabled {
-    opacity: 1;
-  }
+const NetworkContainer = styled.div`
+  ${flexRowNoWrap};
+  width: 100%;
+  align-items: center;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+  height: 38px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: 'Avenir LT Std';
+  border: none;
+  color: ${({ theme }) => theme.white};
+  margin-right: 16px;
+  padding: 10px 24px;
+`
+
+const NetworkSelected = styled(Web3StatusGeneric)<{}>`
+  font-family: 'Avenir LT Std';
+  background-color: ${({ theme }) => theme.jediNavyBlue};
+  border: none;
+  color: ${({ theme }) => theme.white};
+  margin-right: 16px;
+  padding: 10px 24px;
 `
 
 const AddressAndChevronContainer = styled.div<{ loading?: boolean }>`
@@ -79,137 +98,49 @@ const Text = styled.p`
   font-weight: 600;
 `
 
-const StyledConnectButton = styled(ThemeButton)`
-  font-family: 'Avenir LT Std';
-  width: 200px;
-  line-height: 18px;
-  :hover,
-  :focus {
-    background: ${({ theme }) => theme.brandedGradientReversed};
-  }
+const StyledConnectButton = styled.button`
+  background-color: transparent;
+  border: none;
+  border-top-left-radius: ${FULL_BORDER_RADIUS}px;
+  border-bottom-left-radius: ${FULL_BORDER_RADIUS}px;
+  cursor: pointer;
+  font-weight: 535;
+  font-size: 16px;
+  padding: 10px 12px;
+  color: inherit;
 `
 
 function Web3StatusInner() {
-  const switchingChain = useAppSelector((state) => state.wallets.switchingChain)
-  const ignoreWhileSwitchingChain = useCallback(() => !switchingChain, [switchingChain])
-  const connectionReady = useConnectionReady()
-  const activeWeb3 = useWeb3React()
-  const lastWeb3 = useLast(useWeb3React(), ignoreWhileSwitchingChain)
-  const { account, connector } = useMemo(() => (activeWeb3.account ? activeWeb3 : lastWeb3), [activeWeb3, lastWeb3])
-  const { address, connector: conenctorInfo } = useAccountDetails()
-  const { ENSName, loading: ENSLoading } = useENSName(account)
-  const connection = getConnection(connector)
-
   const [, toggleAccountDrawer] = useAccountDrawer()
   const handleWalletDropdownClick = useCallback(() => {
     toggleAccountDrawer()
   }, [toggleAccountDrawer])
-
-  const { hasPendingActivity, pendingActivityCount } = usePendingActivity()
-
-  // Display a loading state while initializing the connection, based on the last session's persisted connection.
-  // The connection will go through three states:
-  // - startup:       connection is not ready
-  // - initializing:  account is available, but ENS (if preset on the persisted initialMeta) is still loading
-  // - initialized:   account and ENS are available
-  // Subsequent connections are always considered initialized, and will not display startup/initializing states.
-  const initialConnection = useRef(getPersistedConnectionMeta())
-  const isConnectionInitializing = Boolean(
-    initialConnection.current?.address === account && initialConnection.current?.ENSName && ENSLoading
-  )
-  const isConnectionInitialized = connectionReady && !isConnectionInitializing
-  // Clear the initial connection once initialized so it does not interfere with subsequent connections.
-  useEffect(() => {
-    if (isConnectionInitialized) {
-      initialConnection.current = undefined
-    }
-  }, [isConnectionInitialized])
-  // Persist the connection if it changes, so it can be used to initialize the next session's connection.
-  useEffect(() => {
-    if (account || ENSName) {
-      const meta: ConnectionMeta = {
-        type: connection.type,
-        address: account,
-        ENSName: ENSName ?? undefined,
-      }
-      setPersistedConnectionMeta(meta)
-    }
-  }, [ENSName, account, connection.type])
-
-  function WalletIcon() {
-    if (conenctorInfo?.id === 'argentX' || conenctorInfo?.id === 'argentWebWallet') {
-      return (
-        <IconWrapper size={20}>
-          <img src={ARGENTX_ICON} alt="ArgentX" />
-        </IconWrapper>
-      )
-    }
-
-    if (conenctorInfo?.id === 'braavos') {
-      return (
-        <IconWrapper size={20}>
-          <img src={braavosIcon} alt="myBraavos" />
-        </IconWrapper>
-      )
-    }
-    return null
-  }
-
-  if (!isConnectionInitialized) {
-    return (
-      <Web3StatusConnecting disabled={!isConnectionInitializing} onClick={handleWalletDropdownClick}>
-        <IconWrapper size={24}>
-          <Loader size="24px" stroke="white" />
-        </IconWrapper>
-        <AddressAndChevronContainer loading>
-          <Text>{initialConnection.current?.ENSName ?? shortenAddress(initialConnection.current?.address)}</Text>
-        </AddressAndChevronContainer>
-      </Web3StatusConnecting>
-    )
-  }
+  const { address, connector, chainId } = useAccountDetails()
+  const { data: starkName } = useStarkName({ address })
 
   if (address) {
-    const addressShort = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : null
-
     return (
-      <Web3StatusConnected
-        disabled={Boolean(switchingChain)}
-        data-testid="web3-status-connected"
-        onClick={handleWalletDropdownClick}
-        pending={hasPendingActivity}
-      >
-        {!hasPendingActivity && connection && (
-          <StatusIcon account={address} size={24} connection={connection} showMiniIcons={false} />
-        )}
-        {hasPendingActivity ? (
-          <RowBetween>
-            <Text>
-              <Trans>{pendingActivityCount} Pending</Trans>
-            </Text>{' '}
-            <Loader stroke="white" />
-          </RowBetween>
-        ) : (
+      <NetworkContainer>
+        <NetworkSelected data-testid="web3-status-connected" onClick={handleWalletDropdownClick}>
+          <Text>Starknet {chainId === ChainId.MAINNET ? 'Mainnet' : 'Goerli'}</Text>
+        </NetworkSelected>
+        <Web3StatusConnected data-testid="web3-status-connected" onClick={handleWalletDropdownClick}>
+          <StatusIcon account={address} connection={connector} size={40} />
           <AddressAndChevronContainer>
-            <IconWrapper size={20}>
-              <WalletIcon />
-            </IconWrapper>
-            <Text>{ENSName ?? addressShort}</Text>
+            <Text>{starkName ?? shortenAddress(address)}</Text>
           </AddressAndChevronContainer>
-        )}
-      </Web3StatusConnected>
+        </Web3StatusConnected>
+      </NetworkContainer>
+    )
+  } else {
+    return (
+      <Web3StatusConnectWrapper tabIndex={0} onClick={handleWalletDropdownClick}>
+        <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet">
+          <Trans>Connect</Trans>
+        </StyledConnectButton>
+      </Web3StatusConnectWrapper>
     )
   }
-  return (
-    <Web3StatusConnectWrapper
-      tabIndex={0}
-      onKeyPress={(e) => e.key === 'Enter' && handleWalletDropdownClick()}
-      onClick={handleWalletDropdownClick}
-    >
-      <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet" size={ButtonSize.small}>
-        <Trans>Connect Wallet</Trans>
-      </StyledConnectButton>
-    </Web3StatusConnectWrapper>
-  )
 }
 
 export default function Web3Status() {

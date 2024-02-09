@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: mainnet
-      url: https://e2.jediswap.xyz/
+      url: https://app.v2.jediswap.xyz/
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -34,8 +34,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
         with:
-          version-type:  ${{ inputs.bumpType }}
-          tag-prefix:  'v'
+          version-type: ${{ inputs.bumpType }}
+          tag-prefix: 'v'
           target-branch: 'main'
           commit-message: 'CI: bumps version to {{version}}'
           bump-policy: 'last-commit'
@@ -50,7 +50,7 @@ jobs:
       - name: Cleanup
         run: |
           gh extension install actions/gh-actions-cache
-          
+
           REPO=${{ github.repository }}
           BRANCH="refs/pull/${{ github.event.pull_request.number }}/merge"
 

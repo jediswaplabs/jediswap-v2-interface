@@ -1,5 +1,5 @@
 import { getVersionUpgrade, VersionUpgrade } from '@uniswap/token-lists'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { DEFAULT_LIST_OF_LISTS, UNSUPPORTED_LIST_URLS } from 'constants/lists'
 import TokenSafetyLookupTable from 'constants/tokenSafetyLookup'
 import { useStateRehydrated } from 'hooks/useStateRehydrated'
@@ -13,9 +13,10 @@ import { useFetchListCallback } from '../../hooks/useFetchListCallback'
 import useIsWindowVisible from '../../hooks/useIsWindowVisible'
 import { acceptListUpdate } from './actions'
 import { shouldAcceptVersionUpdate } from './utils'
+import { useProvider } from '@starknet-react/core'
 
 export default function Updater(): null {
-  const { provider } = useWeb3React()
+  const { provider } = useProvider()
   const dispatch = useAppDispatch()
   const isWindowVisible = useIsWindowVisible()
 
@@ -33,10 +34,10 @@ export default function Updater(): null {
     if (!isWindowVisible) return
     DEFAULT_LIST_OF_LISTS.forEach((url) => {
       // Skip validation on unsupported lists
-      const isUnsupportedList = UNSUPPORTED_LIST_URLS.includes(url)
-      fetchList(url, isUnsupportedList).catch((error) => console.debug('interval list fetching error', error))
+      // const isUnsupportedList = false;
+      fetchList(url).catch((error) => console.debug('interval list fetching error', error))
     })
-  }, [fetchList, isWindowVisible])
+  }, [isWindowVisible])
 
   // fetch all lists every 10 minutes, but only after we initialize provider
   useInterval(fetchAllListsCallback, provider ? ms(`10m`) : null)
@@ -48,18 +49,18 @@ export default function Updater(): null {
     Object.keys(lists).forEach((listUrl) => {
       const list = lists[listUrl]
       if (!list.current && !list.loadingRequestId && !list.error) {
-        fetchList(listUrl).catch((error) => console.debug('list added fetching error', error))
+        // fetchList(listUrl).catch((error) => console.debug('list added fetching error', error))
       }
     })
     UNSUPPORTED_LIST_URLS.forEach((listUrl) => {
       const list = lists[listUrl]
       if (!list || (!list.current && !list.loadingRequestId && !list.error)) {
-        fetchList(listUrl, /* isUnsupportedList= */ true).catch((error) =>
-          console.debug('list added fetching error', error)
-        )
+        // fetchList(listUrl, /* isUnsupportedList= */ true).catch((error) =>
+        //   console.debug('list added fetching error', error)
+        // )
       }
     })
-  }, [dispatch, fetchList, lists, rehydrated])
+  }, [dispatch, lists, rehydrated])
 
   // automatically update lists if versions are minor/patch
   useEffect(() => {

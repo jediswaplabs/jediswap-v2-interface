@@ -1,8 +1,8 @@
 import { MaxUint256 } from '@ethersproject/constants'
 import type { TransactionResponse } from '@ethersproject/providers'
 import { InterfaceEventName } from '@uniswap/analytics-events'
-import { Currency, CurrencyAmount, Token } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { sendAnalyticsEvent } from 'analytics'
 import { useTokenContract } from 'hooks/useContract'
 import { useTokenAllowance } from 'hooks/useTokenAllowance'
@@ -22,7 +22,7 @@ function useApprovalStateForSpender(
   spender: string | undefined,
   useIsPendingApproval: (token?: Token, spender?: string) => boolean
 ): ApprovalState {
-  const { account } = useWeb3React()
+  const { address: account } = useAccountDetails()
   const token = amountToApprove?.currency?.isToken ? amountToApprove.currency : undefined
 
   const { tokenAllowance } = useTokenAllowance(token, account ?? undefined, spender)
@@ -54,7 +54,7 @@ export function useApproval(
     | undefined
   >
 ] {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const token = amountToApprove?.currency?.isToken ? amountToApprove.currency : undefined
 
   // check the current approval status

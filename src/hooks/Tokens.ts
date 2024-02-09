@@ -1,5 +1,5 @@
-import { ChainId, Currency, Token } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { getChainInfo } from 'constants/chainInfo'
 import { DEFAULT_INACTIVE_LIST_URLS, DEFAULT_LIST_OF_LISTS } from 'constants/lists'
 import { useCurrencyFromMap, useTokenFromMapOrNetwork } from 'lib/hooks/useCurrency'
@@ -12,7 +12,6 @@ import { isL2ChainId } from 'utils/chains'
 import { useAllLists, useCombinedActiveList, useCombinedTokenMapFromUrls } from '../state/lists/hooks'
 import { WrappedTokenInfo } from '../state/lists/wrappedTokenInfo'
 import { deserializeToken, useUserAddedTokens } from '../state/user/hooks'
-import { useUnsupportedTokenList } from './../state/lists/hooks'
 
 type Maybe<T> = T | null | undefined
 
@@ -30,7 +29,7 @@ function useTokensFromMap(tokenMap: TokenAddressMap, chainId: Maybe<ChainId>): {
 }
 
 // TODO(WEB-2347): after disallowing unchecked index access, refactor ChainTokenMap to not use ?'s
-export type ChainTokenMap = { [chainId in number]?: { [address in string]?: Token } }
+export type ChainTokenMap = { [chainId in string]?: { [address in string]?: Token } }
 /** Returns tokens from all token lists on all chains, combined with user added tokens */
 export function useAllTokensMultichain(): ChainTokenMap {
   const allTokensFromLists = useCombinedTokenMapFromUrls(DEFAULT_LIST_OF_LISTS)
@@ -94,54 +93,54 @@ type BridgeInfo = Record<
   }
 >
 
-export function useUnsupportedTokens(): { [address: string]: Token } {
-  const { chainId } = useWeb3React()
-  const listsByUrl = useAllLists()
-  const unsupportedTokensMap = useUnsupportedTokenList()
-  const unsupportedTokens = useTokensFromMap(unsupportedTokensMap, chainId)
+// export function useUnsupportedTokens(): { [address: string]: Token } {
+//   const { chainId } = useAccountDetails()
+//   const listsByUrl = useAllLists()
+//   const unsupportedTokensMap = useUnsupportedTokenList()
+//   const unsupportedTokens = useTokensFromMap(unsupportedTokensMap, chainId)
 
-  // checks the default L2 lists to see if `bridgeInfo` has an L1 address value that is unsupported
-  const l2InferredBlockedTokens: typeof unsupportedTokens = useMemo(() => {
-    if (!chainId || !isL2ChainId(chainId)) {
-      return {}
-    }
+//   // checks the default L2 lists to see if `bridgeInfo` has an L1 address value that is unsupported
+//   const l2InferredBlockedTokens: typeof unsupportedTokens = useMemo(() => {
+//     if (!chainId) {
+//       return {}
+//     }
 
-    if (!listsByUrl) {
-      return {}
-    }
+//     if (!listsByUrl) {
+//       return {}
+//     }
 
-    const listUrl = getChainInfo(chainId).defaultListUrl
+//     const listUrl = getChainInfo(chainId).defaultListUrl
 
-    const list = listsByUrl[listUrl]?.current
-    if (!list) {
-      return {}
-    }
+//     const list = listUrl && listsByUrl[listUrl]?.current
+//     if (!list) {
+//       return {}
+//     }
 
-    const unsupportedSet = new Set(Object.keys(unsupportedTokens))
+//     const unsupportedSet = new Set(Object.keys(unsupportedTokens))
 
-    return list.tokens.reduce((acc, tokenInfo) => {
-      const bridgeInfo = tokenInfo.extensions?.bridgeInfo as unknown as BridgeInfo
-      if (
-        bridgeInfo &&
-        bridgeInfo[ChainId.MAINNET] &&
-        bridgeInfo[ChainId.MAINNET].tokenAddress &&
-        unsupportedSet.has(bridgeInfo[ChainId.MAINNET].tokenAddress)
-      ) {
-        const address = bridgeInfo[ChainId.MAINNET].tokenAddress
-        // don't rely on decimals--it's possible that a token could be bridged w/ different decimals on the L2
-        return { ...acc, [address]: new Token(ChainId.MAINNET, address, tokenInfo.decimals) }
-      }
-      return acc
-    }, {})
-  }, [chainId, listsByUrl, unsupportedTokens])
+//     return list.tokens.reduce((acc: any, tokenInfo: any) => {
+//       const bridgeInfo = tokenInfo.extensions?.bridgeInfo as unknown as BridgeInfo
+//       if (
+//         bridgeInfo &&
+//         bridgeInfo[ChainId.MAINNET] &&
+//         bridgeInfo[ChainId.MAINNET].tokenAddress &&
+//         unsupportedSet.has(bridgeInfo[ChainId.MAINNET].tokenAddress)
+//       ) {
+//         const address = bridgeInfo[ChainId.MAINNET].tokenAddress
+//         // don't rely on decimals--it's possible that a token could be bridged w/ different decimals on the L2
+//         return { ...acc, [address]: new Token(ChainId.MAINNET, address, tokenInfo.decimals) }
+//       }
+//       return acc
+//     }, {})
+//   }, [chainId, listsByUrl, unsupportedTokens])
 
-  return { ...unsupportedTokens, ...l2InferredBlockedTokens }
-}
+//   return { ...unsupportedTokens, ...l2InferredBlockedTokens }
+// }
 
 export function useSearchInactiveTokenLists(search: string | undefined, minResults = 10): WrappedTokenInfo[] {
   const lists = useAllLists()
   const inactiveUrls = DEFAULT_INACTIVE_LIST_URLS
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const activeTokens = useDefaultActiveTokens(chainId)
   return useMemo(() => {
     if (!search || search.trim().length === 0) return []
@@ -152,7 +151,7 @@ export function useSearchInactiveTokenLists(search: string | undefined, minResul
       const list = lists[url]?.current
       if (!list) continue
       for (const tokenInfo of list.tokens) {
-        if (tokenInfo.chainId === chainId && tokenFilter(tokenInfo)) {
+        if ((tokenInfo.chainId as any) === chainId && tokenFilter(tokenInfo)) {
           try {
             const wrapped: WrappedTokenInfo = new WrappedTokenInfo(tokenInfo, list)
             if (!(wrapped.address in activeTokens) && !addressSet[wrapped.address]) {
@@ -185,13 +184,13 @@ export function useIsUserAddedToken(currency: Currency | undefined | null): bool
 // null if loading or null was passed
 // otherwise returns the token
 export function useToken(tokenAddress?: string | null): Token | null | undefined {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const tokens = useDefaultActiveTokens(chainId)
   return useTokenFromMapOrNetwork(tokens, tokenAddress)
 }
 
 export function useCurrency(currencyId: Maybe<string>, chainId?: ChainId): Currency | undefined {
-  const { chainId: connectedChainId } = useWeb3React()
+  const { chainId: connectedChainId } = useAccountDetails()
   const tokens = useDefaultActiveTokens(chainId ?? connectedChainId)
   return useCurrencyFromMap(tokens, chainId ?? connectedChainId, currencyId)
 }

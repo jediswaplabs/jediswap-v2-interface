@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { Percent } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { Percent } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import SettingsTab from 'components/Settings'
 import { ReactNode } from 'react'
 import { ArrowLeft } from 'react-feather'
@@ -80,7 +80,7 @@ export function AddRemoveTabs({
   showBackLink?: boolean
   children?: ReactNode
 }) {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const theme = useTheme()
   // reset states on back
   const dispatch = useAppDispatch()

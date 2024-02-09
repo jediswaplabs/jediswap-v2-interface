@@ -1,7 +1,7 @@
-import { Trade } from '@uniswap/router-sdk'
-import { Currency, CurrencyAmount, Fraction, Percent, TradeType } from '@uniswap/sdk-core'
-import { Pair } from '@uniswap/v2-sdk'
-import { FeeAmount } from '@uniswap/v3-sdk'
+import { Trade } from '@vnaysn/jediswap-router-sdk'
+import { Currency, CurrencyAmount, Fraction, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
+import { Pair } from '@vnaysn/jediswap-sdk-v2'
+import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
 import { DefaultTheme } from 'styled-components'
 
 import {

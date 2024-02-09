@@ -47,7 +47,7 @@ class TokenSafetyLookupTable {
       })
   }
 
-  checkToken(address: string, chainId?: number | null) {
+  checkToken(address: string, chainId?: string | null) {
     if (!this.initialized) this.update(store.getState().lists)
 
     if (address === NATIVE_CHAIN_ID.toLowerCase()) {

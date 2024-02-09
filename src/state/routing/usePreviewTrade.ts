@@ -1,5 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/query/react'
-import { ChainId, Currency, CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core'
+import { ChainId, Currency, CurrencyAmount, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { ZERO_PERCENT } from 'constants/misc'
 import { useQuickRouteMainnetEnabled } from 'featureFlags/flags/quickRouteMainnet'
 import { useMemo } from 'react'

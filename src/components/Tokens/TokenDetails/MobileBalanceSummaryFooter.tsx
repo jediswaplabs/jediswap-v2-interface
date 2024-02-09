@@ -1,8 +1,8 @@
 import { Trans } from '@lingui/macro'
-import { Currency } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { Currency } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { NATIVE_CHAIN_ID } from 'constants/tokens'
-import { CHAIN_ID_TO_BACKEND_NAME } from 'graphql/data/util'
+// import { CHAIN_ID_TO_BACKEND_NAME } from 'graphql/data/util'
 import { useStablecoinValue } from 'hooks/useStablecoinPrice'
 import useCurrencyBalance from 'lib/hooks/useCurrencyBalance'
 import styled from 'styled-components'
@@ -82,7 +82,7 @@ const SwapButton = styled(StyledInternalLink)`
 `
 
 export default function MobileBalanceSummaryFooter({ token }: { token: Currency }) {
-  const { account } = useWeb3React()
+  const { address: account } = useAccountDetails()
   const balance = useCurrencyBalance(account, token)
   const { formatCurrencyAmount } = useFormatter()
   const formattedBalance = formatCurrencyAmount({
@@ -93,7 +93,7 @@ export default function MobileBalanceSummaryFooter({ token }: { token: Currency 
     amount: useStablecoinValue(balance),
     type: NumberType.FiatTokenStats,
   })
-  const chain = CHAIN_ID_TO_BACKEND_NAME[token.chainId].toLowerCase()
+  const chain = ''
 
   return (
     <Wrapper>

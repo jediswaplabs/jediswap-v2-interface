@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { ChainId, Currency, CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { ChainId, Currency, CurrencyAmount, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useConnectionReady } from 'connection/eagerlyConnect'
 import { useFotAdjustmentsEnabled } from 'featureFlags/flags/fotAdjustments'
 import useAutoSlippageTolerance from 'hooks/useAutoSlippageTolerance'
@@ -13,10 +13,10 @@ import { ReactNode, useCallback, useEffect, useMemo } from 'react'
 import { AnyAction } from 'redux'
 import { useAppDispatch } from 'state/hooks'
 import { InterfaceTrade, TradeState } from 'state/routing/types'
-import { isClassicTrade, isSubmittableTrade, isUniswapXTrade } from 'state/routing/utils'
+import { isClassicTrade } from 'state/routing/utils'
 import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
 
-import { TOKEN_SHORTHANDS } from '../../constants/tokens'
+// import { TOKEN_SHORTHANDS } from '../../constants/tokens'
 import { useCurrency } from '../../hooks/Tokens'
 import useENS from '../../hooks/useENS'
 import useParsedQueryString from '../../hooks/useParsedQueryString'
@@ -24,6 +24,8 @@ import { isAddress } from '../../utils'
 import { useCurrencyBalances } from '../connection/hooks'
 import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies, typeInput } from './actions'
 import { SwapState } from './reducer'
+import { isAddressValidForStarknet } from 'utils/addresses'
+import { useBestV3TradeExactIn, useBestV3TradeExactOut } from 'hooks/useBestV3Trade'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
@@ -98,9 +100,8 @@ export type SwapInfo = {
 }
 
 // from the current swap inputs, compute the best trade and return it.
-export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefined): SwapInfo {
-  const { account } = useWeb3React()
-
+export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefined, allPools: string[]): SwapInfo {
+  const { address: account } = useAccountDetails()
   const {
     independentField,
     typedValue,
@@ -109,8 +110,8 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     recipient,
   } = state
 
-  const inputCurrency = useCurrency(inputCurrencyId, chainId)
-  const outputCurrency = useCurrency(outputCurrencyId, chainId)
+  const inputCurrency = useCurrency(inputCurrencyId)
+  const outputCurrency = useCurrency(outputCurrencyId)
 
   const fotAdjustmentsEnabled = useFotAdjustmentsEnabled()
   const { inputTax, outputTax } = useSwapTaxes(
@@ -132,22 +133,33 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     [inputCurrency, isExactIn, outputCurrency, typedValue]
   )
 
-  const trade = useDebouncedTrade(
-    isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
-    parsedAmount,
-    (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
-    undefined,
-    account,
-    inputTax,
-    outputTax
+  const bestV3TradeExactIn = useBestV3TradeExactIn(
+    allPools,
+    isExactIn ? parsedAmount : undefined,
+    outputCurrency ?? undefined
   )
+  const bestV3TradeExactOut = useBestV3TradeExactOut(
+    allPools,
+    inputCurrency ?? undefined,
+    !isExactIn ? parsedAmount : undefined
+  )
+  const trade = isExactIn ? bestV3TradeExactIn : bestV3TradeExactOut
 
-  const { data: outputFeeFiatValue } = useUSDPrice(
-    isSubmittableTrade(trade.trade) && trade.trade.swapFee
-      ? CurrencyAmount.fromRawAmount(trade.trade.outputAmount.currency, trade.trade.swapFee.amount)
-      : undefined,
-    trade.trade?.outputAmount.currency
-  )
+  //   inputAmount.token.equals(this.token0) ? this.token1 : this.token0,
+  //   trade?.trade?.outputAmount
+  // ))
+
+  // const trade = useDebouncedTrade(
+  //   isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
+  //   parsedAmount,
+  //   (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
+  //   undefined,
+  //   account,
+  //   inputTax,
+  //   outputTax
+  // )
+
+  const { data: outputFeeFiatValue } = useUSDPrice(undefined, trade.trade?.outputAmount.currency)
 
   const currencyBalances = useMemo(
     () => ({
@@ -169,7 +181,7 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
   const classicAutoSlippage = useAutoSlippageTolerance(isClassicTrade(trade.trade) ? trade.trade : undefined)
 
   // slippage for uniswapx trades is defined by the quote response
-  const uniswapXAutoSlippage = isUniswapXTrade(trade.trade) ? trade.trade.slippageTolerance : undefined
+  const uniswapXAutoSlippage = undefined
 
   // Uniswap interface recommended slippage amount
   const autoSlippage = uniswapXAutoSlippage ?? classicAutoSlippage
@@ -194,7 +206,7 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
       inputError = inputError ?? <Trans>Enter an amount</Trans>
     }
 
-    const formattedTo = isAddress(to)
+    const formattedTo = isAddressValidForStarknet(to)
     if (!to || !formattedTo) {
       inputError = inputError ?? <Trans>Enter a recipient</Trans>
     } else {
@@ -247,7 +259,7 @@ function parseCurrencyFromURLParameter(urlParam: ParsedQs[string]): string {
     if (valid) return valid
     const upper = urlParam.toUpperCase()
     if (upper === 'ETH') return 'ETH'
-    if (upper in TOKEN_SHORTHANDS) return upper
+    // if (upper in TOKEN_SHORTHANDS) return upper
   }
   return ''
 }
@@ -302,7 +314,7 @@ export function queryParametersToSwapState(parsedQs: ParsedQs): SwapState {
 
 // updates the swap state to use the defaults for a given network
 export function useDefaultsFromURLSearch(): SwapState {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const dispatch = useAppDispatch()
   const parsedQs = useParsedQueryString()
 

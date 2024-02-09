@@ -8,8 +8,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     environment:
-      name: testnet
-      url: https://testnet.e2.jediswap.xyz/
+      name: goerli
+      url: https://app.v2.goerli.jediswap.xyz/
 
     steps:
       - name: Checkout

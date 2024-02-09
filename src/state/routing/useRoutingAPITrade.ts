@@ -1,5 +1,5 @@
 import { skipToken } from '@reduxjs/toolkit/query/react'
-import { Currency, CurrencyAmount, Percent, TradeType } from '@uniswap/sdk-core'
+import { Currency, CurrencyAmount, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { AVERAGE_L1_BLOCK_TIME } from 'constants/chainInfo'
 import { ZERO_PERCENT } from 'constants/misc'
 import { useRoutingAPIArguments } from 'lib/hooks/routing/useRoutingAPIArguments'
@@ -92,7 +92,7 @@ export function useRoutingAPITrade<TTradeType extends TradeType>(
     inputTax,
     outputTax,
   })
-
+  const dfknd = useGetQuoteQueryState(queryArgs)
   const { isError, data: tradeResult, error, currentData } = useGetQuoteQueryState(queryArgs)
   useGetQuoteQuery(skipFetch ? skipToken : queryArgs, {
     // Price-fetching is informational and costly, so it's done less frequently.

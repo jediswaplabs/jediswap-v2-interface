@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useState } from 'react'
 import { ArrowUpCircle, X } from 'react-feather'
 import styled, { useTheme } from 'styled-components'
@@ -7,7 +7,7 @@ import { CustomLightSpinner, ThemedText } from 'theme/components'
 import { ExternalLink } from 'theme/components'
 
 import Circle from '../../assets/images/blue-loader.svg'
-import { useExecuteCallback } from '../../state/governance/hooks'
+// import { useExecuteCallback } from '../../state/governance/hooks'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { ButtonPrimary } from '../Button'
 import { AutoColumn, ColumnCenter } from '../Column'
@@ -41,8 +41,8 @@ interface ExecuteModalProps {
 }
 
 export default function ExecuteModal({ isOpen, onDismiss, proposalId }: ExecuteModalProps) {
-  const { chainId } = useWeb3React()
-  const executeCallback = useExecuteCallback()
+  const { chainId } = useAccountDetails()
+  // const executeCallback = useExecuteCallback()
 
   // monitor call to help UI loading state
   const [hash, setHash] = useState<string | undefined>()
@@ -61,18 +61,18 @@ export default function ExecuteModal({ isOpen, onDismiss, proposalId }: ExecuteM
   async function onExecute() {
     setAttempting(true)
 
-    // if callback not returned properly ignore
-    if (!executeCallback) return
+    // // if callback not returned properly ignore
+    // if (!executeCallback) return
 
-    // try delegation and store hash
-    const hash = await executeCallback(proposalId)?.catch((error) => {
-      setAttempting(false)
-      console.log(error)
-    })
+    // // try delegation and store hash
+    // const hash = await executeCallback(proposalId)?.catch((error) => {
+    //   setAttempting(false)
+    //   console.log(error)
+    // })
 
-    if (hash) {
-      setHash(hash)
-    }
+    // if (hash) {
+    //   setHash(hash)
+    // }
   }
 
   return (

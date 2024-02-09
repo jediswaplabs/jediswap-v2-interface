@@ -1,9 +1,10 @@
-import { ChainId } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
-import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
+// import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
 import { useFallbackProviderEnabled } from 'featureFlags/flags/fallbackProvider'
 import useIsWindowVisible from 'hooks/useIsWindowVisible'
 import { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { publicProvider, useProvider } from '@starknet-react/core'
 
 const MISSING_PROVIDER = Symbol()
 const BlockNumberContext = createContext<
@@ -37,15 +38,16 @@ export function useMainnetBlockNumber(): number | undefined {
 }
 
 export function BlockNumberProvider({ children }: { children: ReactNode }) {
-  const { chainId: activeChainId, provider } = useWeb3React()
+  const { chainId: activeChainId } = useAccountDetails()
+  const { provider } = useProvider()
   const [{ chainId, block, mainnetBlock }, setChainBlock] = useState<{
-    chainId?: number
+    chainId?: string
     block?: number
     mainnetBlock?: number
   }>({})
   const activeBlock = chainId === activeChainId ? block : undefined
 
-  const onChainBlock = useCallback((chainId: number, block: number) => {
+  const onChainBlock = useCallback((chainId: string, block: number) => {
     setChainBlock((chainBlock) => {
       if (chainBlock.chainId === chainId) {
         if (!chainBlock.block || chainBlock.block < block) {
@@ -73,39 +75,39 @@ export function BlockNumberProvider({ children }: { children: ReactNode }) {
         return chainBlock
       })
 
-      provider
-        .getBlockNumber()
-        .then((block) => {
-          if (!stale) onChainBlock(activeChainId, block)
-        })
-        .catch((error) => {
-          console.error(`Failed to get block number for chainId ${activeChainId}`, error)
-        })
+      // provider
+      //   .getBlockNumber()
+      //   .then((block) => {
+      //     if (!stale) onChainBlock(activeChainId, block)
+      //   })
+      //   .catch((error) => {
+      //     console.error(`Failed to get block number for chainId ${activeChainId}`, error)
+      //   })
 
-      const onBlock = (block: number) => onChainBlock(activeChainId, block)
-      provider.on('block', onBlock)
-      return () => {
-        stale = true
-        provider.removeListener('block', onBlock)
-      }
+      // const onBlock = (block: number) => onChainBlock(activeChainId, block)
+      // provider.on('block', onBlock)
+      // return () => {
+      //   stale = true
+      //   provider.removeListener('block', onBlock)
+      // }
     }
 
     return void 0
   }, [activeChainId, provider, windowVisible, onChainBlock])
 
-  const networkProviders = useFallbackProviderEnabled() ? RPC_PROVIDERS : DEPRECATED_RPC_PROVIDERS
+  const networkProviders = publicProvider()
 
-  useEffect(() => {
-    if (mainnetBlock === undefined) {
-      networkProviders[ChainId.MAINNET]
-        .getBlockNumber()
-        .then((block) => {
-          onChainBlock(ChainId.MAINNET, block)
-        })
-        // swallow errors - it's ok if this fails, as we'll try again if we activate mainnet
-        .catch(() => undefined)
-    }
-  }, [mainnetBlock, networkProviders, onChainBlock])
+  // useEffect(() => {
+  //   if (mainnetBlock === undefined) {
+  //     networkProviders[ChainId.MAINNET]
+  //       .getBlockNumber()
+  //       .then((block) => {
+  //         onChainBlock(ChainId.MAINNET, block)
+  //       })
+  //       // swallow errors - it's ok if this fails, as we'll try again if we activate mainnet
+  //       .catch(() => undefined)
+  //   }
+  // }, [mainnetBlock, networkProviders, onChainBlock])
 
   const value = useMemo(
     () => ({

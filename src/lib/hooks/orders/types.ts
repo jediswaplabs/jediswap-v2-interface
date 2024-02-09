@@ -12,7 +12,7 @@ interface BaseUniswapXBackendOrder {
   orderHash: string
   offerer: string
   createdAt: number
-  chainId: number
+  chainId: string
   input: {
     endAmount: string
     token: string

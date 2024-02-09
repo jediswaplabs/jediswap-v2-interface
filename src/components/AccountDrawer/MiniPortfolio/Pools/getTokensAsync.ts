@@ -1,11 +1,11 @@
-import { ChainId, Token } from '@uniswap/sdk-core'
+import { ChainId, Token } from '@vnaysn/jediswap-sdk-core'
 import ERC20_ABI from 'abis/erc20.json'
 import { Erc20Interface } from 'abis/types/Erc20'
 import { Erc20Bytes32Interface } from 'abis/types/Erc20Bytes32'
 import { DEFAULT_ERC20_DECIMALS } from 'constants/tokens'
 import { Interface } from 'ethers/lib/utils'
-import { UniswapInterfaceMulticall } from 'types/v3'
-import { isAddress } from 'utils'
+import { UniswapInterfaceMulticall } from 'types/v3/UniswapInterfaceMulticall'
+import { isAddressValidForStarknet } from 'utils/addresses'
 import { arrayToSlices } from 'utils/arrays'
 import { buildCurrencyKey, CurrencyKey, currencyKey } from 'utils/currencyKey'
 
@@ -103,7 +103,7 @@ export async function getTokensAsync(
     if (previousCall !== undefined) {
       previouslyCalledTokens.push(previousCall)
     } else {
-      const formattedAddress = isAddress(tokenAddress)
+      const formattedAddress = isAddressValidForStarknet(tokenAddress)
       if (!formattedAddress) return
       formattedAddresses.push(formattedAddress)
       calls.push(...createCallsForToken(formattedAddress))

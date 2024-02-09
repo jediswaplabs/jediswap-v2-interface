@@ -1,5 +1,6 @@
-import { ChainId, SOCKS_CONTROLLER_ADDRESSES, Token } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { ChainId, Token } from '@vnaysn/jediswap-sdk-core'
+import { SOCKS_CONTROLLER_ADDRESSES } from 'constants/addresses'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { useMemo } from 'react'
 import { useTokenBalance } from 'state/connection/hooks'
 
@@ -7,7 +8,7 @@ import { useTokenBalance } from 'state/connection/hooks'
 const SOCKS = new Token(ChainId.MAINNET, SOCKS_CONTROLLER_ADDRESSES[ChainId.MAINNET], 0)
 
 export function useHasSocks(): boolean | undefined {
-  const { account, chainId } = useWeb3React()
+  const { address: account, chainId } = useAccountDetails()
 
   const balance = useTokenBalance(account ?? undefined, chainId === ChainId.MAINNET ? SOCKS : undefined)
 

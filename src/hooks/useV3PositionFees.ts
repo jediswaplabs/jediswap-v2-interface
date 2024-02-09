@@ -1,14 +1,18 @@
 import { BigNumber } from '@ethersproject/bignumber'
-import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import { Pool } from '@uniswap/v3-sdk'
+import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
+import { Pool, Position } from '@vnaysn/jediswap-sdk-v3'
 import { useSingleCallResult } from 'lib/hooks/multicall'
 import useBlockNumber from 'lib/hooks/useBlockNumber'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { unwrappedToken } from 'utils/unwrappedToken'
-
+import { useBlockNumber as uBlockNumber, useContract, useContractRead } from '@starknet-react/core'
+import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
 import { useV3NFTPositionManagerContract } from './useContract'
-
-const MAX_UINT128 = BigNumber.from(2).pow(128).sub(1)
+import { DEFAULT_CHAIN_ID, MAX_UINT128, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import { CallData, cairo, validateAndParseAddress } from 'starknet'
+import POOL_ABI from 'contracts/pool/abi.json'
+import { toI32 } from 'utils/toI32'
+import { useAccountDetails } from './starknet-react'
 
 // compute current + counterfactual fees for a v3 position
 export function useV3PositionFees(
@@ -22,6 +26,9 @@ export function useV3PositionFees(
 
   const tokenIdHexString = tokenId?.toHexString()
   const latestBlockNumber = useBlockNumber()
+  const { data: blockNumber } = uBlockNumber({
+    refetchInterval: false,
+  })
 
   // we can't use multicall for this because we need to simulate the call from a specific address
   // latestBlockNumber is included to ensure data stays up-to-date every block
@@ -53,6 +60,59 @@ export function useV3PositionFees(
     return [
       CurrencyAmount.fromRawAmount(asWETH ? pool.token0 : unwrappedToken(pool.token0), amounts[0].toString()),
       CurrencyAmount.fromRawAmount(asWETH ? pool.token1 : unwrappedToken(pool.token1), amounts[1].toString()),
+    ]
+  } else {
+    return [undefined, undefined]
+  }
+}
+
+export const usePositionOwner = (tokenId: number) => {
+  const { chainId } = useAccountDetails()
+  const {
+    data: ownerOf,
+    isLoading,
+    error,
+  } = useContractRead({
+    functionName: 'owner_of',
+    args: [cairo.uint256(tokenId)],
+    abi: NFTPositionManagerABI,
+    address: NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID],
+    watch: true,
+  })
+  return { ownerOf: ownerOf ? validateAndParseAddress(ownerOf.toString()) : undefined, isLoading, error }
+}
+
+export const useStaticFeeResults = (poolAddress: string, owner: string, position: Position, asWETH: false) => {
+  const callData = {
+    owner,
+    tick_lower: toI32(position.tickLower),
+    tick_upper: toI32(position.tickUpper),
+    amount0_requested: MAX_UINT128,
+    amount1_requested: MAX_UINT128,
+  }
+  position.pool.token0
+
+  const compiledData = CallData.compile(callData)
+
+  const { data } = useContractRead({
+    functionName: 'static_collect',
+    args: [compiledData],
+    abi: POOL_ABI,
+    address: poolAddress,
+    watch: true,
+  })
+
+  if (data) {
+    const dataObj = data as any
+    return [
+      CurrencyAmount.fromRawAmount(
+        asWETH ? position.pool.token0 : unwrappedToken(position.pool.token0),
+        dataObj[0].toString()
+      ),
+      CurrencyAmount.fromRawAmount(
+        asWETH ? position.pool.token1 : unwrappedToken(position.pool.token1),
+        dataObj[1].toString()
+      ),
     ]
   } else {
     return [undefined, undefined]

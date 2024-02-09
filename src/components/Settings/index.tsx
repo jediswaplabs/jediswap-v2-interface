@@ -1,29 +1,29 @@
-import { Trans } from '@lingui/macro';
-import { Percent } from '@uniswap/sdk-core';
-import { useWeb3React } from '@web3-react/core';
-import { useCallback, useMemo, useRef } from 'react';
-import { X } from 'react-feather';
-import styled from 'styled-components';
+import { Trans } from '@lingui/macro'
+import { Percent } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { useCallback, useMemo, useRef } from 'react'
+import { X } from 'react-feather'
+import styled from 'styled-components'
 
-import { Scrim } from 'components/AccountDrawer';
-import AnimatedDropdown from 'components/AnimatedDropdown';
-import Column, { AutoColumn } from 'components/Column';
-import Row from 'components/Row';
-import { isSupportedChain, isUniswapXSupportedChain, L2_CHAIN_IDS } from 'constants/chains';
-import useDisableScrolling from 'hooks/useDisableScrolling';
-import { useOnClickOutside } from 'hooks/useOnClickOutside';
-import { Portal } from 'nft/components/common/Portal';
-import { useIsMobile } from 'nft/hooks';
-import { useCloseModal, useModalIsOpen, useToggleSettingsMenu } from 'state/application/hooks';
-import { ApplicationModal } from 'state/application/reducer';
-import { InterfaceTrade } from 'state/routing/types';
-import { isUniswapXTrade } from 'state/routing/utils';
-import { Divider, ThemedText } from 'theme/components';
-import { Z_INDEX } from 'theme/zIndex';
-import MaxSlippageSettings from './MaxSlippageSettings';
-import MenuButton from './MenuButton';
-import RouterPreferenceSettings from './RouterPreferenceSettings';
-import TransactionDeadlineSettings from './TransactionDeadlineSettings';
+import { Scrim } from 'components/AccountDrawer'
+import AnimatedDropdown from 'components/AnimatedDropdown'
+import Column, { AutoColumn } from 'components/Column'
+import Row from 'components/Row'
+import { isSupportedChain, isUniswapXSupportedChain } from 'constants/chains'
+import useDisableScrolling from 'hooks/useDisableScrolling'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import { Portal } from 'nft/components/common/Portal'
+import { useIsMobile } from 'nft/hooks'
+import { useCloseModal, useModalIsOpen, useToggleSettingsMenu } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/reducer'
+import { InterfaceTrade } from 'state/routing/types'
+import { isUniswapXTrade } from 'state/routing/utils'
+import { Divider, ThemedText } from 'theme/components'
+import { Z_INDEX } from 'theme/zIndex'
+import MaxSlippageSettings from './MaxSlippageSettings'
+import MenuButton from './MenuButton'
+import RouterPreferenceSettings from './RouterPreferenceSettings'
+import TransactionDeadlineSettings from './TransactionDeadlineSettings'
 
 const CloseButton = styled.button`
   background: transparent;
@@ -33,11 +33,11 @@ const CloseButton = styled.button`
   height: 24px;
   padding: 0;
   width: 24px;
-`;
+`
 
 const Menu = styled.div`
   position: relative;
-`;
+`
 
 const MenuFlyout = styled(AutoColumn)`
   min-width: 20.125rem;
@@ -57,12 +57,12 @@ const MenuFlyout = styled(AutoColumn)`
   `};
   user-select: none;
   padding: 16px;
-`;
+`
 
 const ExpandColumn = styled(AutoColumn)`
   gap: 16px;
-  padding-top:0;
-`;
+  padding-top: 0;
+`
 
 const MobileMenuContainer = styled(Row)`
   overflow: visible;
@@ -73,7 +73,7 @@ const MobileMenuContainer = styled(Row)`
   right: 0;
   width: 100%;
   z-index: ${Z_INDEX.fixed};
-`;
+`
 
 const MobileMenuWrapper = styled(Column)<{ $open: boolean }>`
   height: min-content;
@@ -91,37 +91,39 @@ const MobileMenuWrapper = styled(Column)<{ $open: boolean }>`
   font-size: 16px;
   box-shadow: unset;
   z-index: ${Z_INDEX.modal};
-`;
+`
 
 const MobileMenuHeader = styled(Row)`
   margin-bottom: 16px;
-`;
+`
 
-export default function SettingsTab({ autoSlippage,
+export default function SettingsTab({
+  autoSlippage,
   chainId,
   trade,
-  hideRoutingSettings = false }: {
+  hideRoutingSettings = false,
+}: {
   autoSlippage: Percent
-  chainId?: number
+  chainId?: string
   trade?: InterfaceTrade
   hideRoutingSettings?: boolean
 }) {
-  const { chainId: connectedChainId } = useWeb3React();
-  const node = useRef<HTMLDivElement | null>(null);
-  const isOpen = useModalIsOpen(ApplicationModal.SETTINGS);
+  const { chainId: connectedChainId } = useAccountDetails()
+  const node = useRef<HTMLDivElement | null>(null)
+  const isOpen = useModalIsOpen(ApplicationModal.SETTINGS)
 
-  const closeModal = useCloseModal();
-  const closeMenu = useCallback(() => closeModal(ApplicationModal.SETTINGS), [closeModal]);
-  const toggleMenu = useToggleSettingsMenu();
+  const closeModal = useCloseModal()
+  const closeMenu = useCallback(() => closeModal(ApplicationModal.SETTINGS), [closeModal])
+  const toggleMenu = useToggleSettingsMenu()
 
-  const isMobile = useIsMobile();
-  const isOpenMobile = isOpen && isMobile;
-  const isOpenDesktop = isOpen && !isMobile;
+  const isMobile = useIsMobile()
+  const isOpenMobile = isOpen && isMobile
+  const isOpenDesktop = isOpen && !isMobile
 
-  useOnClickOutside(node, isOpenDesktop ? closeMenu : undefined);
-  useDisableScrolling(isOpen);
+  useOnClickOutside(node, isOpenDesktop ? closeMenu : undefined)
+  useDisableScrolling(isOpen)
 
-  const isChainSupported = isSupportedChain(chainId);
+  const isChainSupported = isSupportedChain(connectedChainId)
   const Settings = useMemo(
     () => (
       <AnimatedDropdown open={!isUniswapXTrade(trade)}>
@@ -130,8 +132,8 @@ export default function SettingsTab({ autoSlippage,
         </ExpandColumn>
       </AnimatedDropdown>
     ),
-    [autoSlippage, trade],
-  );
+    [autoSlippage, trade]
+  )
 
   return (
     <Menu ref={node}>
@@ -163,5 +165,5 @@ export default function SettingsTab({ autoSlippage,
         </Portal>
       )}
     </Menu>
-  );
+  )
 }

@@ -1,20 +1,28 @@
-import { Interface } from '@ethersproject/abi'
-import { BigintIsh, Currency, Token, V3_CORE_FACTORY_ADDRESSES } from '@uniswap/sdk-core'
+import { useToken } from 'hooks/Tokens'
+import { useAccountDetails } from './starknet-react'
+// import { Interface } from '@ethersproject/abi'
+import { BigintIsh, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import IUniswapV3PoolStateJSON from '@uniswap/v3-core/artifacts/contracts/interfaces/pool/IUniswapV3PoolState.sol/IUniswapV3PoolState.json'
-import { computePoolAddress } from '@uniswap/v3-sdk'
-import { FeeAmount, Pool } from '@uniswap/v3-sdk'
-import { useWeb3React } from '@web3-react/core'
+import { computePoolAddress, toHex } from '@vnaysn/jediswap-sdk-v3'
+import { FeeAmount, Pool } from '@vnaysn/jediswap-sdk-v3'
 import JSBI from 'jsbi'
 import { useMultipleContractSingleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
-
 import { IUniswapV3PoolStateInterface } from '../types/v3/IUniswapV3PoolState'
+import { V3_CORE_FACTORY_ADDRESSES } from 'constants/addresses'
+import { useAllPairs } from 'state/pairs/hooks'
+import { BigNumberish, CallData, Contract, ec, hash, num } from 'starknet'
+import { useContractRead } from '@starknet-react/core'
+import POOL_ABI from 'contracts/pool/abi.json'
+import FACTORY_ABI from 'contracts/factoryAddress/abi.json'
+import { POOL_CLASS_HASH, FACTORY_ADDRESS } from 'constants/tokens'
+import { toInt } from 'utils/toInt'
 
-const POOL_STATE_INTERFACE = new Interface(IUniswapV3PoolStateJSON.abi) as IUniswapV3PoolStateInterface
+// const POOL_STATE_INTERFACE = new Interface(IUniswapV3PoolStateJSON.abi) as IUniswapV3PoolStateInterface
 
 // Classes are expensive to instantiate, so this caches the recently instantiated pools.
 // This avoids re-instantiating pools as the other pools in the same request are loaded.
-class PoolCache {
+export class PoolCache {
   // Evict after 128 entries. Empirically, a swap uses 64 entries.
   private static MAX_ENTRIES = 128
 
@@ -58,17 +66,17 @@ class PoolCache {
       this.pools = this.pools.slice(0, this.MAX_ENTRIES / 2)
     }
 
-    const found = this.pools.find(
-      (pool) =>
+    const found = this.pools.find((pool) => {
+      return (
         pool.token0 === tokenA &&
         pool.token1 === tokenB &&
         pool.fee === fee &&
         JSBI.EQ(pool.sqrtRatioX96, sqrtPriceX96) &&
         JSBI.EQ(pool.liquidity, liquidity) &&
         pool.tickCurrent === tick
-    )
+      )
+    })
     if (found) return found
-
     const pool = new Pool(tokenA, tokenB, fee, sqrtPriceX96, liquidity, tick)
     this.pools.unshift(pool)
     return pool
@@ -82,10 +90,15 @@ export enum PoolState {
   INVALID,
 }
 
+interface CustomBigNumber {
+  _hex: string
+  _isBigNumber: boolean
+}
+
 export function usePools(
   poolKeys: [Currency | undefined, Currency | undefined, FeeAmount | undefined][]
 ): [PoolState, Pool | null][] {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   const poolTokens: ([Token, Token, FeeAmount] | undefined)[] = useMemo(() => {
     if (!chainId) return new Array(poolKeys.length)
@@ -102,42 +115,112 @@ export function usePools(
     })
   }, [chainId, poolKeys])
 
-  const poolAddresses: (string | undefined)[] = useMemo(() => {
-    const v3CoreFactoryAddress = chainId && V3_CORE_FACTORY_ADDRESSES[chainId]
-    if (!v3CoreFactoryAddress) return new Array(poolTokens.length)
+  const poolAddress: (string | undefined)[] = useMemo(
+    () =>
+      poolTokens.map((items): string | undefined => {
+        if (items && items[0] && items[1] && items[2] && chainId) {
+          // Check if tokens are defined
+          const [tokenA, tokenB, feeAmount] = items
 
-    return poolTokens.map((value) => value && PoolCache.getPoolAddress(v3CoreFactoryAddress, ...value))
-  }, [chainId, poolTokens])
+          const tokens = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA] // does safety checks
 
-  const slot0s = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'slot0')
-  const liquidities = useMultipleContractSingleData(poolAddresses, POOL_STATE_INTERFACE, 'liquidity')
+          //compute pool contract address
+          const { calculateContractAddressFromHash } = hash
 
+          const salt = ec.starkCurve.poseidonHashMany([
+            BigInt(tokens[0].address),
+            BigInt(tokens[1].address),
+            BigInt(feeAmount),
+          ])
+
+          const constructorCalldata = CallData.compile([
+            tokens[0].address,
+            tokens[1].address,
+            feeAmount,
+            feeAmount / 50,
+          ])
+
+          return tokenA && tokenB && !tokenA.equals(tokenB)
+            ? calculateContractAddressFromHash(
+                salt,
+                POOL_CLASS_HASH[chainId],
+                constructorCalldata,
+                FACTORY_ADDRESS[chainId]
+              )
+            : undefined
+        }
+        return undefined
+      }),
+    [poolTokens]
+  )
+
+  const { data: tick } = useContractRead({
+    functionName: 'get_tick',
+    args: [],
+    abi: POOL_ABI,
+    address: poolAddress?.[0],
+    watch: true,
+  })
+
+  const tickCurrent = useMemo(() => {
+    if (tick) return toInt(tick)
+    return undefined
+  }, [tick])
+
+  const { data: liquidity } = useContractRead({
+    functionName: 'get_liquidity',
+    args: [],
+    abi: POOL_ABI,
+    address: poolAddress?.[0],
+    watch: true,
+  })
+
+  const { data: sqrtPriceX96 } = useContractRead({
+    functionName: 'get_sqrt_price_X96',
+    args: [],
+    abi: POOL_ABI,
+    address: poolAddress?.[0],
+    watch: true,
+  })
+
+  // 2018382873588440326581633304624437
+
+  const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(num.toHex(sqrtPriceX96 as BigNumberish))
+  const liquidityHex = Boolean(liquidity) ? JSBI.BigInt(num.toHex(liquidity as BigNumberish)) : JSBI.BigInt('0x0')
   return useMemo(() => {
     return poolKeys.map((_key, index) => {
       const tokens = poolTokens[index]
       if (!tokens) return [PoolState.INVALID, null]
       const [token0, token1, fee] = tokens
-
-      if (!slot0s[index]) return [PoolState.INVALID, null]
-      const { result: slot0, loading: slot0Loading, valid: slot0Valid } = slot0s[index]
-
-      if (!liquidities[index]) return [PoolState.INVALID, null]
-      const { result: liquidity, loading: liquidityLoading, valid: liquidityValid } = liquidities[index]
-
-      if (!tokens || !slot0Valid || !liquidityValid) return [PoolState.INVALID, null]
-      if (slot0Loading || liquidityLoading) return [PoolState.LOADING, null]
-      if (!slot0 || !liquidity) return [PoolState.NOT_EXISTS, null]
-      if (!slot0.sqrtPriceX96 || slot0.sqrtPriceX96.eq(0)) return [PoolState.NOT_EXISTS, null]
-
+      if (!tickCurrent || !liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
       try {
-        const pool = PoolCache.getPool(token0, token1, fee, slot0.sqrtPriceX96, liquidity[0], slot0.tick)
+        const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, tickCurrent)
         return [PoolState.EXISTS, pool]
       } catch (error) {
         console.error('Error when constructing the pool', error)
         return [PoolState.NOT_EXISTS, null]
       }
     })
-  }, [liquidities, poolKeys, slot0s, poolTokens])
+  }, [liquidity, poolKeys, tickCurrent, poolTokens])
+}
+
+export function usePoolsForSwap(results: any): [PoolState, Pool | null][] {
+  return useMemo(() => {
+    return results.map((result: any) => {
+      const { tickCurrent, liquidity, sqrtPriceX96, token0, token1, fee } = result
+      const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(num.toHex(sqrtPriceX96 as BigNumberish))
+      const liquidityHex = Boolean(liquidity) ? JSBI.BigInt(num.toHex(liquidity as BigNumberish)) : JSBI.BigInt('0x0')
+
+      if (!tickCurrent || !liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
+      try {
+        const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, tickCurrent)
+        return [PoolState.EXISTS, pool]
+      } catch (error) {
+        console.error('Error when constructing the pool', error)
+        return [PoolState.NOT_EXISTS, null]
+      }
+    })
+  }, [results])
 }
 
 export function usePool(
@@ -151,4 +234,37 @@ export function usePool(
   )
 
   return usePools(poolKeys)[0]
+}
+
+export function usePoolAddress(
+  currencyA: Currency | undefined,
+  currencyB: Currency | undefined,
+  feeAmount: FeeAmount | undefined
+): string | undefined {
+  return useMemo(() => {
+    const { chainId } = useAccountDetails()
+    if (currencyA && currencyB && feeAmount && chainId) {
+      const tokenA = currencyA.wrapped
+      const tokenB = currencyB.wrapped
+      if (tokenA.equals(tokenB)) return undefined
+      const tokens = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA] // does safety checks
+
+      //compute pool contract address
+      const { calculateContractAddressFromHash } = hash
+
+      const salt = ec.starkCurve.poseidonHashMany([
+        BigInt(tokens[0].address),
+        BigInt(tokens[1].address),
+        BigInt(feeAmount),
+      ])
+
+      const contructorCalldata = CallData.compile([tokens[0].address, tokens[1].address, feeAmount, feeAmount / 50])
+
+      return tokenA && tokenB && !tokenA.equals(tokenB)
+        ? calculateContractAddressFromHash(salt, POOL_CLASS_HASH[chainId], contructorCalldata, FACTORY_ADDRESS[chainId])
+        : undefined
+    }
+
+    return undefined
+  }, [currencyA, currencyB, feeAmount])
 }

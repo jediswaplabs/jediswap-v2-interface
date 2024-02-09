@@ -1,11 +1,11 @@
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { URI_AVAILABLE, WalletConnect, WalletConnectConstructorArgs } from '@web3-react/walletconnect-v2'
 import { sendAnalyticsEvent } from 'analytics'
-import { L1_CHAIN_IDS, L2_CHAIN_IDS } from 'constants/chains'
+import { L1_CHAIN_IDS } from 'constants/chains'
 import { Z_INDEX } from 'theme/zIndex'
 import { isIOS } from 'utils/userAgent'
-
 import { RPC_URLS } from '../constants/networks'
+import { L2_CHAIN_IDS } from 'constants/chainInfo'
 
 // Avoid testing for the best URL by only passing a single URL per chain.
 // Otherwise, WC will not initialize until all URLs have been tested (see getBestUrl in web3-react).
@@ -30,7 +30,7 @@ export class WalletConnectV2 extends WalletConnect {
       options: {
         projectId: process.env.REACT_APP_WALLET_CONNECT_PROJECT_ID as string,
         chains: [defaultChainId],
-        optionalChains: [...L1_CHAIN_IDS, ...L2_CHAIN_IDS],
+        optionalChains: [],
         showQrModal: qrcode,
         rpcMap: RPC_URLS_WITHOUT_FALLBACKS,
         // as of 6/16/2023 there are no docs for `optionalMethods`
@@ -57,10 +57,10 @@ export class WalletConnectV2 extends WalletConnect {
     })
   }
 
-  activate(chainId?: number) {
-    sendAnalyticsEvent(this.ANALYTICS_EVENT)
-    return super.activate(chainId)
-  }
+  // activate(chainId?: string) {
+  //   sendAnalyticsEvent(this.ANALYTICS_EVENT)
+  //   return super.activate(chainId)
+  // }
 }
 
 // Custom class for Uniswap Wallet specific functionality
@@ -68,30 +68,30 @@ export class UniwalletConnect extends WalletConnectV2 {
   ANALYTICS_EVENT = 'Uniswap Wallet QR Scan'
   static UNI_URI_AVAILABLE = 'uni_uri_available'
 
-  constructor({ actions, onError }: Omit<WalletConnectConstructorArgs, 'options'>) {
-    // disables walletconnect's proprietary qr code modal; instead UniwalletModal will listen for events to trigger our custom modal
-    super({ actions, defaultChainId: ChainId.MAINNET, qrcode: false, onError })
+  // constructor({ actions, onError }: Omit<WalletConnectConstructorArgs, 'options'>) {
+  //   // disables walletconnect's proprietary qr code modal; instead UniwalletModal will listen for events to trigger our custom modal
+  //   super({ actions, defaultChainId: ChainId.MAINNET, qrcode: false, onError })
 
-    this.events.once(URI_AVAILABLE, () => {
-      this.provider?.events.on('disconnect', this.deactivate)
-    })
+  //   this.events.once(URI_AVAILABLE, () => {
+  //     this.provider?.events.on('disconnect', this.deactivate)
+  //   })
 
-    this.events.on(URI_AVAILABLE, (uri) => {
-      if (!uri) return
-      // Emits custom wallet connect code, parseable by the Uniswap Wallet
-      this.events.emit(UniwalletConnect.UNI_URI_AVAILABLE, `hello_uniwallet:${uri}`)
+  //   this.events.on(URI_AVAILABLE, (uri) => {
+  //     if (!uri) return
+  //     // Emits custom wallet connect code, parseable by the Uniswap Wallet
+  //     this.events.emit(UniwalletConnect.UNI_URI_AVAILABLE, `hello_uniwallet:${uri}`)
 
-      // Opens deeplink to Uniswap Wallet if on iOS
-      if (isIOS) {
-        // Using window.location.href to open the deep link ensures smooth navigation and leverages OS handling for installed apps,
-        // avoiding potential popup blockers or inconsistent behavior associated with window.open
-        window.location.href = `uniswap://wc?uri=${encodeURIComponent(uri)}`
-      }
-    })
-  }
+  //     // Opens deeplink to Uniswap Wallet if on iOS
+  //     if (isIOS) {
+  //       // Using window.location.href to open the deep link ensures smooth navigation and leverages OS handling for installed apps,
+  //       // avoiding potential popup blockers or inconsistent behavior associated with window.open
+  //       window.location.href = `uniswap://wc?uri=${encodeURIComponent(uri)}`
+  //     }
+  //   })
+  // }
 
-  deactivate() {
-    this.events.emit(URI_AVAILABLE)
-    return super.deactivate()
-  }
+  // deactivate() {
+  //   this.events.emit(URI_AVAILABLE)
+  //   return super.deactivate()
+  // }
 }

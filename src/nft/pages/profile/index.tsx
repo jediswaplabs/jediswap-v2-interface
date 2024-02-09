@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { InterfacePageName } from '@uniswap/analytics-events'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { Trace } from 'analytics'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { ButtonPrimary } from 'components/Button'
@@ -65,7 +65,7 @@ export default function Profile() {
   const resetSellAssets = useSellAsset((state) => state.reset)
   const clearCollectionFilters = useWalletCollections((state) => state.clearCollectionFilters)
 
-  const { account } = useWeb3React()
+  const { address: account } = useAccountDetails()
   const accountRef = useRef(account)
   const toggleWalletDrawer = useToggleAccountDrawer()
 

@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { RowFixed } from 'components/Row'
 import { getChainInfo } from 'constants/chainInfo'
 import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
@@ -101,7 +101,7 @@ const DEFAULT_MS_BEFORE_WARNING = ms(`10m`)
 const NETWORK_HEALTH_CHECK_MS = ms(`10s`)
 
 export default function Polling() {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const blockNumber = useBlockNumber()
   const [isMounting, setIsMounting] = useState(false)
   const [isHover, setIsHover] = useState(false)
@@ -113,7 +113,7 @@ export default function Polling() {
   const waitMsBeforeWarning =
     (chainId ? getChainInfo(chainId)?.blockWaitMsBeforeWarning : DEFAULT_MS_BEFORE_WARNING) ?? DEFAULT_MS_BEFORE_WARNING
 
-  const warning = Boolean(!!blockTime && machineTime - blockTime.mul(1000).toNumber() > waitMsBeforeWarning)
+  const warning = false
 
   useEffect(
     () => {

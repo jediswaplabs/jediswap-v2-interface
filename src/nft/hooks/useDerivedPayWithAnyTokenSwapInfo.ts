@@ -1,4 +1,4 @@
-import { Currency, CurrencyAmount, NativeCurrency, Percent, Token, TradeType } from '@uniswap/sdk-core'
+import { Currency, CurrencyAmount, NativeCurrency, Percent, Token, TradeType } from '@vnaysn/jediswap-sdk-core'
 import useAutoSlippageTolerance from 'hooks/useAutoSlippageTolerance'
 import { useDebouncedTrade } from 'hooks/useDebouncedTrade'
 import { useMemo } from 'react'
@@ -14,25 +14,25 @@ export default function useDerivedPayWithAnyTokenSwapInfo(
   maximumAmountIn?: CurrencyAmount<Token>
   allowedSlippage: Percent
 } {
-  const { state, trade } = useDebouncedTrade(
+  const { state } = useDebouncedTrade(
     TradeType.EXACT_OUTPUT,
     parsedOutputAmount,
     inputCurrency ?? undefined,
     RouterPreference.API
   )
 
-  const allowedSlippage = useAutoSlippageTolerance(isClassicTrade(trade) ? trade : undefined)
+  const allowedSlippage = new Percent(10)
   const maximumAmountIn = useMemo(() => {
-    const maximumAmountIn = trade?.maximumAmountIn(allowedSlippage)
-    return maximumAmountIn?.currency.isToken ? (maximumAmountIn as CurrencyAmount<Token>) : undefined
-  }, [allowedSlippage, trade])
+    // const maximumAmountIn = trade?.maximumAmountIn(allowedSlippage)
+    return undefined
+  }, [])
 
   return useMemo(() => {
     return {
       state,
-      trade,
+
       maximumAmountIn,
       allowedSlippage,
     }
-  }, [allowedSlippage, maximumAmountIn, state, trade])
+  }, [allowedSlippage, maximumAmountIn, state])
 }

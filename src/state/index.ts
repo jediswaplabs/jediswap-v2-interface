@@ -11,18 +11,18 @@ import { routingApi } from './routing/slice'
 export function createDefaultStore() {
   return configureStore({
     reducer,
-    enhancers: (defaultEnhancers) => defaultEnhancers.concat(sentryEnhancer),
+    // enhancers: (defaultEnhancers) => defaultEnhancers.concat(sentryEnhancer),
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         thunk: true,
         immutableCheck: {
-          ignoredPaths: [routingApi.reducerPath, 'logs', 'lists'],
+          // ignoredPaths: [routingApi.reducerPath, 'logs', 'lists'],
         },
         serializableCheck: {
           // meta.arg and meta.baseQueryMeta are defaults. payload.trade is a nonserializable return value, but that's ok
           // because we are not adding it into any persisted store that requires serialization (e.g. localStorage)
           ignoredActionPaths: ['meta.arg', 'meta.baseQueryMeta', 'payload.trade'],
-          ignoredPaths: [routingApi.reducerPath, quickRouteApi.reducerPath],
+          // ignoredPaths: [routingApi.reducerPath, quickRouteApi.reducerPath],
           ignoredActions: [
             // ignore the redux-persist actions
             'persist/PERSIST',
@@ -43,5 +43,7 @@ export const persistor = persistStore(store)
 setupListeners(store.dispatch)
 
 store.dispatch(updateVersion())
+
+export type AppDispatch = typeof store.dispatch
 
 export default store

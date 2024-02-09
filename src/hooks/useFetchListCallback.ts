@@ -1,7 +1,7 @@
 import { nanoid } from '@reduxjs/toolkit'
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { TokenList } from '@uniswap/token-lists'
-import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
+// import { DEPRECATED_RPC_PROVIDERS, RPC_PROVIDERS } from 'constants/providers'
 import { useFallbackProviderEnabled } from 'featureFlags/flags/fallbackProvider'
 import getTokenList from 'lib/hooks/useTokenList/fetchTokenList'
 import resolveENSContentHash from 'lib/utils/resolveENSContentHash'
@@ -10,19 +10,14 @@ import { useAppDispatch } from 'state/hooks'
 
 import { fetchTokenList } from '../state/lists/actions'
 
-export function useFetchListCallback(): (listUrl: string, skipValidation?: boolean) => Promise<TokenList> {
+export function useFetchListCallback(): (listUrl: string) => Promise<TokenList> {
   const dispatch = useAppDispatch()
-  const providers = useFallbackProviderEnabled() ? RPC_PROVIDERS : DEPRECATED_RPC_PROVIDERS
 
   return useCallback(
-    async (listUrl: string, skipValidation?: boolean) => {
+    async (listUrl: string) => {
       const requestId = nanoid()
       dispatch(fetchTokenList.pending({ requestId, url: listUrl }))
-      return getTokenList(
-        listUrl,
-        (ensName: string) => resolveENSContentHash(ensName, providers[ChainId.MAINNET]),
-        skipValidation
-      )
+      return getTokenList(listUrl)
         .then((tokenList) => {
           dispatch(fetchTokenList.fulfilled({ url: listUrl, tokenList, requestId }))
           return tokenList
@@ -33,6 +28,6 @@ export function useFetchListCallback(): (listUrl: string, skipValidation?: boole
           throw error
         })
     },
-    [dispatch, providers]
+    [dispatch]
   )
 }

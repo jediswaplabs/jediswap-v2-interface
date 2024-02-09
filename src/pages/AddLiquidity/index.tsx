@@ -2,9 +2,8 @@ import { BigNumber } from '@ethersproject/bignumber'
 import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
-import { Currency, CurrencyAmount, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES, Percent } from '@uniswap/sdk-core'
-import { FeeAmount, NonfungiblePositionManager } from '@uniswap/v3-sdk'
-import { useWeb3React } from '@web3-react/core'
+import { Currency, CurrencyAmount, Percent, validateAndParseAddress } from '@vnaysn/jediswap-sdk-core'
+import { FeeAmount, NonfungiblePositionManager, Position, toHex } from '@vnaysn/jediswap-sdk-v3'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -29,7 +28,7 @@ import {
 import { ThemedText } from 'theme/components'
 import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
 import { WrongChainError } from 'utils/errors'
-import { ButtonError, ButtonPrimary, ButtonText } from '../../components/Button'
+import { ButtonError, ButtonLight, ButtonPrimary, ButtonText } from '../../components/Button'
 import { BlueCard, LightCard, OutlineCard, YellowCard } from '../../components/Card'
 import { AutoColumn } from '../../components/Column'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
@@ -45,16 +44,16 @@ import Row, { RowBetween, RowFixed } from '../../components/Row'
 import { SwitchLocaleLink } from '../../components/SwitchLocaleLink'
 import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
 import { ZERO_PERCENT } from '../../constants/misc'
-import { WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
+import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS, WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
 import { useCurrency } from '../../hooks/Tokens'
 import { ApprovalState, useApproveCallback } from '../../hooks/useApproveCallback'
 import { useArgentWalletContract } from '../../hooks/useArgentWalletContract'
-import { useV3NFTPositionManagerContract } from '../../hooks/useContract'
+import { useV3NFTPositionManagerContract } from '../../hooks/useContractV2'
 import { useDerivedPositionInfo } from '../../hooks/useDerivedPositionInfo'
 import { useIsSwapUnsupported } from '../../hooks/useIsSwapUnsupported'
 import { useStablecoinValue } from '../../hooks/useStablecoinPrice'
 import useTransactionDeadline from '../../hooks/useTransactionDeadline'
-import { useV3PositionFromTokenId } from '../../hooks/useV3Positions'
+import { useV3PosFromTokenId } from '../../hooks/useV3Positions'
 import { Bound, Field } from '../../state/mint/v3/actions'
 import { useTransactionAdder } from '../../state/transactions/hooks'
 import { TransactionInfo, TransactionType } from '../../state/transactions/types'
@@ -66,6 +65,12 @@ import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { Dots } from '../Pool/styled'
 import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { useContractWrite, useProvider } from '@starknet-react/core'
+import { BigNumberish, cairo, Call, CallData, hash, num } from 'starknet'
+import JSBI from 'jsbi'
+import { toI32 } from 'utils/toI32'
+import { useApprovalCall } from 'hooks/useApproveCall'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -75,11 +80,10 @@ const StyledBodyWrapper = styled(BodyWrapper)<{ $hasExistingPosition: boolean }>
 `
 
 export default function AddLiquidityWrapper() {
-  const { chainId } = useWeb3React()
-  if (isSupportedChain(chainId)) {
+  const { chainId } = useAccountDetails()
+  if (true) {
     return <AddLiquidity />
   }
-  return <PositionPageUnsupportedContent />
 }
 
 function AddLiquidity() {
@@ -95,26 +99,21 @@ function AddLiquidity() {
     feeAmount?: string
     tokenId?: string
   }>()
-  const { account, chainId, provider } = useWeb3React()
+  const { address: account, chainId } = useAccountDetails()
   const theme = useTheme()
   const trace = useTrace()
 
   const toggleWalletDrawer = useToggleAccountDrawer() // toggle wallet when disconnected
   const addTransaction = useTransactionAdder()
   const positionManager = useV3NFTPositionManagerContract()
-
+  const parsedTokenId = tokenId ? parseInt(tokenId) : undefined
   // check for existing position if tokenId in url
-  const { position: existingPositionDetails, loading: positionLoading } = useV3PositionFromTokenId(
-    tokenId ? BigNumber.from(tokenId) : undefined
-  )
+  const { position: existingPositionDetails, loading: positionLoading } = useV3PosFromTokenId(parsedTokenId)
   const hasExistingPosition = !!existingPositionDetails && !positionLoading
   const { position: existingPosition } = useDerivedPositionInfo(existingPositionDetails)
 
   // fee selection from url
-  const feeAmount: FeeAmount | undefined =
-    feeAmountFromUrl && Object.values(FeeAmount).includes(parseFloat(feeAmountFromUrl))
-      ? parseFloat(feeAmountFromUrl)
-      : undefined
+  const feeAmount: FeeAmount | undefined = feeAmountFromUrl ? Number(feeAmountFromUrl) : undefined
 
   const baseCurrency = useCurrency(currencyIdA)
   const currencyB = useCurrency(currencyIdB)
@@ -138,7 +137,7 @@ function AddLiquidity() {
     noLiquidity,
     currencies,
     errorMessage,
-    invalidPool,
+    // invalidPool,
     invalidRange,
     outOfRange,
     depositADisabled,
@@ -153,8 +152,16 @@ function AddLiquidity() {
     existingPosition
   )
 
+  const invalidPool = false
+
   const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
     useV3MintActionHandlers(noLiquidity)
+
+  const [mintCallData, setMintCallData] = useState<Call[]>([])
+
+  const { writeAsync, data: txData } = useContractWrite({
+    calls: mintCallData,
+  })
 
   const isValid = !errorMessage && !invalidRange
 
@@ -177,7 +184,11 @@ function AddLiquidity() {
     [Field.CURRENCY_A]: useStablecoinValue(parsedAmounts[Field.CURRENCY_A]),
     [Field.CURRENCY_B]: useStablecoinValue(parsedAmounts[Field.CURRENCY_B]),
   }
+  const spenderAddress: string = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
 
+  // check whether the user has approved the router on the tokens
+  const approvalACallback = useApprovalCall(parsedAmounts[Field.CURRENCY_A], spenderAddress)
+  const approvalBCallback = useApprovalCall(parsedAmounts[Field.CURRENCY_B], spenderAddress)
   // get the max amounts user can add
   const maxAmounts: { [field in Field]?: CurrencyAmount<Currency> } = [Field.CURRENCY_A, Field.CURRENCY_B].reduce(
     (accumulator, field) => ({
@@ -195,24 +206,32 @@ function AddLiquidity() {
     {}
   )
 
-  const argentWalletContract = useArgentWalletContract()
-
-  // check whether the user has approved the router on the tokens
-  const [approvalA, approveACallback] = useApproveCallback(
-    argentWalletContract ? undefined : parsedAmounts[Field.CURRENCY_A],
-    chainId ? NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined
-  )
-  const [approvalB, approveBCallback] = useApproveCallback(
-    argentWalletContract ? undefined : parsedAmounts[Field.CURRENCY_B],
-    chainId ? NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId] : undefined
-  )
-
   const allowedSlippage = useUserSlippageToleranceWithDefault(
     outOfRange ? ZERO_PERCENT : DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE
   )
 
+  useEffect(() => {
+    if (txData) console.log(txData, 'txData')
+  }, [txData])
+
+  useEffect(() => {
+    if (mintCallData) {
+      writeAsync()
+        .then((response) => {
+          setAttemptingTxn(false)
+          if (response?.transaction_hash) {
+            setTxHash(response.transaction_hash)
+          }
+        })
+        .catch((err) => {
+          console.log(err?.message)
+          setAttemptingTxn(false)
+        })
+    }
+  }, [mintCallData])
+
   async function onAdd() {
-    if (!chainId || !provider || !account) {
+    if (!chainId || !account) {
       return
     }
 
@@ -221,101 +240,88 @@ function AddLiquidity() {
     }
 
     if (position && account && deadline) {
-      const useNative = baseCurrency.isNative ? baseCurrency : quoteCurrency.isNative ? quoteCurrency : undefined
-      const { calldata, value } =
-        hasExistingPosition && tokenId
-          ? NonfungiblePositionManager.addCallParameters(position, {
-              tokenId,
-              slippageTolerance: allowedSlippage,
-              deadline: deadline.toString(),
-              useNative,
-            })
-          : NonfungiblePositionManager.addCallParameters(position, {
-              slippageTolerance: allowedSlippage,
-              recipient: account,
-              deadline: deadline.toString(),
-              useNative,
-              createPool: noLiquidity,
-            })
+      const approvalA = approvalACallback()
+      const approvalB = approvalBCallback()
 
-      let txn: { to: string; data: string; value: string } = {
-        to: NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId],
-        data: calldata,
-        value,
-      }
+      if (!approvalA || !approvalB) return
 
-      if (argentWalletContract) {
-        const amountA = parsedAmounts[Field.CURRENCY_A]
-        const amountB = parsedAmounts[Field.CURRENCY_B]
-        const batch = [
-          ...(amountA && amountA.currency.isToken
-            ? [approveAmountCalldata(amountA, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
-            : []),
-          ...(amountB && amountB.currency.isToken
-            ? [approveAmountCalldata(amountB, NONFUNGIBLE_POSITION_MANAGER_ADDRESSES[chainId])]
-            : []),
-          {
-            to: txn.to,
-            data: txn.data,
-            value: txn.value,
-          },
-        ]
-        const data = argentWalletContract.interface.encodeFunctionData('wc_multiCall', [batch])
-        txn = {
-          to: argentWalletContract.address,
-          data,
-          value: '0x0',
+      // get amounts
+      const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
+
+      // adjust for slippage
+      const minimumAmounts = position.mintAmountsWithSlippage(allowedSlippage)
+      const amount0Min = minimumAmounts.amount0
+      const amount1Min = minimumAmounts.amount1
+      const router_address: string = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+
+      if (hasExistingPosition && tokenId) {
+        const hasExistingLiquidity = hasExistingPosition && tokenId
+        let mintData = {}
+        if (hasExistingLiquidity) {
+          mintData = {
+            tokenId: cairo.uint256(tokenId),
+            amount0_desired: cairo.uint256(amount0Desired.toString()),
+            amount1_desired: cairo.uint256(amount1Desired.toString()),
+            amount0_min: cairo.uint256(amount0Min.toString()),
+            amount1_min: cairo.uint256(amount1Min.toString()),
+            deadline: cairo.felt(deadline.toString()),
+          }
         }
-      }
+        const callData = CallData.compile(mintData)
 
-      const connectedChainId = await provider.getSigner().getChainId()
-      if (chainId !== connectedChainId) {
-        throw new WrongChainError()
+        const calls = {
+          contractAddress: router_address,
+          entrypoint: 'increase_liquidity',
+          calldata: callData,
+        }
+
+        setMintCallData([approvalA, approvalB, calls])
+      } else {
+        const callData = []
+        if (noLiquidity) {
+          //create and initialize pool
+          const initializeData = {
+            token0: position.pool.token0.address,
+            token1: position.pool.token1.address,
+            fee: position.pool.fee,
+            sqrt_price_X96: cairo.uint256(position?.pool?.sqrtRatioX96.toString()),
+          }
+
+          const initializeCallData = CallData.compile(initializeData)
+          const icalls = {
+            contractAddress: router_address,
+            entrypoint: 'create_and_initialize_pool',
+            calldata: initializeCallData,
+          }
+          callData.push(icalls)
+        }
+        //mint position
+        const mintData = {
+          token0: position.pool.token0.address,
+          token1: position.pool.token1.address,
+          fee: position.pool.fee,
+          tick_lower: toI32(position.tickLower),
+          tick_upper: toI32(position.tickUpper),
+          amount0_desired: cairo.uint256(amount0Desired.toString()),
+          amount1_desired: cairo.uint256(amount1Desired.toString()),
+          amount0_min: cairo.uint256(amount0Min.toString()),
+          amount1_min: cairo.uint256(amount1Min.toString()),
+          recipient: account,
+          deadline: cairo.felt(deadline.toString()),
+        }
+        const mintCallData = CallData.compile(mintData)
+        const mcalls = {
+          contractAddress: router_address,
+          entrypoint: 'mint',
+          calldata: mintCallData,
+        }
+        callData.push(approvalA, approvalB, mcalls)
+        setMintCallData(callData)
       }
 
       setAttemptingTxn(true)
-
-      provider
-        .getSigner()
-        .estimateGas(txn)
-        .then((estimate) => {
-          const newTxn = {
-            ...txn,
-            gasLimit: calculateGasMargin(estimate),
-          }
-
-          return provider
-            .getSigner()
-            .sendTransaction(newTxn)
-            .then((response: TransactionResponse) => {
-              setAttemptingTxn(false)
-              const transactionInfo: TransactionInfo = {
-                type: TransactionType.ADD_LIQUIDITY_V3_POOL,
-                baseCurrencyId: currencyId(baseCurrency),
-                quoteCurrencyId: currencyId(quoteCurrency),
-                createPool: Boolean(noLiquidity),
-                expectedAmountBaseRaw: parsedAmounts[Field.CURRENCY_A]?.quotient?.toString() ?? '0',
-                expectedAmountQuoteRaw: parsedAmounts[Field.CURRENCY_B]?.quotient?.toString() ?? '0',
-                feeAmount: position.pool.fee,
-              }
-              addTransaction(response, transactionInfo)
-              setTxHash(response.hash)
-              sendAnalyticsEvent(LiquidityEventName.ADD_LIQUIDITY_SUBMITTED, {
-                label: [currencies[Field.CURRENCY_A]?.symbol, currencies[Field.CURRENCY_B]?.symbol].join('/'),
-                ...trace,
-                ...transactionInfo,
-              })
-            })
-        })
-        .catch((error) => {
-          console.error('Failed to send transaction', error)
-          setAttemptingTxn(false)
-          // we only care if the error is something _other_ than the user rejected the tx
-          if (error?.code !== 4001) {
-            console.error(error)
-          }
-        })
     } else {
+      return
     }
   }
 
@@ -402,14 +408,14 @@ function AddLiquidity() {
   const { [Bound.LOWER]: tickLower, [Bound.UPPER]: tickUpper } = ticks
   const { [Bound.LOWER]: priceLower, [Bound.UPPER]: priceUpper } = pricesAtTicks
 
-  const { getDecrementLower, getIncrementLower, getDecrementUpper, getIncrementUpper, getSetFullRange } =
-    useRangeHopCallbacks(baseCurrency ?? undefined, quoteCurrency ?? undefined, feeAmount, tickLower, tickUpper, pool)
-
-  // we need an existence check on parsed amounts for single-asset deposits
-  const showApprovalA =
-    !argentWalletContract && approvalA !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_A]
-  const showApprovalB =
-    !argentWalletContract && approvalB !== ApprovalState.APPROVED && !!parsedAmounts[Field.CURRENCY_B]
+  const { getSetFullRange } = useRangeHopCallbacks(
+    baseCurrency ?? undefined,
+    quoteCurrency ?? undefined,
+    feeAmount,
+    tickLower,
+    tickUpper,
+    pool
+  )
 
   const pendingText = `Supplying ${!depositADisabled ? parsedAmounts[Field.CURRENCY_A]?.toSignificant(6) : ''} ${
     !depositADisabled ? currencies[Field.CURRENCY_A]?.symbol : ''
@@ -469,75 +475,20 @@ function AddLiquidity() {
   // END: sync values with query string
 
   const Buttons = () =>
-    addIsUnsupported ? (
-      <ButtonPrimary disabled $borderRadius="12px" padding="12px">
-        <ThemedText.DeprecatedMain mb="4px">
-          <Trans>Unsupported Asset</Trans>
-        </ThemedText.DeprecatedMain>
-      </ButtonPrimary>
-    ) : !account ? (
-      <TraceEvent
-        events={[BrowserEvent.onClick]}
-        name={InterfaceEventName.CONNECT_WALLET_BUTTON_CLICKED}
-        properties={{ received_swap_quote: false }}
-        element={InterfaceElementName.CONNECT_WALLET_BUTTON}
-      >
-        <ButtonPrimary onClick={toggleWalletDrawer} style={{ padding: '12px' }}>
-          <Trans>Connect wallet</Trans>
-        </ButtonPrimary>
-      </TraceEvent>
+    !account ? (
+      <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
+        <Trans>Connect wallet</Trans>
+      </ButtonLight>
     ) : (
       <AutoColumn gap="md">
-        {(approvalA === ApprovalState.NOT_APPROVED ||
-          approvalA === ApprovalState.PENDING ||
-          approvalB === ApprovalState.NOT_APPROVED ||
-          approvalB === ApprovalState.PENDING) &&
-          isValid && (
-            <RowBetween>
-              {showApprovalA && (
-                <ButtonPrimary
-                  onClick={approveACallback}
-                  disabled={approvalA === ApprovalState.PENDING}
-                  width={showApprovalB ? '48%' : '100%'}
-                >
-                  {approvalA === ApprovalState.PENDING ? (
-                    <Dots>
-                      <Trans>Approving {currencies[Field.CURRENCY_A]?.symbol}</Trans>
-                    </Dots>
-                  ) : (
-                    <Trans>Approve {currencies[Field.CURRENCY_A]?.symbol}</Trans>
-                  )}
-                </ButtonPrimary>
-              )}
-              {showApprovalB && (
-                <ButtonPrimary
-                  onClick={approveBCallback}
-                  disabled={approvalB === ApprovalState.PENDING}
-                  width={showApprovalA ? '48%' : '100%'}
-                >
-                  {approvalB === ApprovalState.PENDING ? (
-                    <Dots>
-                      <Trans>Approving {currencies[Field.CURRENCY_B]?.symbol}</Trans>
-                    </Dots>
-                  ) : (
-                    <Trans>Approve {currencies[Field.CURRENCY_B]?.symbol}</Trans>
-                  )}
-                </ButtonPrimary>
-              )}
-            </RowBetween>
-          )}
         <ButtonError
           onClick={() => {
             setShowConfirm(true)
           }}
-          disabled={
-            !isValid ||
-            (!argentWalletContract && approvalA !== ApprovalState.APPROVED && !depositADisabled) ||
-            (!argentWalletContract && approvalB !== ApprovalState.APPROVED && !depositBDisabled)
-          }
+          disabled={!isValid}
           error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
         >
-          <Text fontWeight={535}>{errorMessage || <Trans>Preview</Trans>}</Text>
+          <Text fontWeight={535}>{errorMessage ? errorMessage : <Trans>Preview</Trans>}</Text>
         </ButtonError>
       </AutoColumn>
     )
@@ -559,10 +510,10 @@ function AddLiquidity() {
     [usdcValueCurrencyB]
   )
 
-  const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
-  const ownsNFT =
-    addressesAreEquivalent(owner, account) || addressesAreEquivalent(existingPositionDetails?.operator, account)
-  const showOwnershipWarning = Boolean(hasExistingPosition && account && !ownsNFT)
+  // const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
+  // const ownsNFT =
+  //   addressesAreEquivalent(owner, account) || addressesAreEquivalent(existingPositionDetails?.operator, account)
+  // const showOwnershipWarning = Boolean(hasExistingPosition && account && !ownsNFT)
 
   return (
     <>
@@ -665,8 +616,6 @@ function AddLiquidity() {
                         disabled={!quoteCurrency || !baseCurrency}
                         feeAmount={feeAmount}
                         handleFeePoolSelect={handleFeePoolSelect}
-                        currencyA={baseCurrency ?? undefined}
-                        currencyB={quoteCurrency ?? undefined}
                       />
                     </AutoColumn>{' '}
                   </>
@@ -715,7 +664,7 @@ function AddLiquidity() {
                         </RowFixed>
                       )}
                     </RowBetween>
-                    <LiquidityChartRangeInput
+                    {/* <LiquidityChartRangeInput
                       currencyA={baseCurrency ?? undefined}
                       currencyB={quoteCurrency ?? undefined}
                       feeAmount={feeAmount}
@@ -726,14 +675,10 @@ function AddLiquidity() {
                       onLeftRangeInput={onLeftRangeInput}
                       onRightRangeInput={onRightRangeInput}
                       interactive={!hasExistingPosition}
-                    />
+                    /> */}
                     <RangeSelector
                       priceLower={priceLower}
                       priceUpper={priceUpper}
-                      getDecrementLower={getDecrementLower}
-                      getIncrementLower={getIncrementLower}
-                      getDecrementUpper={getDecrementUpper}
-                      getIncrementUpper={getIncrementUpper}
                       onLeftRangeInput={onLeftRangeInput}
                       onRightRangeInput={onRightRangeInput}
                       currencyA={baseCurrency}
@@ -755,7 +700,6 @@ function AddLiquidity() {
                         </RowBetween>
                       </YellowCard>
                     )}
-
                     {invalidRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
                         <RowBetween>
@@ -771,7 +715,7 @@ function AddLiquidity() {
                   <DynamicSection gap="md" disabled={!feeAmount || invalidPool}>
                     {!noLiquidity ? (
                       <>
-                        {Boolean(price && baseCurrency && quoteCurrency && !noLiquidity) && (
+                        {Boolean(price && baseCurrency && quoteCurrency) && (
                           <AutoColumn gap="2px" style={{ marginTop: '0.5rem' }}>
                             <Trans>
                               <ThemedText.DeprecatedMain fontWeight={535} fontSize={12} color="text1">
@@ -894,7 +838,6 @@ function AddLiquidity() {
             </ResponsiveTwoColumns>
           </Wrapper>
         </StyledBodyWrapper>
-        {showOwnershipWarning && <OwnershipWarning ownerAddress={owner} />}
         {addIsUnsupported && (
           <UnsupportedCurrencyFooter
             show={addIsUnsupported}

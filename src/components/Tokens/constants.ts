@@ -1,4 +1,4 @@
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 // Breakpoints specifically for the token pages
 export const MAX_WIDTH_MEDIA_BREAKPOINT = '1200px'
@@ -9,4 +9,4 @@ export const SMALL_MEDIA_BREAKPOINT = '540px'
 export const MOBILE_MEDIA_BREAKPOINT = '420px'
 
 // includes chains that the backend does not current source off-chain metadata for
-export const UNSUPPORTED_METADATA_CHAINS = [ChainId.BNB, ChainId.AVALANCHE]
+export const UNSUPPORTED_METADATA_CHAINS = [ChainId.MAINNET, ChainId.MAINNET]

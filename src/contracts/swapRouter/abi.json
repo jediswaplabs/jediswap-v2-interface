@@ -1,0 +1,304 @@
+[
+  {
+    "name": "JediSwapV2SwapRouterImpl",
+    "type": "impl",
+    "interface_name": "jediswap_v2_periphery::jediswap_v2_swap_router::IJediSwapV2SwapRouter"
+  },
+  {
+    "name": "core::integer::u256",
+    "type": "struct",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "name": "jediswap_v2_periphery::jediswap_v2_swap_router::ExactInputSingleParams",
+    "type": "struct",
+    "members": [
+      {
+        "name": "token_in",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "token_out",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "fee",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "recipient",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "deadline",
+        "type": "core::integer::u64"
+      },
+      {
+        "name": "amount_in",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "amount_out_minimum",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "sqrt_price_limit_X96",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "name": "jediswap_v2_periphery::jediswap_v2_swap_router::ExactInputParams",
+    "type": "struct",
+    "members": [
+      {
+        "name": "path",
+        "type": "core::array::Array::<core::felt252>"
+      },
+      {
+        "name": "recipient",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "deadline",
+        "type": "core::integer::u64"
+      },
+      {
+        "name": "amount_in",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "amount_out_minimum",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "name": "jediswap_v2_periphery::jediswap_v2_swap_router::ExactOutputSingleParams",
+    "type": "struct",
+    "members": [
+      {
+        "name": "token_in",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "token_out",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "fee",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "recipient",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "deadline",
+        "type": "core::integer::u64"
+      },
+      {
+        "name": "amount_out",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "amount_in_maximum",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "sqrt_price_limit_X96",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "name": "jediswap_v2_periphery::jediswap_v2_swap_router::ExactOutputParams",
+    "type": "struct",
+    "members": [
+      {
+        "name": "path",
+        "type": "core::array::Array::<core::felt252>"
+      },
+      {
+        "name": "recipient",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "deadline",
+        "type": "core::integer::u64"
+      },
+      {
+        "name": "amount_out",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "amount_in_maximum",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "name": "core::bool",
+    "type": "enum",
+    "variants": [
+      {
+        "name": "False",
+        "type": "()"
+      },
+      {
+        "name": "True",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "name": "yas_core::numbers::signed_integer::i256::i256",
+    "type": "struct",
+    "members": [
+      {
+        "name": "mag",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "sign",
+        "type": "core::bool"
+      }
+    ]
+  },
+  {
+    "name": "core::array::Span::<core::felt252>",
+    "type": "struct",
+    "members": [
+      {
+        "name": "snapshot",
+        "type": "@core::array::Array::<core::felt252>"
+      }
+    ]
+  },
+  {
+    "name": "jediswap_v2_periphery::jediswap_v2_swap_router::IJediSwapV2SwapRouter",
+    "type": "interface",
+    "items": [
+      {
+        "name": "get_factory",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "exact_input_single",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "params",
+            "type": "jediswap_v2_periphery::jediswap_v2_swap_router::ExactInputSingleParams"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "exact_input",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "params",
+            "type": "jediswap_v2_periphery::jediswap_v2_swap_router::ExactInputParams"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "exact_output_single",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "params",
+            "type": "jediswap_v2_periphery::jediswap_v2_swap_router::ExactOutputSingleParams"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "exact_output",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "params",
+            "type": "jediswap_v2_periphery::jediswap_v2_swap_router::ExactOutputParams"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "jediswap_v2_swap_callback",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "amount0_delta",
+            "type": "yas_core::numbers::signed_integer::i256::i256"
+          },
+          {
+            "name": "amount1_delta",
+            "type": "yas_core::numbers::signed_integer::i256::i256"
+          },
+          {
+            "name": "callback_data_span",
+            "type": "core::array::Span::<core::felt252>"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "name": "constructor",
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "factory",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "jediswap_v2_periphery::jediswap_v2_swap_router::JediSwapV2SwapRouter::Event",
+    "type": "event",
+    "variants": []
+  }
+]

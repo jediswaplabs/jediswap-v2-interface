@@ -12,6 +12,7 @@ import { Provider } from 'react-redux'
 import { HashRouter, useLocation } from 'react-router-dom'
 
 import { MulticallUpdater } from 'lib/state/multicall'
+import StarkMulticallUpdater from './state/multicall/updater'
 import { BlockNumberProvider } from 'lib/hooks/useBlockNumber'
 import { apolloClient } from 'graphql/data/apollo'
 import { FeatureFlagsProvider } from 'featureFlags'
@@ -28,8 +29,9 @@ import ThemeProvider, { ThemedGlobalStyle } from './theme'
 import TransactionUpdater from './state/transactions/updater'
 import RadialGradientByChainUpdater from './theme/components/RadialGradientByChainUpdater'
 
-import { goerli } from '@starknet-react/chains'
+import { goerli, mainnet, sepolia } from '@starknet-react/chains'
 import { StarknetConfig, publicProvider, argent, braavos } from '@starknet-react/core'
+import { StarknetProvider } from 'context/StarknetProvider'
 
 function Updaters() {
   const location = useLocation()
@@ -45,6 +47,7 @@ function Updaters() {
       <TransactionUpdater />
       <OrderUpdater />
       <MulticallUpdater />
+      <StarkMulticallUpdater />
       <LogsUpdater />
     </>
   )
@@ -54,34 +57,30 @@ const queryClient = new QueryClient()
 
 const container = document.getElementById('root') as HTMLElement
 
-const chains = [goerli]
-const providers = [publicProvider()]
-const connectors = [argent(), braavos()]
-
 createRoot(container).render(
   <StrictMode>
-    <StarknetConfig chains={chains} providers={providers} connectors={connectors} autoConnect>
+    <StarknetProvider>
       <Provider store={store}>
         <FeatureFlagsProvider>
           <QueryClientProvider client={queryClient}>
             <HashRouter>
               <LanguageProvider>
-                <Web3Provider>
-                  <ApolloProvider client={apolloClient}>
-                    <BlockNumberProvider>
-                      <Updaters />
-                      <ThemeProvider>
-                        <ThemedGlobalStyle />
-                        <App />
-                      </ThemeProvider>
-                    </BlockNumberProvider>
-                  </ApolloProvider>
-                </Web3Provider>
+                {/* <Web3Provider> */}
+                <ApolloProvider client={apolloClient}>
+                  <BlockNumberProvider>
+                    <Updaters />
+                    <ThemeProvider>
+                      <ThemedGlobalStyle />
+                      <App />
+                    </ThemeProvider>
+                  </BlockNumberProvider>
+                </ApolloProvider>
+                {/* </Web3Provider> */}
               </LanguageProvider>
             </HashRouter>
           </QueryClientProvider>
         </FeatureFlagsProvider>
       </Provider>
-    </StarknetConfig>
+    </StarknetProvider>
   </StrictMode>
 )

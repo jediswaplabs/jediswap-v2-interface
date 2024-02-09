@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { ChainId } from '@uniswap/sdk-core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { getChainInfo } from 'constants/chainInfo'
 import { useState } from 'react'
 import styled from 'styled-components'

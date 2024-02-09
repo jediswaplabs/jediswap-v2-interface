@@ -1,5 +1,5 @@
 import { InterfacePageName } from '@uniswap/analytics-events'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { Trace } from 'analytics'
 import Column from 'components/Column'
 import { OpacityHoverState } from 'components/Common'
@@ -131,7 +131,7 @@ const Collection = () => {
   const setMarketCount = useCollectionFilters((state) => state.setMarketCount)
   const isBagExpanded = useBag((state) => state.bagExpanded)
   const setBagExpanded = useBag((state) => state.setBagExpanded)
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const screenSize = useScreenSize()
 
   const { data: collectionStats, loading } = useCollection(contractAddress as string)

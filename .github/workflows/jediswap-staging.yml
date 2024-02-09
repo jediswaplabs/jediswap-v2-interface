@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     environment:
       name: staging
-      url: https://staging.e2.jediswap.xyz/
+      url: https://app.v2.staging.jediswap.xyz/
 
     steps:
       - name: Checkout

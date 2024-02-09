@@ -1,14 +1,15 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { splitSignature } from '@ethersproject/bytes'
-import { ChainId, Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { ChainId, Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import { useSingleCallResult } from 'lib/hooks/multicall'
 import { useMemo, useState } from 'react'
 
-import { DAI, UNI, USDC_MAINNET } from '../constants/tokens'
+import { DAI, USDC_MAINNET } from '../constants/tokens'
 import { useEIP2612Contract } from './useContract'
 import useIsArgentWallet from './useIsArgentWallet'
+import { useProvider } from '@starknet-react/core'
 
 export enum PermitType {
   AMOUNT = 1,
@@ -27,20 +28,16 @@ export interface PermitInfo {
 
 // todo: read this information from extensions on token lists or elsewhere (permit registry?)
 const PERMITTABLE_TOKENS: {
-  [chainId: number]: {
+  [chainId: string]: {
     [checksummedTokenAddress: string]: PermitInfo
   }
 } = {
   [ChainId.MAINNET]: {
-    [USDC_MAINNET.address]: { type: PermitType.AMOUNT, name: 'USD Coin', version: '2' },
-    [DAI.address]: { type: PermitType.ALLOWED, name: 'Dai Stablecoin', version: '1' },
-    [UNI[ChainId.MAINNET].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
+    // [USDC_MAINNET.address]: { type: PermitType.AMOUNT, name: 'USD Coin', version: '2' },
+    // [UNI[ChainId.MAINNET].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
   },
   [ChainId.GOERLI]: {
-    [UNI[ChainId.GOERLI].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
-  },
-  [ChainId.SEPOLIA]: {
-    [UNI[ChainId.SEPOLIA].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
+    // [UNI[ChainId.GOERLI].address]: { type: PermitType.AMOUNT, name: 'Uniswap' },
   },
 }
 
@@ -60,7 +57,7 @@ interface BaseSignatureData {
   nonce: number
   owner: string
   spender: string
-  chainId: number
+  chainId: string
   tokenAddress: string
   permitType: PermitType
 }
@@ -114,7 +111,8 @@ export function useERC20Permit(
   state: UseERC20PermitState
   gatherPermitSignature: null | (() => Promise<void>)
 } {
-  const { account, chainId, provider } = useWeb3React()
+  const { address: account, chainId } = useAccountDetails()
+  const { provider } = useProvider()
   const tokenAddress = currencyAmount?.currency?.isToken ? currencyAmount.currency.address : undefined
   const eip2612Contract = useEIP2612Contract(tokenAddress)
   const isArgentWallet = useIsArgentWallet()
@@ -210,24 +208,24 @@ export function useERC20Permit(
           message,
         })
 
-        return provider
-          .send('eth_signTypedData_v4', [account, data])
-          .then(splitSignature)
-          .then((signature) => {
-            setSignatureData({
-              v: signature.v,
-              r: signature.r,
-              s: signature.s,
-              deadline: signatureDeadline,
-              ...(allowed ? { allowed } : { amount: value }),
-              nonce: nonceNumber,
-              chainId,
-              owner: account,
-              spender,
-              tokenAddress,
-              permitType: permitInfo.type,
-            })
-          })
+        // return provider
+        //   .send('eth_signTypedData_v4', [account, data])
+        //   .then(splitSignature)
+        //   .then((signature) => {
+        //     setSignatureData({
+        //       v: signature.v,
+        //       r: signature.r,
+        //       s: signature.s,
+        //       deadline: signatureDeadline,
+        //       ...(allowed ? { allowed } : { amount: value }),
+        //       nonce: nonceNumber,
+        //       chainId,
+        //       owner: account,
+        //       spender,
+        //       tokenAddress,
+        //       permitType: permitInfo.type,
+        //     })
+        //   })
       },
     }
   }, [

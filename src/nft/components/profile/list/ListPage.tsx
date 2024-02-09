@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { InterfaceModalName, NFTEventName } from '@uniswap/analytics-events'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { sendAnalyticsEvent, useTrace } from 'analytics'
 import Column from 'components/Column'
 import Row from 'components/Row'
@@ -184,7 +184,7 @@ const EthValueWrapper = styled.span<{ totalEthListingValue: boolean }>`
 
 export const ListPage = () => {
   const { setProfilePageState: setSellPageState } = useProfilePageState()
-  const { provider, chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const isMobile = useIsMobile()
   const trace = useTrace({ modal: InterfaceModalName.NFT_LISTING })
   const { formatCurrencyAmount } = useFormatter()
@@ -214,7 +214,7 @@ export const ListPage = () => {
   })
   const [showListModal, toggleShowListModal] = useReducer((s) => !s, false)
   const [selectedMarkets, setSelectedMarkets] = useState([ListingMarkets[0]]) // default marketplace: x2y2
-  const signer = provider?.getSigner()
+  // const signer = provider?.getSigner()
 
   // instantiate listings and collections to approve when users modify input data
   useSubscribeListingState()
@@ -233,19 +233,18 @@ export const ListPage = () => {
   }
 
   const startListingFlow = async () => {
-    if (!signer) return
-    sendAnalyticsEvent(NFTEventName.NFT_SELL_START_LISTING, { ...startListingEventProperties })
-    const signerAddress = await signer.getAddress()
-    const nonce = await looksRareNonceFetcher(signerAddress)
-    setLooksRareNonce(nonce ?? 0)
-
-    // for all unique collection, marketplace combos -> approve collections
-    for (const collectionRow of collectionsRequiringApproval) {
-      verifyStatus(collectionRow.status) &&
-        (isMobile
-          ? await approveCollectionRow(collectionRow, signer, setCollectionStatusAndCallback)
-          : approveCollectionRow(collectionRow, signer, setCollectionStatusAndCallback))
-    }
+    // if (!signer) return
+    // sendAnalyticsEvent(NFTEventName.NFT_SELL_START_LISTING, { ...startListingEventProperties })
+    // const signerAddress = await signer.getAddress()
+    // const nonce = await looksRareNonceFetcher(signerAddress)
+    // setLooksRareNonce(nonce ?? 0)
+    // // for all unique collection, marketplace combos -> approve collections
+    // for (const collectionRow of collectionsRequiringApproval) {
+    //   verifyStatus(collectionRow.status) &&
+    //     (isMobile
+    //       ? await approveCollectionRow(collectionRow, signer, setCollectionStatusAndCallback)
+    //       : approveCollectionRow(collectionRow, signer, setCollectionStatusAndCallback))
+    // }
   }
 
   const showModalAndStartListing = () => {

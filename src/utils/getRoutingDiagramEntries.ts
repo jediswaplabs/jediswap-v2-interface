@@ -1,7 +1,7 @@
-import { Protocol } from '@uniswap/router-sdk'
-import { Currency, Percent, TradeType } from '@uniswap/sdk-core'
-import { Pair } from '@uniswap/v2-sdk'
-import { FeeAmount } from '@uniswap/v3-sdk'
+import { Protocol } from '@vnaysn/jediswap-router-sdk'
+import { Currency, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
+import { Pair } from '@vnaysn/jediswap-sdk-v2'
+import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
 import { ClassicTrade } from 'state/routing/types'
 
 export interface RoutingDiagramEntry {
@@ -16,7 +16,8 @@ const V2_DEFAULT_FEE_TIER = 3000
  * Loops through all routes on a trade and returns an array of diagram entries.
  */
 export default function getRoutingDiagramEntries(trade: ClassicTrade): RoutingDiagramEntry[] {
-  return trade.swaps.map(({ route: { path: tokenPath, pools, protocol }, inputAmount, outputAmount }) => {
+  return trade.swaps.map(({ route, inputAmount, outputAmount }) => {
+    const { pools, tokenPath, protocol } = route as any
     const portion =
       trade.tradeType === TradeType.EXACT_INPUT
         ? inputAmount.divide(trade.inputAmount)

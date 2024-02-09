@@ -1,5 +1,5 @@
-import { useWeb3React } from '@web3-react/core'
-import { CHAIN_IDS_TO_NAMES, isSupportedChain } from 'constants/chains'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { CHAIN_IDS_TO_NAMES } from 'constants/chains'
 import { ParsedQs } from 'qs'
 import { useEffect, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
@@ -21,7 +21,7 @@ function getParsedChainId(parsedQs?: ParsedQs) {
 }
 
 export default function useSyncChainQuery() {
-  const { chainId, isActive, account } = useWeb3React()
+  const { chainId, account } = useAccountDetails()
   const parsedQs = useParsedQueryString()
   const chainIdRef = useRef(chainId)
   const accountRef = useRef(account)
@@ -42,21 +42,21 @@ export default function useSyncChainQuery() {
 
   useEffect(() => {
     // Change a user's chain on pageload if the connected chainId does not match the query param chain
-    if (isActive && urlChainId && chainIdRef.current === chainId && chainId !== urlChainId) {
-      selectChain(urlChainId)
-    }
-    // If a user has a connected wallet and has manually changed their chain, update the query parameter if it's supported
-    else if (account && chainIdRef.current !== chainId && chainId !== urlChainId) {
-      if (isSupportedChain(chainId)) {
-        searchParams.set('chain', CHAIN_IDS_TO_NAMES[chainId])
-      } else {
-        searchParams.delete('chain')
-      }
-      setSearchParams(searchParams)
-    }
-    // If a user has a connected wallet and the chainId matches the query param chain, update the chainIdRef
-    else if (isActive && chainId === urlChainId) {
-      chainIdRef.current = urlChainId
-    }
-  }, [urlChainId, selectChain, searchParams, isActive, chainId, account, setSearchParams])
+    // if (isActive && urlChainId && chainIdRef.current === chainId && chainId !== urlChainId) {
+    //   selectChain(urlChainId)
+    // }
+    // // If a user has a connected wallet and has manually changed their chain, update the query parameter if it's supported
+    // else if (account && chainIdRef.current !== chainId && chainId !== urlChainId) {
+    //   if (isSupportedChain(chainId)) {
+    //     searchParams.set('chain', CHAIN_IDS_TO_NAMES[chainId])
+    //   } else {
+    //     searchParams.delete('chain')
+    //   }
+    //   setSearchParams(searchParams)
+    // }
+    // // If a user has a connected wallet and the chainId matches the query param chain, update the chainIdRef
+    // else if (isActive && chainId === urlChainId) {
+    //   chainIdRef.current = urlChainId
+    // }
+  }, [urlChainId, selectChain, searchParams, chainId, account, setSearchParams])
 }

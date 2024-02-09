@@ -1,8 +1,8 @@
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
-import { Currency, CurrencyAmount } from '@uniswap/sdk-core'
-import { Pair } from '@uniswap/v2-sdk'
-import { useWeb3React } from '@web3-react/core'
+import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
+import { Pair } from '@vnaysn/jediswap-sdk-v2'
+import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { darken } from 'polished'
 import { ReactNode, useCallback, useState } from 'react'
 import styled, { useTheme } from 'styled-components'
@@ -213,8 +213,8 @@ export default function CurrencyInputPanel({
   ...rest
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
-  const { account, chainId } = useWeb3React()
-  const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+  const { address: account, chainId } = useAccountDetails()
+  const { formatted, balance } = useAccountBalance(currency as Currency)
   const theme = useTheme()
 
   const handleDismissSearch = useCallback(() => {
@@ -223,7 +223,12 @@ export default function CurrencyInputPanel({
 
   const chainAllowed = isSupportedChain(chainId)
 
+  const handleMaxAmount = () => {
+    if (balance) onUserInput(balance)
+  }
+
   const containerStyles = hideShadow ? { boxShadow: 'none' } : {}
+  const showMax = balance !== null && Number(value) !== Number(balance)
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>
       {!locked && (
@@ -289,34 +294,25 @@ export default function CurrencyInputPanel({
               <RowBetween>
                 {account && (
                   <RowFixed style={{ height: '17px' }}>
-                    {Boolean(showMaxButton && selectedCurrencyBalance) && (
-                      <TraceEvent
-                        events={[BrowserEvent.onClick]}
-                        name={SwapEventName.SWAP_MAX_TOKEN_AMOUNT_SELECTED}
-                        element={InterfaceElementName.MAX_TOKEN_AMOUNT_BUTTON}
-                      >
-                        <StyledBalanceMax onClick={onMax}>
-                          <Trans>MAX</Trans>
-                        </StyledBalanceMax>
-                      </TraceEvent>
+                    {showMax && formatted && (
+                      <StyledBalanceMax onClick={handleMaxAmount}>
+                        <Trans>MAX</Trans>
+                      </StyledBalanceMax>
                     )}
                     <ThemedText.DeprecatedBody
-                      onClick={onMax}
+                      onClick={handleMaxAmount}
                       color={theme.neutral3}
                       fontWeight={535}
                       fontSize={14}
                       style={{ display: 'inline', cursor: 'pointer' }}
                     >
-                      {Boolean(!hideBalance && currency && selectedCurrencyBalance) &&
-                        (renderBalance?.(selectedCurrencyBalance as CurrencyAmount<Currency>) || (
-                          <Trans>Bal: {formatCurrencyAmount(selectedCurrencyBalance, 4)}</Trans>
-                        ))}
+                      {formatted && <>Bal: {formatted}</>}
                     </ThemedText.DeprecatedBody>
                   </RowFixed>
                 )}
-                <LoadingOpacityContainer $loading={loading}>
+                {/* <LoadingOpacityContainer $loading={loading}>
                   {fiatValue && <FiatValue fiatValue={fiatValue} />}
-                </LoadingOpacityContainer>
+                </LoadingOpacityContainer> */}
               </RowBetween>
             </FiatRow>
           )}

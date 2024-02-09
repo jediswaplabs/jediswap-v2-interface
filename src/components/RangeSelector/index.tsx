@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { Currency, Price, Token } from '@uniswap/sdk-core'
+import { Currency, Price, Token } from '@vnaysn/jediswap-sdk-core'
 import StepCounter from 'components/InputStepCounter/InputStepCounter'
 import { AutoRow } from 'components/Row'
 import { Bound } from 'state/mint/v3/actions'
@@ -10,10 +10,6 @@ export default function RangeSelector({
   priceUpper,
   onLeftRangeInput,
   onRightRangeInput,
-  getDecrementLower,
-  getIncrementLower,
-  getDecrementUpper,
-  getIncrementUpper,
   currencyA,
   currencyB,
   feeAmount,
@@ -21,10 +17,6 @@ export default function RangeSelector({
 }: {
   priceLower?: Price<Token, Token>
   priceUpper?: Price<Token, Token>
-  getDecrementLower: () => string
-  getIncrementLower: () => string
-  getDecrementUpper: () => string
-  getIncrementUpper: () => string
   onLeftRangeInput: (typedValue: string) => void
   onRightRangeInput: (typedValue: string) => void
   currencyA?: Currency | null
@@ -44,10 +36,6 @@ export default function RangeSelector({
       <StepCounter
         value={ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER] ? '0' : leftPrice?.toSignificant(8) ?? ''}
         onUserInput={onLeftRangeInput}
-        decrement={isSorted ? getDecrementLower : getIncrementUpper}
-        increment={isSorted ? getIncrementLower : getDecrementUpper}
-        decrementDisabled={leftPrice === undefined || ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER]}
-        incrementDisabled={leftPrice === undefined || ticksAtLimit[isSorted ? Bound.LOWER : Bound.UPPER]}
         feeAmount={feeAmount}
         label={leftPrice ? `${currencyB?.symbol}` : '-'}
         title={<Trans>Low price</Trans>}
@@ -57,10 +45,6 @@ export default function RangeSelector({
       <StepCounter
         value={ticksAtLimit[isSorted ? Bound.UPPER : Bound.LOWER] ? '∞' : rightPrice?.toSignificant(8) ?? ''}
         onUserInput={onRightRangeInput}
-        decrement={isSorted ? getDecrementUpper : getIncrementLower}
-        increment={isSorted ? getIncrementUpper : getDecrementLower}
-        incrementDisabled={rightPrice === undefined || ticksAtLimit[isSorted ? Bound.UPPER : Bound.LOWER]}
-        decrementDisabled={rightPrice === undefined || ticksAtLimit[isSorted ? Bound.UPPER : Bound.LOWER]}
         feeAmount={feeAmount}
         label={rightPrice ? `${currencyB?.symbol}` : '-'}
         tokenA={currencyA?.symbol}

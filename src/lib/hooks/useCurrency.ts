@@ -1,18 +1,19 @@
 import { arrayify } from '@ethersproject/bytes'
 import { parseBytes32String } from '@ethersproject/strings'
 import { InterfaceEventName } from '@uniswap/analytics-events'
-import { ChainId, Currency, Token } from '@uniswap/sdk-core'
-import { useWeb3React } from '@web3-react/core'
+import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { sendAnalyticsEvent } from 'analytics'
-import { asSupportedChain, isSupportedChain } from 'constants/chains'
+import { isSupportedChain } from 'constants/chains'
 import { useBytes32TokenContract, useTokenContract } from 'hooks/useContract'
 import { NEVER_RELOAD, useSingleCallResult } from 'lib/hooks/multicall'
 import useNativeCurrency from 'lib/hooks/useNativeCurrency'
 import { useEffect, useMemo } from 'react'
 
-import { DEFAULT_ERC20_DECIMALS } from '../../constants/tokens'
-import { TOKEN_SHORTHANDS } from '../../constants/tokens'
+import { DEFAULT_CHAIN_ID, DEFAULT_ERC20_DECIMALS, WETH } from '../../constants/tokens'
+// import { TOKEN_SHORTHANDS } from '../../constants/tokens'
 import { isAddress } from '../../utils'
+import { isAddressValidForStarknet } from 'utils/addresses'
 
 // parse a name or symbol from a token response
 const BYTES32_REGEX = /^0x[a-fA-F0-9]{64}$/
@@ -35,7 +36,7 @@ const UNKNOWN_TOKEN_NAME = 'Unknown Token'
  * Returns undefined if tokenAddress is invalid or token does not exist.
  */
 export function useTokenFromActiveNetwork(tokenAddress: string | undefined): Token | null | undefined {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
 
   const formattedAddress = isAddress(tokenAddress)
   const tokenContract = useTokenContract(formattedAddress ? formattedAddress : undefined, false)
@@ -81,24 +82,15 @@ type TokenMap = { [address: string]: Token }
  * Returns undefined if tokenAddress is invalid or token does not exist.
  */
 export function useTokenFromMapOrNetwork(tokens: TokenMap, tokenAddress?: string | null): Token | undefined {
-  const address = isAddress(tokenAddress)
-  const token: Token | undefined = address ? tokens[address] : undefined
+  const { chainId } = useAccountDetails()
+  const address = isAddressValidForStarknet(tokenAddress)
+  const token: Token | undefined =
+    WETH[chainId ?? DEFAULT_CHAIN_ID].address === address
+      ? WETH[chainId ?? DEFAULT_CHAIN_ID]
+      : address
+      ? tokens[address]
+      : undefined
   const tokenFromNetwork = useTokenFromActiveNetwork(token ? undefined : address ? address : undefined)
-
-  useEffect(() => {
-    if (tokenFromNetwork) {
-      sendAnalyticsEvent(InterfaceEventName.WALLET_PROVIDER_USED, {
-        source: 'useTokenFromActiveNetwork',
-        token: {
-          name: tokenFromNetwork?.name,
-          symbol: tokenFromNetwork?.symbol,
-          address: tokenFromNetwork?.address,
-          isNative: tokenFromNetwork?.isNative,
-          chainId: tokenFromNetwork?.chainId,
-        },
-      })
-    }
-  }, [tokenFromNetwork])
 
   return tokenFromNetwork ?? token
 }
@@ -116,8 +108,8 @@ export function useCurrencyFromMap(
   const nativeCurrency = useNativeCurrency(chainId)
   const isNative = Boolean(nativeCurrency && currencyId?.toUpperCase() === 'ETH')
   const shorthandMatchAddress = useMemo(() => {
-    const chain = asSupportedChain(chainId)
-    return chain && currencyId ? TOKEN_SHORTHANDS[currencyId.toUpperCase()]?.[chain] : undefined
+    const chain = DEFAULT_CHAIN_ID
+    return undefined
   }, [chainId, currencyId])
 
   const token = useTokenFromMapOrNetwork(tokens, isNative ? undefined : shorthandMatchAddress ?? currencyId)

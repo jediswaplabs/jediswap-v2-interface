@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import * as Sentry from '@sentry/react'
-import { useWeb3React } from '@web3-react/core'
+import { useAccountDetails } from 'hooks/starknet-react'
 import { ButtonLight, SmallButtonPrimary } from 'components/Button'
 import { ChevronUpIcon } from 'nft/components/icons'
 import { useIsMobile } from 'nft/hooks'
@@ -180,7 +180,7 @@ const Fallback = ({ error, eventId }: { error: Error; eventId: string | null }) 
             <SmallButtonPrimary onClick={() => window.location.reload()}>
               <Trans>Reload the app</Trans>
             </SmallButtonPrimary>
-            <ExternalLink id="get-support-on-discord" href="https://discord.com/invite/9sAPRUfv7t" target="_blank">
+            <ExternalLink id="get-support-on-discord" href="https://discord.gg/jediswap" target="_blank">
               <SmallButtonLight>
                 <Trans>Get support</Trans>
               </SmallButtonLight>
@@ -218,7 +218,7 @@ const updateServiceWorkerInBackground = async () => {
 }
 
 export default function ErrorBoundary({ children }: PropsWithChildren): JSX.Element {
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   return (
     <Sentry.ErrorBoundary
       fallback={({ error, eventId }) => <Fallback error={error} eventId={eventId} />}

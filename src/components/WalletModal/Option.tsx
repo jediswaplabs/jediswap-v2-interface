@@ -1,6 +1,6 @@
-import { useWeb3React } from '@web3-react/core'
-import { InjectedConnector , Connector} from '@starknet-react/core';
-import { WebWalletConnector } from '@argent/starknet-react-webwallet-connector';
+import { useAccountDetails } from 'hooks/starknet-react'
+import { InjectedConnector, Connector } from '@starknet-react/core'
+import { WebWalletConnector } from '@argent/starknet-react-webwallet-connector'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import Loader from 'components/Icons/LoadingSpinner'
 import { ActivationStatus, useActivationState } from 'connection/activate'
@@ -8,7 +8,6 @@ import { useConnectors } from 'hooks/starknet-react'
 import styled from 'styled-components'
 // import { useIsDarkMode } from 'theme/components/ThemeToggle'
 import { flexColumnNoWrap, flexRowNoWrap } from 'theme/styles'
-
 
 const OptionCardLeft = styled.div`
   ${flexColumnNoWrap};
@@ -128,10 +127,9 @@ export default function OptionV2({
   active = false,
   id,
 }: OptionProps) {
-  console.log('🚀 ~ file: OptionV2.tsx:84 ~ OptionV2 ~ connector:', connector)
   const { activationState, tryActivation } = useActivationState()
   const toggleAccountDrawer = useToggleAccountDrawer()
-  const { chainId } = useWeb3React()
+  const { chainId } = useAccountDetails()
   const { connect } = useConnectors()
   // const activate = () => tryActivation(connection, toggleAccountDrawer, chainId)
 
@@ -153,25 +151,25 @@ export default function OptionV2({
         selected={isCurrentOptionPending}
         // data-testid={`wallet-option-${connection.type}`}
       >
-       <OptionCardLeft>
-            <HeaderText color={color}>
-              {active ? (
-                <CircleWrapper>
-                  <GreenCircle>
-                    <div />
-                  </GreenCircle>
-                </CircleWrapper>
-              ) : (
-                ''
-              )}
-              {header}
-            </HeaderText>
-            {subheader && <SubHeader>{subheader}</SubHeader>}
-          </OptionCardLeft>
-          <IconWrapper size={size}>
-            <img src={icon} alt={'Icon'} />
-          </IconWrapper>
-        </OptionCardClickable>
+        <OptionCardLeft>
+          <HeaderText color={color}>
+            {active ? (
+              <CircleWrapper>
+                <GreenCircle>
+                  <div />
+                </GreenCircle>
+              </CircleWrapper>
+            ) : (
+              ''
+            )}
+            {header}
+          </HeaderText>
+          {subheader && <SubHeader>{subheader}</SubHeader>}
+        </OptionCardLeft>
+        <IconWrapper size={size}>
+          <img src={icon} alt={'Icon'} />
+        </IconWrapper>
+      </OptionCardClickable>
       {/* </TraceEvent> */}
     </Wrapper>
   )
