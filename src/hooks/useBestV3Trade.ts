@@ -29,6 +29,10 @@ import { useQuery } from 'react-query'
 // import { useV3Quoter } from './useContract'
 import ERC20_ABI from 'abis/erc20.json'
 
+const provider = new RpcProvider({
+  nodeUrl: 'https://starknet-testnet.public.blastapi.io/rpc/v0_6',
+})
+
 export enum V3TradeState {
   LOADING,
   INVALID,
@@ -67,7 +71,7 @@ export function useBestV3TradeExactIn(
       trade: null,
     }
 
-  const { account, address, chainId } = useAccountDetails()
+  const { account, address, chainId, connector } = useAccountDetails()
   const swapRouterAddress = SWAP_ROUTER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
 
   const quoteExactInInputs = useMemo(() => {
@@ -198,10 +202,6 @@ export function useBestV3TradeExactIn(
   //   return results
   // }, [quoteExactInInputs, approveCall])
 
-  const provider = new RpcProvider({
-    nodeUrl: 'https://starknet-testnet.public.blastapi.io/rpc/v0_6',
-  })
-
   const privateKey = '0x1234567890987654321'
 
   const message: BigNumberish[] = [1, 128, 18, 14]
@@ -213,40 +213,42 @@ export function useBestV3TradeExactIn(
   const amountOutResults = useQuery({
     queryKey: ['get_simulation', address, amountIn],
     queryFn: async () => {
-      if (!address || !account || !approveSelector || !quoteExactInInputs) return
+      if (!address || !account || !approveSelector || !quoteExactInInputs || !connector) return
 
       const callPromises = quoteExactInInputs.map(async (call: any) => {
-        // const argent_calls = {
-        //   contractAddress: address,
-        //   calldata: CallData.compile({
-        //     ...totalTx,
-        //     ...approveSelector,
-        //     ...approve_call_data_length,
-        //     ...approve_call_data,
-        //     ...inputSelector,
-        //     ...input_call_data_length,
-        //     ...call.calldata,
-        //   }),
-        // }
+        const isConnectorBraavos = connector.id === 'braavos'
 
-        const braavos_calls = {
-          contractAddress: address,
-          calldata: CallData.compile({
-            ...totalTx,
-            ...approveSelector,
-            ...{ approve_offset: '0x0' },
-            ...approve_call_data_length,
-            ...inputSelector,
-            ...{ input_offset: approve_call_data_length },
-            ...input_call_data_length,
-            ...{ total_call_data_length: '0xe' },
-            ...approve_call_data,
-            ...call.calldata,
-          }),
-        }
+        const payload = isConnectorBraavos
+          ? {
+              contractAddress: address,
+              calldata: CallData.compile({
+                ...totalTx,
+                ...approveSelector,
+                ...{ approve_offset: '0x0' },
+                ...approve_call_data_length,
+                ...inputSelector,
+                ...{ input_offset: approve_call_data_length },
+                ...input_call_data_length,
+                ...{ total_call_data_length: '0xe' },
+                ...approve_call_data,
+                ...call.calldata,
+              }),
+            }
+          : {
+              contractAddress: address,
+              calldata: CallData.compile({
+                ...totalTx,
+                ...approveSelector,
+                ...approve_call_data_length,
+                ...approve_call_data,
+                ...inputSelector,
+                ...input_call_data_length,
+                ...call.calldata,
+              }),
+            }
         // const compiledCall = CallData.
         const response = provider.simulateTransaction(
-          [{ type: TransactionType.INVOKE, ...braavos_calls, signature, nonce: 2 }],
+          [{ type: TransactionType.INVOKE, ...payload, signature, nonce: 128 }],
           {
             skipValidate: true,
             blockIdentifier: 'latest',
@@ -282,25 +284,27 @@ export function useBestV3TradeExactIn(
     if (!data) return
     const subRoutesArray = data.map((subArray) => subArray[0])
     const bestRouteResults = { bestRoute: null, amountOut: null }
-    const { bestRoute, amountOut } = subRoutesArray.reduce((currentBest: any, result: any, i: any) => {
-      const selected_tx_result = result?.transaction_trace?.execute_invocation?.result
-      const value = selected_tx_result[selected_tx_result.length - 2]
-      const amountOut = fromUint256ToNumber({ high: value })
-      if (!result) return currentBest
-      if (currentBest.amountOut === null) {
-        return {
-          bestRoute: routes[i],
-          amountOut,
+    const { bestRoute, amountOut } = subRoutesArray
+      .filter((result: any) => result?.transaction_trace?.execute_invocation?.result)
+      .reduce((currentBest: any, result: any, i: any) => {
+        const selected_tx_result = result?.transaction_trace?.execute_invocation?.result
+        const value = selected_tx_result[selected_tx_result.length - 2]
+        const amountOut = fromUint256ToNumber({ high: value })
+        if (!result) return currentBest
+        if (currentBest.amountOut === null) {
+          return {
+            bestRoute: routes[i],
+            amountOut,
+          }
+        } else if (Number(cairo.felt(currentBest.amountOut)) < Number(cairo.felt(amountOut))) {
+          return {
+            bestRoute: routes[i],
+            amountOut,
+          }
         }
-      } else if (Number(cairo.felt(currentBest.amountOut)) < Number(cairo.felt(amountOut))) {
-        return {
-          bestRoute: routes[i],
-          amountOut,
-        }
-      }
 
-      return currentBest
-    }, bestRouteResults)
+        return currentBest
+      }, bestRouteResults)
 
     return { bestRoute, amountOut }
   }, [amountOutResults])
