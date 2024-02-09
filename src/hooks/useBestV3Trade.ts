@@ -188,19 +188,17 @@ export function useBestV3TradeExactIn(
   }
   const input_call_data_length = { input_call_data_length: '0xb' }
 
-  // const compiledApprovedCall = useMemo(() => {
-  //   if (!approveCall) return
-  //   return CallData.compile(approveCall)
-  // }, [approveCall])
-
-  // const callsArr = useMemo(() => {
-  //   if (!quoteExactInInputs || !quoteExactInInputs.length || !account || !address) return
-  //   const results = quoteExactInInputs.map((input, index) => {
-  //     return [approveCall, input]
-  //   })
-
-  //   return results
-  // }, [quoteExactInInputs, approveCall])
+  const nonce_results = useQuery({
+    queryKey: [`nonce/${address}`],
+    queryFn: async () => {
+      if (!account) return
+      const results = await account?.getNonce()
+      return cairo.felt(results.toString())
+    },
+    onSuccess: (data) => {
+      // Handle the successful data fetching here if needed
+    },
+  })
 
   const privateKey = '0x1234567890987654321'
 
@@ -213,8 +211,8 @@ export function useBestV3TradeExactIn(
   const amountOutResults = useQuery({
     queryKey: ['get_simulation', address, amountIn],
     queryFn: async () => {
-      if (!address || !account || !approveSelector || !quoteExactInInputs || !connector) return
-
+      if (!address || !account || !approveSelector || !quoteExactInInputs || !connector || !nonce_results) return
+      const nonce = Number(nonce_results.data)
       const callPromises = quoteExactInInputs.map(async (call: any) => {
         const isConnectorBraavos = connector.id === 'braavos'
 
@@ -248,10 +246,9 @@ export function useBestV3TradeExactIn(
             }
         // const compiledCall = CallData.
         const response = provider.simulateTransaction(
-          [{ type: TransactionType.INVOKE, ...payload, signature, nonce: 128 }],
+          [{ type: TransactionType.INVOKE, ...payload, signature, nonce }],
           {
             skipValidate: true,
-            blockIdentifier: 'latest',
           }
         )
 
