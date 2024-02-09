@@ -7,7 +7,18 @@ import { useAllV3Routes } from './useAllV3Routes'
 import { useBlockNumber, useContractRead } from '@starknet-react/core'
 import SWAP_QUOTER_ABI from 'contracts/swapquoter/abi.json'
 import { DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS } from 'constants/tokens'
-import { BigNumberish, BlockNumber, CallData, TransactionType, cairo, encode, num } from 'starknet'
+import {
+  BigNumberish,
+  BlockNumber,
+  CallData,
+  Invocation,
+  InvocationsDetails,
+  RpcProvider,
+  TransactionType,
+  cairo,
+  encode,
+  num,
+} from 'starknet'
 import { TradeState } from 'state/routing/types'
 import { ec, hash, json, Contract, WeierstrassSignatureType } from 'starknet'
 import { useAccountDetails } from './starknet-react'
@@ -125,9 +136,9 @@ export function useBestV3TradeExactIn(
         }
 
         const call = {
-          contractAddress: swapRouterAddress,
-          entrypoint: 'exact_input_single',
-          calldata: CallData.compile(exactInputSingleParams),
+          // contractAddress: swapRouterAddress,
+          // entrypoint: 'exact_input_single',
+          calldata: exactInputSingleParams,
         }
 
         return call
@@ -135,44 +146,112 @@ export function useBestV3TradeExactIn(
     })
   }, [routes, amountIn, address])
 
-  const approveCall = useMemo(() => {
-    if (!amountIn) return
+  const approveSelector = useMemo(() => {
+    if (!amountIn || !address) return
     const approveParams = {
-      spender: swapRouterAddress,
+      currency_address: amountIn.currency.address,
+      selector: hash.getSelectorFromName('approve'),
+      approve_call_data_length: '0x03',
+      router_address: swapRouterAddress,
       approveAmount: cairo.uint256(2 ** 128),
     }
 
     return {
-      contractAddress: amountIn.currency.address,
-      entrypoint: 'approve',
-      calldata: CallData.compile(approveParams),
+      currency_address: amountIn?.currency?.address,
+      selector: hash.getSelectorFromName('approve'),
     }
-  }, [amountIn])
+  }, [amountIn, address])
 
-  const compiledApprovedCall = useMemo(() => {
-    if (!approveCall) return
-    return CallData.compile(approveCall)
-  }, [approveCall])
+  const totalTx = {
+    totalTx: '0x2',
+  }
 
-  const callsArr = useMemo(() => {
-    if (!quoteExactInInputs || !quoteExactInInputs.length || !account || !address) return
-    const results = quoteExactInInputs.map((input, index) => {
-      return [approveCall, input]
-    })
+  //approval
+  // const approveSelector = {
+  //   currency_address: amountIn?.currency?.address,
+  //   selector: hash.getSelectorFromName('approve'),
+  // }
+  const approve_call_data_length = { approve_call_data_length: '0x03' }
+  const approve_call_data = {
+    router_address: swapRouterAddress,
+    approveAmount: cairo.uint256(2 ** 128),
+  }
 
-    return results
-  }, [quoteExactInInputs, approveCall])
+  //exact input
+  const inputSelector = {
+    contract_address: swapRouterAddress,
+    entry_point: hash.getSelectorFromName('exact_input_single'),
+  }
+  const input_call_data_length = { input_call_data_length: '0xb' }
+
+  // const compiledApprovedCall = useMemo(() => {
+  //   if (!approveCall) return
+  //   return CallData.compile(approveCall)
+  // }, [approveCall])
+
+  // const callsArr = useMemo(() => {
+  //   if (!quoteExactInInputs || !quoteExactInInputs.length || !account || !address) return
+  //   const results = quoteExactInInputs.map((input, index) => {
+  //     return [approveCall, input]
+  //   })
+
+  //   return results
+  // }, [quoteExactInInputs, approveCall])
+
+  const provider = new RpcProvider({
+    nodeUrl: 'https://starknet-testnet.public.blastapi.io/rpc/v0_6',
+  })
+
+  const privateKey = '0x1234567890987654321'
+
+  const message: BigNumberish[] = [1, 128, 18, 14]
+
+  const msgHash = hash.computeHashOnElements(message)
+  const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
 
   // const fetchResults = useFetchResults(account, blockNumber, callsArr)
   const amountOutResults = useQuery({
     queryKey: ['get_simulation', address, amountIn],
     queryFn: async () => {
-      if (!address || !account || !callsArr || !callsArr.length) return
+      if (!address || !account || !approveSelector || !quoteExactInInputs) return
 
-      const callPromises = callsArr.map(async (call: any) => {
-        const response = await account.simulateTransaction([{ type: TransactionType.INVOKE, payload: call }], {
-          skipValidate: true,
-        })
+      const callPromises = quoteExactInInputs.map(async (call: any) => {
+        // const argent_calls = {
+        //   contractAddress: address,
+        //   calldata: CallData.compile({
+        //     ...totalTx,
+        //     ...approveSelector,
+        //     ...approve_call_data_length,
+        //     ...approve_call_data,
+        //     ...inputSelector,
+        //     ...input_call_data_length,
+        //     ...call.calldata,
+        //   }),
+        // }
+
+        const braavos_calls = {
+          contractAddress: address,
+          calldata: CallData.compile({
+            ...totalTx,
+            ...approveSelector,
+            ...{ approve_offset: '0x0' },
+            ...approve_call_data_length,
+            ...inputSelector,
+            ...{ input_offset: approve_call_data_length },
+            ...input_call_data_length,
+            ...{ total_call_data_length: '0xe' },
+            ...approve_call_data,
+            ...call.calldata,
+          }),
+        }
+        // const compiledCall = CallData.
+        const response = provider.simulateTransaction(
+          [{ type: TransactionType.INVOKE, ...braavos_calls, signature, nonce: 2 }],
+          {
+            skipValidate: true,
+            blockIdentifier: 'latest',
+          }
+        )
 
         return response
       })
