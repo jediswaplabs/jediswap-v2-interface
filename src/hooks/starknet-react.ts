@@ -6,12 +6,6 @@ import { WETH } from '@jediswap/sdk'
 import { useDefaultActiveTokens } from './Tokens'
 import formatBalance from 'utils/formatBalance'
 // Define the type for the balances object
-interface TokenBalance {
-  balance: any // Replace 'any' with the correct type of balance
-  error: any // Replace 'any' with the correct type of error
-  isLoading: any // Replace 'any' with the correct type of isLoading
-}
-
 declare enum StarknetChainId {
   SN_MAIN = '0x534e5f4d41494e',
   SN_GOERLI = '0x534e5f474f45524c49',

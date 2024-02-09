@@ -113,7 +113,7 @@ export default function Polling() {
   const waitMsBeforeWarning =
     (chainId ? getChainInfo(chainId)?.blockWaitMsBeforeWarning : DEFAULT_MS_BEFORE_WARNING) ?? DEFAULT_MS_BEFORE_WARNING
 
-  const warning = Boolean(!!blockTime && machineTime - blockTime.mul(1000).toNumber() > waitMsBeforeWarning)
+  const warning = false
 
   useEffect(
     () => {
