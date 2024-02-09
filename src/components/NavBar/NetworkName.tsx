@@ -6,9 +6,9 @@ import { getChainInfo } from 'constants/chainInfo'
 import useSyncChainQuery from 'hooks/useSyncChainQuery'
 
 const ChainSelectorRow = styled.div`
-  width: 162px;
   height: 38px;
   flex-shrink: 0;
+  padding: 10px 24px;
 
   border-radius: 8px;
   background: ${({ theme }) => theme.jediNavyBlue};

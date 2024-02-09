@@ -83,6 +83,7 @@ const NetworkSelected = styled(Web3StatusGeneric)<{}>`
 
 const AddressAndChevronContainer = styled.div<{ loading?: boolean }>`
   display: flex;
+  align-items: center;
   opacity: ${({ loading, theme }) => loading && theme.opacity.disabled};
 `
 

@@ -18,6 +18,7 @@ import { flexRowNoWrap } from 'theme/styles'
 import { Z_INDEX } from 'theme/zIndex'
 import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions'
 import useFetchAllPairsCallback from 'hooks/useFetchAllPairs'
+import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
   display: flex;
@@ -138,6 +139,7 @@ export default function App() {
           )}
         </Suspense>
       </BodyWrapper>
+      <Footer />
       <MobileBottomBar>
         <PageTabs />
       </MobileBottomBar>
