@@ -143,7 +143,7 @@ export function useBestV3TradeExactIn(
         return call
       }
     })
-  }, [routes, amountIn, address])
+  }, [routes, amountIn, address, currencyOut])
 
   const approveSelector = useMemo(() => {
     if (!amountIn) return
@@ -191,7 +191,7 @@ export function useBestV3TradeExactIn(
 
   // const fetchResults = useFetchResults(account, blockNumber, callsArr)
   const amountOutResults = useQuery({
-    queryKey: ['get_simulation', address, amountIn, nonce_results?.data],
+    queryKey: ['get_simulation', address, amountIn, nonce_results?.data, currencyOut?.symbol],
     queryFn: async () => {
       if (!address || !account || !approveSelector || !quoteExactInInputs || !connector || !nonce_results || !chainId)
         return
@@ -434,7 +434,7 @@ export function useBestV3TradeExactOut(
         return call
       }
     })
-  }, [routes && routes.length, amountOut])
+  }, [routes, amountOut, address, currencyIn])
 
   const approveSelector = useMemo(() => {
     if (!currencyIn) return
@@ -481,7 +481,7 @@ export function useBestV3TradeExactOut(
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
 
   const amountInResults = useQuery({
-    queryKey: ['get_simulation', address, amountOut, nonce_results?.data, chainId],
+    queryKey: ['get_simulation', address, amountOut, nonce_results?.data, chainId, currencyIn?.symbol],
     queryFn: async () => {
       if (!address || !account || !quoteExactOutInputs || !approveSelector || !connector || !nonce_results || !chainId)
         return
