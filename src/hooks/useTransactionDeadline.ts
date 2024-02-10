@@ -3,7 +3,7 @@ import { useAccountDetails } from 'hooks/starknet-react'
 import { L2_DEADLINE_FROM_NOW } from 'constants/misc'
 import { useMemo } from 'react'
 import { useAppSelector } from 'state/hooks'
-import { useContractRead } from '@starknet-react/core'
+import { useBlock, useContractRead } from '@starknet-react/core'
 import MultiContractABI from 'contracts/multicall/abi.json'
 import { MULTICALL_NETWORKS } from 'contracts/multicall'
 import { DEFAULT_CHAIN_ID } from 'constants/tokens'
@@ -14,7 +14,6 @@ export default function useTransactionDeadline(): BigNumber | undefined {
   const ttl = useAppSelector((state) => state.user.userDeadline)
   const blockTimestamp = useCurrentBlockTimestamp()
   return useMemo(() => {
-    if (blockTimestamp && chainId) return BigNumber.from(blockTimestamp).add(L2_DEADLINE_FROM_NOW)
     if (blockTimestamp && ttl) return BigNumber.from(blockTimestamp).add(ttl)
     return undefined
   }, [blockTimestamp, chainId, ttl])
@@ -29,6 +28,7 @@ const useCurrentBlockTimestamp = () => {
     address: MULTICALL_NETWORKS[chainId ?? DEFAULT_CHAIN_ID],
     watch: true,
   })
+
   if (!blockTimeStamp) return undefined
   const { block_timestamp } = blockTimeStamp as any
 
