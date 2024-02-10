@@ -194,7 +194,7 @@ export function useBestV3TradeExactIn(
 
   // const fetchResults = useFetchResults(account, blockNumber, callsArr)
   const amountOutResults = useQuery({
-    queryKey: ['get_simulation', address, amountIn],
+    queryKey: ['get_simulation', address, amountIn, nonce_results?.data],
     queryFn: async () => {
       if (!address || !account || !approveSelector || !quoteExactInInputs || !connector || !nonce_results) return
       const nonce = Number(nonce_results.data)
@@ -482,7 +482,7 @@ export function useBestV3TradeExactOut(
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
 
   const amountInResults = useQuery({
-    queryKey: [address, amountOut],
+    queryKey: ['get_simulation', address, amountOut, nonce_results?.data],
     queryFn: async () => {
       if (!address || !account || !quoteExactOutInputs || !approveSelector || !connector || !nonce_results) return
       const nonce = Number(nonce_results.data)
