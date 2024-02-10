@@ -22,7 +22,6 @@ import { SlippageTolerance } from 'state/user/types'
 import { ExternalLink, ThemedText } from 'theme/components'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { getPriceImpactColor } from 'utils/prices'
-import { GasBreakdownTooltip } from './GasBreakdownTooltip'
 import { MaxSlippageTooltip } from './MaxSlippageTooltip'
 import { RoutingTooltip, SwapRoute } from './SwapRoute'
 import TradePrice from './TradePrice'
@@ -142,25 +141,6 @@ function useLineItem(props: SwapLineItemProps): LineItemData | undefined {
         Label: () => <Trans>Rate</Trans>,
         Value: () => <TradePrice price={trade.executionPrice} />,
         TooltipBody: !isPreview ? () => <RoutingTooltip trade={trade} /> : undefined,
-      }
-    case SwapLineItemType.NETWORK_COST:
-      if (!SUPPORTED_GAS_ESTIMATE_CHAIN_IDS.includes(chainId)) {
-        return
-      }
-      return {
-        Label: () => <Trans>Network cost</Trans>,
-        TooltipBody: () => <GasBreakdownTooltip trade={trade} />,
-        Value: () => {
-          if (isPreview) {
-            return <Loading />
-          }
-          return (
-            <Row gap="4px">
-              <ChainLogo chainId={chainId} />
-              {formatNumber({ input: trade.totalGasUseEstimateUSD, type: NumberType.FiatGasPrice })}
-            </Row>
-          )
-        },
       }
     case SwapLineItemType.PRICE_IMPACT:
       return {

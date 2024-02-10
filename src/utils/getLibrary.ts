@@ -1,4 +1,6 @@
 import { jsonRpcProvider } from '@starknet-react/core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { RpcProvider } from 'starknet'
 
 interface NetworkTypes {
   [key: string]: string
@@ -31,5 +33,14 @@ const provider = jsonRpcProvider({
     }
   },
 })
+
+export const providerInstance = (chainId: string) => {
+  return new RpcProvider({
+    nodeUrl:
+      chainId === ChainId.GOERLI
+        ? 'https://starknet-testnet.public.blastapi.io/rpc/v0_6'
+        : 'https://rpc-proxy.jediswap.xyz/api/',
+  })
+}
 
 export default provider

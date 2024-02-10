@@ -28,10 +28,7 @@ import useTransactionDeadline from './useTransactionDeadline'
 import { useQuery } from 'react-query'
 // import { useV3Quoter } from './useContract'
 import ERC20_ABI from 'abis/erc20.json'
-
-const provider = new RpcProvider({
-  nodeUrl: 'https://starknet-testnet.public.blastapi.io/rpc/v0_6',
-})
+import { providerInstance } from 'utils/getLibrary'
 
 export enum V3TradeState {
   LOADING,
@@ -196,11 +193,13 @@ export function useBestV3TradeExactIn(
   const amountOutResults = useQuery({
     queryKey: ['get_simulation', address, amountIn, nonce_results?.data],
     queryFn: async () => {
-      if (!address || !account || !approveSelector || !quoteExactInInputs || !connector || !nonce_results) return
+      if (!address || !account || !approveSelector || !quoteExactInInputs || !connector || !nonce_results || !chainId)
+        return
       const nonce = Number(nonce_results.data)
       const callPromises = quoteExactInInputs.map(async (call: any) => {
         const isConnectorBraavos = connector.id === 'braavos'
-
+        const provider = providerInstance(chainId)
+        if (!provider) return
         const payload = isConnectorBraavos
           ? {
               contractAddress: address,
@@ -482,14 +481,16 @@ export function useBestV3TradeExactOut(
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
 
   const amountInResults = useQuery({
-    queryKey: ['get_simulation', address, amountOut, nonce_results?.data],
+    queryKey: ['get_simulation', address, amountOut, nonce_results?.data, chainId],
     queryFn: async () => {
-      if (!address || !account || !quoteExactOutInputs || !approveSelector || !connector || !nonce_results) return
+      if (!address || !account || !quoteExactOutInputs || !approveSelector || !connector || !nonce_results || !chainId)
+        return
       const nonce = Number(nonce_results.data)
 
       const callPromises = quoteExactOutInputs.map(async (call: any) => {
         const isConnectorBraavos = connector.id === 'braavos'
-
+        const provider = providerInstance(chainId)
+        if (!provider) return
         const payload = isConnectorBraavos
           ? {
               contractAddress: address,
