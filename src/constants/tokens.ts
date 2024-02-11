@@ -38,7 +38,7 @@ export const NONFUNGIBLE_POOL_MANAGER_ADDRESS: { [chainId in ChainId]: string } 
 }
 export const SWAP_ROUTER_ADDRESS = {
   [ChainId.MAINNET]: '0x031a0c1ec4b27d0d0ce75a56b0d35d7ca79138aed511857627b33295b1175ffa',
-  [ChainId.GOERLI]: '0x039cda244be37e3361ee4bac45b264bb02b8b4425695fcf6f800629d2922714a',
+  [ChainId.GOERLI]: '0x038eaefeb9950c40a0a85f35378055e4c9739a1eb20e87e122ff66b4223d65ab',
 }
 
 export const STARKSCAN_PROXY_ADDRESS = {
