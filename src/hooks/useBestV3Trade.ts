@@ -104,7 +104,7 @@ export function useBestV3TradeExactIn(
           { inputToken: firstInputToken, path: [], types: [] }
         )
 
-        const exactInputSingleParams = {
+        const exactInputParams = {
           path,
           recipient: address,
           deadline: cairo.felt(deadline.toString()),
@@ -112,12 +112,19 @@ export function useBestV3TradeExactIn(
           amount_out_minimum: cairo.uint256(0),
         }
 
+        //exact input
+        const inputSelector = {
+          contract_address: swapRouterAddress,
+          entry_point: hash.getSelectorFromName('exact_input'),
+        }
+        const input_call_data_length = { input_call_data_length: path.length + 7 }
+
         const call = {
-          calldata: CallData.compile(exactInputSingleParams),
+          calldata: exactInputParams,
           route,
         }
 
-        return call
+        return { call, inputSelector, input_call_data_length }
       } else {
         //single hop
         const isCurrencyInFirst = amountIn?.currency?.address === route.pools[0].token0.address
@@ -135,12 +142,19 @@ export function useBestV3TradeExactIn(
           sqrt_price_limit_X96: cairo.uint256(0),
         }
 
+        //exact input
+        const inputSelector = {
+          contract_address: swapRouterAddress,
+          entry_point: hash.getSelectorFromName('exact_input_single'),
+        }
+        const input_call_data_length = { input_call_data_length: '0xb' }
+
         const call = {
           calldata: exactInputSingleParams,
           route,
         }
 
-        return call
+        return { call, inputSelector, input_call_data_length }
       }
     })
   }, [routes, amountIn, address, currencyOut, deadline])
@@ -162,13 +176,6 @@ export function useBestV3TradeExactIn(
     router_address: swapRouterAddress,
     approveAmount: cairo.uint256(2 ** 128),
   }
-
-  //exact input
-  const inputSelector = {
-    contract_address: swapRouterAddress,
-    entry_point: hash.getSelectorFromName('exact_input_single'),
-  }
-  const input_call_data_length = { input_call_data_length: '0xb' }
 
   const nonce_results = useQuery({
     queryKey: [`nonce/${address}`],
@@ -212,7 +219,7 @@ export function useBestV3TradeExactIn(
         return
       const nonce = Number(nonce_results.data)
       const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
-      const callPromises = quoteExactInInputs.map(async (call: any) => {
+      const callPromises = quoteExactInInputs.map(async ({ call, input_call_data_length, inputSelector }) => {
         const provider = providerInstance(chainId)
         if (!provider) return
         const payloadForContractType1 = {
@@ -394,14 +401,14 @@ export function useBestV3TradeExactOut(
             if (index === 0) {
               return {
                 inputToken: outputToken,
-                types: ['address', 'address', 'uint24'],
-                path: [inputToken.address, outputToken.address, pool.fee],
+                types: ['uint24', 'address', 'address'],
+                path: [pool.fee, inputToken.address, outputToken.address],
               }
             } else {
               return {
                 inputToken: outputToken,
-                types: [...types, 'address', 'address', 'uint24'],
-                path: [...path, inputToken.address, outputToken.address, pool.fee],
+                types: [...types, 'uint24', 'address', 'address'],
+                path: [...path, pool.fee, inputToken.address, outputToken.address],
               }
             }
           },
@@ -410,7 +417,7 @@ export function useBestV3TradeExactOut(
 
         const reversePath = path.reverse()
 
-        const exactOutputSingleParams = {
+        const exactOutputParams = {
           path: reversePath,
           recipient: address,
           deadline: cairo.felt(deadline.toString()),
@@ -418,12 +425,19 @@ export function useBestV3TradeExactOut(
           amount_in_maximum: cairo.uint256(2 ** 128),
         }
 
+        //exact input
+        const outputSelector = {
+          contract_address: swapRouterAddress,
+          entry_point: hash.getSelectorFromName('exact_output'),
+        }
+        const output_call_data_length = { output_call_data_length: path.length + 7 }
+
         const call = {
-          calldata: exactOutputSingleParams,
+          calldata: exactOutputParams,
           route,
         }
 
-        return call
+        return { call, outputSelector, output_call_data_length }
       } else {
         //single hop
         const isCurrencyInFirst = amountOut?.currency?.address === route.pools[0].token0.address
@@ -441,12 +455,19 @@ export function useBestV3TradeExactOut(
           sqrt_price_limit_X96: cairo.uint256(0),
         }
 
+        //exact input
+        const outputSelector = {
+          contract_address: swapRouterAddress,
+          entry_point: hash.getSelectorFromName('exact_output_single'),
+        }
+        const output_call_data_length = { output_call_data_length: '0xb' }
+
         const call = {
           calldata: exactOutputSingleParams,
           route,
         }
 
-        return call
+        return { call, outputSelector, output_call_data_length }
       }
     })
   }, [routes, amountOut, address, currencyIn, deadline])
@@ -468,13 +489,6 @@ export function useBestV3TradeExactOut(
     router_address: swapRouterAddress,
     approveAmount: cairo.uint256(2 ** 128),
   }
-
-  //exact input
-  const outputSelector = {
-    contract_address: swapRouterAddress,
-    entry_point: hash.getSelectorFromName('exact_output_single'),
-  }
-  const output_call_data_length = { output_call_data_length: '0xb' }
 
   const nonce_results = useQuery({
     queryKey: [`nonce/${address}`],
@@ -528,7 +542,7 @@ export function useBestV3TradeExactOut(
         return
       const nonce = Number(nonce_results.data)
       const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
-      const callPromises = quoteExactOutInputs.map(async (call: any) => {
+      const callPromises = quoteExactOutInputs.map(async ({ call, outputSelector, output_call_data_length }) => {
         const provider = providerInstance(chainId)
         if (!provider) return
         const payloadForContractType1 = {
