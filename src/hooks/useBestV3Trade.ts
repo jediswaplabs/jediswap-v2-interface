@@ -182,12 +182,22 @@ export function useBestV3TradeExactIn(
     },
   })
 
+  const contract_version = useQuery({
+    queryKey: [`contract_version/${address}`],
+    queryFn: async () => {
+      if (!account || !address) return
+      const results: any = await account?.getClassAt(address)
+      return results?.sierra_program
+      // return cairo.felt(results.toString())
+    },
+  })
+
   const privateKey = '0x1234567890987654321'
   const message: BigNumberish[] = [1, 128, 18, 14]
   const msgHash = hash.computeHashOnElements(message)
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
   const amountOutResults = useQuery({
-    queryKey: ['get_simulation', address, amountIn, nonce_results?.data, currencyOut?.symbol],
+    queryKey: ['get_simulation', address, amountIn, nonce_results?.data, currencyOut?.symbol, contract_version?.data],
     queryFn: async () => {
       if (
         !address ||
@@ -201,41 +211,41 @@ export function useBestV3TradeExactIn(
       )
         return
       const nonce = Number(nonce_results.data)
+      const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
       const callPromises = quoteExactInInputs.map(async (call: any) => {
-        const isConnectorBraavos = connector.id === 'braavos'
         const provider = providerInstance(chainId)
         if (!provider) return
-        const payload = isConnectorBraavos
-          ? {
-              contractAddress: address,
-              calldata: CallData.compile({
-                ...totalTx,
-                ...approveSelector,
-                ...{ approve_offset: '0x0' },
-                ...approve_call_data_length,
-                ...inputSelector,
-                ...{ input_offset: approve_call_data_length },
-                ...input_call_data_length,
-                ...{ total_call_data_length: '0xe' },
-                ...approve_call_data,
-                ...call.calldata,
-              }),
-            }
-          : {
-              contractAddress: address,
-              calldata: CallData.compile({
-                ...totalTx,
-                ...approveSelector,
-                ...approve_call_data_length,
-                ...approve_call_data,
-                ...inputSelector,
-                ...input_call_data_length,
-                ...call.calldata,
-              }),
-            }
-        // const compiledCall = CallData.
+        const payloadForContractType1 = {
+          contractAddress: address,
+          calldata: CallData.compile({
+            ...totalTx,
+            ...approveSelector,
+            ...approve_call_data_length,
+            ...approve_call_data,
+            ...inputSelector,
+            ...input_call_data_length,
+            ...call.calldata,
+          }),
+        }
+        const payloadForContractType0 = {
+          contractAddress: address,
+          calldata: CallData.compile({
+            ...totalTx,
+            ...approveSelector,
+            ...{ approve_offset: '0x0' },
+            ...approve_call_data_length,
+            ...inputSelector,
+            ...{ input_offset: approve_call_data_length },
+            ...input_call_data_length,
+            ...{ total_call_data_length: '0xe' },
+            ...approve_call_data,
+            ...call.calldata,
+          }),
+        }
+        const payload = !isWalletCairoVersionGreaterThanZero ? payloadForContractType0 : payloadForContractType1
+        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero ? payloadForContractType1 : payload
         const response = provider.simulateTransaction(
-          [{ type: TransactionType.INVOKE, ...payload, signature, nonce }],
+          [{ type: TransactionType.INVOKE, ...payloadBasedOnCairoVersion, signature, nonce }],
           {
             skipValidate: true,
           }
@@ -478,6 +488,16 @@ export function useBestV3TradeExactOut(
     },
   })
 
+  const contract_version = useQuery({
+    queryKey: [`contract_version/${address}`],
+    queryFn: async () => {
+      if (!account || !address) return
+      const results: any = await account?.getClassAt(address)
+      return results?.sierra_program
+      // return cairo.felt(results.toString())
+    },
+  })
+
   const privateKey = '0x1234567890987654321'
 
   const message: BigNumberish[] = [1, 128, 18, 14]
@@ -485,7 +505,15 @@ export function useBestV3TradeExactOut(
   const msgHash = hash.computeHashOnElements(message)
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
   const amountInResults = useQuery({
-    queryKey: ['get_simulation', address, amountOut, nonce_results?.data, chainId, currencyIn?.symbol],
+    queryKey: [
+      'get_simulation',
+      address,
+      amountOut,
+      nonce_results?.data,
+      chainId,
+      currencyIn?.symbol,
+      contract_version?.data,
+    ],
     queryFn: async () => {
       if (
         !address ||
@@ -499,43 +527,43 @@ export function useBestV3TradeExactOut(
       )
         return
       const nonce = Number(nonce_results.data)
-
+      const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
       const callPromises = quoteExactOutInputs.map(async (call: any) => {
-        const isConnectorBraavos = connector.id === 'braavos'
         const provider = providerInstance(chainId)
         if (!provider) return
-        const payload = isConnectorBraavos
-          ? {
-              contractAddress: address,
-              calldata: CallData.compile({
-                ...totalTx,
-                ...approveSelector,
-                ...{ approve_offset: '0x0' },
-                ...approve_call_data_length,
-                ...outputSelector,
-                ...{ input_offset: approve_call_data_length },
-                ...output_call_data_length,
-                ...{ total_call_data_length: '0xe' },
-                ...approve_call_data,
-                ...call.calldata,
-              }),
-            }
-          : {
-              contractAddress: address,
-              calldata: CallData.compile({
-                ...totalTx,
-                ...approveSelector,
-                ...approve_call_data_length,
-                ...approve_call_data,
-                ...outputSelector,
-                ...output_call_data_length,
-                ...call.calldata,
-              }),
-            }
+        const payloadForContractType1 = {
+          contractAddress: address,
+          calldata: CallData.compile({
+            ...totalTx,
+            ...approveSelector,
+            ...approve_call_data_length,
+            ...approve_call_data,
+            ...outputSelector,
+            ...output_call_data_length,
+            ...call.calldata,
+          }),
+        }
 
-        // const compiledCall = CallData.
+        const payloadForContractType0 = {
+          contractAddress: address,
+          calldata: CallData.compile({
+            ...totalTx,
+            ...approveSelector,
+            ...{ approve_offset: '0x0' },
+            ...approve_call_data_length,
+            ...outputSelector,
+            ...{ input_offset: approve_call_data_length },
+            ...output_call_data_length,
+            ...{ total_call_data_length: '0xe' },
+            ...approve_call_data,
+            ...call.calldata,
+          }),
+        }
+        const payload = isWalletCairoVersionGreaterThanZero ? payloadForContractType0 : payloadForContractType1
+        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero ? payloadForContractType1 : payload
+
         const response = provider.simulateTransaction(
-          [{ type: TransactionType.INVOKE, ...payload, signature, nonce }],
+          [{ type: TransactionType.INVOKE, ...payloadBasedOnCairoVersion, signature, nonce }],
           {
             skipValidate: true,
           }
