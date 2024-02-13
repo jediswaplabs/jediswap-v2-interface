@@ -33,7 +33,7 @@ export const FACTORY_ADDRESS = {
   [ChainId.GOERLI]: '0x06b4115fa43c48118d3f79fbc500c75917c8a28d0f867479acb81893ea1e036c',
 }
 export const NONFUNGIBLE_POOL_MANAGER_ADDRESS: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]: '0x04d367b511dec42e5207c616e50afc8471ee8bdf53f46d1def9fc7d8411f1eec',
+  [ChainId.MAINNET]: '0x00287d2ff1c39a44cd18d9dc7ed5617c9cb16b65090db6a0f689aa14755e4e5e',
   [ChainId.GOERLI]: '0x00d61e6af51443e01bc62cc5ce2692c26ce7b3a228ded99b3c5cfc84ae3ac6a3',
 }
 export const SWAP_ROUTER_ADDRESS = {
