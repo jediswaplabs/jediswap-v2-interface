@@ -1,4 +1,4 @@
-import { getVersionUpgrade, VersionUpgrade } from '@uniswap/token-lists'
+import { getVersionUpgrade, minVersionBump, VersionUpgrade } from '@uniswap/token-lists'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { DEFAULT_LIST_OF_LISTS, UNSUPPORTED_LIST_URLS } from 'constants/lists'
 import TokenSafetyLookupTable from 'constants/tokenSafetyLookup'
@@ -42,25 +42,15 @@ export default function Updater(): null {
   // fetch all lists every 10 minutes, but only after we initialize provider
   useInterval(fetchAllListsCallback, provider ? ms(`10m`) : null)
 
+  // whenever a list is not loaded and not loading, try again to load it
   useEffect(() => {
-    if (!rehydrated) return // loaded lists will not be available until state is rehydrated
-
-    // whenever a list is not loaded and not loading, try again to load it
     Object.keys(lists).forEach((listUrl) => {
       const list = lists[listUrl]
       if (!list.current && !list.loadingRequestId && !list.error) {
-        // fetchList(listUrl).catch((error) => console.debug('list added fetching error', error))
+        fetchList(listUrl).catch((error) => console.debug('list added fetching error', error))
       }
     })
-    UNSUPPORTED_LIST_URLS.forEach((listUrl) => {
-      const list = lists[listUrl]
-      if (!list || (!list.current && !list.loadingRequestId && !list.error)) {
-        // fetchList(listUrl, /* isUnsupportedList= */ true).catch((error) =>
-        //   console.debug('list added fetching error', error)
-        // )
-      }
-    })
-  }, [dispatch, lists, rehydrated])
+  }, [dispatch, fetchList, lists])
 
   // automatically update lists if versions are minor/patch
   useEffect(() => {
@@ -72,12 +62,17 @@ export default function Updater(): null {
           case VersionUpgrade.NONE:
             throw new Error('unexpected no version bump')
           case VersionUpgrade.PATCH:
-          case VersionUpgrade.MINOR: {
-            if (shouldAcceptVersionUpdate(listUrl, list.current, list.pendingUpdate, bump)) {
+          case VersionUpgrade.MINOR:
+            const min = minVersionBump(list.current.tokens, list.pendingUpdate.tokens)
+            // automatically update minor/patch as long as bump matches the min update
+            if (bump >= min) {
               dispatch(acceptListUpdate(listUrl))
+            } else {
+              console.error(
+                `List at url ${listUrl} could not automatically update because the version bump was only PATCH/MINOR while the update had breaking changes and should have been MAJOR`
+              )
             }
             break
-          }
           // update any active or inactive lists
           case VersionUpgrade.MAJOR:
             dispatch(acceptListUpdate(listUrl))
