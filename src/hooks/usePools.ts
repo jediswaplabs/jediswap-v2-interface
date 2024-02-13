@@ -163,8 +163,7 @@ export function usePools(
   })
 
   const tickCurrent = useMemo(() => {
-    if (tick) return toInt(tick)
-    return undefined
+    return toInt(tick)
   }, [tick])
 
   const { data: liquidity } = useContractRead({
@@ -192,7 +191,7 @@ export function usePools(
       const tokens = poolTokens[index]
       if (!tokens) return [PoolState.INVALID, null]
       const [token0, token1, fee] = tokens
-      if (!tickCurrent || !liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
+      if (!liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
       try {
         const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, tickCurrent)
         return [PoolState.EXISTS, pool]
@@ -211,7 +210,7 @@ export function usePoolsForSwap(results: any): [PoolState, Pool | null][] {
       const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(num.toHex(sqrtPriceX96 as BigNumberish))
       const liquidityHex = Boolean(liquidity) ? JSBI.BigInt(num.toHex(liquidity as BigNumberish)) : JSBI.BigInt('0x0')
 
-      if (!tickCurrent || !liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
+      if (!liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
       try {
         const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, tickCurrent)
         return [PoolState.EXISTS, pool]
