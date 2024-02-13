@@ -16,19 +16,12 @@ import { shouldAcceptVersionUpdate } from './utils'
 import { useProvider } from '@starknet-react/core'
 
 export default function Updater(): null {
-  const { provider } = useProvider()
+  const { account } = useAccountDetails()
   const dispatch = useAppDispatch()
   const isWindowVisible = useIsWindowVisible()
 
   // get all loaded lists, and the active urls
   const lists = useAllLists()
-  const listsState = useAppSelector((state) => state.lists)
-  const rehydrated = useStateRehydrated()
-
-  useEffect(() => {
-    if (rehydrated) TokenSafetyLookupTable.update(listsState)
-  }, [listsState, rehydrated])
-
   const fetchList = useFetchListCallback()
   const fetchAllListsCallback = useCallback(() => {
     if (!isWindowVisible) return
@@ -40,17 +33,18 @@ export default function Updater(): null {
   }, [isWindowVisible])
 
   // fetch all lists every 10 minutes, but only after we initialize provider
-  useInterval(fetchAllListsCallback, provider ? ms(`10m`) : null)
+  useInterval(fetchAllListsCallback, account ? ms(`10m`) : null)
 
   // whenever a list is not loaded and not loading, try again to load it
   useEffect(() => {
     Object.keys(lists).forEach((listUrl) => {
       const list = lists[listUrl]
+      console.log('🚀 ~ Object.keys ~ list:', list)
       if (!list.current && !list.loadingRequestId && !list.error) {
         fetchList(listUrl).catch((error) => console.debug('list added fetching error', error))
       }
     })
-  }, [dispatch, fetchList, lists])
+  }, [dispatch, fetchList, account, lists])
 
   // automatically update lists if versions are minor/patch
   useEffect(() => {
@@ -58,6 +52,7 @@ export default function Updater(): null {
       const list = lists[listUrl]
       if (list.current && list.pendingUpdate) {
         const bump = getVersionUpgrade(list.current.version, list.pendingUpdate.version)
+        console.log('🚀 ~ Object.keys ~ bump:', bump)
         switch (bump) {
           case VersionUpgrade.NONE:
             throw new Error('unexpected no version bump')
@@ -79,7 +74,7 @@ export default function Updater(): null {
         }
       }
     })
-  }, [dispatch, lists])
+  }, [dispatch, lists, account])
 
   return null
 }
