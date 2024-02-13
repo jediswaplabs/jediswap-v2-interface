@@ -23,8 +23,7 @@ const getPoolProps = (address: string) => {
   })
 
   const tickCurrent = useMemo(() => {
-    if (tick) return toInt(tick)
-    return undefined
+    return toInt(tick)
   }, [tick])
 
   const { data: liquidity } = useContractRead({

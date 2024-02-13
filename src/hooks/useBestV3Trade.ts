@@ -28,10 +28,7 @@ import useTransactionDeadline from './useTransactionDeadline'
 import { useQuery } from 'react-query'
 // import { useV3Quoter } from './useContract'
 import ERC20_ABI from 'abis/erc20.json'
-
-const provider = new RpcProvider({
-  nodeUrl: 'https://starknet-testnet.public.blastapi.io/rpc/v0_6',
-})
+import { providerInstance } from 'utils/getLibrary'
 
 export enum V3TradeState {
   LOADING,
@@ -61,7 +58,6 @@ export function useBestV3TradeExactIn(
   amountIn?: any,
   currencyOut?: Currency
 ): { state: TradeState; trade: any | null } {
-  const deadline = useTransactionDeadline()
   const { routes, loading: routesLoading } = useAllV3Routes(allPools, amountIn?.currency, currencyOut)
   // State to store the resolved result
 
@@ -73,6 +69,7 @@ export function useBestV3TradeExactIn(
 
   const { account, address, chainId, connector } = useAccountDetails()
   const swapRouterAddress = SWAP_ROUTER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+  const deadline = useTransactionDeadline()
 
   const quoteExactInInputs = useMemo(() => {
     if (routesLoading || !amountIn || !address || !routes || !routes.length || !deadline) return
@@ -146,7 +143,7 @@ export function useBestV3TradeExactIn(
         return call
       }
     })
-  }, [routes, amountIn, address])
+  }, [routes, amountIn, address, currencyOut, deadline])
 
   const approveSelector = useMemo(() => {
     if (!amountIn) return
@@ -186,21 +183,28 @@ export function useBestV3TradeExactIn(
   })
 
   const privateKey = '0x1234567890987654321'
-
   const message: BigNumberish[] = [1, 128, 18, 14]
-
   const msgHash = hash.computeHashOnElements(message)
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
-
-  // const fetchResults = useFetchResults(account, blockNumber, callsArr)
   const amountOutResults = useQuery({
-    queryKey: ['get_simulation', address, amountIn],
+    queryKey: ['get_simulation', address, amountIn, nonce_results?.data, currencyOut?.symbol],
     queryFn: async () => {
-      if (!address || !account || !approveSelector || !quoteExactInInputs || !connector || !nonce_results) return
+      if (
+        !address ||
+        !account ||
+        !approveSelector ||
+        !quoteExactInInputs ||
+        !connector ||
+        !nonce_results ||
+        !chainId ||
+        !deadline
+      )
+        return
       const nonce = Number(nonce_results.data)
       const callPromises = quoteExactInInputs.map(async (call: any) => {
         const isConnectorBraavos = connector.id === 'braavos'
-
+        const provider = providerInstance(chainId)
+        if (!provider) return
         const payload = isConnectorBraavos
           ? {
               contractAddress: address,
@@ -356,10 +360,10 @@ export function useBestV3TradeExactOut(
 ): { state: TradeState; trade: any | null } {
   // : { state: V3TradeState; trade: any | null }
   // const quoter = useV3Quoter()
-  const deadline = useTransactionDeadline()
   const { routes, loading: routesLoading } = useAllV3Routes(allPools, currencyIn, amountOut?.currency)
   const { address, account, chainId, connector } = useAccountDetails()
   const swapRouterAddress = SWAP_ROUTER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+  const deadline = useTransactionDeadline()
 
   const quoteExactOutInputs = useMemo(() => {
     if (routesLoading || !amountOut || !address || !routes || !routes.length || !deadline) return
@@ -435,7 +439,7 @@ export function useBestV3TradeExactOut(
         return call
       }
     })
-  }, [routes && routes.length, amountOut])
+  }, [routes, amountOut, address, currencyIn, deadline])
 
   const approveSelector = useMemo(() => {
     if (!currencyIn) return
@@ -480,16 +484,26 @@ export function useBestV3TradeExactOut(
 
   const msgHash = hash.computeHashOnElements(message)
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
-
   const amountInResults = useQuery({
-    queryKey: [address, amountOut],
+    queryKey: ['get_simulation', address, amountOut, nonce_results?.data, chainId, currencyIn?.symbol],
     queryFn: async () => {
-      if (!address || !account || !quoteExactOutInputs || !approveSelector || !connector || !nonce_results) return
+      if (
+        !address ||
+        !account ||
+        !quoteExactOutInputs ||
+        !approveSelector ||
+        !connector ||
+        !nonce_results ||
+        !chainId ||
+        !deadline
+      )
+        return
       const nonce = Number(nonce_results.data)
 
       const callPromises = quoteExactOutInputs.map(async (call: any) => {
         const isConnectorBraavos = connector.id === 'braavos'
-
+        const provider = providerInstance(chainId)
+        if (!provider) return
         const payload = isConnectorBraavos
           ? {
               contractAddress: address,

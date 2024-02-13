@@ -24,10 +24,7 @@ import POOL_ABI from 'contracts/pool/abi.json'
 import { toI32 } from 'utils/toI32'
 import { useAccountDetails } from './starknet-react'
 import { useQuery } from 'react-query'
-
-const provider = new RpcProvider({
-  nodeUrl: 'https://starknet-testnet.public.blastapi.io/rpc/v0_6',
-})
+import { providerInstance } from 'utils/getLibrary'
 
 // compute current + counterfactual fees for a v3 position
 export function useV3PositionFees(
@@ -141,12 +138,13 @@ export const useStaticFeeResults = (
   const fee_results = useQuery({
     queryKey: [`fee/${address}/${nonce_results.data}/${parsedTokenId}`],
     queryFn: async () => {
-      if (!account || !address || !nonce_results || !parsedTokenId || !connector || !collectSelector) return
+      if (!account || !address || !nonce_results || !parsedTokenId || !connector || !collectSelector || !chainId) return
       const nonce_data = nonce_results.data
       if (!nonce_data) return undefined
       const nonce = Number(nonce_data)
       const isConnectorBraavos = connector.id === 'braavos'
-
+      const provider = providerInstance(chainId)
+      if (!provider) return
       const collect_call_data = {
         tokenId: cairo.uint256(parsedTokenId),
         recipient: address,
