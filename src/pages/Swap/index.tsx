@@ -70,7 +70,7 @@ import { LoadingRows } from 'components/Loader/styled'
 import { useContractWrite } from '@starknet-react/core'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useApprovalCall } from 'hooks/useApproveCall'
-import { TradeType, toHex } from '@vnaysn/jediswap-sdk-v3'
+import { Pool, TradeType, toHex } from '@vnaysn/jediswap-sdk-v3'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -551,45 +551,137 @@ export function Swap({
     callData.push(handleApproval)
     const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
+    const isRouteSingleHop = route.pools.length === 1
     if (trade.tradeType === TradeType.EXACT_INPUT) {
-      const exactInputSingleParams = {
-        token_in: route.tokenPath[0].address,
-        token_out: route.tokenPath[1].address,
-        fee: route.pools[0].fee,
-        recipient: address,
-        deadline: cairo.felt(deadline.toString()),
-        amount_in: cairo.uint256(inputAmount.raw.toString()),
-        amount_out_minimum: cairo.uint256(amountOut),
-        sqrt_price_limit_X96: cairo.uint256(0),
-      }
-      const compiledSwapCalls = CallData.compile(exactInputSingleParams)
+      if (isRouteSingleHop) {
+        const exactInputSingleParams = {
+          token_in: route.tokenPath[0].address,
+          token_out: route.tokenPath[1].address,
+          fee: route.pools[0].fee,
+          recipient: address,
+          deadline: cairo.felt(deadline.toString()),
+          amount_in: cairo.uint256(inputAmount.raw.toString()),
+          amount_out_minimum: cairo.uint256(amountOut),
+          sqrt_price_limit_X96: cairo.uint256(0),
+        }
+        const compiledSwapCalls = CallData.compile(exactInputSingleParams)
 
-      const calls = {
-        contractAddress: swapRouterAddress,
-        entrypoint: 'exact_input_single',
-        calldata: compiledSwapCalls,
+        const calls = {
+          contractAddress: swapRouterAddress,
+          entrypoint: 'exact_input_single',
+          calldata: compiledSwapCalls,
+        }
+        callData.push(calls)
+      } else {
+        const firstInputToken: Token = route.input.wrapped
+        //create path
+        const { path } = route.pools.reduce(
+          (
+            { inputToken, path, types }: { inputToken: Token; path: (string | number)[]; types: string[] },
+            pool: Pool,
+            index: number
+          ): { inputToken: Token; path: (string | number)[]; types: string[] } => {
+            const outputToken: Token = pool.token0.equals(inputToken) ? pool.token1 : pool.token0
+            if (index === 0) {
+              return {
+                inputToken: outputToken,
+                types: ['address', 'address', 'uint24'],
+                path: [inputToken.address, outputToken.address, pool.fee],
+              }
+            } else {
+              return {
+                inputToken: outputToken,
+                types: [...types, 'address', 'address', 'uint24'],
+                path: [...path, inputToken.address, outputToken.address, pool.fee],
+              }
+            }
+          },
+          { inputToken: firstInputToken, path: [], types: [] }
+        )
+
+        const exactInputParams = {
+          path,
+          recipient: address,
+          deadline: cairo.felt(deadline.toString()),
+          amount_in: cairo.uint256(inputAmount.raw.toString()),
+          amount_out_minimum: cairo.uint256(amountOut),
+        }
+        const compiledSwapCalls = CallData.compile(exactInputParams)
+
+        const calls = {
+          contractAddress: swapRouterAddress,
+          entrypoint: 'exact_input',
+          calldata: compiledSwapCalls,
+        }
+        callData.push(calls)
       }
-      callData.push(calls)
     } else {
-      const exactOutputSingleParams = {
-        token_in: route.tokenPath[0].address,
-        token_out: route.tokenPath[1].address,
-        fee: route.pools[0].fee,
-        recipient: address,
-        deadline: cairo.felt(deadline.toString()),
-        amount_out: cairo.uint256(outputAmount.raw.toString()),
-        amount_in_maximum: cairo.uint256(amountIn),
-        sqrt_price_limit_X96: cairo.uint256(0),
-      }
+      if (isRouteSingleHop) {
+        const exactOutputSingleParams = {
+          token_in: route.tokenPath[0].address,
+          token_out: route.tokenPath[1].address,
+          fee: route.pools[0].fee,
+          recipient: address,
+          deadline: cairo.felt(deadline.toString()),
+          amount_out: cairo.uint256(outputAmount.raw.toString()),
+          amount_in_maximum: cairo.uint256(amountIn),
+          sqrt_price_limit_X96: cairo.uint256(0),
+        }
 
-      const compiledSwapCalls = CallData.compile(exactOutputSingleParams)
+        const compiledSwapCalls = CallData.compile(exactOutputSingleParams)
 
-      const calls = {
-        contractAddress: swapRouterAddress,
-        entrypoint: 'exact_output_single',
-        calldata: compiledSwapCalls,
+        const calls = {
+          contractAddress: swapRouterAddress,
+          entrypoint: 'exact_output_single',
+          calldata: compiledSwapCalls,
+        }
+        callData.push(calls)
+      } else {
+        const firstInputToken: Token = route.input.wrapped
+        //create path
+        const { path } = route.pools.reduce(
+          (
+            { inputToken, path, types }: { inputToken: Token; path: (string | number)[]; types: string[] },
+            pool: Pool,
+            index: number
+          ): { inputToken: Token; path: (string | number)[]; types: string[] } => {
+            const outputToken: Token = pool.token0.equals(inputToken) ? pool.token1 : pool.token0
+            if (index === 0) {
+              return {
+                inputToken: outputToken,
+                types: ['uint24', 'address', 'address'],
+                path: [pool.fee, inputToken.address, outputToken.address],
+              }
+            } else {
+              return {
+                inputToken: outputToken,
+                types: [...types, 'uint24', 'address', 'address'],
+                path: [...path, pool.fee, inputToken.address, outputToken.address],
+              }
+            }
+          },
+          { inputToken: firstInputToken, path: [], types: [] }
+        )
+
+        const reversePath = path.reverse()
+
+        const exactOutputParams = {
+          path: reversePath,
+          recipient: address,
+          deadline: cairo.felt(deadline.toString()),
+          amount_out: cairo.uint256(outputAmount.raw.toString()),
+          amount_in_maximum: cairo.uint256(amountIn),
+        }
+
+        const compiledSwapCalls = CallData.compile(exactOutputParams)
+
+        const calls = {
+          contractAddress: swapRouterAddress,
+          entrypoint: 'exact_output',
+          calldata: compiledSwapCalls,
+        }
+        callData.push(calls)
       }
-      callData.push(calls)
     }
 
     setSwapCallData(callData)
