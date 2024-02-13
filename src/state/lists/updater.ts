@@ -39,7 +39,6 @@ export default function Updater(): null {
   useEffect(() => {
     Object.keys(lists).forEach((listUrl) => {
       const list = lists[listUrl]
-      console.log('🚀 ~ Object.keys ~ list:', list)
       if (!list.current && !list.loadingRequestId && !list.error) {
         fetchList(listUrl).catch((error) => console.debug('list added fetching error', error))
       }
@@ -52,7 +51,6 @@ export default function Updater(): null {
       const list = lists[listUrl]
       if (list.current && list.pendingUpdate) {
         const bump = getVersionUpgrade(list.current.version, list.pendingUpdate.version)
-        console.log('🚀 ~ Object.keys ~ bump:', bump)
         switch (bump) {
           case VersionUpgrade.NONE:
             throw new Error('unexpected no version bump')
