@@ -26,6 +26,8 @@ import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies
 import { SwapState } from './reducer'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import { useBestV3TradeExactIn, useBestV3TradeExactOut } from 'hooks/useBestV3Trade'
+import { useTradeExactIn, useTradeExactOut } from 'hooks/Trades'
+import { BigNumber } from 'ethers'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
@@ -100,7 +102,12 @@ export type SwapInfo = {
 }
 
 // from the current swap inputs, compute the best trade and return it.
-export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefined, allPools: string[]): SwapInfo {
+export function useDerivedSwapInfo(
+  state: SwapState,
+  chainId: ChainId | undefined,
+  allPools: string[],
+  allPairs: string[]
+): SwapInfo {
   const { address: account } = useAccountDetails()
   const {
     independentField,
@@ -143,21 +150,47 @@ export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefine
     inputCurrency ?? undefined,
     !isExactIn ? parsedAmount : undefined
   )
-  const trade = isExactIn ? bestV3TradeExactIn : bestV3TradeExactOut
 
-  //   inputAmount.token.equals(this.token0) ? this.token1 : this.token0,
-  //   trade?.trade?.outputAmount
-  // ))
+  const [bestV2TradeExactIn, bestTradeInLoading] = useTradeExactIn(
+    allPairs,
+    isExactIn ? parsedAmount : undefined,
+    outputCurrency ?? undefined
+  )
 
-  // const trade = useDebouncedTrade(
-  //   isExactIn ? TradeType.EXACT_INPUT : TradeType.EXACT_OUTPUT,
-  //   parsedAmount,
-  //   (isExactIn ? outputCurrency : inputCurrency) ?? undefined,
-  //   undefined,
-  //   account,
-  //   inputTax,
-  //   outputTax
-  // )
+  const [bestV2TradeExactOut, bestTradeOutLoading] = useTradeExactOut(
+    allPairs,
+    inputCurrency ?? undefined,
+    !isExactIn ? parsedAmount : undefined
+  )
+
+  const bestTradeExactIn = useMemo(() => {
+    if (bestV2TradeExactIn && bestV3TradeExactIn && bestV3TradeExactIn?.trade) {
+      return BigInt(bestV2TradeExactIn?.outputAmount.raw.toString()) >
+        BigInt(bestV3TradeExactIn?.trade?.outputAmount.raw.toString())
+        ? { state: TradeState.VALID, trade: bestV2TradeExactIn }
+        : bestV3TradeExactIn
+    }
+
+    return {
+      state: TradeState.INVALID,
+      trade: null,
+    }
+  }, [bestV2TradeExactIn, bestV3TradeExactIn])
+
+  const bestTradeExactOut = useMemo(() => {
+    if (bestV2TradeExactOut && bestV3TradeExactOut && bestV3TradeExactOut?.trade) {
+      return BigInt(bestV2TradeExactOut?.inputAmount.raw.toString()) >
+        BigInt(bestV3TradeExactOut?.trade?.inputAmount.raw.toString())
+        ? { state: TradeState.VALID, trade: bestV2TradeExactOut }
+        : bestV3TradeExactOut
+    }
+
+    return {
+      state: TradeState.INVALID,
+      trade: null,
+    }
+  }, [bestV2TradeExactOut, bestV3TradeExactOut])
+  const trade = isExactIn ? bestTradeExactIn : bestTradeExactOut
 
   const { data: outputFeeFiatValue } = useUSDPrice(undefined, trade.trade?.outputAmount.currency)
 

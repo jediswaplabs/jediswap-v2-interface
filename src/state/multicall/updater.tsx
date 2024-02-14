@@ -34,7 +34,6 @@ async function fetchChunk(
 ): Promise<{ results: BigNumberish[]; blockNumber: number }> {
   console.debug('Fetching chunk', multicallContract, chunk, minBlockNumber)
   let resultsBlockNumber, returnData_len, returnData
-
   const { getSelectorFromName } = hash
 
   try {
@@ -50,7 +49,7 @@ async function fetchChunk(
     const response = await multicallContract.aggregate(calls)
 
     resultsBlockNumber = response.block_number
-    returnData_len = response.result_len
+    returnData_len = response.result.length
     returnData = response.result
   } catch (error) {
     console.debug('Failed to fetch chunk inside retry', error)
@@ -290,7 +289,6 @@ export default function Updater(): null {
             const bnToHexArray = returnData.map((data) => num.toHex(data))
 
             const returnDataIterator = bnToHexArray.flat()[Symbol.iterator]()
-
             dispatch(
               updateMulticallResults({
                 chainId,

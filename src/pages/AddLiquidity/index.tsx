@@ -230,8 +230,6 @@ function AddLiquidity() {
     }
   }, [mintCallData])
 
-  console.log(parsedAmounts, 'parsedamounts')
-
   async function onAdd() {
     if (!chainId || !account) {
       return
