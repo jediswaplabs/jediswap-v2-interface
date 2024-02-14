@@ -10,7 +10,6 @@ export default function useFetchAllPairsCallback() {
   const factoryContract = useFactoryContract()
   const dispatch = useDispatch<AppDispatch>()
   const allPairs = useSingleCallResult(factoryContract, 'get_all_pairs').result
-
   return useCallback(() => {
     if (!allPairs || !Array.isArray(allPairs.all_pairs)) {
       return

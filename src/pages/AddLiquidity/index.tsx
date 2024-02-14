@@ -235,16 +235,19 @@ function AddLiquidity() {
       return
     }
 
-    if (!positionManager || !baseCurrency || !quoteCurrency) {
+    if (!positionManager || !baseCurrency || !quoteCurrency || !parsedAmounts) {
       return
     }
 
+    let approvalA = undefined
+    let approvalB = undefined
+
+    if (parsedAmounts[Field.CURRENCY_A] && Number(parsedAmounts?.[Field.CURRENCY_A]?.raw.toString()) > 0)
+      approvalA = approvalACallback()
+    if (parsedAmounts[Field.CURRENCY_B] && Number(parsedAmounts?.[Field.CURRENCY_B]?.raw.toString()) > 0)
+      approvalB = approvalBCallback()
+
     if (position && account && deadline) {
-      const approvalA = approvalACallback()
-      const approvalB = approvalBCallback()
-
-      if (!approvalA || !approvalB) return
-
       // get amounts
       const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
 
@@ -275,7 +278,15 @@ function AddLiquidity() {
           calldata: callData,
         }
 
-        setMintCallData([approvalA, approvalB, calls])
+        if (approvalA && approvalB) {
+          setMintCallData([approvalA, approvalB, calls])
+        } else {
+          if (approvalA) {
+            setMintCallData([approvalA, calls])
+          } else if (approvalB) {
+            setMintCallData([approvalB, calls])
+          }
+        }
       } else {
         const callData = []
         if (noLiquidity) {
@@ -315,7 +326,15 @@ function AddLiquidity() {
           entrypoint: 'mint',
           calldata: mintCallData,
         }
-        callData.push(approvalA, approvalB, mcalls)
+        if (approvalA && approvalB) {
+          callData.push(approvalA, approvalB, mcalls)
+        } else {
+          if (approvalA) {
+            callData.push(approvalA, mcalls)
+          } else if (approvalB) {
+            callData.push(approvalB, mcalls)
+          }
+        }
         setMintCallData(callData)
       }
 

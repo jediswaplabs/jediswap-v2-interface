@@ -59,18 +59,19 @@ import { LinkStyledButton, ThemedText } from 'theme/components'
 import { computeFiatValuePriceImpact } from 'utils/computeFiatValuePriceImpact'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
-import { computeRealizedPriceImpact, warningSeverity } from 'utils/prices'
+import { warningSeverity } from 'utils/prices'
 import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
 import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
-import { SWAP_ROUTER_ADDRESS, getSwapCurrencyId, DEFAULT_CHAIN_ID } from 'constants/tokens'
+import { SWAP_ROUTER_ADDRESS_V2, getSwapCurrencyId, DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS_V1 } from 'constants/tokens'
 import fetchAllPools from 'api/fetchAllPools'
 import { Call, CallData, cairo, num, validateAndParseAddress } from 'starknet'
 import { LoadingRows } from 'components/Loader/styled'
 import { useContractWrite } from '@starknet-react/core'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useApprovalCall } from 'hooks/useApproveCall'
-import { TradeType, toHex } from '@vnaysn/jediswap-sdk-v3'
+import { Pool, TradeType, toHex } from '@vnaysn/jediswap-sdk-v3'
+import fetchAllPairs from 'api/fetchAllPairs'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -158,6 +159,7 @@ export default function SwapPage({ className }: { className?: string }) {
   const { chainId: connectedChainId } = useAccountDetails()
   const loadedUrlParams = useDefaultsFromURLSearch()
   const [allPools, setAllPools] = useState<any>([])
+  const [allPairs, setAllPairs] = useState<any>([])
   const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
 
   //fetch Token Ids
@@ -166,12 +168,21 @@ export default function SwapPage({ className }: { className?: string }) {
       if (connectedChainId) {
         try {
           setLoadingPositions(true)
-          const result = await fetchAllPools(connectedChainId)
-          if (result && result.data) {
-            const allPoolsArray: number[] = result.data.map((item: any) =>
+          const pools = await fetchAllPools(connectedChainId)
+          const pairs = await fetchAllPairs(connectedChainId)
+          if (pools && pools.data) {
+            const allPoolsArray: number[] = pools.data.map((item: any) =>
               validateAndParseAddress(item.contract_address)
             )
             setAllPools(allPoolsArray)
+            setLoadingPositions(false)
+          }
+
+          if (pairs && pairs.data) {
+            const allPairsArray: number[] = pairs.data.map((item: any) =>
+              validateAndParseAddress(item.contract_address)
+            )
+            setAllPairs(allPairsArray)
             setLoadingPositions(false)
           }
         } catch (e) {
@@ -195,6 +206,7 @@ export default function SwapPage({ className }: { className?: string }) {
           initialInputCurrencyId={loadedUrlParams?.[Field.INPUT]?.currencyId}
           initialOutputCurrencyId={loadedUrlParams?.[Field.OUTPUT]?.currencyId}
           allPools={allPools}
+          allPairs={allPairs}
           // disableTokenInputs={supportedChainId === undefined}
         />
       )}
@@ -214,6 +226,7 @@ export function Swap({
   initialInputCurrencyId,
   initialOutputCurrencyId,
   allPools,
+  allPairs,
   chainId,
   onCurrencyChange,
   disableTokenInputs = false,
@@ -222,13 +235,15 @@ export function Swap({
   initialInputCurrencyId?: string | null
   initialOutputCurrencyId?: string | null
   allPools: [] | string[]
+  allPairs: [] | string[]
   chainId?: ChainId
   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
   disableTokenInputs?: boolean
 }) {
   const connectionReady = useConnectionReady()
   const { address, account, chainId: connectedChainId } = useAccountDetails()
-  const swapRouterAddress = SWAP_ROUTER_ADDRESS[connectedChainId ?? DEFAULT_CHAIN_ID]
+  const swapRouterAddressV2 = SWAP_ROUTER_ADDRESS_V2[connectedChainId ?? DEFAULT_CHAIN_ID]
+  const swapRouterAddressV1 = SWAP_ROUTER_ADDRESS_V1[connectedChainId ?? DEFAULT_CHAIN_ID]
 
   // token warning stuff
   const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId)
@@ -321,7 +336,7 @@ export function Swap({
     }
   }, [connectedChainId, prefilledState, previousConnectedChainId, previousPrefilledState])
 
-  const swapInfo = useDerivedSwapInfo(state, chainId, allPools)
+  const swapInfo = useDerivedSwapInfo(state, chainId, allPools, allPairs)
   const {
     trade: { state: tradeState, trade, swapQuoteLatency },
     allowedSlippage,
@@ -539,83 +554,201 @@ export function Swap({
     () => (trade ? trade.maximumAmountIn(allowedSlippage) : undefined),
     [trade, allowedSlippage]
   )
-  const approveCallback = useApprovalCall(amountToApprove, swapRouterAddress)
+
+  const spender = useMemo(() => {
+    if (trade) {
+      const isTradeTypeV2 = (trade as any).swaps
+      return isTradeTypeV2 ? swapRouterAddressV2 : swapRouterAddressV1
+    }
+    return undefined
+  }, [trade])
+
+  const approveCallback = useApprovalCall(amountToApprove, spender)
 
   const handleSwap = useCallback(() => {
     if (!trade || !address || !deadline) return
     const handleApproval = approveCallback()
     if (!handleApproval) return
+    const isTradeTypeV2 = (trade as any).swaps
     const { inputAmount, outputAmount } = trade
     const route = (trade as any).route
     const callData = []
     callData.push(handleApproval)
     const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
-    if (trade.tradeType === TradeType.EXACT_INPUT) {
-      const exactInputSingleParams = {
-        token_in: route.tokenPath[0].address,
-        token_out: route.tokenPath[1].address,
-        fee: route.pools[0].fee,
-        recipient: address,
-        deadline: cairo.felt(deadline.toString()),
-        amount_in: cairo.uint256(inputAmount.raw.toString()),
-        amount_out_minimum: cairo.uint256(amountOut),
-        sqrt_price_limit_X96: cairo.uint256(0),
-      }
-      const compiledSwapCalls = CallData.compile(exactInputSingleParams)
+    if (isTradeTypeV2) {
+      const isRouteSingleHop = route.pools.length === 1
+      if (trade.tradeType === TradeType.EXACT_INPUT) {
+        if (isRouteSingleHop) {
+          const exactInputSingleParams = {
+            token_in: route.tokenPath[0].address,
+            token_out: route.tokenPath[1].address,
+            fee: route.pools[0].fee,
+            recipient: address,
+            deadline: cairo.felt(deadline.toString()),
+            amount_in: cairo.uint256(inputAmount.raw.toString()),
+            amount_out_minimum: cairo.uint256(amountOut),
+            sqrt_price_limit_X96: cairo.uint256(0),
+          }
+          const compiledSwapCalls = CallData.compile(exactInputSingleParams)
 
-      const calls = {
-        contractAddress: swapRouterAddress,
-        entrypoint: 'exact_input_single',
-        calldata: compiledSwapCalls,
+          const calls = {
+            contractAddress: swapRouterAddressV2,
+            entrypoint: 'exact_input_single',
+            calldata: compiledSwapCalls,
+          }
+          callData.push(calls)
+        } else {
+          const firstInputToken: Token = route.input.wrapped
+          //create path
+          const { path } = route.pools.reduce(
+            (
+              { inputToken, path, types }: { inputToken: Token; path: (string | number)[]; types: string[] },
+              pool: Pool,
+              index: number
+            ): { inputToken: Token; path: (string | number)[]; types: string[] } => {
+              const outputToken: Token = pool.token0.equals(inputToken) ? pool.token1 : pool.token0
+              if (index === 0) {
+                return {
+                  inputToken: outputToken,
+                  types: ['address', 'address', 'uint24'],
+                  path: [inputToken.address, outputToken.address, pool.fee],
+                }
+              } else {
+                return {
+                  inputToken: outputToken,
+                  types: [...types, 'address', 'address', 'uint24'],
+                  path: [...path, inputToken.address, outputToken.address, pool.fee],
+                }
+              }
+            },
+            { inputToken: firstInputToken, path: [], types: [] }
+          )
+
+          const exactInputParams = {
+            path,
+            recipient: address,
+            deadline: cairo.felt(deadline.toString()),
+            amount_in: cairo.uint256(inputAmount.raw.toString()),
+            amount_out_minimum: cairo.uint256(amountOut),
+          }
+          const compiledSwapCalls = CallData.compile(exactInputParams)
+
+          const calls = {
+            contractAddress: swapRouterAddressV2,
+            entrypoint: 'exact_input',
+            calldata: compiledSwapCalls,
+          }
+          callData.push(calls)
+        }
+      } else {
+        if (isRouteSingleHop) {
+          const exactOutputSingleParams = {
+            token_in: route.tokenPath[0].address,
+            token_out: route.tokenPath[1].address,
+            fee: route.pools[0].fee,
+            recipient: address,
+            deadline: cairo.felt(deadline.toString()),
+            amount_out: cairo.uint256(outputAmount.raw.toString()),
+            amount_in_maximum: cairo.uint256(amountIn),
+            sqrt_price_limit_X96: cairo.uint256(0),
+          }
+
+          const compiledSwapCalls = CallData.compile(exactOutputSingleParams)
+
+          const calls = {
+            contractAddress: swapRouterAddressV2,
+            entrypoint: 'exact_output_single',
+            calldata: compiledSwapCalls,
+          }
+          callData.push(calls)
+        } else {
+          const firstInputToken: Token = route.input.wrapped
+          //create path
+          const { path } = route.pools.reduce(
+            (
+              { inputToken, path, types }: { inputToken: Token; path: (string | number)[]; types: string[] },
+              pool: Pool,
+              index: number
+            ): { inputToken: Token; path: (string | number)[]; types: string[] } => {
+              const outputToken: Token = pool.token0.equals(inputToken) ? pool.token1 : pool.token0
+              if (index === 0) {
+                return {
+                  inputToken: outputToken,
+                  types: ['uint24', 'address', 'address'],
+                  path: [pool.fee, inputToken.address, outputToken.address],
+                }
+              } else {
+                return {
+                  inputToken: outputToken,
+                  types: [...types, 'uint24', 'address', 'address'],
+                  path: [...path, pool.fee, inputToken.address, outputToken.address],
+                }
+              }
+            },
+            { inputToken: firstInputToken, path: [], types: [] }
+          )
+
+          const reversePath = path.reverse()
+
+          const exactOutputParams = {
+            path: reversePath,
+            recipient: address,
+            deadline: cairo.felt(deadline.toString()),
+            amount_out: cairo.uint256(outputAmount.raw.toString()),
+            amount_in_maximum: cairo.uint256(amountIn),
+          }
+
+          const compiledSwapCalls = CallData.compile(exactOutputParams)
+
+          const calls = {
+            contractAddress: swapRouterAddressV2,
+            entrypoint: 'exact_output',
+            calldata: compiledSwapCalls,
+          }
+          callData.push(calls)
+        }
       }
-      callData.push(calls)
     } else {
-      const exactOutputSingleParams = {
-        token_in: route.tokenPath[0].address,
-        token_out: route.tokenPath[1].address,
-        fee: route.pools[0].fee,
-        recipient: address,
-        deadline: cairo.felt(deadline.toString()),
-        amount_out: cairo.uint256(outputAmount.raw.toString()),
-        amount_in_maximum: cairo.uint256(amountIn),
-        sqrt_price_limit_X96: cairo.uint256(0),
-      }
+      const path: string[] = route.path.map((token: any) => token.address)
+      if (trade.tradeType === TradeType.EXACT_INPUT) {
+        const swapArgs = {
+          amountIn: cairo.uint256(inputAmount.raw.toString()),
+          amountOutMin: cairo.uint256(amountOut),
+          path,
+          to: address,
+          deadline: cairo.felt(deadline.toString()),
+        }
+        const compiledSwapCalls = CallData.compile(swapArgs)
 
-      const compiledSwapCalls = CallData.compile(exactOutputSingleParams)
+        const calls = {
+          contractAddress: swapRouterAddressV1,
+          entrypoint: 'swap_exact_tokens_for_tokens',
+          calldata: compiledSwapCalls,
+        }
 
-      const calls = {
-        contractAddress: swapRouterAddress,
-        entrypoint: 'exact_output_single',
-        calldata: compiledSwapCalls,
+        callData.push(calls)
+      } else {
+        const swapArgs = {
+          amountOut: cairo.uint256(outputAmount.raw.toString()),
+          amountInMax: cairo.uint256(amountIn),
+          path,
+          to: address,
+          deadline: cairo.felt(deadline.toString()),
+        }
+
+        const compiledSwapCalls = CallData.compile(swapArgs)
+
+        const calls = {
+          contractAddress: swapRouterAddressV1,
+          entrypoint: 'swap_tokens_for_exact_tokens',
+          calldata: compiledSwapCalls,
+        }
+        callData.push(calls)
       }
-      callData.push(calls)
     }
-
     setSwapCallData(callData)
   }, [trade, address, deadline, approveCallback])
-
-  const handleOnWrap = useCallback(async () => {
-    if (!onWrap) {
-      return
-    }
-    try {
-      const txHash = await onWrap()
-      setSwapState((currentState) => ({
-        ...currentState,
-        swapError: undefined,
-        txHash,
-      }))
-      onUserInput(Field.INPUT, '')
-    } catch (error) {
-      console.error('Could not wrap/unwrap', error)
-      setSwapState((currentState) => ({
-        ...currentState,
-        swapError: error,
-        txHash: undefined,
-      }))
-    }
-  }, [currencies, onUserInput, onWrap, wrapType])
 
   // warnings on the greater of fiat value price impact and execution price impact
   const { priceImpactSeverity, largerPriceImpact } = useMemo(() => {

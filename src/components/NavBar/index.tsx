@@ -46,8 +46,11 @@ export const PageTabs = () => {
       <MenuItemLink to="/pool" dataTestId="pool-nav-link" isActive={isPoolActive}>
         <Trans>Pool</Trans>
       </MenuItemLink>
-      <ExternalMenuItemLink to="https://info.jediswap.xyz/">
+      <ExternalMenuItemLink to="https://info.v2.jediswap.xyz/">
         <Trans>Dashboard</Trans>
+      </ExternalMenuItemLink>
+      <ExternalMenuItemLink to="https://app.v1.jediswap.xyz/">
+        <Trans>V1</Trans>
       </ExternalMenuItemLink>
     </>
   )

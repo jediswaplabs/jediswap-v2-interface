@@ -6,7 +6,7 @@ import { useSingleContractMultipleData } from '../state/multicall/hooks'
 import { useAllV3Routes } from './useAllV3Routes'
 import { useBlockNumber, useContractRead } from '@starknet-react/core'
 import SWAP_QUOTER_ABI from 'contracts/swapquoter/abi.json'
-import { DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS } from 'constants/tokens'
+import { DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS_V2 } from 'constants/tokens'
 import {
   BigNumberish,
   BlockNumber,
@@ -68,7 +68,7 @@ export function useBestV3TradeExactIn(
     }
 
   const { account, address, chainId, connector } = useAccountDetails()
-  const swapRouterAddress = SWAP_ROUTER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+  const swapRouterAddress = SWAP_ROUTER_ADDRESS_V2[chainId ?? DEFAULT_CHAIN_ID]
   const deadline = useTransactionDeadline()
 
   const quoteExactInInputs = useMemo(() => {
@@ -104,7 +104,7 @@ export function useBestV3TradeExactIn(
           { inputToken: firstInputToken, path: [], types: [] }
         )
 
-        const exactInputSingleParams = {
+        const exactInputParams = {
           path,
           recipient: address,
           deadline: cairo.felt(deadline.toString()),
@@ -112,12 +112,19 @@ export function useBestV3TradeExactIn(
           amount_out_minimum: cairo.uint256(0),
         }
 
+        //exact input
+        const inputSelector = {
+          contract_address: swapRouterAddress,
+          entry_point: hash.getSelectorFromName('exact_input'),
+        }
+        const input_call_data_length = { input_call_data_length: path.length + 7 }
+
         const call = {
-          calldata: CallData.compile(exactInputSingleParams),
+          calldata: exactInputParams,
           route,
         }
 
-        return call
+        return { call, inputSelector, input_call_data_length }
       } else {
         //single hop
         const isCurrencyInFirst = amountIn?.currency?.address === route.pools[0].token0.address
@@ -135,12 +142,19 @@ export function useBestV3TradeExactIn(
           sqrt_price_limit_X96: cairo.uint256(0),
         }
 
+        //exact input
+        const inputSelector = {
+          contract_address: swapRouterAddress,
+          entry_point: hash.getSelectorFromName('exact_input_single'),
+        }
+        const input_call_data_length = { input_call_data_length: '0xb' }
+
         const call = {
           calldata: exactInputSingleParams,
           route,
         }
 
-        return call
+        return { call, inputSelector, input_call_data_length }
       }
     })
   }, [routes, amountIn, address, currencyOut, deadline])
@@ -163,13 +177,6 @@ export function useBestV3TradeExactIn(
     approveAmount: cairo.uint256(2 ** 128),
   }
 
-  //exact input
-  const inputSelector = {
-    contract_address: swapRouterAddress,
-    entry_point: hash.getSelectorFromName('exact_input_single'),
-  }
-  const input_call_data_length = { input_call_data_length: '0xb' }
-
   const nonce_results = useQuery({
     queryKey: [`nonce/${address}`],
     queryFn: async () => {
@@ -182,12 +189,22 @@ export function useBestV3TradeExactIn(
     },
   })
 
+  const contract_version = useQuery({
+    queryKey: [`contract_version/${address}`],
+    queryFn: async () => {
+      if (!account || !address) return
+      const results: any = await account?.getClassAt(address)
+      return results?.sierra_program
+      // return cairo.felt(results.toString())
+    },
+  })
+
   const privateKey = '0x1234567890987654321'
   const message: BigNumberish[] = [1, 128, 18, 14]
   const msgHash = hash.computeHashOnElements(message)
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
   const amountOutResults = useQuery({
-    queryKey: ['get_simulation', address, amountIn, nonce_results?.data, currencyOut?.symbol],
+    queryKey: ['get_simulation', address, amountIn, nonce_results?.data, currencyOut?.symbol, contract_version?.data],
     queryFn: async () => {
       if (
         !address ||
@@ -201,41 +218,41 @@ export function useBestV3TradeExactIn(
       )
         return
       const nonce = Number(nonce_results.data)
-      const callPromises = quoteExactInInputs.map(async (call: any) => {
-        const isConnectorBraavos = connector.id === 'braavos'
+      const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
+      const callPromises = quoteExactInInputs.map(async ({ call, input_call_data_length, inputSelector }) => {
         const provider = providerInstance(chainId)
         if (!provider) return
-        const payload = isConnectorBraavos
-          ? {
-              contractAddress: address,
-              calldata: CallData.compile({
-                ...totalTx,
-                ...approveSelector,
-                ...{ approve_offset: '0x0' },
-                ...approve_call_data_length,
-                ...inputSelector,
-                ...{ input_offset: approve_call_data_length },
-                ...input_call_data_length,
-                ...{ total_call_data_length: '0xe' },
-                ...approve_call_data,
-                ...call.calldata,
-              }),
-            }
-          : {
-              contractAddress: address,
-              calldata: CallData.compile({
-                ...totalTx,
-                ...approveSelector,
-                ...approve_call_data_length,
-                ...approve_call_data,
-                ...inputSelector,
-                ...input_call_data_length,
-                ...call.calldata,
-              }),
-            }
-        // const compiledCall = CallData.
+        const payloadForContractType1 = {
+          contractAddress: address,
+          calldata: CallData.compile({
+            ...totalTx,
+            ...approveSelector,
+            ...approve_call_data_length,
+            ...approve_call_data,
+            ...inputSelector,
+            ...input_call_data_length,
+            ...call.calldata,
+          }),
+        }
+        const payloadForContractType0 = {
+          contractAddress: address,
+          calldata: CallData.compile({
+            ...totalTx,
+            ...approveSelector,
+            ...{ approve_offset: '0x0' },
+            ...approve_call_data_length,
+            ...inputSelector,
+            ...{ input_offset: approve_call_data_length },
+            ...input_call_data_length,
+            ...{ total_call_data_length: '0xe' },
+            ...approve_call_data,
+            ...call.calldata,
+          }),
+        }
+        const payload = !isWalletCairoVersionGreaterThanZero ? payloadForContractType0 : payloadForContractType1
+        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero ? payloadForContractType1 : payload
         const response = provider.simulateTransaction(
-          [{ type: TransactionType.INVOKE, ...payload, signature, nonce }],
+          [{ type: TransactionType.INVOKE, ...payloadBasedOnCairoVersion, signature, nonce }],
           {
             skipValidate: true,
           }
@@ -362,7 +379,7 @@ export function useBestV3TradeExactOut(
   // const quoter = useV3Quoter()
   const { routes, loading: routesLoading } = useAllV3Routes(allPools, currencyIn, amountOut?.currency)
   const { address, account, chainId, connector } = useAccountDetails()
-  const swapRouterAddress = SWAP_ROUTER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+  const swapRouterAddress = SWAP_ROUTER_ADDRESS_V2[chainId ?? DEFAULT_CHAIN_ID]
   const deadline = useTransactionDeadline()
 
   const quoteExactOutInputs = useMemo(() => {
@@ -384,14 +401,14 @@ export function useBestV3TradeExactOut(
             if (index === 0) {
               return {
                 inputToken: outputToken,
-                types: ['address', 'address', 'uint24'],
-                path: [inputToken.address, outputToken.address, pool.fee],
+                types: ['uint24', 'address', 'address'],
+                path: [pool.fee, inputToken.address, outputToken.address],
               }
             } else {
               return {
                 inputToken: outputToken,
-                types: [...types, 'address', 'address', 'uint24'],
-                path: [...path, inputToken.address, outputToken.address, pool.fee],
+                types: [...types, 'uint24', 'address', 'address'],
+                path: [...path, pool.fee, inputToken.address, outputToken.address],
               }
             }
           },
@@ -400,7 +417,7 @@ export function useBestV3TradeExactOut(
 
         const reversePath = path.reverse()
 
-        const exactOutputSingleParams = {
+        const exactOutputParams = {
           path: reversePath,
           recipient: address,
           deadline: cairo.felt(deadline.toString()),
@@ -408,12 +425,19 @@ export function useBestV3TradeExactOut(
           amount_in_maximum: cairo.uint256(2 ** 128),
         }
 
+        //exact input
+        const outputSelector = {
+          contract_address: swapRouterAddress,
+          entry_point: hash.getSelectorFromName('exact_output'),
+        }
+        const output_call_data_length = { output_call_data_length: path.length + 7 }
+
         const call = {
-          calldata: exactOutputSingleParams,
+          calldata: exactOutputParams,
           route,
         }
 
-        return call
+        return { call, outputSelector, output_call_data_length }
       } else {
         //single hop
         const isCurrencyInFirst = amountOut?.currency?.address === route.pools[0].token0.address
@@ -431,12 +455,19 @@ export function useBestV3TradeExactOut(
           sqrt_price_limit_X96: cairo.uint256(0),
         }
 
+        //exact input
+        const outputSelector = {
+          contract_address: swapRouterAddress,
+          entry_point: hash.getSelectorFromName('exact_output_single'),
+        }
+        const output_call_data_length = { output_call_data_length: '0xb' }
+
         const call = {
           calldata: exactOutputSingleParams,
           route,
         }
 
-        return call
+        return { call, outputSelector, output_call_data_length }
       }
     })
   }, [routes, amountOut, address, currencyIn, deadline])
@@ -459,13 +490,6 @@ export function useBestV3TradeExactOut(
     approveAmount: cairo.uint256(2 ** 128),
   }
 
-  //exact input
-  const outputSelector = {
-    contract_address: swapRouterAddress,
-    entry_point: hash.getSelectorFromName('exact_output_single'),
-  }
-  const output_call_data_length = { output_call_data_length: '0xb' }
-
   const nonce_results = useQuery({
     queryKey: [`nonce/${address}`],
     queryFn: async () => {
@@ -478,6 +502,16 @@ export function useBestV3TradeExactOut(
     },
   })
 
+  const contract_version = useQuery({
+    queryKey: [`contract_version/${address}`],
+    queryFn: async () => {
+      if (!account || !address) return
+      const results: any = await account?.getClassAt(address)
+      return results?.sierra_program
+      // return cairo.felt(results.toString())
+    },
+  })
+
   const privateKey = '0x1234567890987654321'
 
   const message: BigNumberish[] = [1, 128, 18, 14]
@@ -485,7 +519,15 @@ export function useBestV3TradeExactOut(
   const msgHash = hash.computeHashOnElements(message)
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
   const amountInResults = useQuery({
-    queryKey: ['get_simulation', address, amountOut, nonce_results?.data, chainId, currencyIn?.symbol],
+    queryKey: [
+      'get_simulation',
+      address,
+      amountOut,
+      nonce_results?.data,
+      chainId,
+      currencyIn?.symbol,
+      contract_version?.data,
+    ],
     queryFn: async () => {
       if (
         !address ||
@@ -499,43 +541,43 @@ export function useBestV3TradeExactOut(
       )
         return
       const nonce = Number(nonce_results.data)
-
-      const callPromises = quoteExactOutInputs.map(async (call: any) => {
-        const isConnectorBraavos = connector.id === 'braavos'
+      const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
+      const callPromises = quoteExactOutInputs.map(async ({ call, outputSelector, output_call_data_length }) => {
         const provider = providerInstance(chainId)
         if (!provider) return
-        const payload = isConnectorBraavos
-          ? {
-              contractAddress: address,
-              calldata: CallData.compile({
-                ...totalTx,
-                ...approveSelector,
-                ...{ approve_offset: '0x0' },
-                ...approve_call_data_length,
-                ...outputSelector,
-                ...{ input_offset: approve_call_data_length },
-                ...output_call_data_length,
-                ...{ total_call_data_length: '0xe' },
-                ...approve_call_data,
-                ...call.calldata,
-              }),
-            }
-          : {
-              contractAddress: address,
-              calldata: CallData.compile({
-                ...totalTx,
-                ...approveSelector,
-                ...approve_call_data_length,
-                ...approve_call_data,
-                ...outputSelector,
-                ...output_call_data_length,
-                ...call.calldata,
-              }),
-            }
+        const payloadForContractType1 = {
+          contractAddress: address,
+          calldata: CallData.compile({
+            ...totalTx,
+            ...approveSelector,
+            ...approve_call_data_length,
+            ...approve_call_data,
+            ...outputSelector,
+            ...output_call_data_length,
+            ...call.calldata,
+          }),
+        }
 
-        // const compiledCall = CallData.
+        const payloadForContractType0 = {
+          contractAddress: address,
+          calldata: CallData.compile({
+            ...totalTx,
+            ...approveSelector,
+            ...{ approve_offset: '0x0' },
+            ...approve_call_data_length,
+            ...outputSelector,
+            ...{ input_offset: approve_call_data_length },
+            ...output_call_data_length,
+            ...{ total_call_data_length: '0xe' },
+            ...approve_call_data,
+            ...call.calldata,
+          }),
+        }
+        const payload = isWalletCairoVersionGreaterThanZero ? payloadForContractType0 : payloadForContractType1
+        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero ? payloadForContractType1 : payload
+
         const response = provider.simulateTransaction(
-          [{ type: TransactionType.INVOKE, ...payload, signature, nonce }],
+          [{ type: TransactionType.INVOKE, ...payloadBasedOnCairoVersion, signature, nonce }],
           {
             skipValidate: true,
           }
