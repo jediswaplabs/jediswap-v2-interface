@@ -11,7 +11,7 @@ export const isTestnetEnvironment = () => {
     return false
   }
   const host = new URL(String(location))?.host || ''
-  return host === 'testnet.e2.jediswap.xyz/'
+  return host === 'app.v2.goerli.jediswap.xyz'
 }
 
 export const isLocalEnvironment = () => {
@@ -33,7 +33,7 @@ export const isStagingEnvironment = () => {
     return false
   }
   const host = new URL(String(location))?.host || ''
-  return host === 'staging.e2.jediswap.xyz/'
+  return host === 'app.v2.staging.jediswap.xyz'
 }
 
 export const webWalletUrl = isTestnetEnvironment() ? 'https://web.hydrogen.argent47.net/' : 'https://web.argent.xyz/'

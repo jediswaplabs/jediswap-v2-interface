@@ -22,9 +22,15 @@ const Wrapper = styled(Box)`
   width: 100%;
 `
 
+const WrapperLabel = styled(Box)`
+  align-items: center;
+  width: 100%;
+  display: flex;
+`
+
 const RouteContainerRow = styled(Row)`
   display: grid;
-  grid-template-columns: 24px 1fr 24px;
+  grid-template-columns: 84px 1fr 24px;
 `
 
 const RouteRow = styled(Row)`
@@ -38,6 +44,14 @@ const RouteRow = styled(Row)`
 const PoolBadge = styled(Badge)`
   display: flex;
   padding: 4px 4px;
+`
+
+const PoolBadgeWhite = styled(Badge)`
+  display: flex;
+  color: white;
+  font-size: 12px;
+  background: #323c5c;
+  margin-left: 4px;
 `
 
 const DottedLine = styled.div`
@@ -98,7 +112,14 @@ export default function RoutingDiagram({
     <Wrapper>
       {routes.map((entry, index) => (
         <RouteContainerRow key={index}>
-          <CurrencyLogo currency={tokenIn} size="20px" />
+          {index === 0 && (
+            <WrapperLabel>
+              <CurrencyLogo currency={tokenIn} size="20px" />
+              <PoolBadgeWhite>
+                {routes?.[0].type} <BadgeText style={{ fontWeight: 300, marginLeft: '4px' }}>100%</BadgeText>
+              </PoolBadgeWhite>
+            </WrapperLabel>
+          )}
           <Route entry={entry} />
           <CurrencyLogo currency={tokenOut} size="20px" />
         </RouteContainerRow>

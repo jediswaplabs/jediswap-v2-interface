@@ -2,9 +2,12 @@ import { Interface } from '@ethersproject/abi'
 import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import IUniswapV2PairJSON from '@uniswap/v2-core/build/IUniswapV2Pair.json'
 import { computePairAddress, Pair } from '@vnaysn/jediswap-sdk-v2'
-import { useMultipleContractSingleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
 import { V2_FACTORY_ADDRESSES } from 'constants/addresses'
+import { validateAndParseAddress } from 'starknet'
+import { useAllPairs } from 'state/pairs/hooks'
+import { useMultipleContractSingleData } from 'state/multicall/hooks'
+import JediswapPairABI from 'constants/abis/Pair.json'
 
 const PAIR_INTERFACE = new Interface(IUniswapV2PairJSON.abi)
 
@@ -15,27 +18,33 @@ export enum PairState {
   INVALID,
 }
 
-export function useV2Pairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][] {
+export function useV2Pairs(
+  pairs: string[],
+  currencies: [Currency | undefined, Currency | undefined][]
+): [PairState, Pair | null][] {
   const tokens = useMemo(
     () => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]),
     [currencies]
   )
 
+  const allPairs = useAllPairs()
+
   const pairAddresses = useMemo(
     () =>
       tokens.map(([tokenA, tokenB]) => {
-        return tokenA &&
-          tokenB &&
-          tokenA.chainId === tokenB.chainId &&
-          !tokenA.equals(tokenB) &&
-          V2_FACTORY_ADDRESSES[tokenA.chainId]
-          ? computePairAddress({ factoryAddress: V2_FACTORY_ADDRESSES[tokenA.chainId], tokenA, tokenB })
+        return tokenA && tokenB && !tokenA.equals(tokenB)
+          ? validateAndParseAddress(Pair.getAddress(tokenA, tokenB))
           : undefined
       }),
     [tokens]
   )
 
-  const results = useMultipleContractSingleData(pairAddresses, PAIR_INTERFACE, 'getReserves')
+  const validatedPairAddress = useMemo(
+    () => pairAddresses.map((addr) => (addr && allPairs.includes(addr) ? addr : undefined)),
+    [allPairs, pairAddresses]
+  )
+
+  const results = useMultipleContractSingleData(validatedPairAddress, JediswapPairABI, 'get_reserves')
 
   return useMemo(() => {
     return results.map((result, i) => {
@@ -61,5 +70,5 @@ export function useV2Pairs(currencies: [Currency | undefined, Currency | undefin
 
 export function useV2Pair(tokenA?: Currency, tokenB?: Currency): [PairState, Pair | null] {
   const inputs: [[Currency | undefined, Currency | undefined]] = useMemo(() => [[tokenA, tokenB]], [tokenA, tokenB])
-  return useV2Pairs(inputs)[0]
+  return useV2Pairs([], inputs)[0]
 }

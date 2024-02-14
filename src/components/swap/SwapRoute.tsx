@@ -71,7 +71,6 @@ export function SwapRoute({ trade }: { trade: ClassicTrade }) {
         <StyledLabelIcon />
         <LabelText fontWeight={700}>Auto Routing</LabelText>
       </RowFixed>
-
       <RoutingDiagram routes={routes} currencyIn={inputAmount.currency} currencyOut={outputAmount.currency} />
       <ThemedText.Caption color="neutral2">
         {Boolean(gasPrice) && <Trans>Best price route costs ~{gasPrice} in gas. </Trans>}

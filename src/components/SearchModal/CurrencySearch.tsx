@@ -202,7 +202,6 @@ export function CurrencySearch({
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value
     const checksummedInput = isAddressValidForStarknet(input)
-    console.log('🚀 ~ handleInput ~ checksummedInput:', checksummedInput)
     setSearchQuery(checksummedInput || input)
     fixedList.current?.scrollTo(0)
   }, [])
