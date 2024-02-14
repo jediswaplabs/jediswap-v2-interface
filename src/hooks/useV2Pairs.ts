@@ -27,6 +27,8 @@ export function useV2Pairs(
     [currencies]
   )
 
+  const allPairs = useAllPairs()
+
   const pairAddresses = useMemo(
     () =>
       tokens.map(([tokenA, tokenB]) => {
@@ -38,8 +40,8 @@ export function useV2Pairs(
   )
 
   const validatedPairAddress = useMemo(
-    () => pairAddresses.map((addr) => (addr && pairs.includes(addr) ? addr : undefined)),
-    [pairs, pairAddresses]
+    () => pairAddresses.map((addr) => (addr && allPairs.includes(addr) ? addr : undefined)),
+    [allPairs, pairAddresses]
   )
 
   const results = useMultipleContractSingleData(validatedPairAddress, JediswapPairABI, 'get_reserves')
