@@ -179,7 +179,7 @@ export function useDerivedSwapInfo(
 
   const bestTradeExactOut = useMemo(() => {
     if (bestV2TradeExactOut && bestV3TradeExactOut && bestV3TradeExactOut?.trade) {
-      return BigInt(bestV2TradeExactOut?.inputAmount.raw.toString()) >
+      return BigInt(bestV2TradeExactOut?.inputAmount.raw.toString()) <
         BigInt(bestV3TradeExactOut?.trade?.inputAmount.raw.toString())
         ? { state: TradeState.VALID, trade: bestV2TradeExactOut }
         : bestV3TradeExactOut
