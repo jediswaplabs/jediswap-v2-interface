@@ -8,6 +8,7 @@ export interface RoutingDiagramEntry {
   percent: Percent
   path: [Currency, Currency, FeeAmount][]
   protocol: Protocol
+  type: 'V2' | 'V3'
 }
 
 const V2_DEFAULT_FEE_TIER = 3000
@@ -40,6 +41,7 @@ export default function getRoutingDiagramEntries(trade: ClassicTrade): RoutingDi
         percent,
         path,
         protocol,
+        type: 'V3',
       }
     })
   } else {
@@ -65,6 +67,7 @@ export default function getRoutingDiagramEntries(trade: ClassicTrade): RoutingDi
         percent,
         path,
         protocol,
+        type: 'V2',
       },
     ]
   }

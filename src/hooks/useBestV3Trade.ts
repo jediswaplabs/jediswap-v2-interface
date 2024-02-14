@@ -6,7 +6,7 @@ import { useSingleContractMultipleData } from '../state/multicall/hooks'
 import { useAllV3Routes } from './useAllV3Routes'
 import { useBlockNumber, useContractRead } from '@starknet-react/core'
 import SWAP_QUOTER_ABI from 'contracts/swapquoter/abi.json'
-import { DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS } from 'constants/tokens'
+import { DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS_V2 } from 'constants/tokens'
 import {
   BigNumberish,
   BlockNumber,
@@ -68,7 +68,7 @@ export function useBestV3TradeExactIn(
     }
 
   const { account, address, chainId, connector } = useAccountDetails()
-  const swapRouterAddress = SWAP_ROUTER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+  const swapRouterAddress = SWAP_ROUTER_ADDRESS_V2[chainId ?? DEFAULT_CHAIN_ID]
   const deadline = useTransactionDeadline()
 
   const quoteExactInInputs = useMemo(() => {
@@ -379,7 +379,7 @@ export function useBestV3TradeExactOut(
   // const quoter = useV3Quoter()
   const { routes, loading: routesLoading } = useAllV3Routes(allPools, currencyIn, amountOut?.currency)
   const { address, account, chainId, connector } = useAccountDetails()
-  const swapRouterAddress = SWAP_ROUTER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+  const swapRouterAddress = SWAP_ROUTER_ADDRESS_V2[chainId ?? DEFAULT_CHAIN_ID]
   const deadline = useTransactionDeadline()
 
   const quoteExactOutInputs = useMemo(() => {

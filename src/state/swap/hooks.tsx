@@ -151,24 +151,29 @@ export function useDerivedSwapInfo(
     !isExactIn ? parsedAmount : undefined
   )
 
-  const [bestV2TradeExactIn, bestTradeInLoading] = useTradeExactIn(
+  const [bestV2TradeExactIn] = useTradeExactIn(
     allPairs,
     isExactIn ? parsedAmount : undefined,
     outputCurrency ?? undefined
   )
 
-  const [bestV2TradeExactOut, bestTradeOutLoading] = useTradeExactOut(
+  const [bestV2TradeExactOut] = useTradeExactOut(
     allPairs,
     inputCurrency ?? undefined,
     !isExactIn ? parsedAmount : undefined
   )
 
   const bestTradeExactIn = useMemo(() => {
-    if (bestV2TradeExactIn && bestV3TradeExactIn && bestV3TradeExactIn?.trade) {
-      return BigInt(bestV2TradeExactIn?.outputAmount.raw.toString()) >
-        BigInt(bestV3TradeExactIn?.trade?.outputAmount.raw.toString())
+    if (bestV2TradeExactIn && bestV3TradeExactIn && bestV3TradeExactIn.trade) {
+      const v2OutputAmount = BigInt(bestV2TradeExactIn.outputAmount.raw.toString())
+      const v3OutputAmount = BigInt(bestV3TradeExactIn.trade.outputAmount.raw.toString())
+      return v2OutputAmount > v3OutputAmount
         ? { state: TradeState.VALID, trade: bestV2TradeExactIn }
         : bestV3TradeExactIn
+    } else if (!bestV2TradeExactIn && bestV3TradeExactIn) {
+      return bestV3TradeExactIn
+    } else if (bestV2TradeExactIn && !bestV3TradeExactIn?.trade) {
+      return { state: TradeState.VALID, trade: bestV2TradeExactIn }
     }
 
     return {
@@ -178,11 +183,16 @@ export function useDerivedSwapInfo(
   }, [bestV2TradeExactIn, bestV3TradeExactIn])
 
   const bestTradeExactOut = useMemo(() => {
-    if (bestV2TradeExactOut && bestV3TradeExactOut && bestV3TradeExactOut?.trade) {
-      return BigInt(bestV2TradeExactOut?.inputAmount.raw.toString()) <
-        BigInt(bestV3TradeExactOut?.trade?.inputAmount.raw.toString())
+    if (bestV2TradeExactOut && bestV3TradeExactOut && bestV3TradeExactOut.trade) {
+      const v2InputAmount = BigInt(bestV2TradeExactOut.inputAmount.raw.toString())
+      const v3InputAmount = BigInt(bestV3TradeExactOut.trade.inputAmount.raw.toString())
+      return v2InputAmount < v3InputAmount
         ? { state: TradeState.VALID, trade: bestV2TradeExactOut }
         : bestV3TradeExactOut
+    } else if (!bestV2TradeExactOut && bestV3TradeExactOut) {
+      return bestV3TradeExactOut
+    } else if (bestV2TradeExactOut && !bestV3TradeExactOut?.trade) {
+      return bestV2TradeExactOut
     }
 
     return {
@@ -190,6 +200,7 @@ export function useDerivedSwapInfo(
       trade: null,
     }
   }, [bestV2TradeExactOut, bestV3TradeExactOut])
+
   const trade = isExactIn ? bestTradeExactIn : bestTradeExactOut
 
   const { data: outputFeeFiatValue } = useUSDPrice(undefined, trade.trade?.outputAmount.currency)
