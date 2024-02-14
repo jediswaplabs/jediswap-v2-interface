@@ -42,13 +42,7 @@ export function useV2Pairs(
     [pairs, pairAddresses]
   )
 
-  const definedPairAddress = useMemo(
-    () => validatedPairAddress.filter((addr) => addr !== undefined),
-    [validatedPairAddress]
-  )
-
-  const results = useMultipleContractSingleData(definedPairAddress, JediswapPairABI, 'get_reserves')
-  // const reserves = validateAndParseAddress.
+  const results = useMultipleContractSingleData(validatedPairAddress, JediswapPairABI, 'get_reserves')
 
   return useMemo(() => {
     return results.map((result, i) => {
