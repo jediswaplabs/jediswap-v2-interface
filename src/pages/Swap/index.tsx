@@ -118,6 +118,10 @@ const OutputSwapSection = styled(SwapSection)`
   border-bottom: ${({ theme }) => `1px solid ${theme.surface1}`};
 `
 
+const ButtonPrimaryRed = styled(ButtonPrimary)`
+  color: #ff3257 !important;
+`
+
 function getIsReviewableQuote(
   trade: InterfaceTrade | undefined,
   tradeState: TradeState,
@@ -382,7 +386,6 @@ export function Swap({
           },
     [independentField, parsedAmount, showWrap, trade]
   )
-
   const showFiatValueInput = Boolean(parsedAmounts[Field.INPUT])
   const showFiatValueOutput = Boolean(parsedAmounts[Field.OUTPUT])
   const getSingleUnitAmount = (currency?: Currency) => {
@@ -479,6 +482,10 @@ export function Swap({
 
   const userHasSpecifiedInputOutput = Boolean(
     currencies[Field.INPUT] && currencies[Field.OUTPUT] && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0))
+  )
+
+  const isFetchingOutput = Boolean(
+    userHasSpecifiedInputOutput && formattedAmounts[dependentField] === '' && !routeNotFound
   )
 
   const maximumAmountIn = useMaxAmountIn(trade, allowedSlippage)
@@ -947,6 +954,10 @@ export function Swap({
             <ButtonPrimary onClick={toggleWalletDrawer} size={ButtonSize.large}>
               <Trans>Connect wallet</Trans>
             </ButtonPrimary>
+          ) : isFetchingOutput ? (
+            <ButtonPrimaryRed size={ButtonSize.large} disabled>
+              <Trans>Fetching best price...</Trans>
+            </ButtonPrimaryRed>
           ) : routeNotFound && userHasSpecifiedInputOutput && !routeIsLoading && !routeIsSyncing ? (
             <ButtonPrimary size={ButtonSize.large} disabled>
               <Trans>Insufficient liquidity</Trans>
