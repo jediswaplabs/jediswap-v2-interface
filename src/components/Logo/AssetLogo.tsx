@@ -1,6 +1,6 @@
 import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
 import useTokenLogoSource from 'hooks/useAssetLogoSource'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import styled from 'styled-components'
 import EthereumLogo from 'assets/images/ethereum-logo.png'
 
@@ -55,48 +55,38 @@ const LogoContainer = styled.div`
   display: flex;
 `
 
+const StyledEthereumLogo = styled.img<{ size: number }>`
+  width: ${({ size }) => size};
+  height: ${({ size }) => size};
+  transition: background-color ${({ theme }) => `${theme.transition.duration.medium} ${theme.transition.timing.in}`};
+  box-shadow: 0 0 1px white;
+  border-radius: 50%;
+`
+
+const CurrencyLogo = ({ currency, symbol, size }: { currency: any; symbol: any; size: any }) => {
+  const currencyLogo: any = currency
+  if (currencyLogo && (currencyLogo.name === 'ETHER' || currencyLogo.name === 'ETH')) {
+    return <StyledEthereumLogo src={EthereumLogo} alt={`${symbol ?? 'token'} logo`} size={size} loading="lazy" />
+  } else if (currencyLogo && currencyLogo.logoURI) {
+    return (
+      <StyledEthereumLogo src={currencyLogo.logoURI} alt={`${symbol ?? 'token'} logo`} size={size} loading="lazy" />
+    )
+  }
+
+  return (
+    <MissingImageLogo size={size}>
+      {symbol?.toUpperCase().replace('$', '').replace(/\s+/g, '').slice(0, 3)}
+    </MissingImageLogo>
+  )
+}
+
 /**
  * Renders an image by prioritizing a list of sources, and then eventually a fallback triangle alert
  */
-export default function AssetLogo({
-  currency,
-  isNative,
-  address,
-  chainId = ChainId.MAINNET,
-  symbol,
-  backupImg,
-  size = '24px',
-  style,
-}: AssetLogoProps) {
-  const [src, nextSrc] = useTokenLogoSource(address, chainId, isNative, backupImg)
-  const [imgLoaded, setImgLoaded] = useState(() => {
-    const img = document.createElement('img')
-    img.src = src ?? ''
-    return src ? img.complete : false
-  })
-
-  const logoURI = currency && currency.name === 'ETHER' ? EthereumLogo : (currency as any)?.logoURI
-
+export default function AssetLogo({ currency, symbol, size = '24px', style }: AssetLogoProps) {
   return (
     <LogoContainer style={{ height: size, width: size, ...style }}>
-      {logoURI ? (
-        <LogoImageWrapper size={size} imgLoaded={imgLoaded}>
-          <LogoImage
-            src={logoURI}
-            alt={`${symbol ?? 'token'} logo`}
-            size={size}
-            onLoad={() => void setImgLoaded(true)}
-            onError={nextSrc}
-            imgLoaded={imgLoaded}
-            loading="lazy"
-          />
-        </LogoImageWrapper>
-      ) : (
-        <MissingImageLogo size={size}>
-          {/* use only first 3 characters of Symbol for design reasons */}
-          {symbol?.toUpperCase().replace('$', '').replace(/\s+/g, '').slice(0, 3)}
-        </MissingImageLogo>
-      )}
+      <CurrencyLogo currency={currency} symbol={symbol} size={size} />
     </LogoContainer>
   )
 }

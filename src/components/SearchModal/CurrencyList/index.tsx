@@ -291,16 +291,7 @@ export default function CurrencyList({
       }
       return null
     },
-    [
-      selectedCurrency,
-      otherCurrency,
-      isLoading,
-      onCurrencySelect,
-      showCurrencyAmount,
-      searchQuery,
-      isAddressSearch,
-      balances,
-    ]
+    [searchQuery, isAddressSearch]
   )
 
   const itemKey = useCallback((index: number, data: typeof itemData) => {

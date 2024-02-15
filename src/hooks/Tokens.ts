@@ -2,7 +2,7 @@ import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { getChainInfo } from 'constants/chainInfo'
 import { DEFAULT_INACTIVE_LIST_URLS, DEFAULT_LIST_OF_LISTS } from 'constants/lists'
-import { useCurrencyFromMap, useTokenFromMapOrNetwork } from 'lib/hooks/useCurrency'
+import { parseStringFromArgs, useCurrencyFromMap, useTokenFromMapOrNetwork } from 'lib/hooks/useCurrency'
 import { getTokenFilter } from 'lib/hooks/useTokenList/filtering'
 import { TokenAddressMap } from 'lib/hooks/useTokenList/utils'
 import { useMemo } from 'react'
@@ -12,6 +12,9 @@ import { isL2ChainId } from 'utils/chains'
 import { useAllLists, useCombinedActiveList, useCombinedTokenMapFromUrls } from '../state/lists/hooks'
 import { WrappedTokenInfo } from '../state/lists/wrappedTokenInfo'
 import { deserializeToken, useUserAddedTokens } from '../state/user/hooks'
+import { isAddressValidForStarknet } from 'utils/addresses'
+import { useTokenContract } from './useContractV2'
+import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 
 type Maybe<T> = T | null | undefined
 
@@ -186,7 +189,33 @@ export function useIsUserAddedToken(currency: Currency | undefined | null): bool
 export function useToken(tokenAddress?: string | null): Token | null | undefined {
   const { chainId } = useAccountDetails()
   const tokens = useDefaultActiveTokens(chainId)
-  return useTokenFromMapOrNetwork(tokens, tokenAddress)
+  const address = isAddressValidForStarknet(tokenAddress)
+  const token: Token | undefined = address ? tokens[address] : undefined
+
+  const tokenContract = useTokenContract(address ? address : undefined)
+
+  const tokenName = useSingleCallResult(token ? undefined : tokenContract, 'name', undefined, NEVER_RELOAD)
+
+  const symbol = useSingleCallResult(token ? undefined : tokenContract, 'symbol', undefined, NEVER_RELOAD)
+
+  const decimals = useSingleCallResult(token ? undefined : tokenContract, 'decimals', undefined, NEVER_RELOAD)
+
+  return useMemo(() => {
+    if (token) return token
+    if (!chainId || !address) return undefined
+    if (decimals.loading || symbol.loading || tokenName.loading) return null
+    if (decimals.result) {
+      const token = new Token(
+        chainId,
+        address,
+        parseInt(decimals.result[0]),
+        parseStringFromArgs(symbol.result?.[0]),
+        parseStringFromArgs(symbol.result?.[0])
+      )
+      return token
+    }
+    return undefined
+  }, [address, chainId, decimals, symbol, token, tokenName])
 }
 
 export function useCurrency(currencyId: Maybe<string>, chainId?: ChainId): Currency | undefined {
