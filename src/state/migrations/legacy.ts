@@ -1,12 +1,8 @@
 import { DEFAULT_DEADLINE_FROM_NOW } from 'constants/misc'
-import { persistor } from 'state'
-
 import { initialState as initialListsState } from '../lists/reducer'
 import { RouterPreference } from '../routing/types'
-import { TransactionState } from '../transactions/reducer'
-import { initialState as initialTransactionsState } from '../transactions/reducer'
-import { UserState } from '../user/reducer'
-import { initialState as initialUserState } from '../user/reducer'
+import { TransactionState, initialState as initialTransactionsState } from '../transactions/reducer'
+import { UserState, initialState as initialUserState } from '../user/reducer'
 import { SlippageTolerance } from '../user/types'
 
 const currentTimestamp = () => new Date().getTime()
@@ -42,7 +38,7 @@ export const legacyLocalStorageMigration = async () => {
     _persist: { version: 0, rehydrated: true },
   }
 
-  await persistor.flush()
+  // await persistor.flush()
 
   localStorage.removeItem('redux_localstorage_simple_transactions')
   localStorage.removeItem('redux_localstorage_simple_user')
@@ -80,28 +76,26 @@ function legacyUserMigrations(state: any): UserState {
 
   // If `userSlippageTolerance` is not present or its value is invalid, reset to default
   if (
-    typeof result.userSlippageTolerance !== 'number' ||
-    !Number.isInteger(result.userSlippageTolerance) ||
-    result.userSlippageTolerance < 0 ||
-    result.userSlippageTolerance > 5000
+    typeof result.userSlippageTolerance !== 'number'
+    || !Number.isInteger(result.userSlippageTolerance)
+    || result.userSlippageTolerance < 0
+    || result.userSlippageTolerance > 5000
   ) {
     result.userSlippageTolerance = SlippageTolerance.Auto
-  } else {
-    if (
-      !result.userSlippageToleranceHasBeenMigratedToAuto &&
-      [10, 50, 100].indexOf(result.userSlippageTolerance) !== -1
-    ) {
-      result.userSlippageTolerance = SlippageTolerance.Auto
-      result.userSlippageToleranceHasBeenMigratedToAuto = true
-    }
+  } else if (
+    !result.userSlippageToleranceHasBeenMigratedToAuto
+      && [10, 50, 100].indexOf(result.userSlippageTolerance) !== -1
+  ) {
+    result.userSlippageTolerance = SlippageTolerance.Auto
+    result.userSlippageToleranceHasBeenMigratedToAuto = true
   }
 
   // If `userDeadline` is not present or its value is invalid, reset to default
   if (
-    typeof result.userDeadline !== 'number' ||
-    !Number.isInteger(result.userDeadline) ||
-    result.userDeadline < 60 ||
-    result.userDeadline > 180 * 60
+    typeof result.userDeadline !== 'number'
+    || !Number.isInteger(result.userDeadline)
+    || result.userDeadline < 60
+    || result.userDeadline > 180 * 60
   ) {
     result.userDeadline = DEFAULT_DEADLINE_FROM_NOW
   }
@@ -116,10 +110,10 @@ function legacyUserMigrations(state: any): UserState {
     result.userRouterPreference = RouterPreference.API
   }
 
-  //If `buyFiatFlowCompleted` is present, delete it using filtering
+  // If `buyFiatFlowCompleted` is present, delete it using filtering
   if ('buyFiatFlowCompleted' in result) {
-    //ignoring due to type errors occuring since we now remove this state
-    //@ts-ignore
+    // ignoring due to type errors occuring since we now remove this state
+    // @ts-ignore
     delete result.buyFiatFlowCompleted
   }
 
