@@ -981,14 +981,15 @@ export function Swap({
               disabled={!getIsReviewableQuote(trade, tradeState, swapInputError)}
               error={!swapInputError && priceImpactSeverity > 2 && allowance.state === AllowanceState.ALLOWED}
             >
-              {swapInputError ||
-                (routeIsSyncing || routeIsLoading ? (
-                  <Trans>Swap</Trans>
-                ) : priceImpactSeverity > 2 ? (
-                  <Trans>Swap anyway</Trans>
-                ) : (
-                  <Trans>Swap</Trans>
-                ))}
+              {swapInputError ? (
+                swapInputError
+              ) : routeIsSyncing || routeIsLoading ? (
+                <Trans>Swap</Trans>
+              ) : priceImpactSeverity > 2 ? (
+                <Trans>Swap anyway</Trans>
+              ) : (
+                <Trans>Swap</Trans>
+              )}
             </ButtonError>
           )}
         </div>
