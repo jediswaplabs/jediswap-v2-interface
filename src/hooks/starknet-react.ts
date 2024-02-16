@@ -61,7 +61,9 @@ export const useConnectors = () => {
   return { connect, connectors }
 }
 
-export const useAccountBalance = (currency: Currency) => {
+export const useAccountBalance = (currency: Currency | undefined) => {
+  if (!currency) undefined
+
   const { address } = useAccountDetails()
   const tokenAddress = (currency as any)?.address
 

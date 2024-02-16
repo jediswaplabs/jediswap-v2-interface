@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ChainId, Currency, CurrencyAmount, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { useConnectionReady } from 'connection/eagerlyConnect'
 import { useFotAdjustmentsEnabled } from 'featureFlags/flags/fotAdjustments'
 import useAutoSlippageTolerance from 'hooks/useAutoSlippageTolerance'
@@ -134,6 +134,9 @@ export function useDerivedSwapInfo(
     useMemo(() => [inputCurrency ?? undefined, outputCurrency ?? undefined], [inputCurrency, outputCurrency])
   )
 
+  const token0balance = useAccountBalance(inputCurrency ?? undefined)
+  const token1balance = useAccountBalance(outputCurrency ?? undefined)
+
   const isExactIn: boolean = independentField === Field.INPUT
   const parsedAmount = useMemo(
     () => tryParseCurrencyAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined),
@@ -260,10 +263,10 @@ export function useDerivedSwapInfo(
     }
 
     // compare input balance to max input based on version
-    const [balanceIn, maxAmountIn] = [currencyBalances[Field.INPUT], trade?.trade?.maximumAmountIn(allowedSlippage)]
+    const maxAmountIn = Number(trade?.trade?.maximumAmountIn(allowedSlippage)?.toSignificant())
 
-    if (balanceIn && maxAmountIn && balanceIn.lessThan(maxAmountIn)) {
-      inputError = <Trans>Insufficient {balanceIn.currency.symbol} balance</Trans>
+    if (token0balance && token0balance.balance && Number(token0balance.balance) < maxAmountIn) {
+      inputError = <Trans>Insufficient {inputCurrency?.symbol} balance</Trans>
     }
 
     return inputError
