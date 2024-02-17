@@ -169,15 +169,9 @@ const NFTImage = styled.img`
   z-index: 1;
 `
 
-import { CoinGeckoClient } from 'coingecko-api-v3'
 import { useQuery } from 'react-query'
 import { jediSwapClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
-const client = new CoinGeckoClient({
-  timeout: 10000,
-  autoRetry: true,
-  apiKey: 'CG-LjiMiXQR6FUgXee6s89GnnrD',
-})
 
 function CurrentPriceCard({
   inverted,
