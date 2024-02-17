@@ -551,7 +551,6 @@ export function Swap({
   }, [swapCallData])
 
   const separatedFiatValueofLiquidity = useQuery({
-    queryKey: ['fiat_value', trade?.inputAmount, trade?.outputAmount],
     queryFn: async () => {
       const ids = []
       if (!trade?.inputAmount && !trade?.outputAmount) return

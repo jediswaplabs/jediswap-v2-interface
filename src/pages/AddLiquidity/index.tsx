@@ -71,6 +71,9 @@ import { BigNumberish, cairo, Call, CallData, hash, num } from 'starknet'
 import JSBI from 'jsbi'
 import { toI32 } from 'utils/toI32'
 import { useApprovalCall } from 'hooks/useApproveCall'
+import { useQuery } from 'react-query'
+import { jediSwapClient } from 'apollo/client'
+import { TOKENS_DATA } from 'apollo/queries'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -209,6 +212,55 @@ function AddLiquidity() {
   const allowedSlippage = useUserSlippageToleranceWithDefault(
     outOfRange ? ZERO_PERCENT : DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE
   )
+
+  const separatedFiatValueofLiquidity = useQuery({
+    queryKey: ['fiat_value', position?.amount0, position?.amount1],
+    queryFn: async () => {
+      const ids = []
+      if (!position?.amount0 && !position?.amount1) return
+      if (position?.amount0) ids.push(position?.amount0.currency.address)
+      if (position?.amount1) ids.push(position?.amount1.currency.address)
+      let result = await jediSwapClient.query({
+        query: TOKENS_DATA({ tokenIds: ids }),
+        // fetchPolicy: 'cache-first',
+      })
+
+      try {
+        if (result.data) {
+          const tokensData = result.data.tokensData
+          if (tokensData) {
+            const [price0, price1] = [tokensData[0], tokensData[1]]
+            const isToken0InputAmount = position?.amount0.currency.address === price0.token.tokenAddress
+            const price0_one_day = price0?.period?.one_day?.close
+            const price1_one_day = price1?.period?.one_day?.close
+            return {
+              token0usdPrice: isToken0InputAmount ? price0_one_day : price1_one_day,
+              token1usdPrice: isToken0InputAmount ? price1_one_day : price0_one_day,
+            }
+          }
+        }
+
+        return { token0usdPrice: undefined, token1usdPrice: undefined }
+      } catch (e) {
+        console.log(e)
+        return { token0usdPrice: null, token1usdPrice: null }
+      }
+    },
+  })
+
+  const { token0usdPrice, token1usdPrice } = useMemo(() => {
+    if (!separatedFiatValueofLiquidity.data) return { token0usdPrice: undefined, token1usdPrice: undefined }
+    return {
+      token0usdPrice: separatedFiatValueofLiquidity.data.token0usdPrice
+        ? Number(separatedFiatValueofLiquidity.data.token0usdPrice) * Number(position?.amount0.toSignificant())
+        : undefined,
+      token1usdPrice: separatedFiatValueofLiquidity.data.token1usdPrice
+        ? Number(separatedFiatValueofLiquidity.data.token1usdPrice) * Number(position?.amount1.toSignificant())
+        : undefined,
+    }
+  }, [separatedFiatValueofLiquidity])
+
+  console.log(token0usdPrice, token1usdPrice, 'token0usdPrice, token1usdPrice ')
 
   useEffect(() => {
     if (txData) console.log(txData, 'txData')
@@ -832,7 +884,7 @@ function AddLiquidity() {
                       showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
                       currency={currencies[Field.CURRENCY_A] ?? null}
                       id="add-liquidity-input-tokena"
-                      fiatValue={currencyAFiat}
+                      fiatValue={token1usdPrice}
                       showCommonBases
                       locked={depositADisabled}
                     />
@@ -844,7 +896,7 @@ function AddLiquidity() {
                         onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
                       }}
                       showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
-                      fiatValue={currencyBFiat}
+                      fiatValue={token0usdPrice}
                       currency={currencies[Field.CURRENCY_B] ?? null}
                       id="add-liquidity-input-tokenb"
                       showCommonBases
