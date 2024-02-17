@@ -51,6 +51,7 @@ import { LoadingRows } from './styled'
 import { useContractWrite } from '@starknet-react/core'
 import { cairo, Call, CallData, validateAndParseAddress } from 'starknet'
 import { DEFAULT_CHAIN_ID, MAX_UINT128, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import TokensList from 'data/tokens-list.json'
 
 const PositionPageButtonPrimary = styled(ButtonPrimary)`
   width: 228px;
@@ -167,6 +168,16 @@ const NFTImage = styled.img`
   /* Ensures SVG appears on top of canvas. */
   z-index: 1;
 `
+
+import { CoinGeckoClient } from 'coingecko-api-v3'
+import { useQuery } from 'react-query'
+import { jediSwapClient } from 'apollo/client'
+import { TOKENS_DATA } from 'apollo/queries'
+const client = new CoinGeckoClient({
+  timeout: 10000,
+  autoRetry: true,
+  apiKey: 'CG-LjiMiXQR6FUgXee6s89GnnrD',
+})
 
 function CurrentPriceCard({
   inverted,
@@ -667,14 +678,49 @@ function PositionPageContent() {
     return amount0.add(amount1)
   }, [price0, price1, feeValue0, feeValue1])
 
-  const fiatValueOfLiquidity: CurrencyAmount<Token> | null = useMemo(() => {
-    if (!price0 || !price1 || !position) {
-      return null
+  const separatedFiatValueofLiquidity = useQuery({
+    queryKey: [`fiat_value_0/${position?.amount0.toSignificant()}/${position?.amount0.currency.symbol}`],
+    queryFn: async () => {
+      const ids = []
+      if (!position?.amount0 && !position?.amount1) return
+      if (position?.amount0) ids.push(position?.amount0.currency.address)
+      if (position?.amount1) ids.push(position?.amount1.currency.address)
+      let result = await jediSwapClient.query({
+        query: TOKENS_DATA({ tokenIds: ids }),
+        fetchPolicy: 'cache-first',
+      })
+
+      try {
+        if (result.data) {
+          const tokensData = result.data.tokensData
+          if (tokensData) {
+            const [price0, price1] = [tokensData[0], tokensData[1]]
+            return { token0usdPrice: price1?.period?.one_day?.close, token1usdPrice: price0?.period?.one_day?.close }
+          }
+        }
+      } catch (e) {
+        console.log(e)
+        return { token0usdPrice: null, token1usdPrice: null }
+      }
+    },
+  })
+
+  const { token0usdPrice, token1usdPrice } = useMemo(() => {
+    if (!separatedFiatValueofLiquidity.data) return { token0usdPrice: undefined, token1usdPrice: undefined }
+    return {
+      token0usdPrice: separatedFiatValueofLiquidity.data.token0usdPrice
+        ? separatedFiatValueofLiquidity.data.token0usdPrice * position?.amount0.toSignificant()
+        : undefined,
+      token1usdPrice: separatedFiatValueofLiquidity.data.token1usdPrice
+        ? separatedFiatValueofLiquidity.data.token1usdPrice * position?.amount1.toSignificant()
+        : undefined,
     }
-    const amount0 = price0.quote(position.amount0)
-    const amount1 = price1.quote(position.amount1)
-    return amount0.add(amount1)
-  }, [price0, price1, position])
+  }, [separatedFiatValueofLiquidity])
+
+  const fiatValueofLiquidity = useMemo(() => {
+    if (token0usdPrice && token1usdPrice) (Number(token0usdPrice) + Number(token1usdPrice)).toFixed(4)
+    return undefined
+  }, [token0usdPrice, token1usdPrice])
 
   useEffect(() => {
     if (callData) {
@@ -873,9 +919,9 @@ function PositionPageContent() {
                     <Label>
                       <Trans>Liquidity</Trans>
                     </Label>
-                    {fiatValueOfLiquidity?.greaterThan(new Fraction(1, 100)) ? (
+                    {fiatValueofLiquidity ? (
                       <ThemedText.DeprecatedLargeHeader fontSize="36px" fontWeight={535}>
-                        <Trans>${fiatValueOfLiquidity.toFixed(2, { groupSeparator: ',' })}</Trans>
+                        <Trans>${fiatValueofLiquidity}</Trans>
                       </ThemedText.DeprecatedLargeHeader>
                     ) : (
                       <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="36px" fontWeight={535}>

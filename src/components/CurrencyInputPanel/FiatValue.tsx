@@ -16,49 +16,19 @@ const FiatLoadingBubble = styled(LoadingBubble)`
   height: 1rem;
 `
 
-export function FiatValue({
-  fiatValue,
-  priceImpact,
-}: {
-  fiatValue: { data?: number; isLoading: boolean }
-  priceImpact?: Percent
-}) {
-  const { formatNumber, formatPercent } = useFormatter()
-
-  const priceImpactColor = useMemo(() => {
-    if (!priceImpact) {
-      return undefined
-    }
-    if (priceImpact.lessThan('0')) {
-      return 'success'
-    }
-    const severity = warningSeverity(priceImpact)
-    if (severity < 1) {
-      return 'neutral3'
-    }
-    if (severity < 3) {
-      return 'deprecated_yellow1'
-    }
-    return 'critical'
-  }, [priceImpact])
-
-  if (fiatValue.isLoading) {
-    return <FiatLoadingBubble />
-  }
+export function FiatValue({ fiatValue, priceImpact }: { fiatValue: number; priceImpact?: Percent }) {
+  const { formatNumber } = useFormatter()
 
   return (
     <Row gap="sm">
       <ThemedText.LabelSmall color="neutral1">
-        {fiatValue.data ? (
-          formatNumber({
-            input: fiatValue.data,
-            type: NumberType.FiatTokenPrice,
-          })
+        {fiatValue ? (
+          formatNumber({ input: fiatValue, type: NumberType.FiatTokenPrice })
         ) : (
           <MouseoverTooltip text={<Trans>Not enough liquidity to show accurate USD value.</Trans>}>-</MouseoverTooltip>
         )}
       </ThemedText.LabelSmall>
-      {priceImpact && (
+      {/* {priceImpact && (
         <ThemedText.BodySmall color={priceImpactColor}>
           <MouseoverTooltip
             text={<Trans>The estimated difference between the USD values of input and output amounts.</Trans>}
@@ -66,7 +36,7 @@ export function FiatValue({
             (<Trans>{formatPercent(priceImpact.multiply(-1))}</Trans>)
           </MouseoverTooltip>
         </ThemedText.BodySmall>
-      )}
+      )} */}
     </Row>
   )
 }

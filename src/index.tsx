@@ -32,6 +32,7 @@ import RadialGradientByChainUpdater from './theme/components/RadialGradientByCha
 import { goerli, mainnet, sepolia } from '@starknet-react/chains'
 import { StarknetConfig, publicProvider, argent, braavos } from '@starknet-react/core'
 import { StarknetProvider } from 'context/StarknetProvider'
+import { jediSwapClient } from 'apollo/client'
 
 function Updaters() {
   const location = useLocation()
@@ -66,7 +67,7 @@ createRoot(container).render(
             <HashRouter>
               <LanguageProvider>
                 {/* <Web3Provider> */}
-                <ApolloProvider client={apolloClient}>
+                <ApolloProvider client={jediSwapClient}>
                   <BlockNumberProvider>
                     <Updaters />
                     <ThemeProvider>

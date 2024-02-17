@@ -222,7 +222,7 @@ interface SwapCurrencyInputPanelProps {
   pair?: Pair | null
   hideInput?: boolean
   otherCurrency?: Currency | null
-  fiatValue?: { data?: number; isLoading: boolean }
+  fiatValue?: number
   priceImpact?: Percent
   id: string
   showCommonBases?: boolean
@@ -398,7 +398,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
                   <span />
                 )}
                 <LoadingOpacityContainer $loading={loading}>
-                  {fiatValue && <FiatValue fiatValue={fiatValue} priceImpact={priceImpact} />}
+                  {fiatValue === 0 ? 'N/A' : fiatValue && <FiatValue fiatValue={fiatValue} priceImpact={priceImpact} />}
                 </LoadingOpacityContainer>
               </RowBetween>
             </FiatRow>

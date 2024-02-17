@@ -72,6 +72,9 @@ import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useApprovalCall } from 'hooks/useApproveCall'
 import { Pool, TradeType, toHex } from '@vnaysn/jediswap-sdk-v3'
 import fetchAllPairs from 'api/fetchAllPairs'
+import { useQuery } from 'react-query'
+import { jediSwapClient } from 'apollo/client'
+import { TOKENS_DATA } from 'apollo/queries'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -386,23 +389,13 @@ export function Swap({
           },
     [independentField, parsedAmount, showWrap, trade]
   )
-  const showFiatValueInput = Boolean(parsedAmounts[Field.INPUT])
-  const showFiatValueOutput = Boolean(parsedAmounts[Field.OUTPUT])
+
   const getSingleUnitAmount = (currency?: Currency) => {
     if (!currency) {
       return
     }
     return CurrencyAmount.fromRawAmount(currency, JSBI.BigInt(10 ** currency.decimals))
   }
-
-  const fiatValueInput = useUSDPrice(
-    parsedAmounts[Field.INPUT] ?? getSingleUnitAmount(currencies[Field.INPUT]),
-    currencies[Field.INPUT]
-  )
-  const fiatValueOutput = useUSDPrice(
-    parsedAmounts[Field.OUTPUT] ?? getSingleUnitAmount(currencies[Field.OUTPUT]),
-    currencies[Field.OUTPUT]
-  )
 
   const [routeNotFound, routeIsLoading, routeIsSyncing] = useMemo(
     () => [
@@ -556,6 +549,55 @@ export function Swap({
         })
     }
   }, [swapCallData])
+
+  const separatedFiatValueofLiquidity = useQuery({
+    queryKey: ['fiat_value', trade?.inputAmount, trade?.outputAmount],
+    queryFn: async () => {
+      const ids = []
+      if (!trade?.inputAmount && !trade?.outputAmount) return
+      if (trade?.inputAmount) ids.push((trade?.inputAmount.currency as any).address)
+      if (trade?.outputAmount) ids.push((trade?.outputAmount.currency as any).address)
+      let result = await jediSwapClient.query({
+        query: TOKENS_DATA({ tokenIds: ids }),
+        // fetchPolicy: 'cache-first',
+      })
+
+      try {
+        if (result.data) {
+          const tokensData = result.data.tokensData
+          if (tokensData) {
+            const [price0, price1] = [tokensData[0], tokensData[1]]
+            const isToken0InputAmount =
+              validateAndParseAddress((trade?.inputAmount.currency as any).address) ===
+              validateAndParseAddress(price0.token.tokenAddress)
+            const price0_one_day = price0?.period?.one_day?.close
+            const price1_one_day = price1?.period?.one_day?.close
+            return {
+              token0usdPrice: isToken0InputAmount ? price0_one_day : price1_one_day,
+              token1usdPrice: isToken0InputAmount ? price1_one_day : price0_one_day,
+            }
+          }
+        }
+
+        return { token0usdPrice: undefined, token1usdPrice: undefined }
+      } catch (e) {
+        console.log(e)
+        return { token0usdPrice: null, token1usdPrice: null }
+      }
+    },
+  })
+
+  const { token0usdPrice, token1usdPrice } = useMemo(() => {
+    if (!separatedFiatValueofLiquidity.data || !trade) return { token0usdPrice: undefined, token1usdPrice: undefined }
+    return {
+      token0usdPrice: separatedFiatValueofLiquidity.data.token0usdPrice
+        ? Number(separatedFiatValueofLiquidity.data.token0usdPrice) * Number(trade.inputAmount.toSignificant())
+        : undefined,
+      token1usdPrice: separatedFiatValueofLiquidity.data.token1usdPrice
+        ? Number(separatedFiatValueofLiquidity.data.token1usdPrice) * Number(trade?.outputAmount.toSignificant())
+        : undefined,
+    }
+  }, [separatedFiatValueofLiquidity])
 
   const amountToApprove = useMemo(
     () => (trade ? trade.maximumAmountIn(allowedSlippage) : undefined),
@@ -880,7 +922,7 @@ export function Swap({
             currency={currencies[Field.INPUT] ?? null}
             onUserInput={handleTypeInput}
             onMax={handleMaxInput}
-            fiatValue={showFiatValueInput ? fiatValueInput : undefined}
+            fiatValue={token0usdPrice}
             onCurrencySelect={handleInputSelect}
             otherCurrency={currencies[Field.OUTPUT]}
             showCommonBases
@@ -914,7 +956,7 @@ export function Swap({
               label={<Trans>To</Trans>}
               showMaxButton={false}
               hideBalance={false}
-              fiatValue={showFiatValueOutput ? fiatValueOutput : undefined}
+              fiatValue={token1usdPrice}
               priceImpact={stablecoinPriceImpact}
               currency={currencies[Field.OUTPUT] ?? null}
               onCurrencySelect={handleOutputSelect}
