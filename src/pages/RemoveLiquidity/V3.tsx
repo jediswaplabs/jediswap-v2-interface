@@ -159,16 +159,16 @@ function Remove({ tokenId }: { tokenId: number }) {
       deadline: cairo.felt(deadline.toString()),
     }
     const decreaseLiquidityCallData = CallData.compile(decreaseLiquidityParams)
-    const burnPositionParams = {
-      tokenId: cairo.uint256(tokenId),
-    }
+    // const burnPositionParams = {
+    //   tokenId: cairo.uint256(tokenId),
+    // }
     const collectFeeParams = {
       tokenId: cairo.uint256(tokenId),
       recipient: account,
       amount0_max: MAX_UINT128,
       amount1_max: MAX_UINT128,
     }
-    const burnCallData = CallData.compile(burnPositionParams)
+    // const burnCallData = CallData.compile(burnPositionParams)
     const collectFeeCallData = CallData.compile(collectFeeParams)
 
     const createCallObject = (entrypoint: string, calldata: any) => ({
@@ -178,12 +178,12 @@ function Remove({ tokenId }: { tokenId: number }) {
     })
 
     const decreaseLiquidityCall = createCallObject('decrease_liquidity', decreaseLiquidityCallData)
-    const burnCall = createCallObject('burn', burnCallData)
+    // const burnCall = createCallObject('burn', burnCallData)
     const collectFeeCall = createCallObject('collect', collectFeeCallData)
 
     // slippage-adjusted underlying amounts
-    const toBurnPosition: boolean = liquidityPercentage.equalTo(JSBI.BigInt(1))
-    const finalCallData = [decreaseLiquidityCall, ...(toBurnPosition ? [collectFeeCall] : [])]
+    // const toBurnPosition: boolean = liquidityPercentage.equalTo(JSBI.BigInt(1))
+    const finalCallData = [decreaseLiquidityCall, collectFeeCall]
     setMintCallData(finalCallData)
   }, [
     positionManager,
