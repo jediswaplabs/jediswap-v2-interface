@@ -26,7 +26,7 @@ export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {
 
 export const POOL_CLASS_HASH = {
   [ChainId.MAINNET]: '0x28f45f8cb529a51c5beead847c659802b978801e5303201859175f6d9a5939e',
-  [ChainId.GOERLI]: '0x028f45f8cb529a51c5beead847c659802b978801e5303201859175f6d9a5939e',
+  [ChainId.GOERLI]: '0x0582c67cf10ea038360ca72b2a6a929f573a7994aeec2c0e02f9ffa24233c1af',
 }
 export const FACTORY_ADDRESS = {
   [ChainId.MAINNET]: '0x04ba0de31008f4e3edd42b3c31db8f49490505885d684b78f5aa1572850b3a5a',
