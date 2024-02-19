@@ -18,9 +18,10 @@ import { isSupportedChain } from 'constants/chains'
 import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
 import { FlattenedPositions, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
 import { useUserHideClosedPositions } from 'state/user/hooks'
-import { ThemedText } from 'theme/components'
+import { ThemedText, HideSmall } from 'theme/components'
 import { LoadingRows } from './styled'
 import fetchTokenIds from 'api/fetchTokenId'
+import CTACards from './CTACards'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -405,6 +406,9 @@ export default function Pool() {
               />
             )}
           </MainContentWrapper>
+          <HideSmall>
+            <CTACards />
+          </HideSmall>
           {/* {userSelectedPositionSet.length ? null : <CTACards />} */}
         </AutoColumn>
       </AutoColumn>
