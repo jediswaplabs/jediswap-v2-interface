@@ -103,7 +103,7 @@ export default function App() {
   const { pathname } = location
 
   const [scrollY, setScrollY] = useState(0)
-  const [showWarning, setShowWarning] = useState(false)
+  const [showWarning, setShowWarning] = useState(true)
   const scrolledState = scrollY > 0
   const routerConfig = useRouterConfig()
 
