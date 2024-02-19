@@ -6,7 +6,7 @@ import { PairState, useV2Pairs } from './useV2Pairs'
 import { BASES_TO_CHECK_TRADES_AGAINST } from 'constants/tokens'
 import flatMap from 'array.prototype.flatmap'
 
-function useAllCommonPairs(pairs: string[] | [], currencyA?: Currency, currencyB?: Currency): [Pair[], boolean] {
+function useAllCommonPairs(currencyA?: Currency, currencyB?: Currency): [Pair[], boolean] {
   const { chainId } = useAccountDetails()
 
   const bases: Token[] = useMemo(() => (chainId ? BASES_TO_CHECK_TRADES_AGAINST[chainId] : []), [chainId])
@@ -40,7 +40,7 @@ function useAllCommonPairs(pairs: string[] | [], currencyA?: Currency, currencyB
     [tokenA, tokenB, bases, basePairs]
   )
 
-  const allPairs = useV2Pairs(pairs, allPairCombinations)
+  const allPairs = useV2Pairs(allPairCombinations)
   const anyPairLoading = allPairs.some(([pairState]) => pairState === PairState.LOADING)
 
   // only pass along valid pairs, non-duplicated pairs
@@ -65,12 +65,8 @@ function useAllCommonPairs(pairs: string[] | [], currencyA?: Currency, currencyB
   ]
 }
 
-export function useTradeExactIn(
-  allPairs: string[] | [],
-  currencyAmountIn?: CurrencyAmount<Currency>,
-  currencyOut?: Currency
-): any {
-  const [allowedPairs, pairLoading] = useAllCommonPairs(allPairs, currencyAmountIn?.currency, currencyOut)
+export function useTradeExactIn(currencyAmountIn?: CurrencyAmount<Currency>, currencyOut?: Currency): any {
+  const [allowedPairs, pairLoading] = useAllCommonPairs(currencyAmountIn?.currency, currencyOut)
 
   return [
     useMemo(() => {
@@ -90,12 +86,8 @@ export function useTradeExactIn(
 /**
  * Returns the best trade for the token in to the exact amount of token out
  */
-export function useTradeExactOut(
-  allPairs: string[] | [],
-  currencyIn?: Currency,
-  currencyAmountOut?: CurrencyAmount<Currency>
-): any {
-  const [allowedPairs, pairLoading] = useAllCommonPairs(allPairs, currencyIn, currencyAmountOut?.currency)
+export function useTradeExactOut(currencyIn?: Currency, currencyAmountOut?: CurrencyAmount<Currency>): any {
+  const [allowedPairs, pairLoading] = useAllCommonPairs(currencyIn, currencyAmountOut?.currency)
 
   return [
     useMemo(() => {

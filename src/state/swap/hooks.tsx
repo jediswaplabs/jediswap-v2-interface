@@ -102,12 +102,7 @@ export type SwapInfo = {
 }
 
 // from the current swap inputs, compute the best trade and return it.
-export function useDerivedSwapInfo(
-  state: SwapState,
-  chainId: ChainId | undefined,
-  allPools: string[],
-  allPairs: string[]
-): SwapInfo {
+export function useDerivedSwapInfo(state: SwapState, chainId: ChainId | undefined, allPools: string[]): SwapInfo {
   const { address: account } = useAccountDetails()
   const {
     independentField,
@@ -154,17 +149,9 @@ export function useDerivedSwapInfo(
     !isExactIn ? parsedAmount : undefined
   )
 
-  const [bestV2TradeExactIn] = useTradeExactIn(
-    allPairs,
-    isExactIn ? parsedAmount : undefined,
-    outputCurrency ?? undefined
-  )
+  const [bestV2TradeExactIn] = useTradeExactIn(isExactIn ? parsedAmount : undefined, outputCurrency ?? undefined)
 
-  const [bestV2TradeExactOut] = useTradeExactOut(
-    allPairs,
-    inputCurrency ?? undefined,
-    !isExactIn ? parsedAmount : undefined
-  )
+  const [bestV2TradeExactOut] = useTradeExactOut(inputCurrency ?? undefined, !isExactIn ? parsedAmount : undefined)
 
   const bestTradeExactIn = useMemo(() => {
     if (bestV2TradeExactIn && bestV3TradeExactIn && bestV3TradeExactIn.trade) {

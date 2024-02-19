@@ -20,8 +20,10 @@ import QuestionHelper from '../../components/QuestionHelper'
 import { AutoRow } from '../../components/Row'
 import { Dots } from '../../components/swap/styled'
 import { useTokenBalancesWithLoadingIndicator } from '../../state/connection/hooks'
-import { toV2LiquidityToken, useTrackedTokenPairs } from '../../state/user/hooks'
+import { getLiquidityToken, toV2LiquidityToken, useTrackedTokenPairs } from '../../state/user/hooks'
 import { BodyWrapper } from '../AppBody'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { useAllPairs } from 'state/pairs/hooks'
 
 function EmptyState({ message }: { message: ReactNode }) {
   return (
@@ -51,72 +53,57 @@ function toSushiLiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
 }
 
 export default function MigrateV2() {
-  // const theme = useTheme()
-  // const { account, chainId } = useWeb3React()
+  const theme = useTheme()
+  const { account, address } = useAccountDetails()
 
-  // const v2FactoryAddress = chainId ? V2_FACTORY_ADDRESSES[chainId] : undefined
+  // fetch the user's balances of all tracked V2 LP tokens
+  const trackedTokenPairs = useTrackedTokenPairs()
 
-  // // fetch the user's balances of all tracked V2 LP tokens
-  // const trackedTokenPairs = useTrackedTokenPairs()
+  const tokenPairsWithLiquidityTokens = useMemo(
+    () => trackedTokenPairs.map((tokens) => ({ liquidityToken: getLiquidityToken(tokens), tokens })),
+    [trackedTokenPairs]
+  )
 
-  // // calculate v2 + sushi pair contract addresses for all token pairs
-  // const tokenPairsWithLiquidityTokens = useMemo(
-  //   () =>
-  //     trackedTokenPairs.map((tokens) => {
-  //       // sushi liquidity token or null
-  //       const sushiLiquidityToken = chainId === 1 ? toSushiLiquidityToken(tokens) : null
-  //       return {
-  //         v2liquidityToken: v2FactoryAddress ? toV2LiquidityToken(tokens) : undefined,
-  //         sushiLiquidityToken,
-  //         tokens,
-  //       }
-  //     }),
-  //   [trackedTokenPairs, chainId, v2FactoryAddress]
-  // )
+  const liquidityTokens = useMemo(
+    () => tokenPairsWithLiquidityTokens.map((tpwlt) => tpwlt.liquidityToken),
+    [tokenPairsWithLiquidityTokens]
+  )
 
-  // //  get pair liquidity token addresses for balance-fetching purposes
-  // const allLiquidityTokens = useMemo(() => {
-  //   const v2 = tokenPairsWithLiquidityTokens.map(({ v2liquidityToken }) => v2liquidityToken)
-  //   const sushi = tokenPairsWithLiquidityTokens
-  //     .map(({ sushiLiquidityToken }) => sushiLiquidityToken)
-  //     .filter((token): token is Token => !!token)
+  const allPairs = useAllPairs()
 
-  //   return [...v2, ...sushi]
-  // }, [tokenPairsWithLiquidityTokens])
+  const validatedLiquidityTokens = useMemo(
+    () => liquidityTokens.map((token) => (allPairs.includes(token.address) ? token : undefined)),
+    [allPairs, liquidityTokens]
+  )
 
-  // // fetch pair balances
-  // const [pairBalances, fetchingPairBalances] = useTokenBalancesWithLoadingIndicator(
-  //   account ?? undefined,
-  //   allLiquidityTokens
-  // )
+  const [pairsBalances, fetchingPairBalances] = useTokenBalancesWithLoadingIndicator(
+    address ?? undefined,
+    validatedLiquidityTokens
+  )
 
-  // // filter for v2 liquidity tokens that the user has a balance in
-  // const tokenPairsWithV2Balance = useMemo(() => {
-  //   if (fetchingPairBalances) return []
+  // fetch the reserves for all V2 pools in which the user has a balance
+  const liquidityTokensWithBalances = useMemo(
+    () =>
+      tokenPairsWithLiquidityTokens.filter(
+        ({ liquidityToken }) => liquidityToken && pairsBalances[liquidityToken.address]?.greaterThan('0')
+      ),
+    [tokenPairsWithLiquidityTokens, pairsBalances]
+  )
 
-  //   return tokenPairsWithLiquidityTokens
-  //     .filter(({ v2liquidityToken }) => v2liquidityToken && pairBalances[v2liquidityToken.address]?.greaterThan(0))
-  //     .map((tokenPairsWithLiquidityTokens) => tokenPairsWithLiquidityTokens.tokens)
-  // }, [fetchingPairBalances, tokenPairsWithLiquidityTokens, pairBalances])
+  const pairs = useV2Pairs(liquidityTokensWithBalances.map(({ tokens }) => tokens))
+  const pairIsLoading =
+    fetchingPairBalances ||
+    pairs?.length < liquidityTokensWithBalances.length ||
+    pairs?.some(([pairState]) => pairState === PairState.LOADING) ||
+    pairs?.some((pair) => !pair)
 
-  // // filter for v2 liquidity tokens that the user has a balance in
-  // const tokenPairsWithSushiBalance = useMemo(() => {
-  //   if (fetchingPairBalances) return []
-
-  //   return tokenPairsWithLiquidityTokens.filter(
-  //     ({ sushiLiquidityToken }) => !!sushiLiquidityToken && pairBalances[sushiLiquidityToken.address]?.greaterThan(0)
-  //   )
-  // }, [fetchingPairBalances, tokenPairsWithLiquidityTokens, pairBalances])
-
-  // const v2Pairs = useV2Pairs(tokenPairsWithV2Balance)
-  // const v2IsLoading = fetchingPairBalances || v2Pairs.some(([pairState]) => pairState === PairState.LOADING)
-
-  // const networkSupportsV2 = useNetworkSupportsV2()
-  // if (!networkSupportsV2) return <V2Unsupported />
+  const allPairsWithLiquidity = pairs
+    .map(([, pair]) => pair)
+    .filter((tokenPair): tokenPair is Pair => Boolean(tokenPair))
 
   return (
     <>
-      <BodyWrapper style={{ padding: 24 }}>
+      <BodyWrapper style={{ padding: 24, maxWidth: 600 }}>
         <AutoColumn gap="16px">
           <AutoRow style={{ alignItems: 'center', justifyContent: 'space-between' }} gap="8px">
             <BackArrowLink to="/pools" />
@@ -135,13 +122,13 @@ export default function MigrateV2() {
             </Trans>
           </ThemedText.DeprecatedBody>
 
-          {/*    {!account ? (
+          {!account ? (
             <LightCard padding="40px">
               <ThemedText.DeprecatedBody color={theme.neutral3} textAlign="center">
-                <Trans>Connect to a wallet to view your V2 liquidity.</Trans>
+                <Trans>Connect to a wallet to view your V1 liquidity.</Trans>
               </ThemedText.DeprecatedBody>
             </LightCard>
-          ) : v2IsLoading ? (
+          ) : pairIsLoading ? (
             <LightCard padding="40px">
               <ThemedText.DeprecatedBody color={theme.neutral3} textAlign="center">
                 <Dots>
@@ -149,28 +136,15 @@ export default function MigrateV2() {
                 </Dots>
               </ThemedText.DeprecatedBody>
             </LightCard>
-          ) : v2Pairs.filter(([, pair]) => !!pair).length > 0 ? (
+          ) : pairs.filter(([, pair]) => !!pair).length > 0 ? (
             <>
-              {v2Pairs
-                .filter(([, pair]) => !!pair)
-                .map(([, pair]) => (
-                  <MigrateV2PositionCard key={(pair as Pair).liquidityToken.address} pair={pair as Pair} />
-                ))}
-
-              {tokenPairsWithSushiBalance.map(({ sushiLiquidityToken, tokens }) => {
-                return (
-                  <MigrateSushiPositionCard
-                    key={(sushiLiquidityToken as Token).address}
-                    tokenA={tokens[0]}
-                    tokenB={tokens[1]}
-                    liquidityToken={sushiLiquidityToken as Token}
-                  />
-                )
-              })}
+              {allPairsWithLiquidity.map((v2Pair) => (
+                <MigrateV2PositionCard key={(v2Pair as Pair).liquidityToken.address} pair={v2Pair as Pair} />
+              ))}
             </>
           ) : (
-            <EmptyState message={<Trans>No V2 liquidity found.</Trans>} />
-          )} */}
+            <EmptyState message={<Trans>No V1 liquidity found.</Trans>} />
+          )}
         </AutoColumn>
       </BodyWrapper>
       <SwitchLocaleLink />

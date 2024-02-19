@@ -275,7 +275,6 @@ export default function TokenDetails({
               onCurrencyChange={handleCurrencyChange}
               disableTokenInputs={pageChainId !== connectedChainId}
               allPools={[]}
-              allPairs={[]}
             />
           </div>
           {tokenWarning && <TokenSafetyMessage tokenAddress={address} warning={tokenWarning} />}

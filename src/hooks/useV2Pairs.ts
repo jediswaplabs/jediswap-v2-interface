@@ -18,10 +18,7 @@ export enum PairState {
   INVALID,
 }
 
-export function useV2Pairs(
-  pairs: string[],
-  currencies: [Currency | undefined, Currency | undefined][]
-): [PairState, Pair | null][] {
+export function useV2Pairs(currencies: [Currency | undefined, Currency | undefined][]): [PairState, Pair | null][] {
   const tokens = useMemo(
     () => currencies.map(([currencyA, currencyB]) => [currencyA?.wrapped, currencyB?.wrapped]),
     [currencies]
@@ -70,5 +67,5 @@ export function useV2Pairs(
 
 export function useV2Pair(tokenA?: Currency, tokenB?: Currency): [PairState, Pair | null] {
   const inputs: [[Currency | undefined, Currency | undefined]] = useMemo(() => [[tokenA, tokenB]], [tokenA, tokenB])
-  return useV2Pairs([], inputs)[0]
+  return useV2Pairs(inputs)[0]
 }

@@ -77,6 +77,11 @@ export function useRouterPreference(): [RouterPreference, (routerPreference: Rou
   return [routerPreference, setRouterPreference]
 }
 
+export function getLiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
+  if (tokenA.equals(tokenB)) throw new Error('Tokens cannot be equal')
+  return new Token(tokenA.chainId, Pair.getAddress(tokenA, tokenB), 18, 'JEDI-P', 'JediSwap Pair')
+}
+
 export function toV2LiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
   if (tokenA.chainId !== tokenB.chainId) throw new Error('Not matching chain IDs')
   if (tokenA.equals(tokenB)) throw new Error('Tokens cannot be equal')

@@ -163,7 +163,6 @@ export default function SwapPage({ className }: { className?: string }) {
   const { chainId: connectedChainId } = useAccountDetails()
   const loadedUrlParams = useDefaultsFromURLSearch()
   const [allPools, setAllPools] = useState<any>([])
-  const [allPairs, setAllPairs] = useState<any>([])
   const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
 
   //fetch Token Ids
@@ -173,20 +172,11 @@ export default function SwapPage({ className }: { className?: string }) {
         try {
           setLoadingPositions(true)
           const pools = await fetchAllPools(connectedChainId)
-          const pairs = await fetchAllPairs(connectedChainId)
           if (pools && pools.data) {
             const allPoolsArray: number[] = pools.data.map((item: any) =>
               validateAndParseAddress(item.contract_address)
             )
             setAllPools(allPoolsArray)
-            setLoadingPositions(false)
-          }
-
-          if (pairs && pairs.data) {
-            const allPairsArray: number[] = pairs.data.map((item: any) =>
-              validateAndParseAddress(item.contract_address)
-            )
-            setAllPairs(allPairsArray)
             setLoadingPositions(false)
           }
         } catch (e) {
@@ -210,7 +200,6 @@ export default function SwapPage({ className }: { className?: string }) {
           initialInputCurrencyId={loadedUrlParams?.[Field.INPUT]?.currencyId}
           initialOutputCurrencyId={loadedUrlParams?.[Field.OUTPUT]?.currencyId}
           allPools={allPools}
-          allPairs={allPairs}
           // disableTokenInputs={supportedChainId === undefined}
         />
       )}
@@ -230,7 +219,6 @@ export function Swap({
   initialInputCurrencyId,
   initialOutputCurrencyId,
   allPools,
-  allPairs,
   chainId,
   onCurrencyChange,
   disableTokenInputs = false,
@@ -239,7 +227,6 @@ export function Swap({
   initialInputCurrencyId?: string | null
   initialOutputCurrencyId?: string | null
   allPools: [] | string[]
-  allPairs: [] | string[]
   chainId?: ChainId
   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
   disableTokenInputs?: boolean
@@ -340,7 +327,7 @@ export function Swap({
     }
   }, [connectedChainId, prefilledState, previousConnectedChainId, previousPrefilledState])
 
-  const swapInfo = useDerivedSwapInfo(state, chainId, allPools, allPairs)
+  const swapInfo = useDerivedSwapInfo(state, chainId, allPools)
   const {
     trade: { state: tradeState, trade, swapQuoteLatency },
     allowedSlippage,
