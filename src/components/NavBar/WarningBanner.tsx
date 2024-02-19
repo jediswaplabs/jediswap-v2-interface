@@ -53,7 +53,7 @@ const BannerTextWrapper = styled(ThemedText.BodySecondary)`
 `
 
 export const bannerText =
-  'Warning: Deposit and remove liquidity is currently paused in v2. No swap will route through v2 pools. So your funds are safe.'
+  'Warning: Deposit liquidity is currently paused in v2. No swap will route through v2 pools. We recommend you remove the liquidity from Jediswap v2.'
 
 export function WarningBanner() {
   return (
