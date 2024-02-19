@@ -74,6 +74,7 @@ import { useApprovalCall } from 'hooks/useApproveCall'
 import { useQuery } from 'react-query'
 import { jediSwapClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
+import { isAddressValidForStarknet } from 'utils/addresses'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -230,7 +231,9 @@ function AddLiquidity() {
           const tokensData = result.data.tokensData
           if (tokensData) {
             const [price0, price1] = [tokensData[0], tokensData[1]]
-            const isToken0InputAmount = position?.amount0.currency.address === price0.token.tokenAddress
+            const isToken0InputAmount =
+              isAddressValidForStarknet(position?.amount0.currency.address) ===
+              isAddressValidForStarknet(price0.token.tokenAddress)
             const price0_one_day = price0?.period?.one_day?.close
             const price1_one_day = price1?.period?.one_day?.close
             return {
@@ -250,17 +253,21 @@ function AddLiquidity() {
 
   const { token0usdPrice, token1usdPrice } = useMemo(() => {
     if (!separatedFiatValueofLiquidity.data) return { token0usdPrice: undefined, token1usdPrice: undefined }
+
+    const token0usdPrice = separatedFiatValueofLiquidity.data.token0usdPrice
+      ? Number(separatedFiatValueofLiquidity.data.token0usdPrice) * Number(position?.amount0.toSignificant())
+      : undefined
+    const token1usdPrice = separatedFiatValueofLiquidity.data.token1usdPrice
+      ? Number(separatedFiatValueofLiquidity.data.token1usdPrice) * Number(position?.amount1.toSignificant())
+      : undefined
+
+    const isLiquidityToken0PositionToken0 =
+      position?.amount0.currency.address === (parsedAmounts.CURRENCY_A?.currency as any).address
     return {
-      token0usdPrice: separatedFiatValueofLiquidity.data.token0usdPrice
-        ? Number(separatedFiatValueofLiquidity.data.token0usdPrice) * Number(position?.amount0.toSignificant())
-        : undefined,
-      token1usdPrice: separatedFiatValueofLiquidity.data.token1usdPrice
-        ? Number(separatedFiatValueofLiquidity.data.token1usdPrice) * Number(position?.amount1.toSignificant())
-        : undefined,
+      token0usdPrice: isLiquidityToken0PositionToken0 ? token0usdPrice : token1usdPrice,
+      token1usdPrice: isLiquidityToken0PositionToken0 ? token1usdPrice : token0usdPrice,
     }
   }, [separatedFiatValueofLiquidity])
-
-  console.log(token0usdPrice, token1usdPrice, 'token0usdPrice, token1usdPrice ')
 
   useEffect(() => {
     if (txData) console.log(txData, 'txData')
@@ -563,23 +570,6 @@ function AddLiquidity() {
         </ButtonError>
       </AutoColumn>
     )
-
-  const usdcValueCurrencyA = usdcValues[Field.CURRENCY_A]
-  const usdcValueCurrencyB = usdcValues[Field.CURRENCY_B]
-  const currencyAFiat = useMemo(
-    () => ({
-      data: usdcValueCurrencyA ? parseFloat(usdcValueCurrencyA.toSignificant()) : undefined,
-      isLoading: false,
-    }),
-    [usdcValueCurrencyA]
-  )
-  const currencyBFiat = useMemo(
-    () => ({
-      data: usdcValueCurrencyB ? parseFloat(usdcValueCurrencyB.toSignificant()) : undefined,
-      isLoading: false,
-    }),
-    [usdcValueCurrencyB]
-  )
 
   // const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
   // const ownsNFT =
@@ -884,7 +874,7 @@ function AddLiquidity() {
                       showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
                       currency={currencies[Field.CURRENCY_A] ?? null}
                       id="add-liquidity-input-tokena"
-                      fiatValue={token1usdPrice}
+                      fiatValue={token0usdPrice}
                       showCommonBases
                       locked={depositADisabled}
                     />
@@ -896,7 +886,7 @@ function AddLiquidity() {
                         onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
                       }}
                       showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
-                      fiatValue={token0usdPrice}
+                      fiatValue={token1usdPrice}
                       currency={currencies[Field.CURRENCY_B] ?? null}
                       id="add-liquidity-input-tokenb"
                       showCommonBases
