@@ -311,7 +311,7 @@ export default function CurrencyInputPanel({
                   </RowFixed>
                 )}
                 <LoadingOpacityContainer $loading={loading}>
-                  {fiatValue && <FiatValue fiatValue={fiatValue} />}
+                  {fiatValue === 0 ? 'N/A' : fiatValue && <FiatValue fiatValue={fiatValue} />}
                 </LoadingOpacityContainer>
               </RowBetween>
             </FiatRow>
