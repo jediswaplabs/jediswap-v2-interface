@@ -11,6 +11,7 @@ import { SlippageTolerance } from 'state/user/types';
 import { CautionTriangle, ThemedText } from 'theme/components';
 import { useFormatter } from 'utils/formatNumbers';
 import { Input, InputContainer } from '../Input';
+import TransactionDeadlineSettings from '../TransactionDeadlineSettings';
 
 enum SlippageError {
   InvalidInput = 'InvalidInput',
@@ -34,7 +35,7 @@ const CloseButton = styled.button`
   height: 20px;
 `;
 
-const PercentageInput = styled(Input)`
+export const PercentageInput = styled(Input)`
   font-size: 20px;
 `;
 
@@ -68,8 +69,7 @@ const SettingsInputButton = (props: { value: string, slippageInput: string, pars
   );
 };
 
-// % remove transparency
-const SettingsInputContainer = styled(InputContainer)`
+export const SettingsInputContainer = styled(InputContainer)`
   background: ${({ theme }) => theme.jediNavyBlue};
   border: 1px solid ${({ theme }) => theme.jediWhite};
   min-width: 83px;
@@ -93,7 +93,7 @@ function useFormatPercentInput() {
   return (slippage: Percent) => formatPercent(slippage).slice(0, -1); // remove % sign
 }
 
-export default function MaxSlippageSettings({ autoSlippage, closeMenu }: { autoSlippage: Percent, closeMenu: () => void}) {
+export default function MaxSlippageSettings({ autoSlippage, closeMenu }: { autoSlippage: Percent, closeMenu: () => void }) {
   const [userSlippageTolerance, setUserSlippageTolerance] = useUserSlippageTolerance();
   const { formatPercent } = useFormatter();
   const formatPercentInput = useFormatPercentInput();
@@ -184,9 +184,7 @@ export default function MaxSlippageSettings({ autoSlippage, closeMenu }: { autoS
         <Trans>Transaction deadline</Trans>
       </ThemedText.BodyPrimary>
       <SettingsRect gap="10px" padding="md" style={{ borderRadius: '12px' }}>
-        <SettingsInputContainer error={!!slippageError}>
-          <PercentageInput placeholder="3" />
-        </SettingsInputContainer>
+        <TransactionDeadlineSettings />
         <div style={{ flex: 1, fontSize: '14px' }}>minutes</div>
       </SettingsRect>
       {tooLow || tooHigh ? (

@@ -1,15 +1,13 @@
-import { Trans } from '@lingui/macro';
 import { Percent } from '@vnaysn/jediswap-sdk-core';
-import { useCallback, useMemo, useRef } from 'react';
-import { X } from 'react-feather';
+import { useCallback, useRef } from 'react';
 import styled from 'styled-components';
 
-import { useAccountDetails } from 'hooks/starknet-react';
 import { Scrim } from 'components/AccountDrawer';
 import AnimatedDropdown from 'components/AnimatedDropdown';
-import { Column, AutoColumn } from 'components/Column';
+import { AutoColumn, Column } from 'components/Column';
 import Row from 'components/Row';
-import { isSupportedChain, isUniswapXSupportedChain } from 'constants/chains';
+import { isSupportedChain } from 'constants/chains';
+import { useAccountDetails } from 'hooks/starknet-react';
 import useDisableScrolling from 'hooks/useDisableScrolling';
 import { useOnClickOutside } from 'hooks/useOnClickOutside';
 import { Portal } from 'nft/components/common/Portal';
@@ -18,12 +16,9 @@ import { useCloseModal, useModalIsOpen, useToggleSettingsMenu } from 'state/appl
 import { ApplicationModal } from 'state/application/reducer';
 import { InterfaceTrade } from 'state/routing/types';
 import { isUniswapXTrade } from 'state/routing/utils';
-import { Divider, ThemedText } from 'theme/components';
 import { Z_INDEX } from 'theme/zIndex';
 import MaxSlippageSettings from './MaxSlippageSettings';
 import MenuButton from './MenuButton';
-import RouterPreferenceSettings from './RouterPreferenceSettings';
-import TransactionDeadlineSettings from './TransactionDeadlineSettings';
 
 const CloseButton = styled.button`
   background: transparent;
