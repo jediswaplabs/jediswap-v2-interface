@@ -5011,7 +5011,7 @@
     immutable "^4.3.4"
     zod "^3.22.2"
 
-"@starknet-react/core@^2.3.0":
+"@starknet-react/core@^2.2.4":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-2.3.0.tgz#3fa9a664569cb7dd3f6da68ec6af00cb03fc73f1"
   integrity sha512-8g9d0Gs811gJnQJHVMxQoXYhv+y5/qug7NQ0lnJ51uytdBhr/Zz5wgeTHW4ZQ5Igljyvf+ks+yhp4P1iSvnSqA==

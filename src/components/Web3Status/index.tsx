@@ -18,7 +18,7 @@ import { flexRowNoWrap } from 'theme/styles'
 import { shortenAddress } from 'utils'
 import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
 import { RowBetween } from '../Row'
-import { useConnect, useDisconnect, useStarkName } from '@starknet-react/core'
+import { useConnect, useDisconnect, useStarkProfile } from '@starknet-react/core'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import StarknetIcon from 'assets/svg/starknet.svg'
 import { Connector, useStarknetkitConnectModal } from 'starknetkit'
@@ -145,7 +145,7 @@ function Web3StatusInner() {
       toggleAccountDrawer()
     }
   }, [toggleAccountDrawer, isConnected])
-  const { data: starkName } = useStarkName({ address })
+  const { data: starkName } = useStarkProfile({ address })
 
   if (address) {
     return (
@@ -159,7 +159,7 @@ function Web3StatusInner() {
         <Web3StatusConnected data-testid="web3-status-connected" onClick={handleWalletDropdownClick}>
           <StatusIcon account={address} connection={connector} size={40} />
           <AddressAndChevronContainer>
-            <Text>{starkName ?? shortenAddress(address)}</Text>
+            <Text>{starkName?.name ?? shortenAddress(address)}</Text>
           </AddressAndChevronContainer>
         </Web3StatusConnected>
       </NetworkContainer>

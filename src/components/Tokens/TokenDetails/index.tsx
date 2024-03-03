@@ -269,7 +269,6 @@ export default function TokenDetails({
         <RightPanel onClick={() => isBlockedToken && setOpenTokenSafetyModal(true)}>
           <div style={{ pointerEvents: isBlockedToken ? 'none' : 'auto' }}>
             <Swap
-              chainId={pageChainId}
               initialInputCurrencyId={inputTokenAddress}
               initialOutputCurrencyId={address === NATIVE_CHAIN_ID ? 'ETH' : address}
               onCurrencyChange={handleCurrencyChange}

@@ -12,7 +12,7 @@ import StatusIcon from '../Identicon/StatusIcon'
 import { useToggleAccountDrawer } from '.'
 import IconButton, { IconHoverText, IconWithConfirmTextButton } from './IconButton'
 import { portfolioFadeInAnimation } from './MiniPortfolio/PortfolioRow'
-import { useDisconnect, useStarkName } from '@starknet-react/core'
+import { useDisconnect, useStarkProfile } from '@starknet-react/core'
 import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS, STARKSCAN_PREFIXES } from 'constants/tokens'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
@@ -84,7 +84,7 @@ export default function AuthenticatedHeader({
   closeWalletDrawer: any
 }) {
   const { connector, address, chainId } = useAccountDetails()
-  const { data: starkName } = useStarkName({ address })
+  const { data: starkName } = useStarkProfile({ address })
   const { disconnect } = useDisconnect()
 
   // const connection = getConnection(connector)
@@ -111,15 +111,15 @@ export default function AuthenticatedHeader({
       <HeaderWrapper>
         <StatusWrapper>
           <StatusIcon account={account} connection={connector} size={40} />
-          {account && (
+          {address && (
             <AccountNamesWrapper>
               <ThemedText.SubHeader>
-                <CopyText toCopy={starkName ?? account}>{starkName ?? addressShort}</CopyText>
+                <CopyText toCopy={address}>{starkName?.name ?? addressShort}</CopyText>
               </ThemedText.SubHeader>
               {/* Displays smaller view of account if ENS name was rendered above */}
               {starkName && (
                 <ThemedText.BodySmall color="neutral2">
-                  <CopyText toCopy={account}>{shortenAddress(account)}</CopyText>
+                  <CopyText toCopy={address}>{starkName?.name ?? addressShort}</CopyText>
                 </ThemedText.BodySmall>
               )}
             </AccountNamesWrapper>

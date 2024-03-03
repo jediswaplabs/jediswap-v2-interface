@@ -33,9 +33,9 @@ export const useAvailableConnectors = () => {
       new InjectedConnector({ options: { id: 'braavos', name: 'Braavos' } }),
       new InjectedConnector({ options: { id: 'argentX', name: 'Argent X' } }),
       ...(hasOKX ? [new InjectedConnector({ options: { id: 'okxwallet', name: 'OKX' } })] : []),
-      // new WebWalletConnector({
-      //   url: isTestnet ? 'https://web.hydrogen.argent47.net' : 'https://web.argent.xyz/',
-      // }),
+      new WebWalletConnector({
+        url: isTestnet ? 'https://web.hydrogen.argent47.net' : 'https://web.argent.xyz/',
+      }),
       // new ArgentMobileConnector({
       //   dappName: 'Jediswap Interface',
       //   icons: ['https://app.starknet.id/visuals/StarknetIdLogo.svg'],
