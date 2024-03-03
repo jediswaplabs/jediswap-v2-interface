@@ -575,7 +575,7 @@ function PositionPageContent() {
     tokenId,
   } = positionDetails?.[0] || {}
 
-  const removed = !parseInt(liquidity?.toString())
+  const removed = liquidity?.eq(0)
 
   const metadata = useV3PositionTokenURI(parsedTokenId)
 

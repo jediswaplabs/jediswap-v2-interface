@@ -55,7 +55,7 @@ export default function RangeBadge({ removed, inRange }: { removed?: boolean; in
         <MouseoverTooltip text={<Trans>Your position has 0 liquidity, and is not earning fees.</Trans>}>
           <LabelText color={theme.neutral2}>
             <BadgeText>
-              <Trans>Inactive</Trans>
+              <Trans>Closed</Trans>
             </BadgeText>
             <Slash width={12} height={12} />
           </LabelText>
