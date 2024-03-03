@@ -4995,10 +4995,10 @@
   resolved "https://registry.yarnpkg.com/@starknet-react/chains/-/chains-0.1.0-next.0.tgz#c9e5e1c1788e4166292852287769a980306cfb91"
   integrity sha512-g5wxh8yoD1upym0onHFifODpw1Eb0TF+C3J/Kso+hopTIIq3goRw7uQ1i4dBlrIlx9uP8iNA/yKdED24uwvWJQ==
 
-"@starknet-react/chains@^0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@starknet-react/chains/-/chains-0.1.3.tgz#8e5d248f860b850b0b03e1059d6a4010d4801818"
-  integrity sha512-dSpLgDS02PmPzFVoW07EBVRbsX+h7MH7DYx2FF7vJv/J6eMGY7KtSupJW9R6ys0iADAxSg0UDcZr7syuy+b/Pg==
+"@starknet-react/chains@^0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@starknet-react/chains/-/chains-0.1.7.tgz#58503379e2ffabe33b4f6e0f2aef775e84745a4d"
+  integrity sha512-UNh97I1SvuJKaAhKOmpEk8JcWuZWMlPG/ba2HcvFYL9x/47BKndJ+Da9V+iJFtkHUjreVnajT1snsaz1XMG+UQ==
 
 "@starknet-react/core@2.0.0-next.0":
   version "2.0.0-next.0"
@@ -5011,12 +5011,12 @@
     immutable "^4.3.4"
     zod "^3.22.2"
 
-"@starknet-react/core@^2.1.5":
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-2.1.5.tgz#a6a68f5223bd42190f3235e9737a66f47f4b3c07"
-  integrity sha512-lHBZMVFkz7XzyCy24Ca7/b55AkJU+alTD5520lBEbqYYOUAALdKCVp8+rlwPYv5Z8pkJzqRLoB//X6mTsky6Lw==
+"@starknet-react/core@^2.3.0":
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/@starknet-react/core/-/core-2.3.0.tgz#3fa9a664569cb7dd3f6da68ec6af00cb03fc73f1"
+  integrity sha512-8g9d0Gs811gJnQJHVMxQoXYhv+y5/qug7NQ0lnJ51uytdBhr/Zz5wgeTHW4ZQ5Igljyvf+ks+yhp4P1iSvnSqA==
   dependencies:
-    "@starknet-react/chains" "^0.1.3"
+    "@starknet-react/chains" "^0.1.7"
     "@tanstack/react-query" "^5.0.1"
     eventemitter3 "^5.0.1"
     immutable "^4.3.4"
@@ -19910,10 +19910,10 @@ starknet@^5.24.3:
     pako "^2.0.4"
     url-join "^4.0.1"
 
-starknetkit@^1.0.22:
-  version "1.0.22"
-  resolved "https://registry.yarnpkg.com/starknetkit/-/starknetkit-1.0.22.tgz#0a582098aa7646d19f8f53e3a260ddc1d8f4d4ed"
-  integrity sha512-UnUKXKhmjpDIR2DvTyAuaoAftpL7/LNCJ/p1LL3eXtXQSxsOqI7i5zkiB//wW3EdM+lziA5ZPWbKYkMndq0yuA==
+starknetkit@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/starknetkit/-/starknetkit-1.1.4.tgz#d135a87c8adebe88971b5258e97b244d24fef2f8"
+  integrity sha512-KZ/OvhtGEJPyAXKS6Dht5DL6CtjUtGDfNuzaX1bsYawGgnftOOZ0DXD2SBOQ6ErYLKELbVv3RKBlHs6KonORcQ==
   dependencies:
     "@trpc/client" "^10.38.1"
     "@trpc/server" "^10.38.1"

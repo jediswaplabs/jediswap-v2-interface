@@ -76,7 +76,13 @@ const PortfolioDrawerContainer = styled(Column)`
   flex: 1;
 `
 
-export default function AuthenticatedHeader({ account }: { account: string }) {
+export default function AuthenticatedHeader({
+  account,
+  closeWalletDrawer,
+}: {
+  account: string
+  closeWalletDrawer: any
+}) {
   const { connector, address, chainId } = useAccountDetails()
   const { data: starkName } = useStarkName({ address })
   const { disconnect } = useDisconnect()
@@ -85,6 +91,7 @@ export default function AuthenticatedHeader({ account }: { account: string }) {
   const disconnectWallet = useCallback(() => {
     if (connector) {
       disconnect()
+      closeWalletDrawer()
     }
   }, [connector])
 
@@ -125,13 +132,11 @@ export default function AuthenticatedHeader({ account }: { account: string }) {
             onClick={handleStarkScanRedirect}
             Icon={Redirect}
           />
-          <IconWithConfirmTextButton
+          <IconButton
+            hideHorizontal={showDisconnectConfirm}
             data-testid="wallet-disconnect"
-            onConfirm={disconnectWallet}
-            onShowConfirm={setShowDisconnectConfirm}
+            onClick={disconnectWallet}
             Icon={Power}
-            text="Disconnect"
-            dismissOnHoverOut
           />
         </IconContainer>
       </HeaderWrapper>
