@@ -9,8 +9,6 @@ import { useAllPairs } from 'state/pairs/hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 import JediswapPairABI from 'constants/abis/Pair.json'
 
-const PAIR_INTERFACE = new Interface(IUniswapV2PairJSON.abi)
-
 export enum PairState {
   LOADING,
   NOT_EXISTS,

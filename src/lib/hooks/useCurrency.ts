@@ -140,7 +140,6 @@ export function useCurrencyFromMap(
   const nativeCurrency = useNativeCurrency(chainId)
   const isNative = Boolean(nativeCurrency && currencyId?.toUpperCase() === 'ETH')
   const shorthandMatchAddress = useMemo(() => {
-    const chain = DEFAULT_CHAIN_ID
     return undefined
   }, [chainId, currencyId])
 
