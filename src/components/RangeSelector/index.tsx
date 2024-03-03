@@ -46,16 +46,14 @@ export default function RangeSelector({
         // Calculate the percentage value
         const percentageValue = JSBI.divide(JSBI.multiply(JSBI.BigInt(parseInt(price)), percentage), base)
 
-        const leftPriceWithPercentage = JSBI.subtract(JSBI.BigInt(price), percentageValue)
-        const rightPriceWithPercentage = JSBI.add(JSBI.BigInt(price), percentageValue)
-
-        // Generate scaled random numbers directly
-        const scaledDecimalForLeftPrice = Math.random() * 0.0001
-        const scaledDecimalForRightPrice = Math.random() * 0.0001
+        const leftPriceWithPercentage = JSBI.subtract(JSBI.BigInt(parseInt(price)), percentageValue)
+        const rightPriceWithPercentage = JSBI.add(JSBI.BigInt(parseInt(price)), percentageValue)
 
         // Combine with the base number
-        const leftPriceWithScaledPercentage = Number(leftPriceWithPercentage) - scaledDecimalForLeftPrice
-        const rightPriceWithScaledPercentage = Number(rightPriceWithPercentage) + scaledDecimalForRightPrice
+        const leftPriceWithScaledPercentage =
+          Number(leftPriceWithPercentage) - Math.round(Math.random() * 10000) / 10000
+        const rightPriceWithScaledPercentage =
+          Number(rightPriceWithPercentage) + Math.round(Math.random() * 10000) / 10000
         return {
           leftPrice: leftPriceWithScaledPercentage.toString(),
           rightPrice: rightPriceWithScaledPercentage.toString(),
