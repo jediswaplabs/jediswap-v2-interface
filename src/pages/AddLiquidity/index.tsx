@@ -28,11 +28,11 @@ import {
 import { ThemedText } from 'theme/components'
 import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
 import { WrongChainError } from 'utils/errors'
-import { ButtonError, ButtonLight, ButtonPrimary, ButtonText } from '../../components/Button'
+import { ButtonError, ButtonLight, ButtonPrimary, ButtonRadioChecked, ButtonText } from '../../components/Button'
 import { BlueCard, LightCard, OutlineCard, YellowCard } from '../../components/Card'
 import { AutoColumn } from '../../components/Column'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
-import FeeSelector from '../../components/FeeSelector'
+import FeeSelector, { Select } from '../../components/FeeSelector'
 import HoverInlineText from '../../components/HoverInlineText'
 import LiquidityChartRangeInput from '../../components/LiquidityChartRangeInput'
 import { AddRemoveTabs } from '../../components/NavigationTabs'
@@ -90,6 +90,12 @@ export default function AddLiquidityWrapper() {
   }
 }
 
+export const SelectRangePercentage = styled(Select)`
+  justify-items: center;
+  max-width: 50%;
+  width: 100%;
+`
+
 function AddLiquidity() {
   const navigate = useNavigate()
   const {
@@ -108,6 +114,7 @@ function AddLiquidity() {
   const toggleWalletDrawer = useToggleAccountDrawer() // toggle wallet when disconnected
   const positionManager = useV3NFTPositionManagerContract()
   const parsedTokenId = tokenId ? parseInt(tokenId) : undefined
+  const rangePercentages: number[] = [5, 10, 20]
 
   // check for existing position if tokenId in url
   const { position: existingPositionDetails, loading: positionLoading } = useV3PosFromTokenId(parsedTokenId)
@@ -127,6 +134,7 @@ function AddLiquidity() {
   const { independentField, typedValue, startPriceTypedValue } = useV3MintState()
 
   const [showWarning, setShowWarning] = useState(true)
+  const [rangePercentage, setRangePercentage] = useState<number | null>(null)
   const [mintCallData, setMintCallData] = useState<Call[]>([])
 
   const {
@@ -160,7 +168,7 @@ function AddLiquidity() {
   const invalidPool = false
 
   const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
-    useV3MintActionHandlers(noLiquidity)
+    useV3MintActionHandlers(noLiquidity, setRangePercentage)
 
   const { writeAsync, data: txData } = useContractWrite({
     calls: mintCallData,
@@ -453,6 +461,7 @@ function AddLiquidity() {
 
   const handleFeePoolSelect = useCallback(
     (newFeeAmount: FeeAmount) => {
+      setRangePercentage(null)
       onLeftRangeInput('')
       onRightRangeInput('')
       navigate(`/add/${currencyIdA}/${currencyIdB}/${newFeeAmount}`)
@@ -474,6 +483,7 @@ function AddLiquidity() {
   const addIsUnsupported = useIsSwapUnsupported(currencies?.CURRENCY_A, currencies?.CURRENCY_B)
 
   const clearAll = useCallback(() => {
+    setRangePercentage(null)
     onFieldAInput('')
     onFieldBInput('')
     onLeftRangeInput('')
@@ -572,10 +582,26 @@ function AddLiquidity() {
       </AutoColumn>
     )
 
-  // const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
-  // const ownsNFT =
-  //   addressesAreEquivalent(owner, account) || addressesAreEquivalent(existingPositionDetails?.operator, account)
-  // const showOwnershipWarning = Boolean(hasExistingPosition && account && !ownsNFT)
+  const usdcValueCurrencyA = usdcValues[Field.CURRENCY_A]
+  const usdcValueCurrencyB = usdcValues[Field.CURRENCY_B]
+  const currencyAFiat = useMemo(
+    () => ({
+      data: usdcValueCurrencyA ? parseFloat(usdcValueCurrencyA.toSignificant()) : undefined,
+      isLoading: false,
+    }),
+    [usdcValueCurrencyA]
+  )
+  const currencyBFiat = useMemo(
+    () => ({
+      data: usdcValueCurrencyB ? parseFloat(usdcValueCurrencyB.toSignificant()) : undefined,
+      isLoading: false,
+    }),
+    [usdcValueCurrencyB]
+  )
+
+  const handleRange = (p: number) => {
+    setRangePercentage(p)
+  }
 
   return (
     <>
@@ -726,19 +752,11 @@ function AddLiquidity() {
                         </RowFixed>
                       )}
                     </RowBetween>
-                    {/* <LiquidityChartRangeInput
-                      currencyA={baseCurrency ?? undefined}
-                      currencyB={quoteCurrency ?? undefined}
-                      feeAmount={feeAmount}
-                      ticksAtLimit={ticksAtLimit}
-                      price={price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined}
-                      priceLower={priceLower}
-                      priceUpper={priceUpper}
-                      onLeftRangeInput={onLeftRangeInput}
-                      onRightRangeInput={onRightRangeInput}
-                      interactive={!hasExistingPosition}
-                    /> */}
                     <RangeSelector
+                      price={
+                        price ? (invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)) : undefined
+                      }
+                      rangePercentage={rangePercentage}
                       priceLower={priceLower}
                       priceUpper={priceUpper}
                       onLeftRangeInput={onLeftRangeInput}
@@ -799,6 +817,44 @@ function AddLiquidity() {
                             </Trans>
                           </AutoColumn>
                         )}
+                        <div style={{ display: 'block', margin: '0 auto' }}>
+                          <SelectRangePercentage>
+                            {rangePercentages.map((percentage) => (
+                              <ButtonRadioChecked
+                                active={rangePercentage === percentage}
+                                justifyContent="center"
+                                onClick={() => handleRange(percentage)}
+                                style={{
+                                  border: '1px solid #444',
+                                  borderRadius: '8px',
+                                  justifyContent: 'center',
+                                  width: 80,
+                                  height: 25,
+                                }}
+                              >
+                                <AutoColumn gap="sm" justify="flex-start">
+                                  {percentage}%
+                                </AutoColumn>
+                              </ButtonRadioChecked>
+                            ))}
+                          </SelectRangePercentage>
+                        </div>
+
+                        <LiquidityChartRangeInput
+                          rangePercentage={rangePercentage}
+                          currencyA={baseCurrency ?? undefined}
+                          currencyB={quoteCurrency ?? undefined}
+                          feeAmount={feeAmount}
+                          ticksAtLimit={ticksAtLimit}
+                          price={
+                            price ? parseFloat((invertPrice ? price.invert() : price).toSignificant(8)) : undefined
+                          }
+                          priceLower={priceLower}
+                          priceUpper={priceUpper}
+                          onLeftRangeInput={onLeftRangeInput}
+                          onRightRangeInput={onRightRangeInput}
+                          interactive={!hasExistingPosition}
+                        />
                       </>
                     ) : (
                       <AutoColumn gap="md">
