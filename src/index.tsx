@@ -29,8 +29,6 @@ import ThemeProvider, { ThemedGlobalStyle } from './theme'
 import TransactionUpdater from './state/transactions/updater'
 import RadialGradientByChainUpdater from './theme/components/RadialGradientByChainUpdater'
 
-import { goerli, mainnet, sepolia } from '@starknet-react/chains'
-import { StarknetConfig, publicProvider, argent, braavos } from '@starknet-react/core'
 import { StarknetProvider } from 'context/StarknetProvider'
 import { jediSwapClient } from 'apollo/client'
 

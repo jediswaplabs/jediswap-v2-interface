@@ -261,7 +261,7 @@ function AccountDrawer() {
       >
         {/* id used for child InfiniteScrolls to reference when it has reached the bottom of the component */}
         <AccountDrawerScrollWrapper ref={scrollRef} id="wallet-dropdown-scroll-wrapper">
-          <DefaultMenu drawerOpen={walletDrawerOpen} />
+          <DefaultMenu drawerOpen={walletDrawerOpen} closeWalletDrawer={toggleWalletDrawer} />
         </AccountDrawerScrollWrapper>
       </AccountDrawerWrapper>
     </Container>
