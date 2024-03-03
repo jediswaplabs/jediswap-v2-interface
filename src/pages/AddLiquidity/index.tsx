@@ -817,28 +817,30 @@ function AddLiquidity() {
                             </Trans>
                           </AutoColumn>
                         )}
-                        <div style={{ display: 'block', margin: '0 auto' }}>
-                          <SelectRangePercentage>
-                            {rangePercentages.map((percentage) => (
-                              <ButtonRadioChecked
-                                active={rangePercentage === percentage}
-                                justifyContent="center"
-                                onClick={() => handleRange(percentage)}
-                                style={{
-                                  border: '1px solid #444',
-                                  borderRadius: '8px',
-                                  justifyContent: 'center',
-                                  width: 80,
-                                  height: 25,
-                                }}
-                              >
-                                <AutoColumn gap="sm" justify="flex-start">
-                                  {percentage}%
-                                </AutoColumn>
-                              </ButtonRadioChecked>
-                            ))}
-                          </SelectRangePercentage>
-                        </div>
+                        {baseCurrency && quoteCurrency && feeAmount && (
+                          <div style={{ display: 'block', margin: '0 auto' }}>
+                            <SelectRangePercentage>
+                              {rangePercentages.map((percentage) => (
+                                <ButtonRadioChecked
+                                  active={rangePercentage === percentage}
+                                  justifyContent="center"
+                                  onClick={() => handleRange(percentage)}
+                                  style={{
+                                    border: '1px solid #444',
+                                    borderRadius: '8px',
+                                    justifyContent: 'center',
+                                    width: 80,
+                                    height: 25,
+                                  }}
+                                >
+                                  <AutoColumn gap="sm" justify="flex-start">
+                                    {percentage}%
+                                  </AutoColumn>
+                                </ButtonRadioChecked>
+                              ))}
+                            </SelectRangePercentage>
+                          </div>
+                        )}
 
                         <LiquidityChartRangeInput
                           rangePercentage={rangePercentage}
