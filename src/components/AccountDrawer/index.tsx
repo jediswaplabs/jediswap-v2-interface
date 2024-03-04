@@ -146,13 +146,16 @@ const AccountDrawerWrapper = styled.div<{ open: boolean }>`
 `
 
 const CloseIcon = styled(ChevronsRight).attrs({ size: 24 })`
-  stroke: ${({ theme }) => theme.neutral2};
+  stroke: ${({ theme }) => theme.jediWhite};
 `
 
 const CloseDrawer = styled.div`
   ${ClickableStyle}
   cursor: pointer;
   height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   // When the drawer is not hovered, the icon should be 18px from the edge of the sidebar.
   padding: 24px calc(18px + ${DRAWER_OFFSET}) 24px 14px;
   border-radius: 20px 0 0 20px;
