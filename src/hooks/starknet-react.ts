@@ -5,6 +5,8 @@ import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { WETH } from '@jediswap/sdk'
 import { useDefaultActiveTokens } from './Tokens'
 import formatBalance from 'utils/formatBalance'
+import { useAvailableConnectors } from 'context/StarknetProvider'
+import { useStarknetkitConnectModal } from 'starknetkit'
 // Define the type for the balances object
 declare enum StarknetChainId {
   SN_MAIN = '0x534e5f4d41494e',
@@ -54,6 +56,21 @@ export const useAccountDetails = (): {
   }, [status, provider, account])
 
   return { account, address, isConnected, chainId, connector }
+}
+
+export const useWalletConnect = () => {
+  const connectors = useAvailableConnectors()
+  const { connectAsync } = useConnect()
+  const { starknetkitConnectModal } = useStarknetkitConnectModal({
+    connectors,
+  })
+  return async () => {
+    const { connector } = await starknetkitConnectModal()
+    if (!connector) {
+      return
+    }
+    await connectAsync({ connector })
+  }
 }
 
 export const useConnectors = () => {

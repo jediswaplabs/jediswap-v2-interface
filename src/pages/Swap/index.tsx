@@ -2,7 +2,7 @@
 
 import { Trans } from '@lingui/macro'
 import { ChainId, Currency, CurrencyAmount, Percent, Token } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import { ReactNode, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { ArrowDown } from 'react-feather'
@@ -301,8 +301,10 @@ export function Swap({
 
   const theme = useTheme()
 
-  // toggle wallet when disconnected
-  const toggleWalletDrawer = useToggleAccountDrawer()
+  // // toggle wallet when disconnected
+  // const toggleWalletDrawer = useToggleAccountDrawer()
+
+  const toggleWalletModal = useWalletConnect()
 
   // swap state
   const prefilledState = useMemo(
@@ -917,7 +919,7 @@ export function Swap({
               <Trans>Unsupported asset</Trans>
             </ButtonPrimary>
           ) : connectionReady && !account ? (
-            <ButtonPrimary onClick={toggleWalletDrawer} size={ButtonSize.large}>
+            <ButtonPrimary onClick={toggleWalletModal} size={ButtonSize.large}>
               <Trans>Connect wallet</Trans>
             </ButtonPrimary>
           ) : isFetchingOutput ? (

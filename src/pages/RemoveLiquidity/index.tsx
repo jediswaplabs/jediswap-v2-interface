@@ -4,7 +4,7 @@ import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
 import { Currency, Percent } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import { useCallback, useMemo, useState } from 'react'
 import { ArrowDown, Plus } from 'react-feather'
 import { useNavigate, useParams } from 'react-router-dom'
@@ -47,7 +47,9 @@ import { calculateSlippageAmount } from '../../utils/calculateSlippageAmount'
 import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { ClickableText, MaxButton, Wrapper } from '../Pool/styled'
-import { useProvider } from '@starknet-react/core'
+import { useConnect, useProvider } from '@starknet-react/core'
+import { useAvailableConnectors } from 'context/StarknetProvider'
+import { useStarknetkitConnectModal } from 'starknetkit'
 
 const DEFAULT_REMOVE_LIQUIDITY_SLIPPAGE_TOLERANCE = new Percent(5, 100)
 
@@ -73,7 +75,7 @@ function RemoveLiquidity() {
   const trace = useTrace()
 
   // toggle wallet when disconnected
-  const toggleWalletDrawer = useToggleAccountDrawer()
+  const toggleWalletModal = useWalletConnect()
 
   // burn state
   const { independentField, typedValue } = useBurnState()
@@ -659,7 +661,7 @@ function RemoveLiquidity() {
                   properties={{ received_swap_quote: false }}
                   element={InterfaceElementName.CONNECT_WALLET_BUTTON}
                 >
-                  <ButtonLight onClick={toggleWalletDrawer}>
+                  <ButtonLight onClick={toggleWalletModal}>
                     <Trans>Connect wallet</Trans>
                   </ButtonLight>
                 </TraceEvent>

@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfacePageName } from '@uniswap/analytics-events'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, BookOpen, ChevronDown, ChevronsRight, Inbox, Layers } from 'react-feather'
 import { Link } from 'react-router-dom'
@@ -21,6 +21,9 @@ import { useUserHideClosedPositions } from 'state/user/hooks'
 import { ThemedText } from 'theme/components'
 import { LoadingRows } from './styled'
 import fetchTokenIds from 'api/fetchTokenId'
+import { useStarknetkitConnectModal } from 'starknetkit'
+import { useAvailableConnectors } from 'context/StarknetProvider'
+import { useConnect } from '@starknet-react/core'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -294,7 +297,7 @@ function WrongNetworkCard() {
 
 function PositionDetails(props: any) {
   const { address } = useAccountDetails()
-  const { tokenIds, showConnectAWallet, toggleWalletDrawer } = props
+  const { tokenIds, showConnectAWallet } = props
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
   const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds, address)
   const theme = useTheme()
@@ -310,6 +313,8 @@ function PositionDetails(props: any) {
     () => [...openPositions, ...(userHideClosedPositions ? [] : closedPositions)],
     [closedPositions, openPositions, userHideClosedPositions]
   )
+
+  const toggleWalletModal = useWalletConnect()
 
   return (
     <>
@@ -341,7 +346,7 @@ function PositionDetails(props: any) {
             {showConnectAWallet && (
               <ButtonPrimary
                 style={{ marginTop: '2em', marginBottom: '2em', padding: '8px 16px', width: 'fit-content' }}
-                onClick={toggleWalletDrawer}
+                onClick={toggleWalletModal}
               >
                 <Trans>Connect wallet</Trans>
               </ButtonPrimary>

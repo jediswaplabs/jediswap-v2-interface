@@ -36,10 +36,10 @@ export const useAvailableConnectors = () => {
       new WebWalletConnector({
         url: isTestnet ? 'https://web.hydrogen.argent47.net' : 'https://web.argent.xyz/',
       }),
-      // new ArgentMobileConnector({
-      //   dappName: 'Jediswap Interface',
-      //   icons: ['https://app.starknet.id/visuals/StarknetIdLogo.svg'],
-      // }),
+      new ArgentMobileConnector({
+        dappName: 'Jediswap Interface',
+        icons: ['https://app.starknet.id/visuals/StarknetIdLogo.svg'],
+      }),
     ],
     [hasOKX]
   )
