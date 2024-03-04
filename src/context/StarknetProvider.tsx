@@ -37,8 +37,10 @@ export const useAvailableConnectors = () => {
         url: isTestnet ? 'https://web.hydrogen.argent47.net' : 'https://web.argent.xyz/',
       }),
       new ArgentMobileConnector({
+        projectId: '4b1e5f71ad6f3397afaf5cf19d816ca2',
         dappName: 'Jediswap Interface',
-        icons: ['https://app.starknet.id/visuals/StarknetIdLogo.svg'],
+        chainId: 'SN_MAIN',
+        icons: ['https://app.jediswap.xyz/favicon/apple-touch-icon.png'],
       }),
     ],
     [hasOKX]
