@@ -65,8 +65,8 @@ import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { Dots } from '../Pool/styled'
 import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
-import { useAccountDetails } from 'hooks/starknet-react'
-import { useContractWrite, useProvider } from '@starknet-react/core'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
+import { useConnect, useContractWrite, useProvider } from '@starknet-react/core'
 import { BigNumberish, cairo, Call, CallData, hash, num } from 'starknet'
 import JSBI from 'jsbi'
 import { toI32 } from 'utils/toI32'
@@ -561,9 +561,11 @@ function AddLiquidity() {
   }, [searchParams])
   // END: sync values with query string
 
+  const toggleWalletModal = useWalletConnect()
+
   const Buttons = () =>
     !account ? (
-      <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
+      <ButtonLight onClick={toggleWalletModal} $borderRadius="12px" padding="12px">
         <Trans>Connect wallet</Trans>
       </ButtonLight>
     ) : (
