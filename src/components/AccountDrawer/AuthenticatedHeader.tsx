@@ -12,7 +12,7 @@ import StatusIcon from '../Identicon/StatusIcon'
 import { useToggleAccountDrawer } from '.'
 import IconButton, { IconHoverText, IconWithConfirmTextButton } from './IconButton'
 import { portfolioFadeInAnimation } from './MiniPortfolio/PortfolioRow'
-import { useDisconnect, useStarkName } from '@starknet-react/core'
+import { useDisconnect, useStarkProfile } from '@starknet-react/core'
 import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS, STARKSCAN_PREFIXES } from 'constants/tokens'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
@@ -76,15 +76,22 @@ const PortfolioDrawerContainer = styled(Column)`
   flex: 1;
 `
 
-export default function AuthenticatedHeader({ account }: { account: string }) {
+export default function AuthenticatedHeader({
+  account,
+  closeWalletDrawer,
+}: {
+  account: string
+  closeWalletDrawer: any
+}) {
   const { connector, address, chainId } = useAccountDetails()
-  const { data: starkName } = useStarkName({ address })
+  const { data: starkName } = useStarkProfile({ address })
   const { disconnect } = useDisconnect()
 
   // const connection = getConnection(connector)
   const disconnectWallet = useCallback(() => {
     if (connector) {
       disconnect()
+      closeWalletDrawer()
     }
   }, [connector])
 
@@ -104,15 +111,15 @@ export default function AuthenticatedHeader({ account }: { account: string }) {
       <HeaderWrapper>
         <StatusWrapper>
           <StatusIcon account={account} connection={connector} size={40} />
-          {account && (
+          {address && (
             <AccountNamesWrapper>
               <ThemedText.SubHeader>
-                <CopyText toCopy={starkName ?? account}>{starkName ?? addressShort}</CopyText>
+                <CopyText toCopy={address}>{starkName?.name ?? addressShort}</CopyText>
               </ThemedText.SubHeader>
               {/* Displays smaller view of account if ENS name was rendered above */}
               {starkName && (
                 <ThemedText.BodySmall color="neutral2">
-                  <CopyText toCopy={account}>{shortenAddress(account)}</CopyText>
+                  <CopyText toCopy={address}>{starkName?.name ?? addressShort}</CopyText>
                 </ThemedText.BodySmall>
               )}
             </AccountNamesWrapper>
@@ -125,13 +132,11 @@ export default function AuthenticatedHeader({ account }: { account: string }) {
             onClick={handleStarkScanRedirect}
             Icon={Redirect}
           />
-          <IconWithConfirmTextButton
+          <IconButton
+            hideHorizontal={showDisconnectConfirm}
             data-testid="wallet-disconnect"
-            onConfirm={disconnectWallet}
-            onShowConfirm={setShowDisconnectConfirm}
+            onClick={disconnectWallet}
             Icon={Power}
-            text="Disconnect"
-            dismissOnHoverOut
           />
         </IconContainer>
       </HeaderWrapper>

@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { useAccountDetails } from 'hooks/starknet-react'
-import { useCallback, useEffect, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import styled from 'styled-components'
 
 import PortfolioDrawer, { useAccountDrawer } from 'components/AccountDrawer'
@@ -10,7 +10,6 @@ import StatusIcon, { IconWrapper } from 'components/Identicon/StatusIcon'
 import PrefetchBalancesWrapper from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
 import { getConnection } from 'connection'
 import { useConnectionReady } from 'connection/eagerlyConnect'
-import { ConnectionMeta, getPersistedConnectionMeta, setPersistedConnectionMeta } from 'connection/meta'
 import useENSName from 'hooks/useENSName'
 import useLast from 'hooks/useLast'
 import { Portal } from 'nft/components/common/Portal'
@@ -19,9 +18,11 @@ import { flexRowNoWrap } from 'theme/styles'
 import { shortenAddress } from 'utils'
 import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
 import { RowBetween } from '../Row'
-import { useStarkName } from '@starknet-react/core'
+import { useConnect, useDisconnect, useStarkProfile } from '@starknet-react/core'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import StarknetIcon from 'assets/svg/starknet.svg'
+import { Connector, useStarknetkitConnectModal } from 'starknetkit'
+import { useAvailableConnectors } from 'context/StarknetProvider'
 
 const FULL_BORDER_RADIUS = 9999
 
@@ -113,11 +114,38 @@ const StyledConnectButton = styled.button`
 
 function Web3StatusInner() {
   const [, toggleAccountDrawer] = useAccountDrawer()
-  const handleWalletDropdownClick = useCallback(() => {
-    toggleAccountDrawer()
-  }, [toggleAccountDrawer])
+  const [isConnected, setIsConnected] = useState<boolean>(false)
+  const [isWrongNetwork, setIsWrongNetwork] = useState(false)
+  const [showWallet, setShowWallet] = useState<boolean>(false)
   const { address, connector, chainId } = useAccountDetails()
-  const { data: starkName } = useStarkName({ address })
+  const { connectAsync } = useConnect()
+  const { disconnect } = useDisconnect()
+
+  useEffect(() => {
+    address ? setIsConnected(true) : setIsConnected(false)
+  }, [address])
+
+  const connectors = useAvailableConnectors()
+  const { starknetkitConnectModal } = useStarknetkitConnectModal({
+    connectors,
+  })
+  const connectWallet = async () => {
+    const { connector } = await starknetkitConnectModal()
+    if (!connector) {
+      return
+    }
+    await connectAsync({ connector })
+  }
+
+  const handleWalletDropdownClick = useCallback(() => {
+    // toggleAccountDrawer()
+    if (!isConnected) {
+      connectWallet()
+    } else {
+      toggleAccountDrawer()
+    }
+  }, [toggleAccountDrawer, isConnected])
+  const { data: starkName } = useStarkProfile({ address })
 
   if (address) {
     return (
@@ -131,7 +159,7 @@ function Web3StatusInner() {
         <Web3StatusConnected data-testid="web3-status-connected" onClick={handleWalletDropdownClick}>
           <StatusIcon account={address} connection={connector} size={40} />
           <AddressAndChevronContainer>
-            <Text>{starkName ?? shortenAddress(address)}</Text>
+            <Text>{starkName?.name ?? shortenAddress(address)}</Text>
           </AddressAndChevronContainer>
         </Web3StatusConnected>
       </NetworkContainer>
