@@ -3,12 +3,27 @@ import { deletePersistedConnectionMeta, getPersistedConnectionMeta } from 'conne
 
 import { ConnectionType } from '../../connection/types'
 import { SupportedLocale } from '../../constants/locales'
-import { DEFAULT_DEADLINE_FROM_NOW } from '../../constants/misc'
+import { DEFAULT_DEADLINE_FROM_NOW, MAX_DEADLINE_TIME_IN_SECONDS, MIN_DEADLINE_TIME_IN_SECONDS } from '../../constants/misc'
 import { RouterPreference } from '../../state/routing/types'
 import { SerializedPair, SerializedToken, SlippageTolerance } from './types'
 
 const selectedWallet = getPersistedConnectionMeta()?.type
 const currentTimestamp = () => new Date().getTime()
+
+const userDeadlineLocalStorageKey = 'user-deadline';
+const getInitialUserDeadline = () => {
+  let result = DEFAULT_DEADLINE_FROM_NOW;
+  const storedUserDeadline = localStorage.getItem(userDeadlineLocalStorageKey)
+  if (!storedUserDeadline) { return result}
+  try {
+    const parsedUserDeadline = Number.parseInt(storedUserDeadline)
+    if (parsedUserDeadline >= MIN_DEADLINE_TIME_IN_SECONDS && parsedUserDeadline <= MAX_DEADLINE_TIME_IN_SECONDS) {
+      result = parsedUserDeadline;
+    }
+  }
+  catch (error) {}
+  return result;
+}
 
 export interface UserState {
   selectedWallet?: ConnectionType
@@ -69,7 +84,7 @@ export const initialState: UserState = {
   userHideClosedPositions: false,
   userSlippageTolerance: SlippageTolerance.Auto,
   userSlippageToleranceHasBeenMigratedToAuto: true,
-  userDeadline: DEFAULT_DEADLINE_FROM_NOW,
+  userDeadline: getInitialUserDeadline(),
   tokens: {},
   pairs: {},
   timestamp: currentTimestamp(),
@@ -100,7 +115,8 @@ const userSlice = createSlice({
     },
     updateUserDeadline(state, action) {
       state.userDeadline = action.payload.userDeadline
-      state.timestamp = currentTimestamp()
+      state.timestamp = currentTimestamp();
+      localStorage.setItem(userDeadlineLocalStorageKey, action.payload.userDeadline);
     },
     updateUserRouterPreference(state, action) {
       state.userRouterPreference = action.payload.userRouterPreference
