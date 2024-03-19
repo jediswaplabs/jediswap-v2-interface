@@ -12,25 +12,9 @@ import { DEFAULT_CHAIN_ID } from 'constants/tokens'
 export default function useTransactionDeadline(): BigNumber | undefined {
   const { chainId } = useAccountDetails()
   const ttl = useAppSelector((state) => state.user.userDeadline)
-  const blockTimestamp = useCurrentBlockTimestamp()
+  const currentTimestamp = BigNumber.from(Math.round(Number(new Date()) / 1000).toString())
   return useMemo(() => {
-    if (blockTimestamp && ttl) return BigNumber.from(blockTimestamp).add(ttl)
+    if (currentTimestamp && ttl) return BigNumber.from(currentTimestamp).add(ttl)
     return undefined
-  }, [blockTimestamp, chainId, ttl])
-}
-
-const useCurrentBlockTimestamp = () => {
-  const { chainId } = useAccountDetails()
-  const { data: blockTimeStamp } = useContractRead({
-    functionName: 'get_current_block_timestamp',
-    args: [],
-    abi: MultiContractABI,
-    address: MULTICALL_NETWORKS[chainId ?? DEFAULT_CHAIN_ID],
-    watch: true,
-  })
-
-  if (!blockTimeStamp) return undefined
-  const { block_timestamp } = blockTimeStamp as any
-
-  return BigNumber.from(block_timestamp.toString())
+  }, [currentTimestamp, chainId, ttl])
 }
