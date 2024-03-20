@@ -7,8 +7,7 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 // TODO(WEB-1984): Convert the deadline to minutes and remove unecessary conversions from
 // seconds to minutes in the codebase.
 // 60 minutes, denominated in seconds
-export const DEFAULT_DEADLINE_FROM_NOW = 60 * 60
-export const L2_DEADLINE_FROM_NOW = 60 * 5
+export const DEFAULT_DEADLINE_FROM_NOW = 5 * 60
 
 // transaction popup dismissal amounts
 export const DEFAULT_TXN_DISMISS_MS = 10000
