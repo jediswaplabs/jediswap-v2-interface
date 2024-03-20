@@ -573,187 +573,163 @@ export function Swap({
   const approveCallback = useApprovalCall(amountToApprove, spender)
 
   const handleSwap = useCallback(() => {
-    if (!trade || !address || !deadline) return
+    if (!trade || !address || !deadline || !approveCallback) return
+
     const handleApproval = approveCallback()
     if (!handleApproval) return
-    const isTradeTypeV2 = (trade as any).swaps
+
+    const isTradeTypeV2 = 'swaps' in trade
     const { inputAmount, outputAmount } = trade
     const route = (trade as any).route
-    const callData = []
-    callData.push(handleApproval)
+    const callData = [handleApproval]
     const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
-    if (isTradeTypeV2) {
-      const isRouteSingleHop = route.pools.length === 1
-      if (trade.tradeType === TradeType.EXACT_INPUT) {
-        if (isRouteSingleHop) {
-          const exactInputSingleParams = {
-            token_in: route.tokenPath[0].address,
-            token_out: route.tokenPath[1].address,
-            fee: route.pools[0].fee,
-            recipient: address,
-            deadline: cairo.felt(deadline.toString()),
-            amount_in: cairo.uint256(inputAmount.raw.toString()),
-            amount_out_minimum: cairo.uint256(amountOut),
-            sqrt_price_limit_X96: cairo.uint256(0),
-          }
-          const compiledSwapCalls = CallData.compile(exactInputSingleParams)
 
-          const calls = {
-            contractAddress: swapRouterAddressV2,
-            entrypoint: 'exact_input_single',
-            calldata: compiledSwapCalls,
-          }
-          callData.push(calls)
-        } else {
-          const firstInputToken: Token = route.input.wrapped
-          //create path
-          const { path } = route.pools.reduce(
-            (
-              { inputToken, path, types }: { inputToken: Token; path: (string | number)[]; types: string[] },
-              pool: Pool,
-              index: number
-            ): { inputToken: Token; path: (string | number)[]; types: string[] } => {
-              const outputToken: Token = pool.token0.equals(inputToken) ? pool.token1 : pool.token0
-              if (index === 0) {
-                return {
-                  inputToken: outputToken,
-                  types: ['address', 'address', 'uint24'],
-                  path: [inputToken.address, outputToken.address, pool.fee],
-                }
-              } else {
-                return {
-                  inputToken: outputToken,
-                  types: [...types, 'address', 'address', 'uint24'],
-                  path: [...path, inputToken.address, outputToken.address, pool.fee],
-                }
-              }
-            },
-            { inputToken: firstInputToken, path: [], types: [] }
-          )
+    const addSwapCall = (params: any, isV2: boolean, singleHop: boolean, exactInput: boolean) => {
+      const contractAddress = isV2 ? swapRouterAddressV2 : swapRouterAddressV1
+      const entrypoint = getEntrypoint(isV2, singleHop, exactInput)
+      const compiledSwapCalls = CallData.compile(params)
+      callData.push({ contractAddress, entrypoint, calldata: compiledSwapCalls })
+    }
 
-          const exactInputParams = {
-            path,
-            recipient: address,
-            deadline: cairo.felt(deadline.toString()),
-            amount_in: cairo.uint256(inputAmount.raw.toString()),
-            amount_out_minimum: cairo.uint256(amountOut),
-          }
-          const compiledSwapCalls = CallData.compile(exactInputParams)
+    const getEntrypoint = (isV2: boolean, singleHop: boolean, exactInput: boolean) => {
+      if (!isV2) return exactInput ? 'swap_exact_tokens_for_tokens' : 'swap_tokens_for_exact_tokens'
+      if (singleHop) return exactInput ? 'exact_input_single' : 'exact_output_single'
+      return exactInput ? 'exact_input' : 'exact_output'
+    }
 
-          const calls = {
-            contractAddress: swapRouterAddressV2,
-            entrypoint: 'exact_input',
-            calldata: compiledSwapCalls,
-          }
-          callData.push(calls)
-        }
+    const constructParams = (isV2: boolean, singleHop: boolean, exactInput: boolean) => {
+      if (!route) return
+
+      if (isV2) {
+        const params = exactInput ? constructExactInputParams(singleHop) : constructExactOutputParams(singleHop)
+        addSwapCall(params, isV2, singleHop, exactInput)
       } else {
-        if (isRouteSingleHop) {
-          const exactOutputSingleParams = {
-            token_in: route.tokenPath[0].address,
-            token_out: route.tokenPath[1].address,
-            fee: route.pools[0].fee,
-            recipient: address,
-            deadline: cairo.felt(deadline.toString()),
-            amount_out: cairo.uint256(outputAmount.raw.toString()),
-            amount_in_maximum: cairo.uint256(amountIn),
-            sqrt_price_limit_X96: cairo.uint256(0),
-          }
-
-          const compiledSwapCalls = CallData.compile(exactOutputSingleParams)
-
-          const calls = {
-            contractAddress: swapRouterAddressV2,
-            entrypoint: 'exact_output_single',
-            calldata: compiledSwapCalls,
-          }
-          callData.push(calls)
-        } else {
-          const firstInputToken: Token = route.input.wrapped
-          //create path
-          const { path } = route.pools.reduce(
-            (
-              { inputToken, path, types }: { inputToken: Token; path: (string | number)[]; types: string[] },
-              pool: Pool,
-              index: number
-            ): { inputToken: Token; path: (string | number)[]; types: string[] } => {
-              const outputToken: Token = pool.token0.equals(inputToken) ? pool.token1 : pool.token0
-              if (index === 0) {
-                return {
-                  inputToken: outputToken,
-                  types: ['uint24', 'address', 'address'],
-                  path: [pool.fee, inputToken.address, outputToken.address],
-                }
-              } else {
-                return {
-                  inputToken: outputToken,
-                  types: [...types, 'uint24', 'address', 'address'],
-                  path: [...path, pool.fee, inputToken.address, outputToken.address],
-                }
-              }
-            },
-            { inputToken: firstInputToken, path: [], types: [] }
-          )
-
-          const reversePath = path.reverse()
-
-          const exactOutputParams = {
-            path: reversePath,
-            recipient: address,
-            deadline: cairo.felt(deadline.toString()),
-            amount_out: cairo.uint256(outputAmount.raw.toString()),
-            amount_in_maximum: cairo.uint256(amountIn),
-          }
-
-          const compiledSwapCalls = CallData.compile(exactOutputParams)
-
-          const calls = {
-            contractAddress: swapRouterAddressV2,
-            entrypoint: 'exact_output',
-            calldata: compiledSwapCalls,
-          }
-          callData.push(calls)
-        }
-      }
-    } else {
-      const path: string[] = route.path.map((token: any) => token.address)
-      if (trade.tradeType === TradeType.EXACT_INPUT) {
-        const swapArgs = {
-          amountIn: cairo.uint256(inputAmount.raw.toString()),
-          amountOutMin: cairo.uint256(amountOut),
-          path,
-          to: address,
-          deadline: cairo.felt(deadline.toString()),
-        }
-        const compiledSwapCalls = CallData.compile(swapArgs)
-
-        const calls = {
-          contractAddress: swapRouterAddressV1,
-          entrypoint: 'swap_exact_tokens_for_tokens',
-          calldata: compiledSwapCalls,
-        }
-
-        callData.push(calls)
-      } else {
-        const swapArgs = {
-          amountOut: cairo.uint256(outputAmount.raw.toString()),
-          amountInMax: cairo.uint256(amountIn),
-          path,
-          to: address,
-          deadline: cairo.felt(deadline.toString()),
-        }
-
-        const compiledSwapCalls = CallData.compile(swapArgs)
-
-        const calls = {
-          contractAddress: swapRouterAddressV1,
-          entrypoint: 'swap_tokens_for_exact_tokens',
-          calldata: compiledSwapCalls,
-        }
-        callData.push(calls)
+        const path = route.path.map((token: Token) => token.address)
+        const swapArgs = exactInput
+          ? {
+              amountIn: cairo.uint256(trade.maximumAmountIn(allowedSlippage).raw.toString()),
+              amountOutMin: cairo.uint256(trade.minimumAmountOut(allowedSlippage).raw.toString()),
+              path,
+              to: address,
+              deadline: cairo.felt(deadline.toString()),
+            }
+          : {
+              amountOut: cairo.uint256(trade.outputAmount.raw.toString()),
+              amountInMax: cairo.uint256(trade.maximumAmountIn(allowedSlippage).raw.toString()),
+              path,
+              to: address,
+              deadline: cairo.felt(deadline.toString()),
+            }
+        addSwapCall(swapArgs, isV2, false, exactInput)
       }
     }
+
+    const constructExactInputParams = (singleHop: boolean) => {
+      if (singleHop) {
+        return {
+          token_in: route.tokenPath[0].address,
+          token_out: route.tokenPath[1].address,
+          fee: route.pools[0].fee,
+          recipient: address,
+          deadline: cairo.felt(deadline.toString()),
+          amount_in: cairo.uint256(inputAmount.raw.toString()),
+          amount_out_minimum: cairo.uint256(amountOut),
+          sqrt_price_limit_X96: cairo.uint256(0),
+        }
+      } else {
+        const firstInputToken: Token = route.input.wrapped
+        //create path
+        const { path } = route.pools.reduce(
+          (
+            { inputToken, path, types }: { inputToken: Token; path: (string | number)[]; types: string[] },
+            pool: Pool,
+            index: number
+          ): { inputToken: Token; path: (string | number)[]; types: string[] } => {
+            const outputToken: Token = pool.token0.equals(inputToken) ? pool.token1 : pool.token0
+            if (index === 0) {
+              return {
+                inputToken: outputToken,
+                types: ['address', 'address', 'uint24'],
+                path: [inputToken.address, outputToken.address, pool.fee],
+              }
+            } else {
+              return {
+                inputToken: outputToken,
+                types: [...types, 'address', 'address', 'uint24'],
+                path: [...path, inputToken.address, outputToken.address, pool.fee],
+              }
+            }
+          },
+          { inputToken: firstInputToken, path: [], types: [] }
+        )
+
+        return {
+          path,
+          recipient: address,
+          deadline: cairo.felt(deadline.toString()),
+          amount_in: cairo.uint256(inputAmount.raw.toString()),
+          amount_out_minimum: cairo.uint256(amountOut),
+        }
+      }
+    }
+    const constructExactOutputParams = (singleHop: boolean) => {
+      if (singleHop) {
+        return {
+          token_in: route.tokenPath[0].address,
+          token_out: route.tokenPath[1].address,
+          fee: route.pools[0].fee,
+          recipient: address,
+          deadline: cairo.felt(deadline.toString()),
+          amount_out: cairo.uint256(outputAmount.raw.toString()),
+          amount_in_maximum: cairo.uint256(amountIn),
+          sqrt_price_limit_X96: cairo.uint256(0),
+        }
+      } else {
+        const firstInputToken: Token = route.input.wrapped
+        //create path
+        const { path } = route.pools.reduce(
+          (
+            { inputToken, path, types }: { inputToken: Token; path: (string | number)[]; types: string[] },
+            pool: Pool,
+            index: number
+          ): { inputToken: Token; path: (string | number)[]; types: string[] } => {
+            const outputToken: Token = pool.token0.equals(inputToken) ? pool.token1 : pool.token0
+            if (index === 0) {
+              return {
+                inputToken: outputToken,
+                types: ['uint24', 'address', 'address'],
+                path: [pool.fee, inputToken.address, outputToken.address],
+              }
+            } else {
+              return {
+                inputToken: outputToken,
+                types: [...types, 'uint24', 'address', 'address'],
+                path: [...path, pool.fee, inputToken.address, outputToken.address],
+              }
+            }
+          },
+          { inputToken: firstInputToken, path: [], types: [] }
+        )
+
+        const reversePath = path.reverse()
+
+        return {
+          path: reversePath,
+          recipient: address,
+          deadline: cairo.felt(deadline.toString()),
+          amount_out: cairo.uint256(outputAmount.raw.toString()),
+          amount_in_maximum: cairo.uint256(amountIn),
+        }
+      }
+    }
+
+    // Determine the trade type and route characteristics
+    const isSingleHop = route && route?.pools?.length === 1
+    const exactInput = trade.tradeType === TradeType.EXACT_INPUT
+
+    constructParams(isTradeTypeV2, isSingleHop, exactInput)
+
     setSwapCallData(callData)
   }, [trade, address, deadline, approveCallback])
 
