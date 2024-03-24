@@ -2,7 +2,6 @@ import { Percent, Token } from '@vnaysn/jediswap-sdk-core'
 import { computePairAddress, Pair } from '@vnaysn/jediswap-sdk-v2'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { SupportedLocale } from 'constants/locales'
-import { L2_DEADLINE_FROM_NOW } from 'constants/misc'
 import JSBI from 'jsbi'
 import { useCallback, useMemo } from 'react'
 import { useAppDispatch, useAppSelector } from 'state/hooks'
@@ -162,9 +161,7 @@ export function useUserHideClosedPositions(): [boolean, (newHideClosedPositions:
 export function useUserTransactionTTL(): [number, (slippage: number) => void] {
   const { chainId } = useAccountDetails()
   const dispatch = useAppDispatch()
-  const userDeadline = useAppSelector((state) => state.user.userDeadline)
-  const onL2 = false
-  const deadline = onL2 ? L2_DEADLINE_FROM_NOW : userDeadline
+  const deadline = useAppSelector((state) => state.user.userDeadline)
 
   const setUserDeadline = useCallback(
     (userDeadline: number) => {

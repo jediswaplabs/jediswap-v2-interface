@@ -129,6 +129,7 @@ export default function SettingsTab({
       <AnimatedDropdown open={!isUniswapXTrade(trade)}>
         <ExpandColumn>
           <MaxSlippageSettings autoSlippage={autoSlippage} />
+          <TransactionDeadlineSettings />
         </ExpandColumn>
       </AnimatedDropdown>
     ),
