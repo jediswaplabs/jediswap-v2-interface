@@ -51,7 +51,7 @@ const Web3StatusConnected = styled(Web3StatusGeneric)<{
 }>`
   font-family: 'Avenir LT Std';
   background-color: ${({ theme }) => theme.surface5};
-  border: none;
+  border: 1px solid transparent;
   color: ${({ theme }) => theme.white};
   padding: 10px 24px;
 `
@@ -76,7 +76,7 @@ const NetworkContainer = styled.div`
 const NetworkSelected = styled(Web3StatusGeneric)<{}>`
   font-family: 'Avenir LT Std';
   background-color: ${({ theme }) => theme.jediNavyBlue};
-  border: none;
+  border: 1px solid transparent;
   color: ${({ theme }) => theme.white};
   margin-right: 16px;
   padding: 10px 24px;

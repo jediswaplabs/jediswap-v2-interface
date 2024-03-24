@@ -1,17 +1,20 @@
 import { Percent } from '@vnaysn/jediswap-sdk-core'
 import JSBI from 'jsbi'
+import ms from "ms";
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 
 // TODO(WEB-1984): Convert the deadline to minutes and remove unecessary conversions from
 // seconds to minutes in the codebase.
-// 10 minutes, denominated in seconds
-export const DEFAULT_DEADLINE_FROM_NOW = 60 * 10
-export const L2_DEADLINE_FROM_NOW = 60 * 5
+// 60 minutes, denominated in seconds
+export const DEFAULT_DEADLINE_FROM_NOW = 5 * 60
 
 // transaction popup dismissal amounts
 export const DEFAULT_TXN_DISMISS_MS = 10000
 export const L2_TXN_DISMISS_MS = 5000
+
+export const MAX_DEADLINE_TIME_IN_SECONDS = ms(`3d`) / 1000
+export const MIN_DEADLINE_TIME_IN_SECONDS = ms(`5m`) / 1000
 
 export const BIG_INT_ZERO = JSBI.BigInt(0)
 
