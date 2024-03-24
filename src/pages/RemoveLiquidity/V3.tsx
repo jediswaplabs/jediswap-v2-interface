@@ -77,6 +77,7 @@ function Remove({ tokenId }: { tokenId: number }) {
 
   // flag for receiving WETH
   const [receiveWETH, setReceiveWETH] = useState(false)
+  const [showWarning, setShowWarning] = useState(false)
   const nativeCurrency = useNativeCurrency(chainId)
   const nativeWrappedSymbol = nativeCurrency.wrapped.symbol
 
@@ -420,10 +421,16 @@ function Remove({ tokenId }: { tokenId: number }) {
                 <AutoColumn gap="md" style={{ flex: '1' }}>
                   <ButtonConfirmed
                     confirmed={false}
-                    disabled={removed || percent === 0 || !liquidityValue0}
+                    disabled={removed || percent === 0 || !liquidityValue0 || showWarning}
                     onClick={() => setShowConfirm(true)}
                   >
-                    {removed ? <Trans>Closed</Trans> : error ?? <Trans>Remove</Trans>}
+                    {showWarning ? (
+                      'Remove liquidity is paused'
+                    ) : removed ? (
+                      <Trans>Closed</Trans>
+                    ) : (
+                      error ?? <Trans>Remove</Trans>
+                    )}
                   </ButtonConfirmed>
                 </AutoColumn>
               </div>

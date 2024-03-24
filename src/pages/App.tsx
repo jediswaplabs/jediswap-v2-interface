@@ -18,6 +18,12 @@ import { flexRowNoWrap } from 'theme/styles'
 import { Z_INDEX } from 'theme/zIndex'
 import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions'
 import useFetchAllPairsCallback from 'hooks/useFetchAllPairs'
+import {
+  UK_BANNER_HEIGHT,
+  UK_BANNER_HEIGHT_MD,
+  UK_BANNER_HEIGHT_SM,
+  WarningBanner,
+} from 'components/NavBar/WarningBanner'
 // import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
@@ -61,7 +67,11 @@ const MobileBottomBar = styled.div`
   }
 `
 
-const HeaderWrapper = styled.div<{ transparent?: boolean; bannerIsVisible?: boolean; scrollY: number }>`
+const HeaderWrapper = styled.div<{
+  transparent?: boolean
+  bannerIsVisible?: boolean
+  scrollY: number
+}>`
   ${flexRowNoWrap};
   background-color: transparent;
   border-bottom: ${({ theme }) => `1px solid ${theme.surface3}`};
@@ -69,7 +79,7 @@ const HeaderWrapper = styled.div<{ transparent?: boolean; bannerIsVisible?: bool
   width: 100%;
   justify-content: space-between;
   position: fixed;
-  top: 0;
+  top: ${({ bannerIsVisible }) => (bannerIsVisible ? Math.max(UK_BANNER_HEIGHT - scrollY, 0) : 0)}px;
   z-index: ${Z_INDEX.dropdown};
   transition-property: background-color;
   transition-duration: ${({ theme }) => theme.transition.duration.fast};
@@ -77,11 +87,11 @@ const HeaderWrapper = styled.div<{ transparent?: boolean; bannerIsVisible?: bool
   font-family: 'Avenir LT Std';
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
-    top: 0;
+    top: ${({ bannerIsVisible }) => (bannerIsVisible ? Math.max(UK_BANNER_HEIGHT_MD - scrollY, 0) : 0)}px;
   }
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    top: 0;
+    top: ${({ bannerIsVisible }) => (bannerIsVisible ? Math.max(UK_BANNER_HEIGHT_SM - scrollY, 0) : 0)}px;
   }
 `
 
@@ -93,6 +103,7 @@ export default function App() {
   const { pathname } = location
 
   const [scrollY, setScrollY] = useState(0)
+  const [showWarning, setShowWarning] = useState(true)
   const scrolledState = scrollY > 0
   const routerConfig = useRouterConfig()
 
@@ -117,7 +128,8 @@ export default function App() {
 
   return (
     <ErrorBoundary>
-      <HeaderWrapper scrollY={scrollY} transparent={isHeaderTransparent}>
+      {showWarning && <WarningBanner />}
+      <HeaderWrapper scrollY={scrollY} transparent={isHeaderTransparent} bannerIsVisible={showWarning}>
         <NavBar />
       </HeaderWrapper>
       <BodyWrapper>

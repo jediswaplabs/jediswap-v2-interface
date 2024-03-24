@@ -105,12 +105,10 @@ function AddLiquidity() {
   }>()
   const { address: account, chainId } = useAccountDetails()
   const theme = useTheme()
-  const trace = useTrace()
-
   const toggleWalletDrawer = useToggleAccountDrawer() // toggle wallet when disconnected
-  const addTransaction = useTransactionAdder()
   const positionManager = useV3NFTPositionManagerContract()
   const parsedTokenId = tokenId ? parseInt(tokenId) : undefined
+
   // check for existing position if tokenId in url
   const { position: existingPositionDetails, loading: positionLoading } = useV3PosFromTokenId(parsedTokenId)
   const hasExistingPosition = !!existingPositionDetails && !positionLoading
@@ -127,6 +125,9 @@ function AddLiquidity() {
 
   // mint state
   const { independentField, typedValue, startPriceTypedValue } = useV3MintState()
+
+  const [showWarning, setShowWarning] = useState(true)
+  const [mintCallData, setMintCallData] = useState<Call[]>([])
 
   const {
     pool,
@@ -160,8 +161,6 @@ function AddLiquidity() {
 
   const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
     useV3MintActionHandlers(noLiquidity)
-
-  const [mintCallData, setMintCallData] = useState<Call[]>([])
 
   const { writeAsync, data: txData } = useContractWrite({
     calls: mintCallData,
@@ -563,10 +562,12 @@ function AddLiquidity() {
           onClick={() => {
             setShowConfirm(true)
           }}
-          disabled={!isValid}
+          disabled={!isValid || showWarning}
           error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
         >
-          <Text fontWeight={535}>{errorMessage ? errorMessage : <Trans>Preview</Trans>}</Text>
+          <Text fontWeight={535}>
+            {showWarning ? 'Add liquidity is paused' : errorMessage ? errorMessage : <Trans>Preview</Trans>}
+          </Text>
         </ButtonError>
       </AutoColumn>
     )
