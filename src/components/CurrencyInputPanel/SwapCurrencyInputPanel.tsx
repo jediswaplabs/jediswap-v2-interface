@@ -222,6 +222,7 @@ interface SwapCurrencyInputPanelProps {
   pair?: Pair | null
   hideInput?: boolean
   otherCurrency?: Currency | null
+  usdPriceDifference?: number | undefined
   fiatValue?: number
   priceImpact?: Percent
   id: string
@@ -249,6 +250,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
       onCurrencySelect,
       currency,
       otherCurrency,
+      usdPriceDifference,
       id,
       showCommonBases,
       showCurrencyAmount,
@@ -289,7 +291,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
 
     const chainAllowed = isSupportedChain(chainId)
 
-    const { formatted, balance } = useAccountBalance(currency as Currency)
+    const { formatted } = useAccountBalance(currency as Currency)
 
     // reset tooltip state when currency changes
     useEffect(() => setTooltipVisible(false), [currency])
@@ -398,7 +400,9 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
                   <span />
                 )}
                 <LoadingOpacityContainer $loading={loading}>
-                  {fiatValue === 0 ? 'N/A' : fiatValue && <FiatValue fiatValue={fiatValue} priceImpact={priceImpact} />}
+                  {fiatValue === 0
+                    ? 'N/A'
+                    : fiatValue && <FiatValue fiatValue={fiatValue} usdPriceDifference={usdPriceDifference} />}
                 </LoadingOpacityContainer>
               </RowBetween>
             </FiatRow>

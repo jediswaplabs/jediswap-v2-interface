@@ -599,6 +599,14 @@ export function Swap({
     }
   }, [separatedFiatValueofLiquidity])
 
+  const usdPriceDifference = useMemo(() => {
+    if (!token0usdPrice || !token1usdPrice) return undefined
+    else
+      return parseFloat(
+        (((token1usdPrice - token0usdPrice) / ((token0usdPrice + token1usdPrice) / 2)) * 100).toFixed(2)
+      )
+  }, [token0usdPrice, token1usdPrice])
+
   const amountToApprove = useMemo(
     () => (trade ? trade.maximumAmountIn(allowedSlippage) : undefined),
     [trade, allowedSlippage]
@@ -961,6 +969,7 @@ export function Swap({
               currency={currencies[Field.OUTPUT] ?? null}
               onCurrencySelect={handleOutputSelect}
               otherCurrency={currencies[Field.INPUT]}
+              usdPriceDifference={usdPriceDifference}
               showCommonBases
               id={InterfaceSectionName.CURRENCY_OUTPUT_PANEL}
               loading={independentField === Field.INPUT && routeIsSyncing}
