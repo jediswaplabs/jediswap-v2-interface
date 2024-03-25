@@ -41,7 +41,7 @@ const FocusedOutlineCard = styled(Card)<{ pulsing: boolean }>`
   align-self: center;
 `
 
-const Select = styled.div`
+export const Select = styled.div`
   align-items: flex-start;
   display: grid;
   grid-auto-flow: column;

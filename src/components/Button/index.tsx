@@ -344,19 +344,22 @@ const ResponsiveCheck = styled(Check)`
   size: 13px;
 `
 
-export function ButtonRadioChecked({ active = false, children, ...rest }: { active?: boolean } & ButtonProps) {
-  const theme = useTheme()
-
+export function ButtonRadioChecked({
+  active = false,
+  justifyContent,
+  children,
+  ...rest
+}: { active?: boolean } & ButtonProps) {
   if (!active) {
     return (
       <ButtonOutlined $borderRadius="12px" padding="12px 8px" {...rest}>
-        <RowBetween>{children}</RowBetween>
+        <RowBetween style={{ justifyContent: justifyContent ?? 'flex-start' }}>{children}</RowBetween>
       </ButtonOutlined>
     )
   }
   return (
     <ActiveOutlined {...rest} padding="12px 8px" $borderRadius="12px">
-      <RowBetween>
+      <RowBetween style={{ justifyContent: justifyContent ?? 'flex-start' }}>
         {children}
         <CheckboxWrapper>
           {/* <Circle>
