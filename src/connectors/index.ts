@@ -3,6 +3,17 @@ import { InjectedConnector } from '@starknet-react/core'
 
 export const NETWORK_CHAIN_ID: number = parseInt(process.env.REACT_APP_CHAIN_ID ?? '5')
 
+export const isProductionEnvironment = () => {
+  if (!window.location) {
+    return false
+  }
+  if (String(window.location) === '//') {
+    return false
+  }
+  const host = new URL(String(window.location))?.host || ''
+  return host === 'app.jediswap.xyz'
+}
+
 export const isTestnetEnvironment = () => {
   if (!location) {
     return false

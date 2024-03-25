@@ -179,7 +179,7 @@ interface CurrencyInputPanelProps {
   pair?: Pair | null
   hideInput?: boolean
   otherCurrency?: Currency | null
-  fiatValue?: { data?: number; isLoading: boolean }
+  fiatValue?: number
   id: string
   showCommonBases?: boolean
   showCurrencyAmount?: boolean
@@ -310,9 +310,9 @@ export default function CurrencyInputPanel({
                     </ThemedText.DeprecatedBody>
                   </RowFixed>
                 )}
-                {/* <LoadingOpacityContainer $loading={loading}>
-                  {fiatValue && <FiatValue fiatValue={fiatValue} />}
-                </LoadingOpacityContainer> */}
+                <LoadingOpacityContainer $loading={loading}>
+                  {fiatValue === 0 ? 'N/A' : fiatValue && <FiatValue fiatValue={fiatValue} />}
+                </LoadingOpacityContainer>
               </RowBetween>
             </FiatRow>
           )}

@@ -3,6 +3,7 @@ import { ChainId, Currency, NativeCurrency, Percent, Token } from '@vnaysn/jedis
 
 // import { fortmatic, injected, portis, walletconnect, walletlink, argentX } from '../connectors'
 import JSBI from 'jsbi'
+import { isProductionEnvironment } from 'connectors'
 
 export const DEFAULT_CHAIN_ID = ChainId.MAINNET
 export const NONFUNGIBLE_POSITION_MANAGER_ADDRESSES = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
@@ -16,6 +17,13 @@ export const MAX_UINT128 = BigInt(2) ** BigInt(128) - BigInt(1)
 
 export const NATIVE_CHAIN_ID = 'NATIVE'
 export const ZERO_ADDRESS_STARKNET = '0x0000000000000000000000000000000000000000000000000000000000000000'
+
+export const getApiUrl = () => {
+  if (isProductionEnvironment()) {
+    return 'https://api.v2.goerli.jediswap.xyz/graphql'
+  }
+  return 'https://api.v2.jediswap.xyz/graphql'
+}
 
 const cachedNativeCurrency: { [chainId: string]: NativeCurrency | Token } = {}
 export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {
