@@ -126,12 +126,10 @@ export const useStaticFeeResults = (
   const nonce_results = useQuery({
     queryKey: [`nonce/${poolAddress}/${parsedTokenId}/${account?.address}`],
     queryFn: async () => {
-      if (!account) return
-      const results = await account?.getNonce()
+      if (!address || !chainId) return
+      const provider = providerInstance(chainId)
+      const results: any = await provider.getNonceForAddress(address)
       return cairo.felt(results.toString())
-    },
-    onSuccess: (data) => {
-      // Handle the successful data fetching here if needed
     },
   })
 

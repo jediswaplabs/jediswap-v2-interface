@@ -2,7 +2,6 @@ import { Trans } from '@lingui/macro'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { RowFixed } from 'components/Row'
 import { getChainInfo } from 'constants/chainInfo'
-import useCurrentBlockTimestamp from 'hooks/useCurrentBlockTimestamp'
 import { useIsLandingPage } from 'hooks/useIsLandingPage'
 import { useIsNftPage } from 'hooks/useIsNftPage'
 import useMachineTimeMs from 'hooks/useMachineTime'
@@ -105,8 +104,6 @@ export default function Polling() {
   const blockNumber = useBlockNumber()
   const [isMounting, setIsMounting] = useState(false)
   const [isHover, setIsHover] = useState(false)
-  const machineTime = useMachineTimeMs(NETWORK_HEALTH_CHECK_MS)
-  const blockTime = useCurrentBlockTimestamp()
   const isNftPage = useIsNftPage()
   const isLandingPage = useIsLandingPage()
 
