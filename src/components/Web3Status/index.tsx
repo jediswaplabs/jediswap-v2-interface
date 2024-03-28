@@ -1,8 +1,10 @@
 import { Trans } from '@lingui/macro'
-import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useEffect, useMemo, useRef } from 'react'
 import styled from 'styled-components'
+import { useStarkName } from '@starknet-react/core'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
+import { useAccountDetails } from 'hooks/starknet-react'
 import PortfolioDrawer, { useAccountDrawer } from 'components/AccountDrawer'
 import { usePendingActivity } from 'components/AccountDrawer/MiniPortfolio/Activity/hooks'
 import Loader from 'components/Icons/LoadingSpinner'
@@ -19,9 +21,8 @@ import { flexRowNoWrap } from 'theme/styles'
 import { shortenAddress } from 'utils'
 import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
 import { RowBetween } from '../Row'
-import { useStarkName } from '@starknet-react/core'
-import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import StarknetIcon from 'assets/svg/starknet.svg'
+import { useIsMobile } from 'nft/hooks'
 
 const FULL_BORDER_RADIUS = 9999
 
@@ -54,7 +55,10 @@ const Web3StatusConnected = styled(Web3StatusGeneric)<{
   border: 1px solid transparent;
   color: ${({ theme }) => theme.white};
   padding: 10px 24px;
-`
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    padding: 10px;
+  }
+`;
 
 const NetworkContainer = styled.div`
   ${flexRowNoWrap};
@@ -70,7 +74,6 @@ const NetworkContainer = styled.div`
   border: none;
   color: ${({ theme }) => theme.white};
   margin-right: 16px;
-  padding: 10px 24px;
 `
 
 const NetworkSelected = styled(Web3StatusGeneric)<{}>`
@@ -80,7 +83,10 @@ const NetworkSelected = styled(Web3StatusGeneric)<{}>`
   color: ${({ theme }) => theme.white};
   margin-right: 16px;
   padding: 10px 24px;
-`
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    padding: 10px;
+  }
+`;
 
 const AddressAndChevronContainer = styled.div<{ loading?: boolean }>`
   display: flex;
@@ -111,6 +117,10 @@ const StyledConnectButton = styled.button`
   color: inherit;
 `
 
+function renderAddress(address: string | undefined, isMobile: boolean) {
+  return isMobile ? shortenAddress(address, 2, 4) : shortenAddress(address)
+}
+
 function Web3StatusInner() {
   const [, toggleAccountDrawer] = useAccountDrawer()
   const handleWalletDropdownClick = useCallback(() => {
@@ -118,6 +128,7 @@ function Web3StatusInner() {
   }, [toggleAccountDrawer])
   const { address, connector, chainId } = useAccountDetails()
   const { data: starkName } = useStarkName({ address })
+  const isMobile = useIsMobile()
 
   if (address) {
     return (
@@ -131,20 +142,19 @@ function Web3StatusInner() {
         <Web3StatusConnected data-testid="web3-status-connected" onClick={handleWalletDropdownClick}>
           <StatusIcon account={address} connection={connector} size={40} />
           <AddressAndChevronContainer>
-            <Text>{starkName ?? shortenAddress(address)}</Text>
+            <Text>{starkName ?? renderAddress(address, isMobile)}</Text>
           </AddressAndChevronContainer>
         </Web3StatusConnected>
       </NetworkContainer>
     )
-  } else {
-    return (
-      <Web3StatusConnectWrapper tabIndex={0} onClick={handleWalletDropdownClick}>
-        <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet">
-          <Trans>Connect</Trans>
-        </StyledConnectButton>
-      </Web3StatusConnectWrapper>
-    )
   }
+  return (
+    <Web3StatusConnectWrapper tabIndex={0} onClick={handleWalletDropdownClick}>
+      <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet">
+        <Trans>Connect</Trans>
+      </StyledConnectButton>
+    </Web3StatusConnectWrapper>
+  )
 }
 
 export default function Web3Status() {
