@@ -113,7 +113,6 @@ export function CurrencyRow({
   otherSelected,
   style,
   showCurrencyAmount,
-  eventProperties,
 }: {
   currency: Currency
   onSelect: (hasWarning: boolean) => void
@@ -121,69 +120,53 @@ export function CurrencyRow({
   otherSelected: boolean
   style?: CSSProperties
   showCurrencyAmount?: boolean
-  eventProperties: Record<string, unknown>
-  balance?: CurrencyAmount<Currency>
 }) {
   const { address: account } = useAccountDetails()
   const key = currencyKey(currency)
-  const customAdded = useIsUserAddedToken(currency)
   const warning = null
   const isBlockedToken = false
   const blockedTokenOpacity = '0.6'
-  const { data } = useCachedPortfolioBalancesQuery({ account })
-  const portfolioBalanceUsd = data?.portfolios?.[0].tokensTotalDenominatedValue?.value
   const { formatted } = useAccountBalance(currency as Currency)
 
   // only show add or remove buttons if not on selected list
   return (
-    <TraceEvent
-      events={[BrowserEvent.onClick, BrowserEvent.onKeyPress]}
-      name={InterfaceEventName.TOKEN_SELECTED}
-      properties={{ is_imported_by_user: customAdded, ...eventProperties, total_balances_usd: portfolioBalanceUsd }}
-      element={InterfaceElementName.TOKEN_SELECTOR_ROW}
+    <MenuItem
+      tabIndex={0}
+      style={style}
+      className={`token-item-${key}`}
+      onKeyPress={(e) => (!isSelected && e.key === 'Enter' ? onSelect(!!warning) : null)}
+      onClick={() => (isSelected ? null : onSelect(!!warning))}
+      disabled={isSelected}
+      selected={otherSelected}
+      dim={isBlockedToken}
     >
-      <MenuItem
-        tabIndex={0}
-        style={style}
-        className={`token-item-${key}`}
-        onKeyPress={(e) => (!isSelected && e.key === 'Enter' ? onSelect(!!warning) : null)}
-        onClick={() => (isSelected ? null : onSelect(!!warning))}
-        disabled={isSelected}
-        selected={otherSelected}
-        dim={isBlockedToken}
-      >
-        <Column>
-          <CurrencyLogo
-            currency={currency}
-            size="36px"
-            style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}
-          />
-        </Column>
-        <AutoColumn style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}>
-          <Row>
-            <CurrencyName title={currency.name}>{currency.name}</CurrencyName>
-          </Row>
-          <ThemedText.LabelMicro ml="0px">{currency.symbol}</ThemedText.LabelMicro>
-        </AutoColumn>
-        <Column>
+      <Column>
+        <CurrencyLogo currency={currency} size="36px" style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }} />
+      </Column>
+      <AutoColumn style={{ opacity: isBlockedToken ? blockedTokenOpacity : '1' }}>
+        <Row>
+          <CurrencyName title={currency.name}>{currency.name}</CurrencyName>
+        </Row>
+        <ThemedText.LabelMicro ml="0px">{currency.symbol}</ThemedText.LabelMicro>
+      </AutoColumn>
+      <Column>
+        <RowFixed style={{ justifySelf: 'flex-end' }}>
+          <TokenTags currency={currency} />
+        </RowFixed>
+      </Column>
+      {showCurrencyAmount ? (
+        <RowFixed style={{ justifySelf: 'flex-end' }}>
+          {account ? formatted ? <Balance balance={formatted} /> : <Loader /> : null}
+          {isSelected && <CheckIcon />}
+        </RowFixed>
+      ) : (
+        isSelected && (
           <RowFixed style={{ justifySelf: 'flex-end' }}>
-            <TokenTags currency={currency} />
+            <CheckIcon />
           </RowFixed>
-        </Column>
-        {showCurrencyAmount ? (
-          <RowFixed style={{ justifySelf: 'flex-end' }}>
-            {account ? formatted ? <Balance balance={formatted} /> : <Loader /> : null}
-            {isSelected && <CheckIcon />}
-          </RowFixed>
-        ) : (
-          isSelected && (
-            <RowFixed style={{ justifySelf: 'flex-end' }}>
-              <CheckIcon />
-            </RowFixed>
-          )
-        )}
-      </MenuItem>
-    </TraceEvent>
+        )
+      )}
+    </MenuItem>
   )
 }
 
@@ -254,17 +237,13 @@ export default function CurrencyList({
     return currencies
   }, [currencies, otherListTokens])
 
+  console.log(currencies, 'currencies list')
+
   const Row = useCallback(
     ({ data, index, style }: TokenRowProps) => {
       const row: Currency = data[index]
 
       const currency = row
-
-      const balance =
-        tryParseCurrencyAmount(
-          String(balances[currency.isNative ? 'ETH' : currency.address?.toLowerCase()]?.balance ?? 0),
-          currency
-        ) ?? CurrencyAmount.fromRawAmount(currency, 0)
 
       const isSelected = Boolean(currency && selectedCurrency && selectedCurrency.equals(currency))
       const otherSelected = Boolean(currency && otherCurrency && otherCurrency.equals(currency))
@@ -284,8 +263,6 @@ export default function CurrencyList({
             onSelect={handleSelect}
             otherSelected={otherSelected}
             showCurrencyAmount={showCurrencyAmount}
-            eventProperties={formatAnalyticsEventProperties(token, index, data, searchQuery, isAddressSearch)}
-            balance={balance}
           />
         )
       }
