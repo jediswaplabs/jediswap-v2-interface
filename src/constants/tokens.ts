@@ -13,6 +13,7 @@ export const isBsc = false
 export const isPolygon = false
 export const isCelo = false
 export const MAX_UINT128 = BigInt(2) ** BigInt(128) - BigInt(1)
+export const ETH_ADDRESS = '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7'
 
 export const NATIVE_CHAIN_ID = 'NATIVE'
 export const ZERO_ADDRESS_STARKNET = '0x0000000000000000000000000000000000000000000000000000000000000000'

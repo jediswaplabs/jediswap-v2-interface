@@ -15,6 +15,7 @@ import { deserializeToken, useUserAddedTokens } from '../state/user/hooks'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import { useTokenContract } from './useContractV2'
 import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
+import { ETH_ADDRESS, WETH } from 'constants/tokens'
 
 type Maybe<T> = T | null | undefined
 
@@ -203,6 +204,7 @@ export function useToken(tokenAddress?: string | null): Token | null | undefined
   return useMemo(() => {
     if (token) return token
     if (!chainId || !address) return undefined
+    if (address === ETH_ADDRESS) return WETH[chainId]
     if (decimals.loading || symbol.loading || tokenName.loading) return null
     if (decimals.result) {
       const token = new Token(
