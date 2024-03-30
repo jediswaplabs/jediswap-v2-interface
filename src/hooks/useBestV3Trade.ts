@@ -178,7 +178,7 @@ export function useBestV3TradeExactIn(
   }
 
   const nonce_results = useQuery({
-    queryKey: [`nonce/${address}`],
+    queryKey: [`nonce/${address}/${chainId}`],
     queryFn: async () => {
       if (!address || !chainId) return
       const provider = providerInstance(chainId)
@@ -489,10 +489,11 @@ export function useBestV3TradeExactOut(
   }
 
   const nonce_results = useQuery({
-    queryKey: [`nonce/${address}`],
+    queryKey: [`nonce/${address}/${chainId}`],
     queryFn: async () => {
-      if (!account) return
-      const results = await account?.getNonce()
+      if (!address || !chainId) return
+      const provider = providerInstance(chainId)
+      const results: any = await provider.getNonceForAddress(address)
       return cairo.felt(results.toString())
     },
   })

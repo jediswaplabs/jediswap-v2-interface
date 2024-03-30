@@ -124,11 +124,11 @@ export const useStaticFeeResults = (
   const collect_call_data_length = { approve_call_data_length: '0x05' }
 
   const nonce_results = useQuery({
-    queryKey: [`nonce/${poolAddress}/${parsedTokenId}/${account?.address}`],
+    queryKey: [`nonce/${address}/${chainId}`],
     queryFn: async () => {
-      if (!address || !chainId) return
+      if (!account || !chainId || !address) return
       const provider = providerInstance(chainId)
-      const results: any = await provider.getNonceForAddress(address)
+      const results = await provider?.getNonceForAddress(address)
       return cairo.felt(results.toString())
     },
   })
