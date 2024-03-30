@@ -180,22 +180,20 @@ export function useBestV3TradeExactIn(
   const nonce_results = useQuery({
     queryKey: [`nonce/${address}`],
     queryFn: async () => {
-      if (!account) return
-      const results = await account?.getNonce()
+      if (!address || !chainId) return
+      const provider = providerInstance(chainId)
+      const results: any = await provider.getNonceForAddress(address)
       return cairo.felt(results.toString())
-    },
-    onSuccess: (data) => {
-      // Handle the successful data fetching here if needed
     },
   })
 
   const contract_version = useQuery({
-    queryKey: [`contract_version/${address}`],
+    queryKey: [`contract_version/${address}/${chainId}`],
     queryFn: async () => {
-      if (!account || !address) return
-      const results: any = await account?.getClassAt(address)
+      if (!account || !address || !chainId) return
+      const provider = providerInstance(chainId)
+      const results: any = await provider.getClassAt(address)
       return results?.sierra_program
-      // return cairo.felt(results.toString())
     },
   })
 
@@ -497,18 +495,15 @@ export function useBestV3TradeExactOut(
       const results = await account?.getNonce()
       return cairo.felt(results.toString())
     },
-    onSuccess: (data) => {
-      // Handle the successful data fetching here if needed
-    },
   })
 
   const contract_version = useQuery({
-    queryKey: [`contract_version/${address}`],
+    queryKey: [`contract_version/${address}/${chainId}`],
     queryFn: async () => {
-      if (!account || !address) return
-      const results: any = await account?.getClassAt(address)
+      if (!account || !address || !chainId) return
+      const provider = providerInstance(chainId)
+      const results: any = await provider.getClassAt(address)
       return results?.sierra_program
-      // return cairo.felt(results.toString())
     },
   })
 

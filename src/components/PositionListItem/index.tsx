@@ -202,7 +202,7 @@ export default function PositionListItem({
 
   const positionSummaryLink = `/pools/${tokenId}`
 
-  const removed = !parseInt(liquidity.toString())
+  const removed = liquidity?.eq(0)
   return (
     <LinkRow to={positionSummaryLink}>
       <RowBetween>
