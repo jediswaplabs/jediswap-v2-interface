@@ -96,9 +96,8 @@ const HeaderWrapper = styled.div<{
 `
 
 export default function App() {
-  const fetchAllPairs = useFetchAllPairsCallback()
   const isLoaded = useFeatureFlagsIsLoaded()
-
+  const chainId = useAccountDetails()
   const location = useLocation()
   const { pathname } = location
 
@@ -113,10 +112,6 @@ export default function App() {
     window.scrollTo(0, 0)
     setScrollY(0)
   }, [pathname])
-
-  useEffect(() => {
-    fetchAllPairs()
-  }, [fetchAllPairs])
 
   useEffect(() => {
     const scrollListener = () => {
