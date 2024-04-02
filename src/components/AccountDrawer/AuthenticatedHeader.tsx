@@ -12,7 +12,7 @@ import StatusIcon from '../Identicon/StatusIcon'
 import { useToggleAccountDrawer } from '.'
 import IconButton, { IconHoverText, IconWithConfirmTextButton } from './IconButton'
 import { portfolioFadeInAnimation } from './MiniPortfolio/PortfolioRow'
-import { useDisconnect, useStarkName } from '@starknet-react/core'
+import { useDisconnect, useStarkProfile } from '@starknet-react/core'
 import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS, STARKSCAN_PREFIXES } from 'constants/tokens'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
@@ -78,7 +78,7 @@ const PortfolioDrawerContainer = styled(Column)`
 
 export default function AuthenticatedHeader({ account }: { account: string }) {
   const { connector, address, chainId } = useAccountDetails()
-  const { data: starkName } = useStarkName({ address })
+  const { data: starkProfile } = useStarkProfile({ address })
   const { disconnect } = useDisconnect()
 
   // const connection = getConnection(connector)
@@ -103,20 +103,32 @@ export default function AuthenticatedHeader({ account }: { account: string }) {
     <AuthenticatedHeaderWrapper>
       <HeaderWrapper>
         <StatusWrapper>
-          <StatusIcon account={account} connection={connector} size={40} />
-          {account && (
-            <AccountNamesWrapper>
-              <ThemedText.SubHeader>
-                <CopyText toCopy={starkName ?? account}>{starkName ?? addressShort}</CopyText>
-              </ThemedText.SubHeader>
-              {/* Displays smaller view of account if ENS name was rendered above */}
-              {starkName && (
-                <ThemedText.BodySmall color="neutral2">
-                  <CopyText toCopy={account}>{shortenAddress(account)}</CopyText>
-                </ThemedText.BodySmall>
-              )}
-            </AccountNamesWrapper>
-          )}
+          {
+            starkProfile?.profilePicture ? (
+              <img
+                src={starkProfile?.profilePicture}
+                alt="Profile"
+                style={{ width: '40px', height: '40px', borderRadius: '20px', marginRight: '8px' }}
+              />
+            ) : (
+              <StatusIcon account={account} connection={connector} size={40} />
+            )
+          }
+          {
+            account && (
+              <AccountNamesWrapper>
+                <ThemedText.SubHeader>
+                  <CopyText toCopy={starkProfile?.name ?? account}>{starkProfile?.name ?? addressShort}</CopyText>
+                </ThemedText.SubHeader>
+                {/* Displays smaller view of account if ENS name was rendered above */}
+                {starkProfile?.name && (
+                  <ThemedText.BodySmall color="neutral2">
+                    <CopyText toCopy={account}>{shortenAddress(account)}</CopyText>
+                  </ThemedText.BodySmall>
+                )}
+              </AccountNamesWrapper>
+            )
+          }
         </StatusWrapper>
         <IconContainer>
           <IconButton
