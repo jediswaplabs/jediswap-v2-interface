@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, BookOpen, ChevronDown, ChevronsRight, Inbox, Layers } from 'react-feather'
 import { Link } from 'react-router-dom'
 import styled, { css, useTheme } from 'styled-components'
+import { Box as RebassBox } from 'rebass'
 import { Trace, TraceEvent } from 'analytics'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button'
@@ -21,6 +22,11 @@ import { useUserHideClosedPositions } from 'state/user/hooks'
 import { ThemedText } from 'theme/components'
 import { LoadingRows } from './styled'
 import fetchTokenIds from 'api/fetchTokenId'
+import { getAllPools } from 'graphql/data/PoolsData'
+import { useAllLists } from 'state/lists/hooks'
+import Pools from 'components/Pools'
+import { ToggleElement, ToggleWrapper } from 'components/Toggle/MultiToggle'
+import { formattedNum, formattedPercent } from 'utils/dashboard'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -240,6 +246,82 @@ const MainContentWrapper = styled.main<{ isWalletConnected?: boolean; filteredPo
 `
 
 const PositionWrapper = styled.div``
+const PanelWrapper = styled.div`
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  align-items: start;
+  @media screen and (max-width: 1024px) {
+    flex-direction: column;
+  }
+`
+const panelPseudo = css`
+  :after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 10px;
+  }
+
+  @media only screen and (min-width: 40em) {
+    :after {
+      content: unset;
+    }
+  }
+`
+
+const Panel = styled(RebassBox)`
+  position: relative;
+  background-color: ${({ theme }) => theme.advancedBG};
+  border-radius: 8px;
+  padding: 1.25rem;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  background: rgba(196, 196, 196, 0.01);
+  box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset, 0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset,
+    0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.3) inset, 0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset;
+
+  :hover {
+    cursor: ${({ hover }) => hover && 'pointer'};
+    border: ${({ hover, theme }) => hover && '1px solid' + theme.bg5};
+  }
+
+  ${(props) => props.background && `background-color: ${props.theme.advancedBG};`}
+
+  ${(props) => (props.area ? `grid-area: ${props.area};` : null)}
+
+  ${(props) =>
+    props.grouped &&
+    css`
+      @media only screen and (min-width: 40em) {
+        &:first-of-type {
+          border-radius: 20px 20px 0 0;
+        }
+        &:last-of-type {
+          border-radius: 0 0 20px 20px;
+        }
+      }
+    `}
+
+  ${(props) =>
+    props.rounded &&
+    css`
+      border-radius: 8px;
+      @media only screen and (min-width: 40em) {
+        border-radius: 10px;
+      }
+    `};
+
+  ${(props) => !props.last && panelPseudo}
+`
+const PanelTopLight = styled(Panel)`
+  box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.20) inset, 0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.30) inset, 0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.30) inset, 0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.30) inset, 0px 5.388px 8.467px -3.079px #FFF inset, 0px 30.021px 43.107px -27.712px rgba(255, 255, 255, 0.50) inset;
+`
 
 function PositionsLoadingPlaceholder() {
   return (
@@ -355,9 +437,11 @@ function PositionDetails(props: any) {
 }
 
 export default function Pool() {
+  const [poolsData, setpoolsData] = useState<any[] | undefined>([])
   const { address, chainId } = useAccountDetails()
   const [tokenIds, setTokenIds] = useState<number[]>([])
   const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
+  const [showMyPositions, setShowMyPositions] = useState<boolean>(false)
   //fetch Token Ids
   useEffect(() => {
     const getTokenIds = async () => {
@@ -375,6 +459,27 @@ export default function Pool() {
     getTokenIds()
   }, [chainId, address])
 
+  const lists = useAllLists()
+
+  //fetch pools data
+  useEffect(() => {
+    const getPoolsData = async () => {
+      if (!lists['https://static.jediswap.xyz/tokens-list/jediswap-default.tokenlist.json'].current) {
+        return
+      }
+      const whitelistedIds = lists['https://static.jediswap.xyz/tokens-list/jediswap-default.tokenlist.json'].current.tokens.map(token => token.address)
+      whitelistedIds.push('0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') //add ETH token
+      const poolsDataRaw = await getAllPools(whitelistedIds)
+      const poolsData = {}
+      poolsDataRaw?.forEach(data => {
+        poolsData[data.poolAddress] = data;
+      });
+      setpoolsData(poolsData);
+    }
+
+    getPoolsData()
+  }, [lists])
+
   const toggleWalletDrawer = useToggleAccountDrawer()
   // const filteredPositions = useFilterPossiblyMaliciousPositions(userSelectedPositionSet)
 
@@ -383,27 +488,106 @@ export default function Pool() {
   }
 
   const showConnectAWallet = Boolean(!address)
+  const poolsTable = (<Panel style={{ padding: '0' }}>
+    <Pools pairs={poolsData} disbaleLinks={true} />
+  </Panel>)
+  const totalValueLockedUSD = 10
+  const liquidityChangeUSD = 20 
+  const totalVolumeUSD = 0 
+  const volumeChangeUSD = 0
+  const totalFeesUSD = 0
+  const feesChangeUSD = 0
 
   return (
     <PageWrapper>
+      POOLS
+      {/* <PageSection> */}
+        <AutoColumn style={{ gap: '12px' }}>
+          <PanelWrapper>
+            <PanelTopLight>
+              <AutoColumn gap="20px">
+                <RowBetween>
+                  {/* <TYPE.subHeader> */}
+                    Total Liquidity
+                  {/* </TYPE.subHeader> */}
+                </RowBetween>
+                <RowBetween align="baseline">
+                  {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
+                    {formattedNum(totalValueLockedUSD, true)}
+                  {/* </TYPE.main> */}
+                  {/* <TYPE.main fontSize="1rem"> */}
+                    {formattedPercent(liquidityChangeUSD)}
+                  {/* </TYPE.main> */}
+                </RowBetween>
+              </AutoColumn>
+            </PanelTopLight>
+            <PanelTopLight>
+              <AutoColumn gap="20px">
+                <RowBetween>
+                  {/* <TYPE.subHeader> */}
+                    Volume (24hr)
+                  {/* </TYPE.subHeader> */}
+                  <div />
+                </RowBetween>
+                <RowBetween align="baseline">
+                  {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
+                    {formattedNum(totalVolumeUSD, true)}
+                  {/* </TYPE.main> */}
+                  {/* <TYPE.main fontSize="1rem"> */}
+                    {formattedPercent(volumeChangeUSD)}
+                  {/* </TYPE.main> */}
+                </RowBetween>
+              </AutoColumn>
+            </PanelTopLight>
+            <PanelTopLight>
+              <AutoColumn gap="20px">
+                <RowBetween>
+                  {/* <TYPE.subHeader> */}
+                    Total fees (24hr)
+                  {/* </TYPE.subHeader> */}
+                </RowBetween>
+                <RowBetween align="baseline">
+                  {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
+                    {formattedNum(totalFeesUSD, true)}
+                  {/* </TYPE.main> */}
+                  {/* <TYPE.main fontSize="1rem"> */}
+                    {formattedPercent(feesChangeUSD)}
+                  {/* </TYPE.main> */}
+                </RowBetween>
+              </AutoColumn>
+            </PanelTopLight>
+          </PanelWrapper>
+        </AutoColumn>
+      {/* </PageSection> */}
+
       <AutoColumn gap="lg" justify="center">
         <AutoColumn gap="lg" style={{ width: '100%' }}>
+          <ToggleWrapper width="fit-content">
+            <ToggleElement isActive={false} fontSize="12px" style={{ borderRadius: '4px 0 0 4px' }} onClick={() => setShowMyPositions(false)}>
+              Top Pools
+            </ToggleElement>
+            <ToggleElement isActive={true} fontSize="12px" style={{ borderRadius: '0 4px 4px 0' }} onClick={() => setShowMyPositions(true)}>
+              My positions
+            </ToggleElement>
+          </ToggleWrapper>
           <ButtonRow justifyContent={'space-between'}>
-            <PositionsText>My Positions</PositionsText>
+            {/* <PositionsText>My Positions</PositionsText> */}
             <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
               + <Trans>New position</Trans>
             </ResponsiveButtonPrimary>
           </ButtonRow>
           <MainContentWrapper>
-            {loadingPositions ? (
-              <PositionsLoadingPlaceholder />
-            ) : (
-              <PositionDetails
-                tokenIds={tokenIds}
-                showConnectAWallet={showConnectAWallet}
-                toggleWalletDrawer={toggleWalletDrawer}
-              />
-            )}
+            {showMyPositions ?
+              loadingPositions ? (
+                <PositionsLoadingPlaceholder />
+              ) : (
+                <PositionDetails
+                  tokenIds={tokenIds}
+                  showConnectAWallet={showConnectAWallet}
+                  toggleWalletDrawer={toggleWalletDrawer}
+                />)
+              : poolsTable
+            }
           </MainContentWrapper>
           {/* {userSelectedPositionSet.length ? null : <CTACards />} */}
         </AutoColumn>
