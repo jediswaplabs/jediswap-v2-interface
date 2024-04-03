@@ -246,7 +246,17 @@ function PairList({
     }
   }, [ITEMS_PER_PAGE, filteredPairsAddresses])
 
-  const ListItem = ({ pairAddress, pairData, doubleCurrencyImageData }: { pairAddress: string }) => {
+  const ListItem = ({
+    pairAddress,
+    pairData,
+    index,
+    doubleCurrencyImageData,
+  }: {
+    pairAddress: string
+    pairData: any
+    index: number
+    doubleCurrencyImageData: any
+  }) => {
     const feePercent = (pairData ? parseFloat(pairData.fee) / 10000 : 0) + '%'
 
     if (pairData && pairData.token0 && pairData.token1) {
@@ -289,6 +299,7 @@ function PairList({
                     text={pairData.token0.symbol + '-' + pairData.token1.symbol}
                     maxCharacters={below600 ? 8 : 16}
                     adjustSize={true}
+                    link={false}
                   />
                 </LinkRow>
                 <FeeBadge>{feePercent}</FeeBadge>
@@ -329,7 +340,7 @@ function PairList({
                   text={pairData.token0.symbol + '-' + pairData.token1.symbol}
                   maxCharacters={below600 ? 8 : 16}
                   adjustSize={true}
-                  // link={true}
+                  link={false}
                 />
               </LinkRow>
               <FeeBadge>{feePercent}</FeeBadge>
