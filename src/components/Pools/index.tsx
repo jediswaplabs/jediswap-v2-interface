@@ -270,21 +270,19 @@ function PairList({
         true
       )
 
-      console.log(doubleCurrencyImageData, 'doubleCurrencyImageData')
-
       // const weekVolume = Math.round(pairData.oneWeekVolumeUSD)
       if (below1080) {
         return (
           <div style={{ margin: '10px 0', padding: '20px', borderRadius: '8px', border: '1px solid #959595' }}>
             <div style={{ display: 'flex' }}>
-              {/* {doubleCurrencyImageData && (
+              {doubleCurrencyImageData && (
                 <DoubleTokenLogo
                   size={below600 ? 16 : 20}
                   currency0={doubleCurrencyImageData.token0}
                   currency1={doubleCurrencyImageData.token1}
                   margin
                 />
-              )} */}
+              )}
               <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap' }}>
                 <LinkRow to={'/pool/' + pairAddress}>
                   <FormattedName

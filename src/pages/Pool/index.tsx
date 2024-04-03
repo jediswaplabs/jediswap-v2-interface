@@ -219,12 +219,42 @@ const InboxIcon = styled(Inbox)`
 `
 
 const ResponsiveButtonPrimary = styled(ButtonPrimary)`
+  font-family: 'DM Sans';
   border-radius: 8px;
   font-size: 16px;
   padding: 6px 8px;
   width: 175px;
   margin-left: auto;
   height: 38px;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    width: 132px;
+  }
+`
+
+const ResponsiveButtonTabs = styled(ButtonPrimary)<{ secondary: boolean; active: boolean }>`
+  font-family: 'DM Sans';
+  border-radius: 4px;
+  font-size: 16px;
+  padding: 6px 8px;
+  background: ${({ theme, active }) => (!active ? 'transparent' : theme.jediWhite)};
+  box-shadow: 0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset,
+    0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset;
+  color: ${({ theme, active }) => (!active ? theme.jediWhite : theme.jediPink)};
+  width: 121px;
+  margin-left: 0;
+  height: 38px;
+  &:hover {
+    background: ${({ theme, active }) => (!active ? 'transparent' : theme.jediWhite)};
+    color: ${({ theme, active }) => (!active ? theme.jediWhite : theme.jediPink)};
+  }
+  &:active {
+    background: ${({ theme, active }) => (!active ? 'transparent' : theme.jediWhite)};
+    color: ${({ theme, active }) => (!active ? theme.jediWhite : theme.jediPink)};
+  }
+  &:focus {
+    background: ${({ theme, active }) => (!active ? 'transparent' : theme.jediWhite)};
+    color: ${({ theme, active }) => (!active ? theme.jediWhite : theme.jediPink)};
+  }
   @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     width: 132px;
   }
@@ -576,28 +606,16 @@ export default function Pool() {
         </PanelWrapper>
       </AutoColumn>
       {/* </PageSection> */}
-      <AutoColumn gap="lg" justify="center">
+      <AutoColumn gap="lg" justify="center" style={{ marginTop: 24 }}>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
-          <ToggleWrapper width="fit-content">
-            <ToggleElement
-              isActive={false}
-              fontSize="12px"
-              style={{ borderRadius: '4px 0 0 4px' }}
-              onClick={() => setShowMyPositions(false)}
-            >
-              Top Pools
-            </ToggleElement>
-            <ToggleElement
-              isActive={true}
-              fontSize="12px"
-              style={{ borderRadius: '0 4px 4px 0' }}
-              onClick={() => setShowMyPositions(true)}
-            >
-              My positions
-            </ToggleElement>
-          </ToggleWrapper>
           <ButtonRow justifyContent={'space-between'}>
             {/* <PositionsText>My Positions</PositionsText> */}
+            <ResponsiveButtonTabs secondary={false} active={!showMyPositions} onClick={() => setShowMyPositions(false)}>
+              <Trans>Top Pools</Trans>
+            </ResponsiveButtonTabs>
+            <ResponsiveButtonTabs secondary={true} active={showMyPositions} onClick={() => setShowMyPositions(true)}>
+              <Trans>My Positions</Trans>
+            </ResponsiveButtonTabs>
             <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
               + <Trans>New position</Trans>
             </ResponsiveButtonPrimary>
