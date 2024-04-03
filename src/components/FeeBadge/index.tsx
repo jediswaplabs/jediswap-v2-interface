@@ -12,6 +12,6 @@ const FeeBadgeContainer = styled.div`
   line-height: 1;
 `
 
-const FeeBadge = ({ children }) => <FeeBadgeContainer>{children}</FeeBadgeContainer>
+const FeeBadge = ({ children}: {children: string}) => <FeeBadgeContainer>{children}</FeeBadgeContainer>
 
 export default FeeBadge

@@ -86,7 +86,10 @@ export const HISTORICAL_TOKENS_DATA = ({ tokenIds = [], periods = [] }) => {
   return gql(queryString)
 }
 
-export const HISTORICAL_POOLS_DATA = ({ tokenIds = [], periods = [] }) => {
+export const HISTORICAL_POOLS_DATA = ({ tokenIds = [], periods = [] }: {
+  tokenIds: string[],
+  periods: string[]
+}) => {
   const tokensString = `[${tokenIds.map((token) => `"${token}",`)}]`
   const periodString = `[${periods.map((period) => `"${period}"`).join(',')}]`
 

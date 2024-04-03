@@ -31,8 +31,8 @@ const PageButtons = styled.div`
   margin-bottom: 0.5em;
 `
 
-const Arrow = styled.div`
-  color: ${({ theme, faded }) => faded ? theme.jediGrey : theme.paginationTest};
+const Arrow = styled.div<{ faded?: boolean }>`
+  color: ${({ theme, faded }) => faded ? theme.jediGrey : theme.jediBlue};
   padding: 0 20px;
   user-select: none;
   font-size: 30px;
@@ -56,7 +56,7 @@ const PlaceholderContainer = styled.div`
   padding: 20px;
 `
 
-const DashGrid = styled.div`
+const DashGrid = styled.div<{ fade?: boolean, disbaleLinks?: boolean, focus?: boolean, center?: boolean}>`
   display: grid;
   grid-gap: 1em;
   grid-template-columns: 100px 1fr 1fr;
@@ -94,7 +94,7 @@ const DashGrid = styled.div`
 
 const ListWrapper = styled.div``
 
-const ClickableText = styled(Text)`
+const ClickableText = styled(Text)<{ area: string}>`
   color: ${({ theme }) => theme.text1};
   &:hover {
     cursor: pointer;
@@ -104,7 +104,7 @@ const ClickableText = styled(Text)`
   user-select: none;
 `
 
-const DataText = styled(Flex)`
+const DataText = styled(Flex)<{ area?: string}>`
   align-items: center;
   text-align: center;
   color: ${({ theme }) => theme.text1};
@@ -126,7 +126,7 @@ const SORT_FIELD = {
   APY: 5,
 }
 
-const FIELD_TO_VALUE = (field) => {
+const FIELD_TO_VALUE = (field: number) => {
   switch (field) {
     case SORT_FIELD.LIQ:
       return 'totalValueLockedUSD'
@@ -141,7 +141,7 @@ const FIELD_TO_VALUE = (field) => {
   }
 }
 
-const formatDataText = (value, trackedValue, supressWarning = false, textAlign = 'right') => {
+const formatDataText = (value: string | 0 | JSX.Element, trackedValue: string, supressWarning = false, textAlign: CanvasTextAlign = 'right') => {
   return (
     <AutoColumn gap="2px">
       <div style={{ textAlign }}>{value}</div>
@@ -159,6 +159,14 @@ function PairList({
   useTracked = false,
   waitForData = true,
   noPairsPlaceholderText = DEFAULT_NO_PAIRS_PLACEHOLDER_TEXT,
+}: {
+  pairs: any,
+  color?: string,
+  disbaleLinks?: boolean,
+  maxItems?: number,
+  useTracked?: boolean,
+  waitForData?: boolean,
+  noPairsPlaceholderText?: string
 }) {
   const below600 = useMedia('(max-width: 600px)')
   const below740 = useMedia('(max-width: 740px)')
@@ -196,7 +204,7 @@ function PairList({
     }
   }, [ITEMS_PER_PAGE, filteredPairsAddresses])
 
-  const ListItem = ({ pairAddress, index }) => {
+  const ListItem = ({ pairAddress, index }: {pairAddress: string, index: number}) => {
     const pairData = pairs[pairAddress]
     const feePercent = (pairData ? parseFloat(pairData.fee) / 10000 : 0) + '%'
 
@@ -219,14 +227,14 @@ function PairList({
         return (
           <div style={{ margin: '10px 0', padding: '20px', borderRadius: '8px', border: '1px solid #959595' }}>
             <div style={{ display: 'flex' }}>
-              <DoubleTokenLogo
+              {/* <DoubleTokenLogo
                 size={below600 ? 16 : 20}
                 a0={pairData.token0.tokenAddress}
                 a1={pairData.token1.tokenAddress}
                 s0={pairData.token0.symbol}
                 s1={pairData.token1.symbol}
                 margin
-              />
+              /> */}
               <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap' }}>
                 <CustomLink to={'/pool/' + pairAddress} color={color}>
                   <FormattedName
@@ -262,14 +270,14 @@ function PairList({
         <DashGrid style={{ height: '48px' }} disbaleLinks={disbaleLinks} focus={true}>
           <DataText area="name" fontWeight="500">
             {/* {!below600 && <div style={{ marginRight: '20px', width: '10px' }}>{index}</div>} */}
-            <DoubleTokenLogo
+            {/* <DoubleTokenLogo
               size={below600 ? 16 : 20}
               a0={pairData.token0.tokenAddress}
               a1={pairData.token1.tokenAddress}
               s0={pairData.token0.symbol}
               s1={pairData.token1.symbol}
               margin
-            />
+            /> */}
             <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap' }}>
               <CustomLink to={'/pool/' + pairAddress} color={color}>
                 <FormattedName
@@ -292,22 +300,22 @@ function PairList({
         </DashGrid>
       )
     } else {
-      return ''
+      return null
     }
   }
 
   const pairList =
     filteredPairsAddresses &&
     filteredPairsAddresses
-      .filter((address) => (useTracked ? !!pairs[address].totalValueLockedUSD : true))
-      .sort((addressA, addressB) => {
+      .filter((address: string) => (useTracked ? !!pairs[address].totalValueLockedUSD : true))
+      .sort((addressA: string, addressB: string) => {
         const pairA = pairs[addressA]
         const pairB = pairs[addressB]
         if (sortedColumn === SORT_FIELD.APY) {
           const pairAFeeRation24H = pairA.oneDayFeesUSD / pairA.totalValueLockedUSD
           const pairBFeeRation24H = pairB.oneDayFeesUSD / pairB.totalValueLockedUSD
-          const apy0 = parseFloat(((1 + pairAFeeRation24H) ** 365 - 1) * 100)
-          const apy1 = parseFloat(((1 + pairBFeeRation24H) ** 365 - 1) * 100)
+          const apy0 = ((1 + pairAFeeRation24H) ** 365 - 1) * 100
+          const apy1 = ((1 + pairBFeeRation24H) ** 365 - 1) * 100
           return apy0 > apy1 ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
         }
         return parseFloat(pairA[FIELD_TO_VALUE(sortedColumn)]) > parseFloat(pairB[FIELD_TO_VALUE(sortedColumn)])
@@ -315,7 +323,7 @@ function PairList({
           : (sortDirection ? -1 : 1) * -1
       })
       .slice(ITEMS_PER_PAGE * (page - 1), page * ITEMS_PER_PAGE)
-      .map((pairAddress, index) => {
+      .map((pairAddress: string, index: number) => {
         return (
           pairAddress && (
             <div key={index}>

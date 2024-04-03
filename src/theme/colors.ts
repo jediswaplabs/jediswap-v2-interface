@@ -187,6 +187,9 @@ const commonTheme = {
   signalGreen,
   jediGreyBorder,
   signalRed,
+  text1: 'FAFAFA',
+  advancedBG: 'rgba(0,0,0,0.1)',
+  bg5: '#565A69'
 }
 
 export const darkTheme = {

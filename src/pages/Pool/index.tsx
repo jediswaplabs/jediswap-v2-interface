@@ -271,7 +271,14 @@ const panelPseudo = css`
   }
 `
 
-const Panel = styled(RebassBox)`
+const Panel = styled(RebassBox) <{
+  hover?: boolean,
+  background?: boolean,
+  area?: boolean,
+  grouped?: boolean,
+  rounded?: boolean,
+  last?: boolean,
+}>`
   position: relative;
   background-color: ${({ theme }) => theme.advancedBG};
   border-radius: 8px;
@@ -470,7 +477,7 @@ export default function Pool() {
       const whitelistedIds = lists['https://static.jediswap.xyz/tokens-list/jediswap-default.tokenlist.json'].current.tokens.map(token => token.address)
       whitelistedIds.push('0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') //add ETH token
       const poolsDataRaw = await getAllPools(whitelistedIds)
-      const poolsData = {}
+      const poolsData: any = {}
       poolsDataRaw?.forEach(data => {
         poolsData[data.poolAddress] = data;
       });
@@ -492,8 +499,8 @@ export default function Pool() {
     <Pools pairs={poolsData} disbaleLinks={true} />
   </Panel>)
   const totalValueLockedUSD = 10
-  const liquidityChangeUSD = 20 
-  const totalVolumeUSD = 0 
+  const liquidityChangeUSD = 20
+  const totalVolumeUSD = 0
   const volumeChangeUSD = 0
   const totalFeesUSD = 0
   const feesChangeUSD = 0
@@ -502,62 +509,62 @@ export default function Pool() {
     <PageWrapper>
       POOLS
       {/* <PageSection> */}
-        <AutoColumn style={{ gap: '12px' }}>
-          <PanelWrapper>
-            <PanelTopLight>
-              <AutoColumn gap="20px">
-                <RowBetween>
-                  {/* <TYPE.subHeader> */}
-                    Total Liquidity
-                  {/* </TYPE.subHeader> */}
-                </RowBetween>
-                <RowBetween align="baseline">
-                  {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
-                    {formattedNum(totalValueLockedUSD, true)}
-                  {/* </TYPE.main> */}
-                  {/* <TYPE.main fontSize="1rem"> */}
-                    {formattedPercent(liquidityChangeUSD)}
-                  {/* </TYPE.main> */}
-                </RowBetween>
-              </AutoColumn>
-            </PanelTopLight>
-            <PanelTopLight>
-              <AutoColumn gap="20px">
-                <RowBetween>
-                  {/* <TYPE.subHeader> */}
-                    Volume (24hr)
-                  {/* </TYPE.subHeader> */}
-                  <div />
-                </RowBetween>
-                <RowBetween align="baseline">
-                  {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
-                    {formattedNum(totalVolumeUSD, true)}
-                  {/* </TYPE.main> */}
-                  {/* <TYPE.main fontSize="1rem"> */}
-                    {formattedPercent(volumeChangeUSD)}
-                  {/* </TYPE.main> */}
-                </RowBetween>
-              </AutoColumn>
-            </PanelTopLight>
-            <PanelTopLight>
-              <AutoColumn gap="20px">
-                <RowBetween>
-                  {/* <TYPE.subHeader> */}
-                    Total fees (24hr)
-                  {/* </TYPE.subHeader> */}
-                </RowBetween>
-                <RowBetween align="baseline">
-                  {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
-                    {formattedNum(totalFeesUSD, true)}
-                  {/* </TYPE.main> */}
-                  {/* <TYPE.main fontSize="1rem"> */}
-                    {formattedPercent(feesChangeUSD)}
-                  {/* </TYPE.main> */}
-                </RowBetween>
-              </AutoColumn>
-            </PanelTopLight>
-          </PanelWrapper>
-        </AutoColumn>
+      <AutoColumn style={{ gap: '12px' }}>
+        <PanelWrapper>
+          <PanelTopLight>
+            <AutoColumn gap="20px">
+              <RowBetween>
+                {/* <TYPE.subHeader> */}
+                Total Liquidity
+                {/* </TYPE.subHeader> */}
+              </RowBetween>
+              <RowBetween align="baseline">
+                {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
+                {formattedNum(totalValueLockedUSD, true)}
+                {/* </TYPE.main> */}
+                {/* <TYPE.main fontSize="1rem"> */}
+                {formattedPercent(liquidityChangeUSD)}
+                {/* </TYPE.main> */}
+              </RowBetween>
+            </AutoColumn>
+          </PanelTopLight>
+          <PanelTopLight>
+            <AutoColumn gap="20px">
+              <RowBetween>
+                {/* <TYPE.subHeader> */}
+                Volume (24hr)
+                {/* </TYPE.subHeader> */}
+                <div />
+              </RowBetween>
+              <RowBetween align="baseline">
+                {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
+                {formattedNum(totalVolumeUSD, true)}
+                {/* </TYPE.main> */}
+                {/* <TYPE.main fontSize="1rem"> */}
+                {formattedPercent(volumeChangeUSD)}
+                {/* </TYPE.main> */}
+              </RowBetween>
+            </AutoColumn>
+          </PanelTopLight>
+          <PanelTopLight>
+            <AutoColumn gap="20px">
+              <RowBetween>
+                {/* <TYPE.subHeader> */}
+                Total fees (24hr)
+                {/* </TYPE.subHeader> */}
+              </RowBetween>
+              <RowBetween align="baseline">
+                {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
+                {formattedNum(totalFeesUSD, true)}
+                {/* </TYPE.main> */}
+                {/* <TYPE.main fontSize="1rem"> */}
+                {formattedPercent(feesChangeUSD)}
+                {/* </TYPE.main> */}
+              </RowBetween>
+            </AutoColumn>
+          </PanelTopLight>
+        </PanelWrapper>
+      </AutoColumn>
       {/* </PageSection> */}
 
       <AutoColumn gap="lg" justify="center">

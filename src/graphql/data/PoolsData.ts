@@ -13,7 +13,7 @@ const UPDATE_TOP_PAIRS = 'UPDATE_TOP_PAIRS'
 const UPDATE_HOURLY_DATA = 'UPDATE_HOURLY_DATA'
 
 
-async function getBulkPairData(tokenList: []) {
+async function getBulkPairData(tokenList: string[]) {
   try {
     let historicalData = await apolloClient.query({
       query: HISTORICAL_POOLS_DATA({
@@ -22,18 +22,18 @@ async function getBulkPairData(tokenList: []) {
       }),
       fetchPolicy: 'cache-first',
     })
-    let oneDayData = historicalData?.data?.poolsData.reduce((obj, cur, i) => {
+    let oneDayData = historicalData?.data?.poolsData.reduce((obj: any, cur:any, i: number) => {
       return { ...obj, [cur.pool.poolAddress]: cur?.period?.[apiTimeframeOptions.oneDay] }
     }, {})
 
-    let twoDayData = historicalData?.data?.poolsData.reduce((obj, cur, i) => {
+    let twoDayData = historicalData?.data?.poolsData.reduce((obj: any, cur:any, i: number) => {
       return { ...obj, [cur.pool.poolAddress]: cur?.period?.[apiTimeframeOptions.twoDays] }
     }, {})
 
-    let oneWeekData = historicalData?.data?.poolsData.reduce((obj, cur, i) => {
+    let oneWeekData = historicalData?.data?.poolsData.reduce((obj: any, cur:any, i: number) => {
       return { ...obj, [cur.pool.poolAddress]: cur?.period?.[apiTimeframeOptions.oneWeek] }
     }, {})
-    let currentData = historicalData?.data?.poolsData.reduce((obj, cur, i) => {
+    let currentData = historicalData?.data?.poolsData.reduce((obj: any, cur:any, i: number) => {
       return { ...obj, [cur.pool.poolAddress]: cur?.pool }
     }, {})
 
@@ -52,10 +52,11 @@ async function getBulkPairData(tokenList: []) {
     return pairData
   } catch (e) {
     console.log(e)
+    return null
   }
 }
 
-function parseData(data: any, oneDayData, twoDayData, oneWeekData) {
+function parseData(data: any, oneDayData: any, twoDayData: any, oneWeekData: any) {
   const oneDayVolumeUSD = oneDayData?.volumeUSD || 0
   const twoDayVolumeUSD = twoDayData?.volumeUSD || 0
   const volumeChangeUSD = get2DayPercentChange(oneDayVolumeUSD, twoDayVolumeUSD)
@@ -81,11 +82,12 @@ function parseData(data: any, oneDayData, twoDayData, oneWeekData) {
   return newData
 }
 
-export const getAllPools = async (whitelistedIds:[] = []) => {
+export const getAllPools = async (whitelistedIds: string[] = []) => {
   try {
     const bulkResults = getBulkPairData(whitelistedIds)
     return bulkResults
   } catch (e) {
     console.log(e)
+    return null
   }
 }
