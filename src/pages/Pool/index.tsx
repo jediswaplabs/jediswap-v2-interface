@@ -232,7 +232,7 @@ const ResponsiveButtonPrimary = styled(ButtonPrimary)`
 
 const MainContentWrapper = styled.main<{ isWalletConnected?: boolean; filteredPositions?: any }>`
   background-color: ${({ theme, isWalletConnected, filteredPositions }) =>
-    isWalletConnected && filteredPositions ? 'rgba(196, 196, 196, 0.01)' : theme.jediNavyBlue};
+    isWalletConnected && filteredPositions ? 'rgba(196, 196, 196, 0.01)' : 'transparent'};
   border-radius: 8px;
   box-shadow: ${({ isWalletConnected, filteredPositions }) =>
     isWalletConnected && filteredPositions
@@ -271,16 +271,16 @@ const panelPseudo = css`
   }
 `
 
-const Panel = styled(RebassBox) <{
-  hover?: boolean,
-  background?: boolean,
-  area?: boolean,
-  grouped?: boolean,
-  rounded?: boolean,
-  last?: boolean,
+const Panel = styled(RebassBox)<{
+  hover?: boolean
+  background?: boolean
+  area?: boolean
+  grouped?: boolean
+  rounded?: boolean
+  last?: boolean
 }>`
   position: relative;
-  background-color: ${({ theme }) => theme.advancedBG};
+  // background-color: ${({ theme }) => theme.advancedBG};
   border-radius: 8px;
   padding: 1.25rem;
   width: 100%;
@@ -290,8 +290,10 @@ const Panel = styled(RebassBox) <{
   flex-direction: column;
   justify-content: flex-start;
   background: rgba(196, 196, 196, 0.01);
-  box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset, 0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset,
-    0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.3) inset, 0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset;
+  box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset,
+    0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset,
+    0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.3) inset,
+    0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset;
 
   :hover {
     cursor: ${({ hover }) => hover && 'pointer'};
@@ -327,7 +329,11 @@ const Panel = styled(RebassBox) <{
   ${(props) => !props.last && panelPseudo}
 `
 const PanelTopLight = styled(Panel)`
-  box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.20) inset, 0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.30) inset, 0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.30) inset, 0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.30) inset, 0px 5.388px 8.467px -3.079px #FFF inset, 0px 30.021px 43.107px -27.712px rgba(255, 255, 255, 0.50) inset;
+  box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset,
+    0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset,
+    0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.3) inset,
+    0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset, 0px 5.388px 8.467px -3.079px #fff inset,
+    0px 30.021px 43.107px -27.712px rgba(255, 255, 255, 0.5) inset;
 `
 
 function PositionsLoadingPlaceholder() {
@@ -474,14 +480,16 @@ export default function Pool() {
       if (!lists['https://static.jediswap.xyz/tokens-list/jediswap-default.tokenlist.json'].current) {
         return
       }
-      const whitelistedIds = lists['https://static.jediswap.xyz/tokens-list/jediswap-default.tokenlist.json'].current.tokens.map(token => token.address)
+      const whitelistedIds = lists[
+        'https://static.jediswap.xyz/tokens-list/jediswap-default.tokenlist.json'
+      ].current.tokens.map((token) => token.address)
       whitelistedIds.push('0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') //add ETH token
       const poolsDataRaw = await getAllPools(whitelistedIds)
       const poolsData: any = {}
-      poolsDataRaw?.forEach(data => {
-        poolsData[data.poolAddress] = data;
-      });
-      setpoolsData(poolsData);
+      poolsDataRaw?.forEach((data) => {
+        poolsData[data.poolAddress] = data
+      })
+      setpoolsData(poolsData)
     }
 
     getPoolsData()
@@ -495,9 +503,11 @@ export default function Pool() {
   }
 
   const showConnectAWallet = Boolean(!address)
-  const poolsTable = (<Panel style={{ padding: '0' }}>
-    <Pools pairs={poolsData} disbaleLinks={true} />
-  </Panel>)
+  const poolsTable = (
+    <Panel style={{ padding: '0' }}>
+      <Pools pairs={poolsData} disbaleLinks={true} />
+    </Panel>
+  )
   const totalValueLockedUSD = 10
   const liquidityChangeUSD = 20
   const totalVolumeUSD = 0
@@ -566,14 +576,23 @@ export default function Pool() {
         </PanelWrapper>
       </AutoColumn>
       {/* </PageSection> */}
-
       <AutoColumn gap="lg" justify="center">
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <ToggleWrapper width="fit-content">
-            <ToggleElement isActive={false} fontSize="12px" style={{ borderRadius: '4px 0 0 4px' }} onClick={() => setShowMyPositions(false)}>
+            <ToggleElement
+              isActive={false}
+              fontSize="12px"
+              style={{ borderRadius: '4px 0 0 4px' }}
+              onClick={() => setShowMyPositions(false)}
+            >
               Top Pools
             </ToggleElement>
-            <ToggleElement isActive={true} fontSize="12px" style={{ borderRadius: '0 4px 4px 0' }} onClick={() => setShowMyPositions(true)}>
+            <ToggleElement
+              isActive={true}
+              fontSize="12px"
+              style={{ borderRadius: '0 4px 4px 0' }}
+              onClick={() => setShowMyPositions(true)}
+            >
               My positions
             </ToggleElement>
           </ToggleWrapper>
@@ -584,7 +603,7 @@ export default function Pool() {
             </ResponsiveButtonPrimary>
           </ButtonRow>
           <MainContentWrapper>
-            {showMyPositions ?
+            {showMyPositions ? (
               loadingPositions ? (
                 <PositionsLoadingPlaceholder />
               ) : (
@@ -592,9 +611,11 @@ export default function Pool() {
                   tokenIds={tokenIds}
                   showConnectAWallet={showConnectAWallet}
                   toggleWalletDrawer={toggleWalletDrawer}
-                />)
-              : poolsTable
-            }
+                />
+              )
+            ) : (
+              poolsTable
+            )}
           </MainContentWrapper>
           {/* {userSelectedPositionSet.length ? null : <CTACards />} */}
         </AutoColumn>

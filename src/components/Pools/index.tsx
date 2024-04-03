@@ -7,7 +7,7 @@ import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
 
 // import { CustomLink } from '../Link'
-import { Link as CustomLink } from 'react-router-dom';
+import { Link as CustomLink, Link } from 'react-router-dom'
 import { Divider } from '../../components'
 // import { withRouter } from 'react-router-dom'
 import { formattedNum, formattedPercent } from '../../utils/dashboard.js'
@@ -20,6 +20,11 @@ import { AutoColumn } from '../Column'
 import Row, { AutoRow, RowFixed } from '../Row'
 import FeeBadge from 'components/FeeBadge'
 import { darkTheme } from 'theme/colors'
+import { MEDIA_WIDTHS } from 'theme'
+import { useDefaultActiveTokens } from 'hooks/Tokens'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { validateAndParseAddress } from 'starknet'
+import { WETH } from 'constants/tokens'
 
 dayjs.extend(utc)
 
@@ -32,7 +37,7 @@ const PageButtons = styled.div`
 `
 
 const Arrow = styled.div<{ faded?: boolean }>`
-  color: ${({ theme, faded }) => faded ? theme.jediGrey : theme.jediBlue};
+  color: ${({ theme, faded }) => (faded ? theme.jediGrey : theme.jediBlue)};
   padding: 0 20px;
   user-select: none;
   font-size: 30px;
@@ -56,7 +61,7 @@ const PlaceholderContainer = styled.div`
   padding: 20px;
 `
 
-const DashGrid = styled.div<{ fade?: boolean, disbaleLinks?: boolean, focus?: boolean, center?: boolean}>`
+const DashGrid = styled.div<{ fade?: boolean; disbaleLinks?: boolean; focus?: boolean; center?: boolean }>`
   display: grid;
   grid-gap: 1em;
   grid-template-columns: 100px 1fr 1fr;
@@ -94,7 +99,7 @@ const DashGrid = styled.div<{ fade?: boolean, disbaleLinks?: boolean, focus?: bo
 
 const ListWrapper = styled.div``
 
-const ClickableText = styled(Text)<{ area: string}>`
+const ClickableText = styled(Text)<{ area: string }>`
   color: ${({ theme }) => theme.text1};
   &:hover {
     cursor: pointer;
@@ -104,7 +109,7 @@ const ClickableText = styled(Text)<{ area: string}>`
   user-select: none;
 `
 
-const DataText = styled(Flex)<{ area?: string}>`
+const DataText = styled(Flex)<{ area?: string }>`
   align-items: center;
   text-align: center;
   color: ${({ theme }) => theme.text1};
@@ -116,6 +121,36 @@ const DataText = styled(Flex)<{ area?: string}>`
   @media screen and (max-width: 600px) {
     font-size: 12px;
   }
+`
+
+const LinkRow = styled(Link)`
+  align-items: center;
+  display: flex;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  color: ${({ theme }) => theme.neutral1};
+  padding: 16px;
+  text-decoration: none;
+  font-weight: 535;
+
+  & > div:not(:first-child) {
+    text-align: center;
+  }
+  :hover {
+    background-color: ${({ theme }) => theme.deprecated_hoverDefault};
+  }
+
+  @media screen and (min-width: ${MEDIA_WIDTHS.deprecated_upToSmall}px) {
+    /* flex-direction: row; */
+  }
+
+  ${({ theme }) => theme.deprecated_mediaWidth.deprecated_upToSmall`
+    flex-direction: column;
+    row-gap: 8px;
+  `};
 `
 
 const SORT_FIELD = {
@@ -141,7 +176,12 @@ const FIELD_TO_VALUE = (field: number) => {
   }
 }
 
-const formatDataText = (value: string | 0 | JSX.Element, trackedValue: string, supressWarning = false, textAlign: CanvasTextAlign = 'right') => {
+const formatDataText = (
+  value: string | 0 | JSX.Element,
+  trackedValue: string,
+  supressWarning = false,
+  textAlign: CanvasTextAlign = 'right'
+) => {
   return (
     <AutoColumn gap="2px">
       <div style={{ textAlign }}>{value}</div>
@@ -160,12 +200,12 @@ function PairList({
   waitForData = true,
   noPairsPlaceholderText = DEFAULT_NO_PAIRS_PLACEHOLDER_TEXT,
 }: {
-  pairs: any,
-  color?: string,
-  disbaleLinks?: boolean,
-  maxItems?: number,
-  useTracked?: boolean,
-  waitForData?: boolean,
+  pairs: any
+  color?: string
+  disbaleLinks?: boolean
+  maxItems?: number
+  useTracked?: boolean
+  waitForData?: boolean
   noPairsPlaceholderText?: string
 }) {
   const below600 = useMedia('(max-width: 600px)')
@@ -175,6 +215,8 @@ function PairList({
   const [page, setPage] = useState(1)
   const [maxPage, setMaxPage] = useState(1)
   const ITEMS_PER_PAGE = maxItems
+  const { chainId } = useAccountDetails()
+  const allTokens = useDefaultActiveTokens(chainId)
 
   // sorting
   const [sortDirection, setSortDirection] = useState(true)
@@ -204,49 +246,54 @@ function PairList({
     }
   }, [ITEMS_PER_PAGE, filteredPairsAddresses])
 
-  const ListItem = ({ pairAddress, index }: {pairAddress: string, index: number}) => {
-    const pairData = pairs[pairAddress]
+  const ListItem = ({ pairAddress, pairData, doubleCurrencyImageData }: { pairAddress: string }) => {
     const feePercent = (pairData ? parseFloat(pairData.fee) / 10000 : 0) + '%'
 
     if (pairData && pairData.token0 && pairData.token1) {
       const feeTier = pairData.fee / 10 ** 6
       const liquidity = formattedNum(pairData.totalValueLockedUSD, true)
 
-      const volume = formattedNum(pairData.oneDayVolumeUSD ? pairData.oneDayVolumeUSD : pairData.oneDayVolumeUntracked, true)
+      const volume = formattedNum(
+        pairData.oneDayVolumeUSD ? pairData.oneDayVolumeUSD : pairData.oneDayVolumeUntracked,
+        true
+      )
 
       const fees = formattedNum(pairData.oneDayFeesUSD, true)
 
       const feeRatio24H = pairData.oneDayFeesUSD / pairData.totalValueLockedUSD
       const apy = ((1 + feeRatio24H) ** 365 - 1) * 100
-      const cleanedApy = (isNaN(apy) || !isFinite(apy)) ? 0 : apy
+      const cleanedApy = isNaN(apy) || !isFinite(apy) ? 0 : apy
       const displayApy = formattedPercent(cleanedApy, true)
 
-      const weekVolume = formattedNum(pairData.oneWeekVolumeUSD ? pairData.oneWeekVolumeUSD : pairData.oneWeekVolumeUntracked, true)
+      const weekVolume = formattedNum(
+        pairData.oneWeekVolumeUSD ? pairData.oneWeekVolumeUSD : pairData.oneWeekVolumeUntracked,
+        true
+      )
+
+      console.log(doubleCurrencyImageData, 'doubleCurrencyImageData')
+
       // const weekVolume = Math.round(pairData.oneWeekVolumeUSD)
       if (below1080) {
         return (
           <div style={{ margin: '10px 0', padding: '20px', borderRadius: '8px', border: '1px solid #959595' }}>
             <div style={{ display: 'flex' }}>
-              {/* <DoubleTokenLogo
-                size={below600 ? 16 : 20}
-                a0={pairData.token0.tokenAddress}
-                a1={pairData.token1.tokenAddress}
-                s0={pairData.token0.symbol}
-                s1={pairData.token1.symbol}
-                margin
-              /> */}
+              {/* {doubleCurrencyImageData && (
+                <DoubleTokenLogo
+                  size={below600 ? 16 : 20}
+                  currency0={doubleCurrencyImageData.token0}
+                  currency1={doubleCurrencyImageData.token1}
+                  margin
+                />
+              )} */}
               <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap' }}>
-                <CustomLink to={'/pool/' + pairAddress} color={color}>
+                <LinkRow to={'/pool/' + pairAddress}>
                   <FormattedName
                     text={pairData.token0.symbol + '-' + pairData.token1.symbol}
                     maxCharacters={below600 ? 8 : 16}
                     adjustSize={true}
-                    link={true}
                   />
-                </CustomLink>
-                <FeeBadge>
-                  {feePercent}
-                </FeeBadge>
+                </LinkRow>
+                <FeeBadge>{feePercent}</FeeBadge>
               </AutoRow>
             </div>
             <div style={{ color: 'white', display: 'flex', columnGap: '30px', marginTop: '10px' }}>
@@ -270,33 +317,35 @@ function PairList({
         <DashGrid style={{ height: '48px' }} disbaleLinks={disbaleLinks} focus={true}>
           <DataText area="name" fontWeight="500">
             {/* {!below600 && <div style={{ marginRight: '20px', width: '10px' }}>{index}</div>} */}
-            {/* <DoubleTokenLogo
-              size={below600 ? 16 : 20}
-              a0={pairData.token0.tokenAddress}
-              a1={pairData.token1.tokenAddress}
-              s0={pairData.token0.symbol}
-              s1={pairData.token1.symbol}
-              margin
-            /> */}
+            {doubleCurrencyImageData && (
+              <DoubleTokenLogo
+                size={below600 ? 16 : 20}
+                currency0={doubleCurrencyImageData.token0}
+                currency1={doubleCurrencyImageData.token1}
+                margin
+              />
+            )}
             <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap' }}>
-              <CustomLink to={'/pool/' + pairAddress} color={color}>
+              <LinkRow to={'/pool/' + pairAddress}>
                 <FormattedName
                   text={pairData.token0.symbol + '-' + pairData.token1.symbol}
                   maxCharacters={below600 ? 8 : 16}
                   adjustSize={true}
-                  link={true}
+                  // link={true}
                 />
-              </CustomLink>
-              <FeeBadge>
-                {feePercent}
-              </FeeBadge>
+              </LinkRow>
+              <FeeBadge>{feePercent}</FeeBadge>
             </AutoRow>
           </DataText>
           <DataText area="liq">{formatDataText(liquidity, pairData.totalValueLockedUSD)}</DataText>
           <DataText area="vol">{formatDataText(volume, pairData.oneDayVolumeUSD)}</DataText>
           {/* {!below1080 && <DataText area="volWeek">{formatDataText(weekVolume, pairData.oneWeekVolumeUSD)}</DataText>} */}
           {!below1080 && <DataText area="fees">{formatDataText(fees, pairData.oneDayVolumeUSD)}</DataText>}
-          {!below1080 && <DataText area="apy" color={darkTheme.jediBlue}>{formatDataText(displayApy, pairData.oneDayVolumeUSD, pairData.oneDayVolumeUSD === 0)}</DataText>}
+          {!below1080 && (
+            <DataText area="apy" color={darkTheme.jediBlue}>
+              {formatDataText(displayApy, pairData.oneDayVolumeUSD, pairData.oneDayVolumeUSD === 0)}
+            </DataText>
+          )}
         </DashGrid>
       )
     } else {
@@ -324,29 +373,49 @@ function PairList({
       })
       .slice(ITEMS_PER_PAGE * (page - 1), page * ITEMS_PER_PAGE)
       .map((pairAddress: string, index: number) => {
+        const pairData = pairs[pairAddress]
+        let doubleCurrencyImageData = undefined
+        if (pairData && pairData.token0 && pairData.token1 && chainId) {
+          doubleCurrencyImageData = {
+            token0:
+              pairData.token0.symbol === 'ETH'
+                ? WETH[chainId]
+                : allTokens[validateAndParseAddress(pairData.token0.tokenAddress)],
+            token1:
+              pairData.token1.symbol === 'ETH'
+                ? WETH[chainId]
+                : allTokens[validateAndParseAddress(pairData.token1.tokenAddress)],
+          }
+        }
         return (
           pairAddress && (
             <div key={index}>
-              <ListItem key={index} index={(page - 1) * ITEMS_PER_PAGE + index + 1} pairAddress={pairAddress} />
+              <ListItem
+                key={index}
+                index={(page - 1) * ITEMS_PER_PAGE + index + 1}
+                pairData={pairData}
+                pairAddress={pairAddress}
+                doubleCurrencyImageData={doubleCurrencyImageData}
+              />
               {!below1080 && <Divider />}
             </div>
           )
         )
       })
 
-//   if (!pairList) {
-//     return <LocalLoader />
-//   }
+  //   if (!pairList) {
+  //     return <LocalLoader />
+  //   }
 
-//   if (waitForData && !pairList.length) {
-//     return <LocalLoader />
-//   }
+  //   if (waitForData && !pairList.length) {
+  //     return <LocalLoader />
+  //   }
 
   if (!waitForData && !pairList.length) {
     return (
       <PlaceholderContainer>
         {/* <TYPE.main fontSize={'16px'} fontWeight={'400'}> */}
-          {noPairsPlaceholderText}
+        {noPairsPlaceholderText}
         {/* </TYPE.main> */}
       </PlaceholderContainer>
     )
@@ -363,7 +432,7 @@ function PairList({
           >
             <Flex alignItems="center" justifyContent="flexStart">
               {/* <TYPE.main area="name"> */}
-                Pool Name
+              Pool Name
               {/* </TYPE.main> */}
             </Flex>
             <Flex alignItems="center" justifyContent="flexEnd">
@@ -434,7 +503,9 @@ function PairList({
       )}
       <List p={0}>{pairList}</List>
       <ViewAll>
-        <a href="https://info.v2.jediswap.xyz/pools" target="_blank">View all</a>
+        <a href="https://info.v2.jediswap.xyz/pools" target="_blank">
+          View all
+        </a>
       </ViewAll>
     </ListWrapper>
   )
