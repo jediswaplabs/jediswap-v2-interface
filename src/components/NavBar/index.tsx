@@ -18,6 +18,7 @@ import {
   Nav,
   StatusContainer,
 } from './styled'
+import {useIsVaultsPage} from "../../hooks/useIsVaultsPage";
 
 const MenuItemLink = ({ to, dataTestId, id, isActive, children }) => {
   const Component = isActive ? ActiveMenuItem : MenuItem
@@ -37,6 +38,7 @@ const ExternalMenuItemLink = ({ to, children }) => (
 export const PageTabs = () => {
   const { pathname } = useLocation()
   const isPoolActive = useIsPoolsPage()
+  const isVaultsActive = useIsVaultsPage()
 
   return (
     <>
@@ -49,9 +51,9 @@ export const PageTabs = () => {
       <ExternalMenuItemLink to="https://info.v2.jediswap.xyz/">
         <Trans>Dashboard</Trans>
       </ExternalMenuItemLink>
-      <ExternalMenuItemLink to="https://app.v1.jediswap.xyz/">
-        <Trans>V1</Trans>
-      </ExternalMenuItemLink>
+        <MenuItemLink to="/vaults" isActive={isVaultsActive}>
+            <Trans>Vaults</Trans>
+        </MenuItemLink>
     </>
   )
 }
