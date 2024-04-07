@@ -1,17 +1,18 @@
-import { lazy, ReactNode, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { lazy, ReactNode, useMemo } from 'react'
+import { useLocation } from 'react-router-dom'
 
-import { isBrowserRouterEnabled } from 'utils/env';
-import Swap from './Swap';
-import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects';
+import { isBrowserRouterEnabled } from 'utils/env'
+import { Referral } from './Referral'
+import Swap from './Swap'
+import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 
-const AddLiquidity = lazy(() => import('pages/AddLiquidity'));
+const AddLiquidity = lazy(() => import('pages/AddLiquidity'))
 
-const RedirectDuplicateTokenIds = lazy(() => import('pages/AddLiquidity/redirects'));
+const RedirectDuplicateTokenIds = lazy(() => import('pages/AddLiquidity/redirects'))
 
-const Pool = lazy(() => import('pages/Pool'));
-const PositionPage = lazy(() => import('pages/Pool/PositionPage'));
-const RemoveLiquidityV3 = lazy(() => import('pages/RemoveLiquidity/V3'));
+const Pool = lazy(() => import('pages/Pool'))
+const PositionPage = lazy(() => import('pages/Pool/PositionPage'))
+const RemoveLiquidityV3 = lazy(() => import('pages/RemoveLiquidity/V3'))
 
 interface RouterConfig {
   browserRouterEnabled?: boolean
@@ -22,15 +23,15 @@ interface RouterConfig {
  * Convenience hook which organizes the router configuration into a single object.
  */
 export function useRouterConfig(): RouterConfig {
-  const browserRouterEnabled = isBrowserRouterEnabled();
-  const { hash } = useLocation();
+  const browserRouterEnabled = isBrowserRouterEnabled()
+  const { hash } = useLocation()
   return useMemo(
     () => ({
       browserRouterEnabled,
       hash,
     }),
-    [browserRouterEnabled, hash],
-  );
+    [browserRouterEnabled, hash]
+  )
 }
 
 export interface RouteDefinition {
@@ -51,7 +52,7 @@ function createRouteDefinition(route: Partial<RouteDefinition>): RouteDefinition
     nestedPaths: [],
     // overwrite the defaults
     ...route,
-  };
+  }
 }
 
 export const routes: RouteDefinition[] = [
@@ -61,6 +62,7 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/pool/:tokenId', getElement: () => <PositionPage /> }),
   createRouteDefinition({ path: '/pools', getElement: () => <Pool /> }),
   createRouteDefinition({ path: '/pools/:tokenId', getElement: () => <PositionPage /> }),
+  createRouteDefinition({ path: '/referral', getElement: () => <Referral /> }),
 
   createRouteDefinition({
     path: '/add',
@@ -81,4 +83,4 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/remove/:tokenId', getElement: () => <RemoveLiquidityV3 /> }),
   // @ts-ignore
   createRouteDefinition({ path: '*', getElement: () => <RedirectPathToSwapOnly /> }),
-];
+]
