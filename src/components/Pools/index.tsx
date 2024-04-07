@@ -331,15 +331,15 @@ function PairList({
                   margin
                 />
               )}
-              <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap' }}>
-                <LinkRow to={'/pool/' + pairAddress}>
+              <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap', marginLeft: '10px' }}>
+                {/* <LinkRow to={'/pool/' + pairAddress}> */}
                   <FormattedName
                     text={pairData.token0.symbol + '-' + pairData.token1.symbol}
                     maxCharacters={below600 ? 8 : 16}
                     adjustSize={true}
                     link={false}
                   />
-                </LinkRow>
+                {/* </LinkRow> */}
                 <FeeBadge>{feePercent}</FeeBadge>
               </AutoRow>
             </div>
@@ -390,7 +390,7 @@ function PairList({
           {/* {!below1080 && <DataText area="volWeek">{formatDataText(weekVolume, pairData.oneWeekVolumeUSD)}</DataText>} */}
           {!below1080 && <DataText area="fees">{formatDataText(fees, pairData.oneDayVolumeUSD)}</DataText>}
           {!below1080 && (
-            <DataText area="apy" color={darkTheme.jediBlue} className="apr-wrapper" data-tooltip-html={renderToStaticMarkup(getTooltipMarkup())} data-tooltip-place="bottom-start" data-tooltip-offset={-20}>
+            <DataText area="apy" color={darkTheme.jediBlue} className="apr-wrapper" data-tooltip-html={pairData.rewarded ? renderToStaticMarkup(getTooltipMarkup()): null} data-tooltip-place="bottom-start" data-tooltip-offset={-20}>
               {formatDataText(displayApy, pairData.oneDayVolumeUSD, pairData.oneDayVolumeUSD === 0)}
             </DataText>
           )}

@@ -256,7 +256,8 @@ const ResponsiveButtonTabs = styled(ButtonPrimary)<{ secondary: boolean; active:
     color: ${({ theme, active }) => (!active ? theme.jediWhite : theme.jediPink)};
   }
   @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    width: 132px;
+    width: 50%;
+    margin-bottom: 10px;
   }
 `
 
