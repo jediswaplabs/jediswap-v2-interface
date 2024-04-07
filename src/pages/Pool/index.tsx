@@ -30,7 +30,7 @@ import { formattedNum, formattedPercent } from 'utils/dashboard'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
-  max-width: 920px;
+  max-width: 1020px;
   width: 100%;
 
   @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
@@ -366,6 +366,14 @@ const PanelTopLight = styled(Panel)`
     0px 30.021px 43.107px -27.712px rgba(255, 255, 255, 0.5) inset;
 `
 
+const PageHeader = styled.div`
+  color: ${({ theme }) => theme.jediWhite};
+  font-family: "Avenir LT Std";
+  font-size: 24px;
+  font-weight: 750;
+  margin-bottom: 20px;
+`
+
 function PositionsLoadingPlaceholder() {
   return (
     <LoadingRows>
@@ -517,6 +525,11 @@ export default function Pool() {
       const poolsDataRaw = await getAllPools(whitelistedIds)
       const poolsData: any = {}
       poolsDataRaw?.forEach((data) => {
+        //testing
+        data.aprStarknet = Math.random() >0.9 ? 100: 0
+
+        data.rewarded = data.aprStarknet ? true : false
+
         poolsData[data.poolAddress] = data
       })
       setpoolsData(poolsData)
@@ -547,7 +560,9 @@ export default function Pool() {
 
   return (
     <PageWrapper>
-      POOLS
+      <PageHeader>
+        POOLS
+      </PageHeader>
       {/* <PageSection> */}
       <AutoColumn style={{ gap: '12px' }}>
         <PanelWrapper>

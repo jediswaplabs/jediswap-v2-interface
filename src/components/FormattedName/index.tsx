@@ -9,7 +9,7 @@ const TextWrapper = styled.div<{ margin?: boolean, link?: boolean, fontSize?: st
   font-size: ${({ fontSize }) => fontSize ?? 'inherit'};
 
   :hover {
-    cursor: pointer;
+    // cursor: pointer;
   }
 
   @media screen and (max-width: 600px) {

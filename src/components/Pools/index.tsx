@@ -5,6 +5,8 @@ import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { Box, Flex, Text } from 'rebass'
 import styled from 'styled-components'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { Tooltip as ReactTooltip } from 'react-tooltip'
 
 // import { CustomLink } from '../Link'
 import { Link as CustomLink, Link } from 'react-router-dom'
@@ -25,6 +27,7 @@ import { useDefaultActiveTokens } from 'hooks/Tokens'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { validateAndParseAddress } from 'starknet'
 import { WETH } from 'constants/tokens'
+import StarknetIcon from 'assets/svg/starknet.svg'
 
 dayjs.extend(utc)
 
@@ -87,12 +90,12 @@ const DashGrid = styled.div<{ fade?: boolean; disbaleLinks?: boolean; focus?: bo
 
   @media screen and (min-width: 1080px) {
     padding: 0 1.125rem;
-    grid-template-columns: 1.7fr 1fr 1fr  1fr 1fr;
+    grid-template-columns: 2.7fr 1fr 1fr  1fr 1fr;
     grid-template-areas: ' name liq vol  fees apy';
   }
 
   @media screen and (min-width: 1200px) {
-    grid-template-columns: 1.7fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 2.7fr 1fr 1fr 1fr 1fr;
     grid-template-areas: ' name liq vol fees apy';
   }
 `
@@ -152,7 +155,22 @@ const LinkRow = styled(Link)`
     row-gap: 8px;
   `};
 `
-
+const Rewards = styled.div`
+  display: flex;
+  flex-direction: row;
+`
+const StrkBadgeOuter = styled.div`
+  display: flex;
+  flex-direction: row;
+  border-radius: 2px;
+  border: 1px solid #EC796B;
+  background: #0C0C4F;
+  padding: 3px;
+  width: 48px;
+  height: 16px;
+  // flex-shrink: 0;
+  align-items: center;
+`
 const SORT_FIELD = {
   LIQ: 0,
   VOL: 1,
@@ -258,7 +276,19 @@ function PairList({
     doubleCurrencyImageData: any
   }) => {
     const feePercent = (pairData ? parseFloat(pairData.fee) / 10000 : 0) + '%'
-
+    let rewardsBadges = null;
+    const strkBadge = <StrkBadgeOuter>
+      <div>
+        <img src={StarknetIcon} style={{width: '10px'}}/>
+      </div>
+      <div>STRK</div>
+    </StrkBadgeOuter>
+    if (pairData.rewarded) {
+      rewardsBadges = <Rewards>
+        <div style={{marginRight: '4px', fontSize: '0.75rem'}}>Rewards:</div>
+        {pairData.aprStarknet && strkBadge}
+      </Rewards>
+    }
     if (pairData && pairData.token0 && pairData.token1) {
       const feeTier = pairData.fee / 10 ** 6
       const liquidity = formattedNum(pairData.totalValueLockedUSD, true)
@@ -274,6 +304,14 @@ function PairList({
       const apy = ((1 + feeRatio24H) ** 365 - 1) * 100
       const cleanedApy = isNaN(apy) || !isFinite(apy) ? 0 : apy
       const displayApy = formattedPercent(cleanedApy, true)
+      const getTooltipMarkup = () => {
+        return (
+          <div style={{fontSize: '10px', display: 'flex', flexDirection:'column', gap: '8px'}}>
+            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}><span style={{opacity: 0.7}}>Fee APR:</span> {displayApy}</Flex>
+            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}><span style={{opacity: 0.7}}>STRK APR:</span> {displayApy}</Flex>
+          </div>
+        )
+      }
 
       const weekVolume = formattedNum(
         pairData.oneWeekVolumeUSD ? pairData.oneWeekVolumeUSD : pairData.oneWeekVolumeUntracked,
@@ -334,24 +372,25 @@ function PairList({
                 margin
               />
             )}
-            <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap' }}>
-              <LinkRow to={'/pool/' + pairAddress}>
+            <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap', marginLeft: '10px' }}>
+              {/* <LinkRow to={'/pool/' + pairAddress}> */}
                 <FormattedName
                   text={pairData.token0.symbol + '-' + pairData.token1.symbol}
                   maxCharacters={below600 ? 8 : 16}
                   adjustSize={true}
                   link={false}
                 />
-              </LinkRow>
+              {/* </LinkRow> */}
               <FeeBadge>{feePercent}</FeeBadge>
             </AutoRow>
+            {rewardsBadges}
           </DataText>
           <DataText area="liq">{formatDataText(liquidity, pairData.totalValueLockedUSD)}</DataText>
           <DataText area="vol">{formatDataText(volume, pairData.oneDayVolumeUSD)}</DataText>
           {/* {!below1080 && <DataText area="volWeek">{formatDataText(weekVolume, pairData.oneWeekVolumeUSD)}</DataText>} */}
           {!below1080 && <DataText area="fees">{formatDataText(fees, pairData.oneDayVolumeUSD)}</DataText>}
           {!below1080 && (
-            <DataText area="apy" color={darkTheme.jediBlue}>
+            <DataText area="apy" color={darkTheme.jediBlue} className="apr-wrapper" data-tooltip-html={renderToStaticMarkup(getTooltipMarkup())} data-tooltip-place="bottom-start" data-tooltip-offset={-20}>
               {formatDataText(displayApy, pairData.oneDayVolumeUSD, pairData.oneDayVolumeUSD === 0)}
             </DataText>
           )}
@@ -369,6 +408,12 @@ function PairList({
       .sort((addressA: string, addressB: string) => {
         const pairA = pairs[addressA]
         const pairB = pairs[addressB]
+        if (pairA.rewarded && !pairB.rewarded) {
+          return -1
+        }
+        if (!pairA.rewarded && pairB.rewarded) {
+          return 1
+        }
         if (sortedColumn === SORT_FIELD.APY) {
           const pairAFeeRation24H = pairA.oneDayFeesUSD / pairA.totalValueLockedUSD
           const pairBFeeRation24H = pairB.oneDayFeesUSD / pairB.totalValueLockedUSD
@@ -516,6 +561,18 @@ function PairList({
           View all
         </a>
       </ViewAll>
+      <ReactTooltip
+        anchorSelect=".apr-wrapper"
+        style={{
+          background: '#141451',
+          color: '#ffffff',
+          borderRadius: '8px',
+          border: '1px solid rgba(255, 255, 255, 0.20)'
+        }}
+        // arrowColor="#763daf"
+        noArrow={true}
+        opacity={1}
+      />
     </ListWrapper>
   )
 }
