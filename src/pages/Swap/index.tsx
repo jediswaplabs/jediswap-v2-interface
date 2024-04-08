@@ -1,77 +1,60 @@
 /* eslint-disable no-nested-ternary */
 
 import { Trans } from '@lingui/macro'
+import { InterfaceSectionName } from '@uniswap/analytics-events'
 import { ChainId, Currency, CurrencyAmount, Percent, Token } from '@vnaysn/jediswap-sdk-core'
 import { useAccountDetails } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import { ReactNode, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { ArrowDown } from 'react-feather'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { Text } from 'rebass'
+import { useNavigate } from 'react-router-dom'
 import styled, { useTheme } from 'styled-components'
-import { InterfaceSectionName } from '@uniswap/analytics-events'
 
+import { useContractWrite } from '@starknet-react/core'
+import { Pool, TradeType, toHex } from '@vnaysn/jediswap-sdk-v3'
+import fetchAllPairs from 'api/fetchAllPairs'
+import fetchAllPools from 'api/fetchAllPools'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import AddressInputPanel from 'components/AddressInputPanel'
-import {
-  ButtonEmphasis,
-  ButtonError,
-  ButtonGray,
-  ButtonLight,
-  ButtonPrimary,
-  ButtonSize,
-  ThemeButton,
-} from 'components/Button'
-import { GrayCard } from 'components/Card'
+import { ButtonError, ButtonPrimary, ButtonSize } from 'components/Button'
 import { AutoColumn } from 'components/Column'
 import SwapCurrencyInputPanel from 'components/CurrencyInputPanel/SwapCurrencyInputPanel'
+import { LoadingRows } from 'components/Loader/styled'
 import { AutoRow } from 'components/Row'
-import confirmPriceImpactWithoutFee from 'components/swap/confirmPriceImpactWithoutFee'
+import TokenSafetyModal from 'components/TokenSafety/TokenSafetyModal'
 import ConfirmSwapModal from 'components/swap/ConfirmSwapModal'
 import PriceImpactModal from 'components/swap/PriceImpactModal'
 import PriceImpactWarning from 'components/swap/PriceImpactWarning'
-import { ArrowWrapper, PageWrapper, SwapWrapper } from 'components/swap/styled'
 import SwapDetailsDropdown from 'components/swap/SwapDetailsDropdown'
 import SwapHeader from 'components/swap/SwapHeader'
-import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
-import TokenSafetyModal from 'components/TokenSafety/TokenSafetyModal'
+import { ArrowWrapper, PageWrapper, SwapWrapper } from 'components/swap/styled'
 import { useConnectionReady } from 'connection/eagerlyConnect'
-import { getChainInfo } from 'constants/chainInfo'
 import { isSupportedChain } from 'constants/chains'
-import { useUniswapXDefaultEnabled } from 'featureFlags/flags/uniswapXDefault'
+import { DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS_V1, SWAP_ROUTER_ADDRESS_V2, getSwapCurrencyId } from 'constants/tokens'
 import { useCurrency, useDefaultActiveTokens } from 'hooks/Tokens'
+import { useApprovalCall } from 'hooks/useApproveCall'
+import { useReferralContract } from 'hooks/useContractV2'
 import { useIsSwapUnsupported } from 'hooks/useIsSwapUnsupported'
 import { useMaxAmountIn } from 'hooks/useMaxAmountIn'
 import usePermit2Allowance, { AllowanceState } from 'hooks/usePermit2Allowance'
 import usePrevious from 'hooks/usePrevious'
+import { useTraderReferralCode } from 'hooks/useReferral'
 import { SwapResult, useSwapCallback } from 'hooks/useSwapCallback'
-import { useSwitchChain } from 'hooks/useSwitchChain'
+import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useUSDPrice } from 'hooks/useUSDPrice'
-import useWrapCallback, { WrapErrorText, WrapType } from 'hooks/useWrapCallback'
-import { formatSwapQuoteReceivedEventProperties } from 'lib/utils/analytics'
-import { useAppSelector } from 'state/hooks'
+import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
+import { Call, CallData, cairo, validateAndParseAddress } from 'starknet'
 import { InterfaceTrade, TradeState } from 'state/routing/types'
 import { isClassicTrade, isPreviewTrade } from 'state/routing/utils'
 import { Field, forceExactInput, replaceSwapState } from 'state/swap/actions'
 import { useDefaultsFromURLSearch, useDerivedSwapInfo, useSwapActionHandlers } from 'state/swap/hooks'
-import swapReducer, { initialState as initialSwapState, SwapState } from 'state/swap/reducer'
-import { LinkStyledButton, ThemedText } from 'theme/components'
+import swapReducer, { SwapState, initialState as initialSwapState } from 'state/swap/reducer'
+import { LinkStyledButton } from 'theme/components'
 import { computeFiatValuePriceImpact } from 'utils/computeFiatValuePriceImpact'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { warningSeverity } from 'utils/prices'
-import { didUserReject } from 'utils/swapErrorToUserReadableMessage'
-import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
-import { SWAP_ROUTER_ADDRESS_V2, getSwapCurrencyId, DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS_V1 } from 'constants/tokens'
-import fetchAllPools from 'api/fetchAllPools'
-import { Call, CallData, cairo, num, validateAndParseAddress } from 'starknet'
-import { LoadingRows } from 'components/Loader/styled'
-import { useContractWrite } from '@starknet-react/core'
-import useTransactionDeadline from 'hooks/useTransactionDeadline'
-import { useApprovalCall } from 'hooks/useApproveCall'
-import { Pool, TradeType, toHex } from '@vnaysn/jediswap-sdk-v3'
-import fetchAllPairs from 'api/fetchAllPairs'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -166,28 +149,31 @@ export default function SwapPage({ className }: { className?: string }) {
   const [allPairs, setAllPairs] = useState<any>([])
   const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
 
+  const { data: traderReferralCode, isLoading: isTraderReferralCodeFetching } = useTraderReferralCode()
   //fetch Token Ids
   useEffect(() => {
     const getTokenIds = async () => {
       if (connectedChainId) {
         try {
           setLoadingPositions(true)
-          const pools = await fetchAllPools(connectedChainId)
-          const pairs = await fetchAllPairs(connectedChainId)
-          if (pools && pools.data) {
-            const allPoolsArray: number[] = pools.data.map((item: any) =>
-              validateAndParseAddress(item.contract_address)
-            )
-            setAllPools(allPoolsArray)
-            setLoadingPositions(false)
-          }
+          if (!isTraderReferralCodeFetching) {
+            const pools = await fetchAllPools(connectedChainId)
+            const pairs = await fetchAllPairs(connectedChainId)
+            if (pools && pools.data) {
+              const allPoolsArray: number[] = pools.data.map((item: any) =>
+                validateAndParseAddress(item.contract_address)
+              )
+              setAllPools(allPoolsArray)
+              setLoadingPositions(false)
+            }
 
-          if (pairs && pairs.data) {
-            const allPairsArray: number[] = pairs.data.map((item: any) =>
-              validateAndParseAddress(item.contract_address)
-            )
-            setAllPairs(allPairsArray)
-            setLoadingPositions(false)
+            if (pairs && pairs.data) {
+              const allPairsArray: number[] = pairs.data.map((item: any) =>
+                validateAndParseAddress(item.contract_address)
+              )
+              setAllPairs(allPairsArray)
+              setLoadingPositions(false)
+            }
           }
         } catch (e) {
           console.error(e)
@@ -197,7 +183,7 @@ export default function SwapPage({ className }: { className?: string }) {
     }
 
     getTokenIds()
-  }, [connectedChainId])
+  }, [connectedChainId, isTraderReferralCodeFetching])
 
   return (
     <PageWrapper>
@@ -211,6 +197,8 @@ export default function SwapPage({ className }: { className?: string }) {
           initialOutputCurrencyId={loadedUrlParams?.[Field.OUTPUT]?.currencyId}
           allPools={allPools}
           allPairs={allPairs}
+          registeredReferralCode={traderReferralCode}
+          urlReferralCode={loadedUrlParams?.referralCode}
           // disableTokenInputs={supportedChainId === undefined}
         />
       )}
@@ -234,6 +222,8 @@ export function Swap({
   chainId,
   onCurrencyChange,
   disableTokenInputs = false,
+  registeredReferralCode,
+  urlReferralCode,
 }: {
   className?: string
   initialInputCurrencyId?: string | null
@@ -243,8 +233,11 @@ export function Swap({
   chainId?: ChainId
   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
   disableTokenInputs?: boolean
+  registeredReferralCode?: string
+  urlReferralCode: string | null
 }) {
   const connectionReady = useConnectionReady()
+  const referralContract = useReferralContract()
   const { address, account, chainId: connectedChainId } = useAccountDetails()
   const swapRouterAddressV2 = SWAP_ROUTER_ADDRESS_V2[connectedChainId ?? DEFAULT_CHAIN_ID]
   const swapRouterAddressV1 = SWAP_ROUTER_ADDRESS_V1[connectedChainId ?? DEFAULT_CHAIN_ID]
@@ -573,7 +566,7 @@ export function Swap({
   const approveCallback = useApprovalCall(amountToApprove, spender)
 
   const handleSwap = useCallback(() => {
-    if (!trade || !address || !deadline) return
+    if (!trade || !address || !deadline || !referralContract) return
     const handleApproval = approveCallback()
     if (!handleApproval) return
     const isTradeTypeV2 = (trade as any).swaps
@@ -583,6 +576,21 @@ export function Swap({
     callData.push(handleApproval)
     const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
+
+    if (urlReferralCode) {
+      if (urlReferralCode !== registeredReferralCode) {
+        const referralCode = {
+          _code: cairo.felt(urlReferralCode),
+        }
+        const compiledReferralCode = CallData.compile(referralCode)
+        const referralCall = {
+          contractAddress: referralContract.address,
+          entrypoint: 'set_trader_referral_code',
+          calldata: compiledReferralCode,
+        }
+        callData.push(referralCall)
+      }
+    }
     if (isTradeTypeV2) {
       const isRouteSingleHop = route.pools.length === 1
       if (trade.tradeType === TradeType.EXACT_INPUT) {
@@ -755,7 +763,7 @@ export function Swap({
       }
     }
     setSwapCallData(callData)
-  }, [trade, address, deadline, approveCallback])
+  }, [trade, address, deadline, approveCallback, urlReferralCode, registeredReferralCode])
 
   // warnings on the greater of fiat value price impact and execution price impact
   const { priceImpactSeverity, largerPriceImpact } = useMemo(() => {

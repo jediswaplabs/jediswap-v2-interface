@@ -3,13 +3,13 @@ import JSBI from 'jsbi'
 import { NEVER_RELOAD, useSingleCallResult } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
 import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
-import { useV3NFTPositionManagerContract } from './useContract'
 import { useContractRead } from '@starknet-react/core'
 import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { cairo, CallData, encode, num } from 'starknet'
-import { useAccountDetails } from './starknet-react'
 import { useQuery } from 'react-query'
 import { providerInstance } from 'utils/getLibrary'
+import { useAccountDetails } from './starknet-react'
+import { useV3NFTPositionManagerContract } from './useContract'
 
 type TokenId = number | JSBI | BigNumber
 
@@ -85,7 +85,7 @@ export function usePositionTokenURI(tokenId: TokenId | undefined): UsePositionTo
   }, [error, loading, result, tokenId, valid])
 }
 
-const feltArrToStr = (felts: bigint[]): string | undefined => {
+export const feltArrToStr = (felts: bigint[]): string | undefined => {
   if (!felts || !felts.length) return undefined
   return felts.reduce((memo, felt) => memo + Buffer.from(felt.toString(16), 'hex').toString(), '')
 }

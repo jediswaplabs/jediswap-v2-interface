@@ -23,6 +23,7 @@ export interface SwapState {
   }
   // the typed recipient address or ENS name, or null if swap should go to sender
   readonly recipient: string | null
+  readonly referralCode: string | null
 }
 
 export const initialState: SwapState = queryParametersToSwapState(parsedQueryString())
@@ -31,7 +32,7 @@ export default createReducer<SwapState>(initialState, (builder) =>
   builder
     .addCase(
       replaceSwapState,
-      (state, { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId } }) => {
+      (state, { payload: { typedValue, recipient, field, inputCurrencyId, outputCurrencyId, referralCode } }) => {
         return {
           [Field.INPUT]: {
             currencyId: inputCurrencyId ?? null,
@@ -42,6 +43,7 @@ export default createReducer<SwapState>(initialState, (builder) =>
           independentField: field,
           typedValue,
           recipient,
+          referralCode,
         }
       }
     )
