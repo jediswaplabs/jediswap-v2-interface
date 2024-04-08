@@ -22,7 +22,7 @@
             "type": "core::felt252"
           }
         ],
-        "state_mutability": "external"
+        "state_mutability": "view"
       },
       {
         "name": "get_code_owner",
@@ -38,7 +38,7 @@
             "type": "core::starknet::contract_address::ContractAddress"
           }
         ],
-        "state_mutability": "external"
+        "state_mutability": "view"
       },
       {
         "name": "get_user_code",
@@ -54,7 +54,7 @@
             "type": "core::felt252"
           }
         ],
-        "state_mutability": "external"
+        "state_mutability": "view"
       },
       {
         "name": "set_trader_referral_code",

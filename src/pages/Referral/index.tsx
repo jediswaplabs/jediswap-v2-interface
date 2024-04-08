@@ -6,13 +6,16 @@ import { useContractWrite } from '@starknet-react/core'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { ButtonPrimary, ButtonSize } from 'components/Button'
 import { AutoColumn } from 'components/Column'
+import { LoadingRows } from 'components/Loader/styled'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
+import { PageWrapper } from 'components/swap/styled'
 import { useConnectionReady } from 'connection/eagerlyConnect'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useReferralContract } from 'hooks/useContractV2'
 import useDebounce from 'hooks/useDebounce'
 import { useCodeOwner, useUserCode } from 'hooks/useReferral'
 import { Call, CallData, cairo } from 'starknet'
+import { CopyHelper } from 'theme/components'
 import { PanelTopLight } from './Panel'
 
 const ReferralWrapper = styled.div`
@@ -65,7 +68,7 @@ const ReferralWrapper = styled.div`
   }
 `
 
-export const SearchInput = styled.input`
+const SearchInput = styled.input`
   padding: 20px;
   height: 57px;
   align-items: center;
@@ -98,15 +101,47 @@ export const SearchInput = styled.input`
     outline: none;
   }
 `
+const CodeBox = styled.div`
+  background-color: ${({ theme }) => theme.surface4};
+  padding: 18px 0;
+  border-radius: 8px;
+  box-shadow: 0px 0.77px 30.79px 0px #e3deff33 inset, 0px 3.08px 13.86px 0px #9a92d24d inset,
+    0px 75.44px 76.98px -36.95px #caacff4d inset, 0px -63.12px 52.34px -49.27px #6044904d inset;
+`
+const CopyText = styled(CopyHelper).attrs({
+  iconPosition: 'right',
+})``
+
+const AccountNamesWrapper = styled.div`
+  font-family: DM Sans;
+  font-size: 32px;
+  font-weight: 500;
+  text-align: center;
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  width: fit-content;
+  flex-direction: column;
+  justify-content: center;
+  margin: auto;
+`
+
+function PositionsLoadingPlaceholder() {
+  return (
+    <LoadingRows>
+      <div style={{ height: 350 }} />
+    </LoadingRows>
+  )
+}
 
 export function Referral() {
   const connectionReady = useConnectionReady()
   const { address, account, chainId: connectedChainId } = useAccountDetails()
   const toggleWalletDrawer = useToggleAccountDrawer()
-  const [searchQuery, setSearchQuery] = useState<string>('abc')
+  const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 500)
-  const codeOwner = useCodeOwner(debouncedQuery)
-  const userReferralCode = useUserCode()
+  const { data: codeOwner, error: codeOwnerError, isLoading: isCodeOwnerLoading } = useCodeOwner(debouncedQuery)
+  const { data: userReferralCode, error: userReferralError, isLoading: isUserCodeLoading } = useUserCode()
   const [createCallData, setCreateCallData] = useState<Call[]>([])
   const [txHash, setTxHash] = useState<string>('')
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
@@ -114,8 +149,6 @@ export function Referral() {
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
 
   const referralContract = useReferralContract()
-  console.log(createCallData, 'createCallData')
-  console.log(isModalOpen, 'isModalOpen')
   const handleCreate = useCallback(() => {
     if (codeOwner === undefined && searchQuery && referralContract) {
       const calldata = CallData.compile({
@@ -140,25 +173,25 @@ export function Referral() {
   })
 
   useEffect(() => {
-    if (createCallData) {
+    if (createCallData.length) {
       setIsModalOpen(true)
       setAttemptingTxn(true)
+
       writeAsync()
         .then((response) => {
-          setAttemptingTxn(false)
           if (response?.transaction_hash) {
             setTxHash(response.transaction_hash)
           }
         })
         .catch((err) => {
           console.log(err?.message)
+        })
+        .finally(() => {
+          setIsModalOpen(false)
           setAttemptingTxn(false)
         })
     }
   }, [createCallData])
-
-  console.log(userReferralCode, 'userReferralCode')
-  console.log(codeOwner, 'codeOwner')
 
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value
@@ -166,68 +199,84 @@ export function Referral() {
   }, [])
 
   return (
-    <ReferralWrapper>
-      <TransactionConfirmationModal
-        isOpen={isModalOpen}
-        reviewContent={() => {
-          console.log('goes here reviewContent')
-          return <div>blah</div>
-        }}
-        onDismiss={() => setIsModalOpen(false)}
-        attemptingTxn={attemptingTxn}
-        hash={txHash}
-        pendingText={'Creating referral code...'}
-      />
-      <div className="page-head">Referral</div>
-      <div className="page-desc">
-        Earn reward points by sharing your referral code with your friends.
-        <br />
-        For more information, please read the <a href="/#">referral program details.</a>
-      </div>
-      <PanelTopLight className={''} id="swap-page">
-        <div className="heading">
-          <Trans>Create Referral Code</Trans>
-        </div>
-        <div className="description">
-          <Trans>
-            Looks like you don't have a referral code to share.
+    <PageWrapper>
+      {(userReferralCode === undefined && isUserCodeLoading) ||
+      (codeOwner === undefined && isCodeOwnerLoading && searchQuery === '') ? (
+        <PositionsLoadingPlaceholder />
+      ) : (
+        <ReferralWrapper>
+          <TransactionConfirmationModal
+            isOpen={isModalOpen}
+            reviewContent={() => {
+              return <></>
+            }}
+            onDismiss={() => setIsModalOpen(false)}
+            attemptingTxn={attemptingTxn}
+            hash={txHash}
+            pendingText={'Creating referral code...'}
+          />
+          <div className="page-head">Referral</div>
+          <div className="page-desc">
+            Earn reward points by sharing your referral code with your friends.
             <br />
-            Create one now and start earning reward points!
-          </Trans>
-        </div>
-        {connectionReady && !account ? (
-          <ButtonPrimary onClick={toggleWalletDrawer} size={ButtonSize.large}>
-            <Trans>Connect wallet</Trans>
-          </ButtonPrimary>
-        ) : userReferralCode === undefined ? (
-          <AutoColumn gap="16px">
-            <SearchInput
-              type="text"
-              id="token-search-input"
-              data-testid="token-search-input"
-              placeholder={t`Enter a code`}
-              autoComplete="off"
-              value={searchQuery}
-              onChange={handleInput}
-            />
-            {!searchQuery ? (
-              <ButtonPrimary size={ButtonSize.large} disabled>
-                <Trans>Enter a code</Trans>
+            For more information, please read the <a href="/#">referral program details.</a>
+          </div>
+          <PanelTopLight className={''} id="swap-page">
+            <div className="heading">
+              <Trans>Create Referral Code</Trans>
+            </div>
+            <div className="description">
+              <Trans>
+                Looks like you don't have a referral code to share.
+                <br />
+                Create one now and start earning reward points!
+              </Trans>
+            </div>
+            {connectionReady && !account ? (
+              <ButtonPrimary onClick={toggleWalletDrawer} size={ButtonSize.large}>
+                <Trans>Connect wallet</Trans>
               </ButtonPrimary>
-            ) : codeOwner === undefined ? (
-              <ButtonPrimary size={ButtonSize.large} onClick={handleCreate}>
-                <Trans>Create</Trans>
-              </ButtonPrimary>
+            ) : userReferralCode === undefined || userReferralCode === null ? (
+              <AutoColumn gap="16px">
+                <SearchInput
+                  type="text"
+                  id="token-search-input"
+                  data-testid="token-search-input"
+                  placeholder={t`Enter a code`}
+                  autoComplete="off"
+                  value={searchQuery}
+                  onChange={handleInput}
+                />
+                {!searchQuery ? (
+                  <ButtonPrimary size={ButtonSize.large} disabled>
+                    <Trans>Enter a code</Trans>
+                  </ButtonPrimary>
+                ) : isCodeOwnerLoading ? (
+                  <ButtonPrimary size={ButtonSize.large} disabled>
+                    <Trans>Checking...</Trans>
+                  </ButtonPrimary>
+                ) : codeOwner === undefined ? (
+                  <ButtonPrimary size={ButtonSize.large} onClick={handleCreate}>
+                    <Trans>Create</Trans>
+                  </ButtonPrimary>
+                ) : (
+                  <ButtonPrimary size={ButtonSize.large} disabled>
+                    <Trans>Not Available</Trans>
+                  </ButtonPrimary>
+                )}
+              </AutoColumn>
             ) : (
-              <ButtonPrimary size={ButtonSize.large} disabled>
-                <Trans>Not Available</Trans>
-              </ButtonPrimary>
+              <CodeBox>
+                <AccountNamesWrapper>
+                  <CopyText toCopy={`https://${window.location.hostname}/#/swap?referralCode=${userReferralCode}`}>
+                    {userReferralCode}
+                  </CopyText>
+                </AccountNamesWrapper>
+              </CodeBox>
             )}
-          </AutoColumn>
-        ) : (
-          <div>{userReferralCode}</div>
-        )}
-      </PanelTopLight>
-    </ReferralWrapper>
+          </PanelTopLight>
+        </ReferralWrapper>
+      )}
+    </PageWrapper>
   )
 }

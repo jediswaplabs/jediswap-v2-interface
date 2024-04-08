@@ -1,10 +1,9 @@
 import { Trans } from '@lingui/macro'
-import { ChainId, Currency, CurrencyAmount, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
-import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
+import { ChainId, Currency, CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
 import { useConnectionReady } from 'connection/eagerlyConnect'
 import { useFotAdjustmentsEnabled } from 'featureFlags/flags/fotAdjustments'
+import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import useAutoSlippageTolerance from 'hooks/useAutoSlippageTolerance'
-import { useDebouncedTrade } from 'hooks/useDebouncedTrade'
 import { useSwapTaxes } from 'hooks/useSwapTaxes'
 import { useUSDPrice } from 'hooks/useUSDPrice'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
@@ -17,17 +16,13 @@ import { isClassicTrade } from 'state/routing/utils'
 import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
 
 // import { TOKEN_SHORTHANDS } from '../../constants/tokens'
+import { useBestV3TradeExactIn, useBestV3TradeExactOut } from 'hooks/useBestV3Trade'
 import { useCurrency } from '../../hooks/Tokens'
-import useENS from '../../hooks/useENS'
 import useParsedQueryString from '../../hooks/useParsedQueryString'
 import { isAddress } from '../../utils'
 import { useCurrencyBalances } from '../connection/hooks'
 import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies, typeInput } from './actions'
 import { SwapState } from './reducer'
-import { isAddressValidForStarknet } from 'utils/addresses'
-import { useBestV3TradeExactIn, useBestV3TradeExactOut } from 'hooks/useBestV3Trade'
-import { useTradeExactIn, useTradeExactOut } from 'hooks/Trades'
-import { BigNumber } from 'ethers'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
@@ -307,6 +302,10 @@ function parseIndependentFieldURLParameter(urlParam: any): Field {
   return typeof urlParam === 'string' && urlParam.toLowerCase() === 'output' ? Field.OUTPUT : Field.INPUT
 }
 
+function parseReferralCodeURLParameter(urlParam: any): string | null {
+  return typeof urlParam === 'string' ? urlParam : null
+}
+
 const ENS_NAME_REGEX = /^[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)?$/
 const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
 function validatedRecipient(recipient: any): string | null {
@@ -333,6 +332,7 @@ export function queryParametersToSwapState(parsedQs: ParsedQs): SwapState {
   }
 
   const recipient = validatedRecipient(parsedQs.recipient)
+  const referralCode = parseReferralCodeURLParameter(parsedQs.referralCode)
 
   return {
     [Field.INPUT]: {
@@ -344,6 +344,7 @@ export function queryParametersToSwapState(parsedQs: ParsedQs): SwapState {
     typedValue,
     independentField,
     recipient,
+    referralCode,
   }
 }
 
@@ -369,6 +370,7 @@ export function useDefaultsFromURLSearch(): SwapState {
         inputCurrencyId,
         outputCurrencyId,
         recipient: parsedSwapState.recipient,
+        referralCode: parsedSwapState.referralCode,
       })
     )
   }, [dispatch, chainId, parsedSwapState])
