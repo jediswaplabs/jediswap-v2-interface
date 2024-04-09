@@ -1,24 +1,21 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
-import { Currency, CurrencyAmount, Percent, validateAndParseAddress } from '@vnaysn/jediswap-sdk-core'
-import { FeeAmount, NonfungiblePositionManager, Position, toHex } from '@vnaysn/jediswap-sdk-v3'
+import { Currency, CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
+import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import styled, { useTheme } from 'styled-components'
 
-import { sendAnalyticsEvent, TraceEvent, useTrace } from 'analytics'
+import { useContractWrite } from '@starknet-react/core'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
-import OwnershipWarning from 'components/addLiquidity/OwnershipWarning'
 import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
-import { isSupportedChain } from 'constants/chains'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { useApprovalCall } from 'hooks/useApproveCall'
 import usePrevious from 'hooks/usePrevious'
-import { useSingleCallResult } from 'lib/hooks/multicall'
+import { useTraderReferralCode, useUserCode } from 'hooks/useReferral'
 import { BodyWrapper } from 'pages/AppBody'
-import { PositionPageUnsupportedContent } from 'pages/Pool/PositionPage'
+import { cairo, Call, CallData } from 'starknet'
 import {
   useRangeHopCallbacks,
   useV3DerivedMintInfo,
@@ -26,15 +23,13 @@ import {
   useV3MintState,
 } from 'state/mint/v3/hooks'
 import { ThemedText } from 'theme/components'
-import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
-import { WrongChainError } from 'utils/errors'
+import { toI32 } from 'utils/toI32'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonText } from '../../components/Button'
-import { BlueCard, LightCard, OutlineCard, YellowCard } from '../../components/Card'
+import { BlueCard, LightCard, YellowCard } from '../../components/Card'
 import { AutoColumn } from '../../components/Column'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import FeeSelector from '../../components/FeeSelector'
 import HoverInlineText from '../../components/HoverInlineText'
-import LiquidityChartRangeInput from '../../components/LiquidityChartRangeInput'
 import { AddRemoveTabs } from '../../components/NavigationTabs'
 import { PositionPreview } from '../../components/PositionPreview'
 import RangeSelector from '../../components/RangeSelector'
@@ -46,31 +41,18 @@ import TransactionConfirmationModal, { ConfirmationModalContent } from '../../co
 import { ZERO_PERCENT } from '../../constants/misc'
 import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS, WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
 import { useCurrency } from '../../hooks/Tokens'
-import { ApprovalState, useApproveCallback } from '../../hooks/useApproveCallback'
-import { useArgentWalletContract } from '../../hooks/useArgentWalletContract'
-import { useV3NFTPositionManagerContract } from '../../hooks/useContractV2'
+import { useReferralContract, useV3NFTPositionManagerContract } from '../../hooks/useContractV2'
 import { useDerivedPositionInfo } from '../../hooks/useDerivedPositionInfo'
 import { useIsSwapUnsupported } from '../../hooks/useIsSwapUnsupported'
 import { useStablecoinValue } from '../../hooks/useStablecoinPrice'
 import useTransactionDeadline from '../../hooks/useTransactionDeadline'
 import { useV3PosFromTokenId } from '../../hooks/useV3Positions'
 import { Bound, Field } from '../../state/mint/v3/actions'
-import { useTransactionAdder } from '../../state/transactions/hooks'
-import { TransactionInfo, TransactionType } from '../../state/transactions/types'
 import { useUserSlippageToleranceWithDefault } from '../../state/user/hooks'
-import approveAmountCalldata from '../../utils/approveAmountCalldata'
-import { calculateGasMargin } from '../../utils/calculateGasMargin'
 import { currencyId } from '../../utils/currencyId'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
-import { Dots } from '../Pool/styled'
 import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
-import { useAccountDetails } from 'hooks/starknet-react'
-import { useContractWrite, useProvider } from '@starknet-react/core'
-import { BigNumberish, cairo, Call, CallData, hash, num } from 'starknet'
-import JSBI from 'jsbi'
-import { toI32 } from 'utils/toI32'
-import { useApprovalCall } from 'hooks/useApproveCall'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -229,12 +211,24 @@ function AddLiquidity() {
     }
   }, [mintCallData])
 
+  const referralContract = useReferralContract()
+  const { data: userReferralCode, error: userCodeError } = useUserCode()
+  const { data: registeredReferralCode, error: tradeReferralCodeError } = useTraderReferralCode()
+
   async function onAdd() {
     if (!chainId || !account) {
       return
     }
 
-    if (!positionManager || !baseCurrency || !quoteCurrency || !parsedAmounts) {
+    if (
+      !positionManager ||
+      !baseCurrency ||
+      !quoteCurrency ||
+      !parsedAmounts ||
+      !referralContract ||
+      !!tradeReferralCodeError ||
+      !!userCodeError
+    ) {
       return
     }
 
@@ -255,7 +249,20 @@ function AddLiquidity() {
       const amount0Min = minimumAmounts.amount0
       const amount1Min = minimumAmounts.amount1
       const router_address: string = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
-
+      const callData = []
+      const urlReferralCode = localStorage.getItem('referralCode')
+      if (urlReferralCode && urlReferralCode !== userReferralCode && urlReferralCode !== registeredReferralCode) {
+        const referralCode = {
+          _code: cairo.felt(urlReferralCode),
+        }
+        const compiledReferralCode = CallData.compile(referralCode)
+        const referralCall = {
+          contractAddress: referralContract.address,
+          entrypoint: 'set_trader_referral_code',
+          calldata: compiledReferralCode,
+        }
+        callData.push(referralCall)
+      }
       if (hasExistingPosition && tokenId) {
         const hasExistingLiquidity = hasExistingPosition && tokenId
         let mintData = {}
@@ -269,25 +276,25 @@ function AddLiquidity() {
             deadline: cairo.felt(deadline.toString()),
           }
         }
-        const callData = CallData.compile(mintData)
+        const mintCallData = CallData.compile(mintData)
 
         const calls = {
           contractAddress: router_address,
           entrypoint: 'increase_liquidity',
-          calldata: callData,
+          calldata: mintCallData,
         }
 
         if (approvalA && approvalB) {
-          setMintCallData([approvalA, approvalB, calls])
+          callData.push(approvalA, approvalB, calls)
         } else {
           if (approvalA) {
-            setMintCallData([approvalA, calls])
+            callData.push(approvalA, calls)
           } else if (approvalB) {
-            setMintCallData([approvalB, calls])
+            callData.push(approvalB, calls)
           }
         }
+        setMintCallData(callData)
       } else {
-        const callData = []
         if (noLiquidity) {
           //create and initialize pool
           const initializeData = {
