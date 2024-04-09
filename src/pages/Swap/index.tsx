@@ -38,7 +38,7 @@ import { useIsSwapUnsupported } from 'hooks/useIsSwapUnsupported'
 import { useMaxAmountIn } from 'hooks/useMaxAmountIn'
 import usePermit2Allowance, { AllowanceState } from 'hooks/usePermit2Allowance'
 import usePrevious from 'hooks/usePrevious'
-import { useTraderReferralCode } from 'hooks/useReferral'
+import { useTraderReferralCode, useUserCode } from 'hooks/useReferral'
 import { SwapResult, useSwapCallback } from 'hooks/useSwapCallback'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useUSDPrice } from 'hooks/useUSDPrice'
@@ -150,6 +150,16 @@ export default function SwapPage({ className }: { className?: string }) {
   const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
 
   const { data: traderReferralCode, isLoading: isTraderReferralCodeFetching } = useTraderReferralCode()
+
+  useEffect(() => {
+    if (loadedUrlParams?.referralCode) {
+      //set referral code in local storage if the current stored is not this one
+      if (loadedUrlParams?.referralCode !== localStorage.getItem('referralCode')) {
+        localStorage.setItem('referralCode', loadedUrlParams?.referralCode)
+      }
+    }
+  }, [loadedUrlParams?.referralCode])
+
   //fetch Token Ids
   useEffect(() => {
     const getTokenIds = async () => {
@@ -198,7 +208,7 @@ export default function SwapPage({ className }: { className?: string }) {
           allPools={allPools}
           allPairs={allPairs}
           registeredReferralCode={traderReferralCode}
-          urlReferralCode={loadedUrlParams?.referralCode}
+          urlReferralCode={localStorage.getItem('referralCode')}
           // disableTokenInputs={supportedChainId === undefined}
         />
       )}
@@ -238,6 +248,8 @@ export function Swap({
 }) {
   const connectionReady = useConnectionReady()
   const referralContract = useReferralContract()
+  const { data: userReferralCode } = useUserCode()
+
   const { address, account, chainId: connectedChainId } = useAccountDetails()
   const swapRouterAddressV2 = SWAP_ROUTER_ADDRESS_V2[connectedChainId ?? DEFAULT_CHAIN_ID]
   const swapRouterAddressV1 = SWAP_ROUTER_ADDRESS_V1[connectedChainId ?? DEFAULT_CHAIN_ID]
@@ -577,19 +589,17 @@ export function Swap({
     const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
 
-    if (urlReferralCode) {
-      if (urlReferralCode !== registeredReferralCode) {
-        const referralCode = {
-          _code: cairo.felt(urlReferralCode),
-        }
-        const compiledReferralCode = CallData.compile(referralCode)
-        const referralCall = {
-          contractAddress: referralContract.address,
-          entrypoint: 'set_trader_referral_code',
-          calldata: compiledReferralCode,
-        }
-        callData.push(referralCall)
+    if (urlReferralCode && urlReferralCode !== userReferralCode && urlReferralCode !== registeredReferralCode) {
+      const referralCode = {
+        _code: cairo.felt(urlReferralCode),
       }
+      const compiledReferralCode = CallData.compile(referralCode)
+      const referralCall = {
+        contractAddress: referralContract.address,
+        entrypoint: 'set_trader_referral_code',
+        calldata: compiledReferralCode,
+      }
+      callData.push(referralCall)
     }
     if (isTradeTypeV2) {
       const isRouteSingleHop = route.pools.length === 1
