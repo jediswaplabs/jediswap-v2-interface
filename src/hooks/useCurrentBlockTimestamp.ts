@@ -9,21 +9,23 @@ import { useContractRead } from '@starknet-react/core'
 import { MULTICALL_NETWORKS } from 'contracts/multicall'
 import { DEFAULT_CHAIN_ID } from 'constants/tokens'
 import { MULTICALL_ABI } from 'contracts/multicall'
+import { useQuery } from 'react-query'
+import { providerInstance } from 'utils/getLibrary'
+import { num } from 'starknet'
 
 const useCurrentBlockTimestamp = () => {
   const { chainId } = useAccountDetails()
-  const { data: blockTimeStamp } = useContractRead({
-    functionName: 'get_current_block_timestamp',
-    args: [],
-    abi: MULTICALL_ABI,
-    address: MULTICALL_NETWORKS[chainId ?? DEFAULT_CHAIN_ID],
-    watch: true,
+  const current_block_timestamp = useQuery({
+    queryKey: [`timestamp/${chainId}`],
+    queryFn: async () => {
+      if (!chainId) return undefined
+      const provider = providerInstance(chainId)
+      const results: any = await provider.getBlockWithTxHashes()
+      return results?.timestamp
+    },
   })
 
-  if (!blockTimeStamp) return undefined
-  const { block_timestamp } = blockTimeStamp as any
-
-  return BigNumber.from(block_timestamp.toString())
+  return current_block_timestamp.data
 }
 
 export default useCurrentBlockTimestamp
