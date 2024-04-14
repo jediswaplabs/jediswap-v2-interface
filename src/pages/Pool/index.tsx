@@ -17,10 +17,16 @@ import { isSupportedChain } from 'constants/chains'
 // import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
 import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
 import { FlattenedPositions, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
+import vaultImage from '../../assets/images/vault.png'
 import { useUserHideClosedPositions } from 'state/user/hooks'
 import { ThemedText } from 'theme/components'
 import { LoadingRows } from './styled'
 import fetchTokenIds from 'api/fetchTokenId'
+import { useMedia } from 'react-use'
+
+interface PromotionBannerContainerProps {
+  noDecorations: boolean
+}
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -31,6 +37,65 @@ const PageWrapper = styled(AutoColumn)`
     padding-top: 20px;
   }
 `
+const PromotionBannerContainer = styled.div<PromotionBannerContainerProps>`
+  display: flex;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #141451 0%, #2c045c 52%, #64099c 100%);
+  position: relative;
+  padding-left: ${(props) => (props.noDecorations ? '0' : '140px')};
+  overflow: hidden;
+`
+
+const PromotionBannerDecoration = styled.img`
+  position: absolute;
+  left: -45px;
+  top: -30px;
+  max-width: 190px;
+  user-select: none;
+`
+
+const PromotionBannerContent = styled.div`
+  padding: 32px;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  align-items: center;
+`
+const PromotionBannerDetails = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`
+const PromotionBannerTitle = styled.div`
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 20px;
+`
+const PromotionBannerDescription = styled.div`
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 16px;
+  text-align: left;
+`
+const PromotionBannerLink = styled.a`
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  color: rgba(42, 170, 254, 1);
+  text-decoration: none;
+`
+const PromotionBannerButton = styled(ButtonPrimary)`
+  border-radius: 8px;
+  font-size: 16px;
+  padding: 6px 8px;
+  width: 175px;
+  margin-left: auto;
+  height: 38px;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    width: 132px;
+  }
+`
+
 const TitleRow = styled(RowBetween)`
   color: ${({ theme }) => theme.neutral2};
   @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
@@ -241,6 +306,28 @@ const MainContentWrapper = styled.main<{ isWalletConnected?: boolean; filteredPo
 
 const PositionWrapper = styled.div``
 
+function PromotionalBanner({ noDecorations = false }) {
+  return (
+    <PromotionBannerContainer noDecorations={noDecorations}>
+      {!noDecorations && <PromotionBannerDecoration src={vaultImage} draggable={false} />}
+      <PromotionBannerContent>
+        <PromotionBannerDetails>
+          <PromotionBannerTitle>Add liquidity via our Vault strategy</PromotionBannerTitle>
+          <PromotionBannerDescription>
+            Let us dynamically manage your LP ranges. Enter/exit at any time.{' '}
+            <PromotionBannerLink href="https://www.jediswap.xyz/" target="_blank" rel="noopener">
+              Learn more.
+            </PromotionBannerLink>
+          </PromotionBannerDescription>
+        </PromotionBannerDetails>
+        <PromotionBannerButton data-cy="try-vault-button" id="try-vault-button" as={Link} to="/vaults">
+          <Trans>Try Vaults</Trans>
+        </PromotionBannerButton>
+      </PromotionBannerContent>
+    </PromotionBannerContainer>
+  )
+}
+
 function PositionsLoadingPlaceholder() {
   return (
     <LoadingRows>
@@ -358,6 +445,8 @@ export default function Pool() {
   const { address, chainId } = useAccountDetails()
   const [tokenIds, setTokenIds] = useState<number[]>([])
   const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
+
+  const below600 = useMedia('(max-width: 600px)')
   //fetch Token Ids
   useEffect(() => {
     const getTokenIds = async () => {
@@ -386,8 +475,9 @@ export default function Pool() {
 
   return (
     <PageWrapper>
-      <AutoColumn gap="lg" justify="center">
-        <AutoColumn gap="lg" style={{ width: '100%' }}>
+      <AutoColumn gap="xl" justify="center">
+        <AutoColumn gap="xl" style={{ width: '100%' }}>
+          <PromotionalBanner noDecorations={below600} />
           <ButtonRow justifyContent={'space-between'}>
             <PositionsText>My Positions</PositionsText>
             <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
