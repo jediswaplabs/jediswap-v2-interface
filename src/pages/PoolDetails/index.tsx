@@ -1,170 +1,184 @@
-import { Trans } from '@lingui/macro'
-import { useReducer } from 'react'
-import { useParams } from 'react-router-dom'
-import { Text } from 'rebass'
-import styled from 'styled-components'
+import styled, { css, useTheme } from 'styled-components'
+import { Box as RebassBox } from 'rebass'
 
-import NotFound from 'pages/NotFound'
-import Column from 'components/Column'
-import Row from 'components/Row'
-import { LoadingBubble } from 'components/Tokens/loading'
-import { LoadingChart } from 'components/Tokens/TokenDetails/Skeleton'
-import { TokenDescription } from 'components/Tokens/TokenDetails/TokenDescription'
-import { getValidUrlChainName, supportedChainIdFromGQLChain } from 'graphql/data/util'
-import { usePoolData } from 'graphql/thegraph/PoolData'
-import { BREAKPOINTS } from 'theme'
-import { isAddressValidForStarknet } from 'utils/addresses'
-import { PoolDetailsHeader } from './PoolDetailsHeader'
-import { PoolDetailsStats } from './PoolDetailsStats'
-import { PoolDetailsStatsButtons } from './PoolDetailsStatsButtons'
-import { PoolDetailsTableSkeleton } from './PoolDetailsTableSkeleton'
-import { DetailBubble, SmallDetailBubble } from './shared'
+import { AutoColumn } from "components/Column";
+import { RowBetween } from "components/Row";
+import { formattedNum, formattedPercent } from "utils/dashboard";
 
-const PageWrapper = styled(Row)`
-  padding: 48px;
+const PageWrapper = styled(AutoColumn)`
+  padding: 0px 8px 0px;
+  max-width: 1020px;
   width: 100%;
-  align-items: flex-start;
-  gap: 60px;
 
-  @media (max-width: ${BREAKPOINTS.lg - 1}px) {
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    padding-top: 20px;
+  }
+`
+
+const PanelWrapper = styled.div`
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  align-items: start;
+  @media screen and (max-width: 1024px) {
     flex-direction: column;
-    gap: unset;
+  }
+`
+const panelPseudo = css`
+  :after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 10px;
   }
 
-  @media (max-width: ${BREAKPOINTS.sm - 1}px) {
-    padding: 48px 16px;
+  @media only screen and (min-width: 40em) {
+    :after {
+      content: unset;
+    }
   }
 `
 
-const LeftColumn = styled(Column)`
-  gap: 24px;
-  width: 65vw;
+const Panel = styled(RebassBox) <{
+  hover?: boolean
+  background?: boolean
+  area?: boolean
+  grouped?: boolean
+  rounded?: boolean
+  last?: boolean
+}>`
+  position: relative;
+  // background-color: ${({ theme }) => theme.advancedBG};
+  border-radius: 8px;
+  padding: 1.25rem;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
   justify-content: flex-start;
+  background: rgba(196, 196, 196, 0.01);
+  box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset,
+    0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset,
+    0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.3) inset,
+    0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset;
 
-  @media (max-width: ${BREAKPOINTS.lg - 1}px) {
-    width: 100%;
-  }
-`
-
-const HR = styled.hr`
-  border: 0.5px solid ${({ theme }) => theme.surface3};
-  margin: 16px 0px;
-  width: 100%;
-`
-
-const ChartHeaderBubble = styled(LoadingBubble)`
-  width: 180px;
-  height: 32px;
-`
-
-const LinkColumn = styled(Column)`
-  gap: 16px;
-  padding: 20px;
-`
-
-const RightColumn = styled(Column)`
-  gap: 24px;
-  margin: 0 48px 0 auto;
-  width: 22vw;
-  min-width: 360px;
-
-  @media (max-width: ${BREAKPOINTS.lg - 1}px) {
-    margin: 44px 0px;
-    width: 100%;
-    min-width: unset;
-  }
-`
-
-const TokenDetailsWrapper = styled(Column)`
-  gap: 24px;
-  padding: 20px;
-
-  @media (max-width: ${BREAKPOINTS.lg - 1}px) and (min-width: ${BREAKPOINTS.sm}px) {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: unset;
+  :hover {
+    cursor: ${({ hover }) => hover && 'pointer'};
+    border: ${({ hover, theme }) => hover && '1px solid' + theme.bg5};
   }
 
-  @media (max-width: ${BREAKPOINTS.sm - 1}px) {
-    padding: unset;
-  }
+  ${(props) => props.background && `background-color: ${props.theme.advancedBG};`}
+
+  ${(props) => (props.area ? `grid-area: ${props.area};` : null)}
+
+  ${(props) =>
+    props.grouped &&
+    css`
+      @media only screen and (min-width: 40em) {
+        &:first-of-type {
+          border-radius: 20px 20px 0 0;
+        }
+        &:last-of-type {
+          border-radius: 0 0 20px 20px;
+        }
+      }
+    `}
+
+  ${(props) =>
+    props.rounded &&
+    css`
+      border-radius: 8px;
+      @media only screen and (min-width: 40em) {
+        border-radius: 10px;
+      }
+    `};
+
+  ${(props) => !props.last && panelPseudo}
+`
+const PanelTopLight = styled(Panel)`
+  box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset,
+    0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset,
+    0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.3) inset,
+    0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset, 0px 5.388px 8.467px -3.079px #fff inset,
+    0px 30.021px 43.107px -27.712px rgba(255, 255, 255, 0.5) inset;
 `
 
-const TokenDetailsHeader = styled(Text)`
-  width: 100%;
+const PageHeader = styled.div`
+  color: ${({ theme }) => theme.jediWhite};
+  font-family: "Avenir LT Std";
   font-size: 24px;
-  font-weight: 485;
-  line-height: 32px;
+  font-weight: 750;
+  margin-bottom: 20px;
 `
 
-export default function PoolDetailsPage() {
-  const { poolAddress, chainName } = useParams<{
-    poolAddress: string
-    chainName: string
-  }>()
-  const chain = getValidUrlChainName(chainName)
-  const chainId = chain && supportedChainIdFromGQLChain(chain)
-  const { data: poolData, loading } = usePoolData(poolAddress ?? '', chainId)
-  const [isReversed, toggleReversed] = useReducer((x) => !x, false)
-  const token0 = isReversed ? poolData?.token1 : poolData?.token0
-  const token1 = isReversed ? poolData?.token0 : poolData?.token1
-  const isInvalidPool =
-    !chainName || !poolAddress || !getValidUrlChainName(chainName) || !isAddressValidForStarknet(poolAddress)
-  const poolNotFound = (!loading && !poolData) || isInvalidPool
+export default function PoolDetails() {
+  const totalValueLockedUSD = 10
+  const liquidityChangeUSD = 20
+  const totalVolumeUSD = 0
+  const volumeChangeUSD = 0
+  const totalFeesUSD = 0
+  const feesChangeUSD = 0
 
-  if (poolNotFound) {
-    return <NotFound />
-  }
   return (
     <PageWrapper>
-      <LeftColumn>
-        <Column gap="sm">
-          <PoolDetailsHeader
-            chainId={chainId}
-            poolAddress={poolAddress}
-            token0={token0}
-            token1={token1}
-            feeTier={poolData?.feeTier}
-            toggleReversed={toggleReversed}
-            loading={loading}
-          />
-          <LoadingChart />
-        </Column>
-        <HR />
-        <ChartHeaderBubble />
-        <PoolDetailsTableSkeleton />
-      </LeftColumn>
-      <RightColumn>
-        <PoolDetailsStatsButtons
-          chainId={chainId}
-          token0={token0}
-          token1={token1}
-          feeTier={poolData?.feeTier}
-          loading={loading}
-        />
-        <PoolDetailsStats poolData={poolData} isReversed={isReversed} chainId={chainId} loading={loading} />
-        {(token0 || token1 || loading) &&
-          (loading ? (
-            <LinkColumn data-testid="pdp-links-loading-skeleton">
-              <DetailBubble $height={24} $width={116} />
-              {Array.from({ length: 3 }).map((_, i) => (
-                <Row gap="8px" key={`loading-link-row-${i}`}>
-                  <SmallDetailBubble />
-                  <DetailBubble $width={117} />
-                </Row>
-              ))}
-            </LinkColumn>
-          ) : (
-            <TokenDetailsWrapper>
-              <TokenDetailsHeader>
-                <Trans>Info</Trans>
-              </TokenDetailsHeader>
-              {token0 && <TokenDescription tokenAddress={token0.id} chainId={chainId} />}
-              {token1 && <TokenDescription tokenAddress={token1.id} chainId={chainId} />}
-            </TokenDetailsWrapper>
-          ))}
-      </RightColumn>
+      <AutoColumn style={{ gap: '12px' }}>
+        <PanelWrapper>
+          <PanelTopLight>
+            <AutoColumn gap="20px">
+              <RowBetween>
+                {/* <TYPE.subHeader> */}
+                Total Liquidity
+                {/* </TYPE.subHeader> */}
+              </RowBetween>
+              <RowBetween align="baseline">
+                {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
+                {formattedNum(totalValueLockedUSD, true)}
+                {/* </TYPE.main> */}
+                {/* <TYPE.main fontSize="1rem"> */}
+                {formattedPercent(liquidityChangeUSD)}
+                {/* </TYPE.main> */}
+              </RowBetween>
+            </AutoColumn>
+          </PanelTopLight>
+          <PanelTopLight>
+            <AutoColumn gap="20px">
+              <RowBetween>
+                {/* <TYPE.subHeader> */}
+                Volume (24hr)
+                {/* </TYPE.subHeader> */}
+                <div />
+              </RowBetween>
+              <RowBetween align="baseline">
+                {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
+                {formattedNum(totalVolumeUSD, true)}
+                {/* </TYPE.main> */}
+                {/* <TYPE.main fontSize="1rem"> */}
+                {formattedPercent(volumeChangeUSD)}
+                {/* </TYPE.main> */}
+              </RowBetween>
+            </AutoColumn>
+          </PanelTopLight>
+          <PanelTopLight>
+            <AutoColumn gap="20px">
+              <RowBetween>
+                {/* <TYPE.subHeader> */}
+                Total fees (24hr)
+                {/* </TYPE.subHeader> */}
+              </RowBetween>
+              <RowBetween align="baseline">
+                {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
+                {formattedNum(totalFeesUSD, true)}
+                {/* </TYPE.main> */}
+                {/* <TYPE.main fontSize="1rem"> */}
+                {formattedPercent(feesChangeUSD)}
+                {/* </TYPE.main> */}
+              </RowBetween>
+            </AutoColumn>
+          </PanelTopLight>
+        </PanelWrapper>
+      </AutoColumn>
     </PageWrapper>
   )
 }
