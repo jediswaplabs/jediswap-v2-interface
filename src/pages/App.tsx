@@ -97,7 +97,6 @@ const HeaderWrapper = styled.div<{
 
 export default function App() {
   const isLoaded = useFeatureFlagsIsLoaded()
-  const chainId = useAccountDetails()
   const location = useLocation()
   const { pathname } = location
 
