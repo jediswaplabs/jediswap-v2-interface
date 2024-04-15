@@ -1,6 +1,7 @@
 import { Text } from 'rebass'
+import Numeral from 'numeral'
 
-export const getPercentChange = (valueNow: string, value24HoursAgo: string) => {
+export const getPercentChange = (valueNow, value24HoursAgo) => {
   const adjustedPercentChange = ((parseFloat(valueNow) - parseFloat(value24HoursAgo)) / parseFloat(value24HoursAgo)) * 100
   if (isNaN(adjustedPercentChange) || !isFinite(adjustedPercentChange)) {
     return 0
@@ -8,7 +9,7 @@ export const getPercentChange = (valueNow: string, value24HoursAgo: string) => {
   return adjustedPercentChange
 }
 
-export const get2DayPercentChange = (oneDayData: any, twoDaysData: any) => {
+export const get2DayPercentChange = (oneDayData, twoDaysData) => {
   // get volume info for both 24 hour periods
   let yesterdayData = twoDaysData - oneDayData
 
@@ -75,6 +76,14 @@ export const formatDollarAmount = (num, digits) => {
     maximumFractionDigits: digits,
   })
   return formatter.format(num)
+}
+
+export const toK = (num, maxSigns = 2) => {
+  return Numeral(num).format(
+    `0.[${Array.from({ length: maxSigns })
+      .map(() => 0)
+      .join('')}]a`
+  )
 }
 
 export const formattedNum = (number, usd = false) => {
