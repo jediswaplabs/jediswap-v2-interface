@@ -11,7 +11,7 @@ const getDefaultTokensListUrl = () => {
     return getUrl('testnet')
   }
 
-  return getUrl()
+  return getUrl('testnet')
 }
 
 export const DEFAULT_TOKEN_LIST_URL = getDefaultTokensListUrl()
