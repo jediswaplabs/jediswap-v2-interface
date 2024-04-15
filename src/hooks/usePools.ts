@@ -202,7 +202,7 @@ export function usePools(
         return [PoolState.NOT_EXISTS, null]
       }
     })
-  }, [liquidityHex, poolKeys, tickCurrent, poolTokens, liquidityHex])
+  }, [liquidityHex, poolKeys, tickCurrent, poolTokens, sqrtPriceHex])
 }
 
 export function usePoolsForSwap(results: any): [PoolState, Pool | null][] {
