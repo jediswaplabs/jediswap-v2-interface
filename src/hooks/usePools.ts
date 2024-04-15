@@ -186,9 +186,11 @@ export function usePools(
 
   const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(num.toHex(sqrtPriceX96 as BigNumberish))
   const liquidityHex = Boolean(liquidity) ? JSBI.BigInt(num.toHex(liquidity as BigNumberish)) : JSBI.BigInt('0x0')
+
   return useMemo(() => {
     return poolKeys.map((_key, index) => {
       const tokens = poolTokens[index]
+
       if (!tokens) return [PoolState.INVALID, null]
       const [token0, token1, fee] = tokens
       if (!liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
@@ -200,7 +202,7 @@ export function usePools(
         return [PoolState.NOT_EXISTS, null]
       }
     })
-  }, [liquidity, poolKeys, tickCurrent, poolTokens])
+  }, [liquidityHex, poolKeys, tickCurrent, poolTokens, liquidityHex])
 }
 
 export function usePoolsForSwap(results: any): [PoolState, Pool | null][] {
