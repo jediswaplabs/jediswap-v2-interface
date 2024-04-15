@@ -102,7 +102,7 @@ const DashGrid = styled.div<{ fade?: boolean; disbaleLinks?: boolean; focus?: bo
 
 const ListWrapper = styled.div``
 
-const ClickableText = styled(Text)<{ area: string }>`
+const ClickableText = styled(Text) <{ area: string }>`
   color: ${({ theme }) => theme.text1};
   &:hover {
     cursor: pointer;
@@ -112,7 +112,7 @@ const ClickableText = styled(Text)<{ area: string }>`
   user-select: none;
 `
 
-const DataText = styled(Flex)<{ area?: string }>`
+const DataText = styled(Flex) <{ area?: string }>`
   align-items: center;
   text-align: center;
   color: ${({ theme }) => theme.text1};
@@ -279,13 +279,13 @@ function PairList({
     let rewardsBadges = null;
     const strkBadge = <StrkBadgeOuter>
       <div>
-        <img src={StarknetIcon} style={{width: '10px'}}/>
+        <img src={StarknetIcon} style={{ width: '10px' }} />
       </div>
       <div>STRK</div>
     </StrkBadgeOuter>
     if (pairData.rewarded) {
       rewardsBadges = <Rewards>
-        <div style={{marginRight: '4px', fontSize: '0.75rem'}}>Rewards:</div>
+        <div style={{ marginRight: '4px', fontSize: '0.75rem' }}>Rewards:</div>
         {pairData.aprStarknet && strkBadge}
       </Rewards>
     }
@@ -306,9 +306,9 @@ function PairList({
       const displayApy = formattedPercent(cleanedApy, true)
       const getTooltipMarkup = () => {
         return (
-          <div style={{fontSize: '10px', display: 'flex', flexDirection:'column', gap: '8px'}}>
-            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}><span style={{opacity: 0.7}}>Fee APR:</span> {displayApy}</Flex>
-            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}><span style={{opacity: 0.7}}>STRK APR:</span> {displayApy}</Flex>
+          <div style={{ fontSize: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}><span style={{ opacity: 0.7 }}>Fee APR:</span> {displayApy}</Flex>
+            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}><span style={{ opacity: 0.7 }}>STRK APR:</span> {displayApy}</Flex>
           </div>
         )
       }
@@ -321,8 +321,52 @@ function PairList({
       // const weekVolume = Math.round(pairData.oneWeekVolumeUSD)
       if (below1080) {
         return (
-          <div style={{ margin: '10px 0', padding: '20px', borderRadius: '8px', border: '1px solid #959595' }}>
-            <div style={{ display: 'flex' }}>
+          <Link to={'/expore/pools/' + pairAddress} style={{ color: 'unset', textDecoration: 'none' }}>
+            <div style={{ margin: '10px 0', padding: '20px', borderRadius: '8px', border: '1px solid #959595' }}>
+              <div style={{ display: 'flex' }}>
+                {doubleCurrencyImageData && (
+                  <DoubleTokenLogo
+                    size={below600 ? 16 : 20}
+                    currency0={doubleCurrencyImageData.token0}
+                    currency1={doubleCurrencyImageData.token1}
+                    margin
+                  />
+                )}
+                <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap', marginLeft: '10px' }}>
+                  {/* <LinkRow to={'/pool/' + pairAddress}> */}
+                  <FormattedName
+                    text={pairData.token0.symbol + '-' + pairData.token1.symbol}
+                    maxCharacters={below600 ? 8 : 16}
+                    adjustSize={true}
+                    link={false}
+                  />
+                  {/* </LinkRow> */}
+                  <FeeBadge>{feePercent}</FeeBadge>
+                </AutoRow>
+              </div>
+              <div style={{ color: 'white', display: 'flex', columnGap: '30px', marginTop: '10px' }}>
+                <div>
+                  <div style={{ color: '#9B9B9B', fontSize: '12px' }}>Liquidity</div>
+                  <div>{formatDataText(liquidity, pairData.totalValueLockedUSD, false, 'left')}</div>
+                </div>
+                <div>
+                  <div style={{ color: '#9B9B9B', fontSize: '12px' }}>Volume (24H)</div>
+                  <div>{formatDataText(volume, pairData.oneDayVolumeUSD, false, 'left')}</div>
+                </div>
+                <div>
+                  <div style={{ color: '#9B9B9B', fontSize: '12px' }}>Fees (24H)</div>
+                  <div>{formatDataText(fees, pairData.oneDayVolumeUSD, false, 'left')}</div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        )
+      }
+      return (
+        <Link to={'/expore/pools/' + pairAddress} style={{ color: 'unset', textDecoration: 'none' }}>
+          <DashGrid style={{ height: '48px' }} disbaleLinks={disbaleLinks} focus={true}>
+            <DataText area="name" fontWeight="500">
+              {/* {!below600 && <div style={{ marginRight: '20px', width: '10px' }}>{index}</div>} */}
               {doubleCurrencyImageData && (
                 <DoubleTokenLogo
                   size={below600 ? 16 : 20}
@@ -332,69 +376,27 @@ function PairList({
                 />
               )}
               <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap', marginLeft: '10px' }}>
-                {/* <LinkRow to={'/pool/' + pairAddress}> */}
-                  <FormattedName
-                    text={pairData.token0.symbol + '-' + pairData.token1.symbol}
-                    maxCharacters={below600 ? 8 : 16}
-                    adjustSize={true}
-                    link={false}
-                  />
-                {/* </LinkRow> */}
-                <FeeBadge>{feePercent}</FeeBadge>
-              </AutoRow>
-            </div>
-            <div style={{ color: 'white', display: 'flex', columnGap: '30px', marginTop: '10px' }}>
-              <div>
-                <div style={{ color: '#9B9B9B', fontSize: '12px' }}>Liquidity</div>
-                <div>{formatDataText(liquidity, pairData.totalValueLockedUSD, false, 'left')}</div>
-              </div>
-              <div>
-                <div style={{ color: '#9B9B9B', fontSize: '12px' }}>Volume (24H)</div>
-                <div>{formatDataText(volume, pairData.oneDayVolumeUSD, false, 'left')}</div>
-              </div>
-              <div>
-                <div style={{ color: '#9B9B9B', fontSize: '12px' }}>Fees (24H)</div>
-                <div>{formatDataText(fees, pairData.oneDayVolumeUSD, false, 'left')}</div>
-              </div>
-            </div>
-          </div>
-        )
-      }
-      return (
-        <DashGrid style={{ height: '48px' }} disbaleLinks={disbaleLinks} focus={true}>
-          <DataText area="name" fontWeight="500">
-            {/* {!below600 && <div style={{ marginRight: '20px', width: '10px' }}>{index}</div>} */}
-            {doubleCurrencyImageData && (
-              <DoubleTokenLogo
-                size={below600 ? 16 : 20}
-                currency0={doubleCurrencyImageData.token0}
-                currency1={doubleCurrencyImageData.token1}
-                margin
-              />
-            )}
-            <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap', marginLeft: '10px' }}>
-              {/* <LinkRow to={'/pool/' + pairAddress}> */}
                 <FormattedName
                   text={pairData.token0.symbol + '-' + pairData.token1.symbol}
                   maxCharacters={below600 ? 8 : 16}
                   adjustSize={true}
                   link={false}
                 />
-              {/* </LinkRow> */}
-              <FeeBadge>{feePercent}</FeeBadge>
-            </AutoRow>
-            {rewardsBadges}
-          </DataText>
-          <DataText area="liq">{formatDataText(liquidity, pairData.totalValueLockedUSD)}</DataText>
-          <DataText area="vol">{formatDataText(volume, pairData.oneDayVolumeUSD)}</DataText>
-          {/* {!below1080 && <DataText area="volWeek">{formatDataText(weekVolume, pairData.oneWeekVolumeUSD)}</DataText>} */}
-          {!below1080 && <DataText area="fees">{formatDataText(fees, pairData.oneDayVolumeUSD)}</DataText>}
-          {!below1080 && (
-            <DataText area="apy" color={darkTheme.jediBlue} className="apr-wrapper" data-tooltip-html={pairData.rewarded ? renderToStaticMarkup(getTooltipMarkup()): null} data-tooltip-place="bottom-start" data-tooltip-offset={-20}>
-              {formatDataText(displayApy, pairData.oneDayVolumeUSD, pairData.oneDayVolumeUSD === 0)}
+                <FeeBadge>{feePercent}</FeeBadge>
+              </AutoRow>
+              {rewardsBadges}
             </DataText>
-          )}
-        </DashGrid>
+            <DataText area="liq">{formatDataText(liquidity, pairData.totalValueLockedUSD)}</DataText>
+            <DataText area="vol">{formatDataText(volume, pairData.oneDayVolumeUSD)}</DataText>
+            {/* {!below1080 && <DataText area="volWeek">{formatDataText(weekVolume, pairData.oneWeekVolumeUSD)}</DataText>} */}
+            {!below1080 && <DataText area="fees">{formatDataText(fees, pairData.oneDayVolumeUSD)}</DataText>}
+            {!below1080 && (
+              <DataText area="apy" color={darkTheme.jediBlue} className="apr-wrapper" data-tooltip-html={pairData.rewarded ? renderToStaticMarkup(getTooltipMarkup()) : null} data-tooltip-place="bottom-start" data-tooltip-offset={-20}>
+                {formatDataText(displayApy, pairData.oneDayVolumeUSD, pairData.oneDayVolumeUSD === 0)}
+              </DataText>
+            )}
+          </DashGrid>
+        </Link>
       )
     } else {
       return null
@@ -440,6 +442,7 @@ function PairList({
                 ? WETH[chainId]
                 : allTokens[validateAndParseAddress(pairData.token1.tokenAddress)],
           }
+          console.log('doubleCurrencyImageData', doubleCurrencyImageData)
         }
         return (
           pairAddress && (
