@@ -1,19 +1,34 @@
+import { providerInstance } from 'utils/getLibrary'
 import { updateAllPairs } from './../state/pairs/actions'
 // import { useSingleCallResult } from '../state/multicall/hooks'
 import { useFactoryContract } from './useContractV2'
 import { useDispatch } from 'react-redux'
 import { AppDispatch } from '../state'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useSingleCallResult } from 'state/multicall/hooks'
+import { useAccountDetails } from './starknet-react'
+import { DEFAULT_CHAIN_ID } from 'constants/tokens'
+import { FACTORY_ADDRESS } from 'contracts/factoryAddress'
+import { useQuery } from 'react-query'
+import { validateAndParseAddress } from 'starknet'
 
 export default function useFetchAllPairsCallback() {
-  const factoryContract = useFactoryContract()
-  const dispatch = useDispatch<AppDispatch>()
-  const allPairs = useSingleCallResult(factoryContract, 'get_all_pairs').result
-  return useCallback(() => {
-    if (!allPairs || !Array.isArray(allPairs.all_pairs)) {
-      return
-    }
-    dispatch(updateAllPairs({ allPairs: allPairs.all_pairs }))
-  }, [allPairs, dispatch])
+  const { chainId } = useAccountDetails()
+  const contract_address = FACTORY_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+
+  const allPairs = useQuery({
+    queryKey: [`get_all_pairs/${contract_address}/${chainId}`],
+    queryFn: async () => {
+      if (!chainId) return
+      const provider = providerInstance(chainId ?? DEFAULT_CHAIN_ID)
+      const contract_address = FACTORY_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+      const results = await provider.callContract({ entrypoint: 'get_all_pairs', contractAddress: contract_address })
+      return results?.result
+    },
+  })
+
+  return useMemo(() => {
+    if (!allPairs.data || !Array.isArray(allPairs.data)) return []
+    else return allPairs.data.map((pairAddress) => validateAndParseAddress(pairAddress))
+  }, [allPairs])
 }

@@ -2,7 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
-import { Currency, CurrencyAmount, Percent, validateAndParseAddress } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Percent, validateAndParseAddress } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount, NonfungiblePositionManager, Position, toHex } from '@vnaysn/jediswap-sdk-v3'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
@@ -212,6 +212,12 @@ function AddLiquidity() {
   useEffect(() => {
     if (txData) console.log(txData, 'txData')
   }, [txData])
+
+  useEffect(() => {
+    if (chainId) {
+      if (chainId === ChainId.GOERLI) setShowWarning(false)
+    }
+  }, [chainId])
 
   useEffect(() => {
     if (mintCallData) {

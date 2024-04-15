@@ -24,6 +24,7 @@ import {
   UK_BANNER_HEIGHT_SM,
   WarningBanner,
 } from 'components/NavBar/WarningBanner'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 // import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
@@ -96,9 +97,7 @@ const HeaderWrapper = styled.div<{
 `
 
 export default function App() {
-  const fetchAllPairs = useFetchAllPairsCallback()
   const isLoaded = useFeatureFlagsIsLoaded()
-
   const location = useLocation()
   const { pathname } = location
 
@@ -106,6 +105,7 @@ export default function App() {
   const [showWarning, setShowWarning] = useState(true)
   const scrolledState = scrollY > 0
   const routerConfig = useRouterConfig()
+  const { chainId } = useAccountDetails()
 
   const isHeaderTransparent = !scrolledState
 
@@ -115,8 +115,10 @@ export default function App() {
   }, [pathname])
 
   useEffect(() => {
-    fetchAllPairs()
-  }, [fetchAllPairs])
+    if (chainId) {
+      if (chainId === ChainId.GOERLI) setShowWarning(false)
+    }
+  }, [chainId])
 
   useEffect(() => {
     const scrollListener = () => {

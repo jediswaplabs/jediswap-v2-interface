@@ -2,7 +2,7 @@ import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const BLOCK_EXPLORER_PREFIXES: { [chainId: string]: string } = {
   [ChainId.MAINNET]: 'https://starkscan.co',
-  [ChainId.GOERLI]: 'https://testnet.starkscan.co',
+  [ChainId.GOERLI]: 'https://sepolia.starkscan.co',
 }
 
 export enum ExplorerDataType {
@@ -20,7 +20,7 @@ export enum ExplorerDataType {
  * @param type the type of the data
  */
 export function getExplorerLink(chainId: string, data: string, type: ExplorerDataType): string {
-  const prefix = BLOCK_EXPLORER_PREFIXES[chainId] ?? 'https://etherscan.io'
+  const prefix = BLOCK_EXPLORER_PREFIXES[chainId]
 
   switch (type) {
     case ExplorerDataType.TRANSACTION:
