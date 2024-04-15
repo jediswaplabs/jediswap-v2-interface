@@ -182,8 +182,6 @@ export function usePools(
     watch: true,
   })
 
-  // 2018382873588440326581633304624437
-
   const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(num.toHex(sqrtPriceX96 as BigNumberish))
   const liquidityHex = Boolean(liquidity) ? JSBI.BigInt(num.toHex(liquidity as BigNumberish)) : JSBI.BigInt('0x0')
 
