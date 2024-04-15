@@ -5,7 +5,7 @@ import { Link, useParams } from 'react-router-dom'
 import { validateAndParseAddress } from 'starknet'
 
 import { AutoColumn } from "components/Column";
-import { AutoRow, RowBetween, RowFixed } from "components/Row";
+import Row, { AutoRow, RowBetween, RowFixed } from "components/Row";
 import { formattedNum, formattedPercent } from "utils/dashboard";
 import { useAllLists } from 'state/lists/hooks';
 import { getAllPools } from 'graphql/data/PoolsData';
@@ -160,6 +160,18 @@ const FixedPanel = styled.div`
   background: rgba(255, 255, 255, 0.1);
   cursor: pointer;
 `
+const ResponsiveButtonPrimary = styled(ButtonPrimary)`
+  font-family: 'DM Sans';
+  border-radius: 8px;
+  font-size: 16px;
+  padding: 6px 8px;
+  width: 175px;
+  margin-left: auto;
+  height: 38px;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    width: 132px;
+  }
+`
 
 export default function PoolDetails() {
   const { poolId } = useParams<{ poolId?: string }>()
@@ -235,7 +247,7 @@ export default function PoolDetails() {
       >
         ← <span style={{ color: '#50D5FF' }}>Back to top pools</span>
       </Link>
-      <RowFixed align="center" style={{ gap: '8px', marginTop: '10px' }}>
+      <Row align="center" style={{ gap: '8px', marginTop: '10px' }}>
         {doubleCurrencyImageData && (
           <DoubleTokenLogo
             // size={below600 ? 16 : 20}
@@ -247,7 +259,10 @@ export default function PoolDetails() {
         )}
         {poolData?.token0?.symbol} - {poolData?.token1?.symbol}
         <FeeBadge>{feePercent}</FeeBadge>
-      </RowFixed>
+        <ResponsiveButtonPrimary as={Link} to={`/add/${poolData?.token0?.tokenAddress}/${poolData?.token1?.tokenAddress}/${poolData?.fee}`}>
+          + New position
+        </ResponsiveButtonPrimary>
+      </Row>
       <AutoColumn gap="12px">
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', background: '#141451', padding: '15px', margin: '20px 0', gap: '30px' }}>
           {/* <TYPE.main fontSize="16px" fontWeight={500}> */}
@@ -256,14 +271,14 @@ export default function PoolDetails() {
           <div style={{ display: 'flex', gap: '20px' }}>
             {currentPriceDisplayMode === 'token0' && (
               <FixedPanel style={{ width: '100%', display: 'flex', gap: '10px' }}>
-                  <CurrencyLogo currency={doubleCurrencyImageData?.token0}/>
-                  <RowFixed>{token0 && token1 ? `1 ${formattedSymbol0} = ${formattedNum(token1Price)} ${formattedSymbol1}` : '-'}</RowFixed>
+                <CurrencyLogo currency={doubleCurrencyImageData?.token0} />
+                <RowFixed>{token0 && token1 ? `1 ${formattedSymbol0} = ${formattedNum(token1Price)} ${formattedSymbol1}` : '-'}</RowFixed>
               </FixedPanel>
             )}
             {currentPriceDisplayMode === 'token1' && (
               <FixedPanel style={{ width: '100%', display: 'flex', gap: '10px' }}>
-                  <CurrencyLogo currency={doubleCurrencyImageData?.token1}/>
-                    <RowFixed>{token0 && token1 ? `1 ${formattedSymbol1} = ${formattedNum(token0Price)} ${formattedSymbol0}` : '-'}</RowFixed>
+                <CurrencyLogo currency={doubleCurrencyImageData?.token1} />
+                <RowFixed>{token0 && token1 ? `1 ${formattedSymbol1} = ${formattedNum(token0Price)} ${formattedSymbol0}` : '-'}</RowFixed>
               </FixedPanel>
             )}
           </div>
