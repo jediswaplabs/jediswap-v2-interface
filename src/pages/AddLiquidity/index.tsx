@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { Currency, CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
@@ -15,7 +15,7 @@ import { useApprovalCall } from 'hooks/useApproveCall'
 import usePrevious from 'hooks/usePrevious'
 import { useTraderReferralCode, useUserCode } from 'hooks/useReferral'
 import { BodyWrapper } from 'pages/AppBody'
-import { cairo, Call, CallData } from 'starknet'
+import { Call, CallData, cairo } from 'starknet'
 import {
   useRangeHopCallbacks,
   useV3DerivedMintInfo,
@@ -104,7 +104,7 @@ function AddLiquidity() {
   // mint state
   const { independentField, typedValue, startPriceTypedValue } = useV3MintState()
 
-  const [showWarning, setShowWarning] = useState(false)
+  const [showWarning, setShowWarning] = useState(true)
   const [mintCallData, setMintCallData] = useState<Call[]>([])
 
   const {
@@ -194,6 +194,12 @@ function AddLiquidity() {
   useEffect(() => {
     if (txData) console.log(txData, 'txData')
   }, [txData])
+
+  useEffect(() => {
+    if (chainId) {
+      if (chainId === ChainId.GOERLI) setShowWarning(false)
+    }
+  }, [chainId])
 
   useEffect(() => {
     if (mintCallData) {

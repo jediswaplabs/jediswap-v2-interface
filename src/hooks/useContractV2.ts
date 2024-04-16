@@ -37,7 +37,7 @@ export function useTokenContract(tokenAddress?: string, withSignerIfPossible?: b
 // }
 // Change here
 export function useFactoryContract(): Contract | null {
-  const { account, chainId } = useAccountDetails()
+  const { chainId } = useAccountDetails()
 
   return useContract(FACTORY_ADDRESS[chainId ?? DEFAULT_CHAIN_ID], FACTORY_ABI, true)
 }

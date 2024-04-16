@@ -1,4 +1,4 @@
-import { isStagingEnvironment, isTestnetEnvironment } from 'connectors/index'
+import { isLocalEnvironment, isStagingEnvironment, isTestnetEnvironment } from 'connectors/index'
 const getDefaultTokensListUrl = () => {
   const getUrl = (env = '', name = 'jediswap-default.tokenlist.json') =>
     `https://static.${env ? `${env}.` : ''}jediswap.xyz/tokens-list/${name}`
@@ -11,7 +11,11 @@ const getDefaultTokensListUrl = () => {
     return getUrl('testnet')
   }
 
-  return getUrl('testnet')
+  if (isLocalEnvironment()) {
+    return getUrl('testnet')
+  }
+
+  return getUrl()
 }
 
 export const DEFAULT_TOKEN_LIST_URL = getDefaultTokensListUrl()

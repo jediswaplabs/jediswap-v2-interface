@@ -8,6 +8,7 @@ import { TokenAddressMap } from 'lib/hooks/useTokenList/utils'
 import { useMemo } from 'react'
 import { useAppSelector } from 'state/hooks'
 import { isL2ChainId } from 'utils/chains'
+import ERC20_ABI from 'abis/erc20.json'
 
 import { useAllLists, useCombinedActiveList, useCombinedTokenMapFromUrls } from '../state/lists/hooks'
 import { WrappedTokenInfo } from '../state/lists/wrappedTokenInfo'
@@ -16,6 +17,8 @@ import { isAddressValidForStarknet } from 'utils/addresses'
 import { useTokenContract } from './useContractV2'
 import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { ETH_ADDRESS, WETH } from 'constants/tokens'
+import { useContractRead } from '@starknet-react/core'
+import { num } from 'starknet'
 
 type Maybe<T> = T | null | undefined
 
@@ -191,28 +194,63 @@ export function useToken(tokenAddress?: string | null): Token | null | undefined
   const { chainId } = useAccountDetails()
   const tokens = useDefaultActiveTokens(chainId)
   const address = isAddressValidForStarknet(tokenAddress)
+  const validTokenAddress = address ? address : undefined
   const token: Token | undefined = address ? tokens[address] : undefined
 
-  const tokenContract = useTokenContract(address ? address : undefined)
+  const { data: rpc_tokenName } = useContractRead({
+    functionName: 'name',
+    args: [],
+    abi: ERC20_ABI,
+    address: validTokenAddress,
+    watch: true,
+  })
 
-  const tokenName = useSingleCallResult(token ? undefined : tokenContract, 'name', undefined, NEVER_RELOAD)
+  const { data: rpc_symbol } = useContractRead({
+    functionName: 'symbol',
+    args: [],
+    abi: ERC20_ABI,
+    address: validTokenAddress,
+    watch: true,
+  })
 
-  const symbol = useSingleCallResult(token ? undefined : tokenContract, 'symbol', undefined, NEVER_RELOAD)
+  const { data: rpc_decimals } = useContractRead({
+    functionName: 'decimals',
+    args: [],
+    abi: ERC20_ABI,
+    address: validTokenAddress,
+    watch: true,
+  })
 
-  const decimals = useSingleCallResult(token ? undefined : tokenContract, 'decimals', undefined, NEVER_RELOAD)
+  const tokenName = useMemo(() => {
+    const nameResult: any = rpc_tokenName
+    if (!nameResult || !nameResult?.name) return undefined
+    return num.toHex(nameResult.name)
+  }, [rpc_tokenName])
+
+  const symbol = useMemo(() => {
+    const symbolResult: any = rpc_symbol
+    if (!symbolResult || !symbolResult?.symbol) return undefined
+    return num.toHex(symbolResult.symbol)
+  }, [rpc_symbol])
+
+  const decimals = useMemo(() => {
+    const decimalResult: any = rpc_decimals
+    if (!decimalResult || !decimalResult?.decimals) return undefined
+    return num.toHex(decimalResult.decimals)
+  }, [rpc_decimals])
 
   return useMemo(() => {
     if (token) return token
     if (!chainId || !address) return undefined
     if (address === ETH_ADDRESS) return WETH[chainId]
-    if (decimals.loading || symbol.loading || tokenName.loading) return null
-    if (decimals.result) {
+    // if (decimals.loading || symbol.loading || tokenName.loading) return null
+    if (decimals) {
       const token = new Token(
         chainId,
         address,
-        parseInt(decimals.result[0]),
-        parseStringFromArgs(symbol.result?.[0]),
-        parseStringFromArgs(symbol.result?.[0])
+        parseInt(decimals),
+        parseStringFromArgs(symbol),
+        parseStringFromArgs(symbol)
       )
       return token
     }
