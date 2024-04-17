@@ -16,6 +16,7 @@ import { isClassicTrade } from 'state/routing/utils'
 import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
 
 // import { TOKEN_SHORTHANDS } from '../../constants/tokens'
+import { useTradeExactIn, useTradeExactOut } from 'hooks/Trades'
 import { useBestV3TradeExactIn, useBestV3TradeExactOut } from 'hooks/useBestV3Trade'
 import { useCurrency } from '../../hooks/Tokens'
 import useParsedQueryString from '../../hooks/useParsedQueryString'

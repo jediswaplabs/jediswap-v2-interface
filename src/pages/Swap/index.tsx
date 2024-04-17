@@ -589,7 +589,7 @@ export function Swap({
     const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
 
-    if (urlReferralCode && urlReferralCode !== userReferralCode && urlReferralCode !== registeredReferralCode) {
+    if (urlReferralCode && urlReferralCode !== userReferralCode && registeredReferralCode === undefined) {
       const referralCode = {
         _code: cairo.felt(urlReferralCode),
       }
