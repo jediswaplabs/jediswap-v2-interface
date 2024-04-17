@@ -260,7 +260,7 @@ function AddLiquidity() {
       const router_address: string = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
       const callData = []
       const urlReferralCode = localStorage.getItem('referralCode')
-      if (urlReferralCode && urlReferralCode !== userReferralCode && urlReferralCode !== registeredReferralCode) {
+      if (urlReferralCode && urlReferralCode !== userReferralCode && registeredReferralCode === undefined) {
         const referralCode = {
           _code: cairo.felt(urlReferralCode),
         }
