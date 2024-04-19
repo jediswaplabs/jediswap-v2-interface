@@ -512,16 +512,14 @@ export default function Pool() {
   }, [chainId, address])
 
   const lists = useAllLists()
-
+  const tokenList = Object.values(lists)[0]?.current
   //fetch pools data
   useEffect(() => {
     const getPoolsData = async () => {
-      if (!lists['https://static.jediswap.xyz/tokens-list/jediswap-default.tokenlist.json'].current) {
+      if (!tokenList) {
         return
       }
-      const whitelistedIds = lists[
-        'https://static.jediswap.xyz/tokens-list/jediswap-default.tokenlist.json'
-      ].current.tokens.map((token) => token.address)
+      const whitelistedIds = tokenList.tokens.map((token) => token.address)
       whitelistedIds.push('0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') //add ETH token
       const poolsDataRaw = await getAllPools(whitelistedIds)
       const poolsData: any = {}

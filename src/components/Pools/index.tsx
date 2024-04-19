@@ -442,7 +442,6 @@ function PairList({
                 ? WETH[chainId]
                 : allTokens[validateAndParseAddress(pairData.token1.tokenAddress)],
           }
-          console.log('doubleCurrencyImageData', doubleCurrencyImageData)
         }
         return (
           pairAddress && (

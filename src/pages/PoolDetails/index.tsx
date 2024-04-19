@@ -177,18 +177,17 @@ export default function PoolDetails() {
   const { poolId } = useParams<{ poolId?: string }>()
   const [poolData, setpoolData] = useState<any | undefined>({})
   const lists = useAllLists()
+  const tokenList = Object.values(lists)[0]?.current
   const { chainId } = useAccountDetails()
   const allTokens = useDefaultActiveTokens(chainId)
 
   //fetch pools data
   useEffect(() => {
     const getPoolsData = async () => {
-      if (!lists['https://static.jediswap.xyz/tokens-list/jediswap-default.tokenlist.json'].current) {
+      if (!tokenList) {
         return
       }
-      const whitelistedIds = lists[
-        'https://static.jediswap.xyz/tokens-list/jediswap-default.tokenlist.json'
-      ].current.tokens.map((token) => token.address)
+      const whitelistedIds = tokenList.tokens.map((token) => token.address)
       whitelistedIds.push('0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') //add ETH token
       const poolsDataRaw: any = await getAllPools(whitelistedIds)
       if (poolId && poolsDataRaw) {
@@ -231,7 +230,6 @@ export default function PoolDetails() {
           ? WETH[chainId]
           : allTokens[validateAndParseAddress(poolData.token1.tokenAddress)],
     }
-    // console.log('doubleCurrencyImageData2', doubleCurrencyImageData)
   }
   const feePercent = (fee ? parseFloat(fee) / 10000 : 0) + '%'
   const [currentPriceDisplayMode, setCurrentPriceDisplayMode] = useState('token0')
