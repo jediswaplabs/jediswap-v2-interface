@@ -27,6 +27,7 @@ import { useAllLists } from 'state/lists/hooks'
 import Pools from 'components/Pools'
 import { ToggleElement, ToggleWrapper } from 'components/Toggle/MultiToggle'
 import { formattedNum, formattedPercent } from 'utils/dashboard'
+import { REWARDS_SELECTOR, STARKNET_REWARDS_API_URL } from 'constants/misc'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -522,10 +523,23 @@ export default function Pool() {
       const whitelistedIds = tokenList.tokens.map((token) => token.address)
       whitelistedIds.push('0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') //add ETH token
       const poolsDataRaw = await getAllPools(whitelistedIds)
+      const rewardsResp = await fetch(STARKNET_REWARDS_API_URL)
+      const rewardsRespStr = await rewardsResp.text()
+      const rewardsRespStrClean = rewardsRespStr.replace(/\bNaN\b/g, "null")
+      const rewardsRespJson = JSON.parse(rewardsRespStrClean)
+      const jediRewards = rewardsRespJson[REWARDS_SELECTOR]
+      console.log('jediRewards', jediRewards)
+      console.log('poolsDataRaw', poolsDataRaw)
+
       const poolsData: any = {}
       poolsDataRaw?.forEach((data) => {
-        //testing
-        data.aprStarknet = Math.random() >0.9 ? 100: 0
+        const rewardName = data?.token0?.symbol + '/' + data?.token1?.symbol
+        const rewardsData = jediRewards[rewardName]?.pop();
+        // console.log(rewardName, rewardsData)
+        
+        if (rewardsData) {
+          data.aprStarknet = rewardsData.apr
+        }
 
         data.rewarded = data.aprStarknet ? true : false
 
