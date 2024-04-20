@@ -104,7 +104,7 @@ function AddLiquidity() {
   // mint state
   const { independentField, typedValue, startPriceTypedValue } = useV3MintState()
 
-  const [showWarning, setShowWarning] = useState(true)
+  const [showWarning, setShowWarning] = useState(false)
   const [mintCallData, setMintCallData] = useState<Call[]>([])
 
   const {

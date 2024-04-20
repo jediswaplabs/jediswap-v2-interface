@@ -5,9 +5,15 @@ import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json
 import JSBI from 'jsbi'
 import { NEVER_RELOAD, useSingleCallResult } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
-import { cairo } from 'starknet'
-import { useAccountDetails } from './starknet-react'
 import { useV3NFTPositionManagerContract } from './useContract'
+import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
+import { useV3NFTPositionManagerContract } from './useContract'
+import { useContractRead } from '@starknet-react/core'
+import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import { cairo, CallData, encode, num } from 'starknet'
+import { useAccountDetails } from './starknet-react'
+import { useQuery } from 'react-query'
+import { providerInstance } from 'utils/getLibrary'
 
 type TokenId = number | JSBI | BigNumber
 
@@ -90,20 +96,35 @@ export const feltArrToStr = (felts: bigint[]): string | undefined => {
 
 const useTokenURI = (tokenId: number) => {
   const { chainId } = useAccountDetails()
-  const { data, error, isLoading } = useContractRead({
-    functionName: 'token_uri',
-    args: [cairo.uint256(tokenId)],
-    abi: NFTPositionManagerABI,
-    address: NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID],
-    watch: true,
+  const metadata = useQuery({
+    queryKey: [`get_metadata/${chainId}`],
+    queryFn: async () => {
+      if (!chainId) return
+      const provider = providerInstance(chainId ?? DEFAULT_CHAIN_ID)
+      const contract_address = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+      const results = await provider.callContract({
+        entrypoint: 'token_uri',
+        contractAddress: contract_address,
+        calldata: CallData.compile({
+          tokenId: cairo.uint256(tokenId),
+        }),
+      })
+      return results?.result
+    },
   })
-  return { metadata: data, error, isLoading }
+
+  return useMemo(() => {
+    if (!metadata.data || !Array.isArray(metadata.data))
+      return { metadata: [], isLoading: metadata.isLoading, error: metadata.error }
+    else return { metadata: metadata.data, isLoading: metadata.isLoading, error: metadata.error }
+  }, [metadata])
 }
 
 export function useV3PositionTokenURI(tokenId: number) {
   const { metadata, error, isLoading } = useTokenURI(tokenId)
-  const metadataArray: bigint[] = Array.isArray(metadata) ? metadata : []
-  const slicedMetaData: bigint[] = metadataArray.slice(1)
+  const metadataArray = Array.isArray(metadata) ? metadata : []
+  const metaDataStrToFelt: bigint[] = metadataArray.map((meta) => num.toBigInt(meta))
+  const slicedMetaData: bigint[] = metaDataStrToFelt.slice(1, -1)
   return useMemo(() => {
     if (error || !tokenId) {
       return {
@@ -123,10 +144,11 @@ export function useV3PositionTokenURI(tokenId: number) {
     }
 
     try {
-      const result = feltArrToStr(slicedMetaData as any)
-
-      if (typeof result === 'string') {
-        const json = JSON.parse(result)
+      const result = feltArrToStr(slicedMetaData as any) ?? ''
+      const jsonStartIndex = result.indexOf('{')
+      const jsonString = result.slice(jsonStartIndex)
+      if (typeof jsonString === 'string') {
+        const json = JSON.parse(jsonString)
         return {
           loading: false,
           result: json,
