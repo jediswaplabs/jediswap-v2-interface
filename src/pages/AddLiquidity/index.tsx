@@ -1,7 +1,6 @@
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
-import { ChainId, Currency, CurrencyAmount, Percent, validateAndParseAddress } from '@vnaysn/jediswap-sdk-core'
-import { FeeAmount, NonfungiblePositionManager, Position, toHex } from '@vnaysn/jediswap-sdk-v3'
+import { ChainId, Currency, CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
+import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -16,7 +15,7 @@ import { useApprovalCall } from 'hooks/useApproveCall'
 import usePrevious from 'hooks/usePrevious'
 import { useTraderReferralCode, useUserCode } from 'hooks/useReferral'
 import { BodyWrapper } from 'pages/AppBody'
-import { cairo, Call, CallData } from 'starknet'
+import { Call, CallData, cairo } from 'starknet'
 import {
   useRangeHopCallbacks,
   useV3DerivedMintInfo,
