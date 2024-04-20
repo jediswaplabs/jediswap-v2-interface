@@ -47,7 +47,7 @@ export function useCodeOwner(code: string): {
   const { chainId } = useAccountDetails()
   const referralContract = useReferralContract()
 
-  const { data, error, isLoading, isFetching } = useContractRead({
+  const { data, error, isLoading } = useContractRead({
     functionName: 'get_code_owner',
     address: referralContract?.address,
     abi: referralContract?.abi,
@@ -59,7 +59,7 @@ export function useCodeOwner(code: string): {
     return {
       data: data ? isAddressValidForStarknet(data as string) : undefined,
       error,
-      isLoading: isFetching,
+      isLoading: isLoading,
     }
   }, [chainId, code, data, error, isLoading])
 }
@@ -72,7 +72,7 @@ export function useTraderReferralCode(): {
   const { chainId, address: account } = useAccountDetails()
   const referralContract = useReferralContract()
 
-  const { data, error, isLoading, isFetching } = useContractRead({
+  const { data, error, isLoading } = useContractRead({
     functionName: 'get_trader_referral_code',
     address: referralContract?.address,
     abi: referralContract?.abi,
@@ -85,7 +85,7 @@ export function useTraderReferralCode(): {
     return {
       data: data ? feltArrToStr([data as bigint]) : undefined,
       error,
-      isLoading: isFetching,
+      isLoading: isLoading,
     }
   }, [chainId, account, data, error, isLoading])
 }
