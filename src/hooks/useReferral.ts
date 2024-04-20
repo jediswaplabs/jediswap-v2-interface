@@ -29,6 +29,7 @@ export function useUserCode(): {
     args: account ? [account] : undefined,
     watch: true,
     parseResult: true,
+    refetchInterval: 10000,
   })
   return useMemo(() => {
     return {
