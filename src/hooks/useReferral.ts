@@ -22,7 +22,7 @@ export function useUserCode(): {
   const { chainId, address: account } = useAccountDetails()
   const referralContract = useReferralContract()
 
-  const { data, error, isLoading, isFetching } = useContractRead({
+  const { data, error, isLoading } = useContractRead({
     functionName: 'get_user_code',
     address: referralContract?.address,
     abi: referralContract?.abi,
@@ -34,7 +34,7 @@ export function useUserCode(): {
     return {
       data: data ? feltArrToStr([data as bigint]) : undefined,
       error,
-      isLoading: isFetching,
+      isLoading: isLoading,
     }
   }, [chainId, account, data, error, isLoading])
 }

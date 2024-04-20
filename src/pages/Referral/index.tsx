@@ -139,7 +139,6 @@ export function Referral() {
   const debouncedQuery = useDebounce(searchQuery, 500)
   const { data: codeOwner, error: codeOwnerError, isLoading: isCodeOwnerLoading } = useCodeOwner(debouncedQuery)
   const { data: userReferralCode, error: userReferralError, isLoading: isUserCodeLoading } = useUserCode()
-  console.log('userReferralCode', isCodeOwnerLoading, isUserCodeLoading)
   return (
     <PageWrapper>
       {isCodeOwnerLoading && isUserCodeLoading ? (
