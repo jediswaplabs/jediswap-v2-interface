@@ -55,6 +55,7 @@ export function useCodeOwner(code: string): {
     abi: referralContract?.abi,
     args: code.length ? [code] : undefined,
     watch: true,
+    blockIdentifier: 'pending' as any,
   })
 
   return useMemo(() => {
