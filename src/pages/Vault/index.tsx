@@ -22,6 +22,8 @@ import { useFormatter } from '../../utils/formatNumbers.ts'
 import { formatUsdPrice } from '../../nft/utils'
 import { isAddressValidForStarknet } from '../../utils/addresses'
 import { AutoRow } from 'components/Row'
+import { FullDivider, VaultWrapper } from 'components/vault/styled'
+import VaultHeader from 'components/vault/VaultHeader'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -412,6 +414,7 @@ export default function Vault({ className }: { className?: string }) {
                   </VaultStrategyLinks>
                 </AutoColumn>
               </VaultDetailsContainer>
+              <VaultElement />
             </PageContentWrapper>
           </AutoColumn>
         )
@@ -430,4 +433,17 @@ export default function Vault({ className }: { className?: string }) {
       {getContent()}
     </PageWrapper>
   )
+}
+
+export function VaultElement() {
+  const [activeButton, setActiveButton] = useState<string>('Deposit')
+
+  const vaultElement = (
+    <VaultWrapper>
+      <VaultHeader activeButton={activeButton} setActiveButton={setActiveButton} />
+      <FullDivider />
+    </VaultWrapper>
+  )
+
+  return vaultElement
 }
