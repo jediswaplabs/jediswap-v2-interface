@@ -70,7 +70,7 @@ export const StyledButton = styled.button`
   cursor: pointer;
   font-size: 20px;
   font-weight: 750;
-  padding-bottom: 20px;
+  padding: 0px 5px 20px 5px;
 `
 
 export const ActiveStyledButton = styled(StyledButton)`
