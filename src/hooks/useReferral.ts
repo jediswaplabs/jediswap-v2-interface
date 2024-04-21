@@ -30,6 +30,7 @@ export function useUserCode(): {
     watch: true,
     parseResult: true,
     refetchInterval: 10000,
+    blockIdentifier: 'pending' as any,
   })
   return useMemo(() => {
     return {
@@ -80,6 +81,8 @@ export function useTraderReferralCode(): {
     args: account ? [account] : undefined,
     watch: true,
     parseResult: true,
+    blockIdentifier: 'pending' as any,
+    refetchInterval: 10000,
   })
 
   return useMemo(() => {
