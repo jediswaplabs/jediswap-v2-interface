@@ -192,7 +192,7 @@ export function useDerivedSwapInfo(
     } else if (!bestV2TradeExactOut && bestV3TradeExactOut) {
       return bestV3TradeExactOut
     } else if (bestV2TradeExactOut && !bestV3TradeExactOut?.trade) {
-      return bestV2TradeExactOut
+      return { state: TradeState.VALID, trade: bestV2TradeExactOut }
     }
 
     return {
@@ -209,9 +209,6 @@ export function useDerivedSwapInfo(
       : isExactIn
       ? bestTradeExactIn
       : bestTradeExactOut
-
-  const { data: outputFeeFiatValue } = useUSDPrice(undefined, trade.trade?.outputAmount.currency)
-
   const currencyBalances = useMemo(
     () => ({
       [Field.INPUT]: relevantTokenBalances[0],
@@ -278,20 +275,8 @@ export function useDerivedSwapInfo(
       allowedSlippage,
       inputTax,
       outputTax,
-      outputFeeFiatValue,
     }),
-    [
-      allowedSlippage,
-      autoSlippage,
-      currencies,
-      currencyBalances,
-      inputError,
-      inputTax,
-      outputFeeFiatValue,
-      outputTax,
-      parsedAmount,
-      trade,
-    ]
+    [allowedSlippage, autoSlippage, currencies, currencyBalances, inputError, inputTax, outputTax, parsedAmount, trade]
   )
 }
 
