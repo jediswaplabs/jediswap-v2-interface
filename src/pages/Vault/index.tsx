@@ -1,12 +1,12 @@
 // @ts-nocheck
 
 import { Trans } from '@lingui/macro'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { AlertTriangle, ArrowLeft } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled, { css } from 'styled-components'
 import { Flex } from 'rebass'
-import { Token } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Token } from '@vnaysn/jediswap-sdk-core'
 import { isEmpty } from 'lodash'
 import { Link, useParams } from 'react-router-dom'
 import { useBalance } from '@starknet-react/core'
@@ -15,7 +15,6 @@ import { useAccountDetails } from 'hooks/starknet-react'
 import { AutoColumn } from 'components/Column'
 import { StyledRouterLink, ThemedText } from 'theme/components'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
-import { useAllVaults } from '../../state/vaults/hooks.ts'
 import JediSwapLoader from '../../components/Loader/JediSwapLoader'
 import noPositionsBg from '../../assets/svg/no-positions-bg.svg'
 import { useFormatter } from '../../utils/formatNumbers.ts'
@@ -24,6 +23,11 @@ import { isAddressValidForStarknet } from '../../utils/addresses'
 import { AutoRow } from 'components/Row'
 import { FullDivider, VaultWrapper } from 'components/vault/styled'
 import VaultHeader from 'components/vault/VaultHeader'
+import CurrencyInputPanel from 'components/CurrencyInputPanel'
+import { useCurrency } from 'hooks/Tokens'
+import { useAllVaults, useVaultActionHandlers, useVaultInputState } from 'state/vaults/hooks'
+import { useUnderlyingVaultAssets } from 'components/vault/hooks'
+import { Field } from 'state/vaults/actions'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -274,7 +278,7 @@ const PageTitle = ({ token0, token1 }) => {
 
 export default function Vault({ className }: { className?: string }) {
   const { vaultId: vaultIdFromUrl } = useParams()
-  const { address, isConnected } = useAccountDetails()
+  const { address, isConnected, chainId } = useAccountDetails()
   const { formatPercent } = useFormatter()
   const [generalError, setGeneralError] = useState(null)
   const [generalLoading, setGeneralLoading] = useState(true)
@@ -355,7 +359,6 @@ export default function Vault({ className }: { className?: string }) {
           totalApr = Number((performanceData?.shareTokenApr + performanceData?.feeApr) / 10 ** 4)?.toFixed(2)
           shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
         }
-
         return (
           <AutoColumn gap={'12px'}>
             <PageTitle token0={token0} token1={token1} />
@@ -414,7 +417,7 @@ export default function Vault({ className }: { className?: string }) {
                   </VaultStrategyLinks>
                 </AutoColumn>
               </VaultDetailsContainer>
-              <VaultElement />
+              <VaultElement chainId={chainId} currentVault={currentVault} />
             </PageContentWrapper>
           </AutoColumn>
         )
@@ -435,13 +438,82 @@ export default function Vault({ className }: { className?: string }) {
   )
 }
 
-export function VaultElement() {
+export function VaultElement({
+  chainId,
+  currentVault,
+}: //   initialInputCurrencyId,
+//   initialOutputCurrencyId,
+//   className,
+//   allPools,
+//   allPairs,
+//   onCurrencyChange,
+//   disableTokenInputs = false,
+{
+  //   initialInputCurrencyId?: string | null
+  //   initialOutputCurrencyId?: string | null
+  //   className?: string
+  //   allPools: [] | string[]
+  //   allPairs: [] | string[]
+  chainId?: ChainId
+  currentVault: any
+  //   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
+  //   disableTokenInputs?: boolean
+}) {
   const [activeButton, setActiveButton] = useState<string>('Deposit')
+  const { onFieldAInput, onFieldBInput } = useVaultActionHandlers()
+
+  // Vault Input state
+  const { independentField, typedValue } = useVaultInputState()
+
+  const baseCurrency = useCurrency(currentVault.token0.address)
+  const currencyB = useCurrency(currentVault.token1.address)
+  const { data, isLoading, isError } = useUnderlyingVaultAssets()
+  let token0Amount
+  let token1Amount
+  let tokenRatio
+  if (data && !isLoading && !isError) {
+    token0Amount = data[0]
+    token1Amount = data[1]
+    tokenRatio = token0Amount / token1Amount
+  }
+  const dependentField = independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
+  //   // get formatted amounts
+  const formattedAmounts = {
+    [independentField]: typedValue,
+    [dependentField]:
+      independentField === Field.CURRENCY_A ? tokenRatio * BigInt(typedValue) : (1 / tokenRatio) * BigInt(typedValue),
+  }
 
   const vaultElement = (
     <VaultWrapper>
       <VaultHeader activeButton={activeButton} setActiveButton={setActiveButton} />
       <FullDivider />
+      <CurrencyInputPanel
+        value={formattedAmounts[Field.CURRENCY_A]}
+        onUserInput={onFieldAInput}
+        // onMax={() => {
+        //   onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
+        // }}
+        // showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
+        // currency={currencies[Field.CURRENCY_A] ?? null}
+        // id="add-liquidity-input-tokena"
+        // fiatValue={currencyAFiat}
+        // showCommonBases
+        // locked={depositADisabled}
+      />
+      <CurrencyInputPanel
+        value={formattedAmounts[Field.CURRENCY_B]}
+        onUserInput={onFieldBInput}
+        // onMax={() => {
+        //   onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
+        // }}
+        // showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
+        // currency={currencies[Field.CURRENCY_A] ?? null}
+        // id="add-liquidity-input-tokena"
+        // fiatValue={currencyAFiat}
+        // showCommonBases
+        // locked={depositADisabled}
+      />
     </VaultWrapper>
   )
 

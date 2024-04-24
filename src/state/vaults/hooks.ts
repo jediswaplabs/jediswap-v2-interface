@@ -2,17 +2,19 @@
 // @ts-ignore
 
 import { validateAndParseAddress } from 'starknet'
-import { useSelector } from 'react-redux'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isEmpty, uniq } from 'lodash'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { useBalance } from '@starknet-react/core'
 
-import { updateAllVaults, updateUserVaults } from './reducer'
+import { updateAllVaults, updateUserVaults, updateInput } from './reducer'
 import { useAppDispatch } from '../hooks'
 import teahouseLogo from '../../assets/vaults/teahouse.svg'
 import { useAccountDetails } from '../../hooks/starknet-react'
 import formatBalance from '../../utils/formatBalance'
+import { Field } from './actions'
+import { AppDispatch } from 'state'
 
 const TEAHOUSE_CONTENT_ENDPOINT = 'https://vault-content-api.teahouse.finance'
 const TEAHOUSE_VAULT_ENDPOINT = ' https://vault-api.teahouse.finance'
@@ -180,4 +182,39 @@ export function useAllVaults() {
   }, [])
 
   return { data: allVaults, error, isLoading }
+}
+
+export function useVaultActionHandlers(): {
+  onFieldAInput: (typedValue: string) => void
+  onFieldBInput: (typedValue: string) => void
+} {
+  const dispatch = useDispatch<AppDispatch>()
+
+  const onFieldAInput = useCallback(
+    (typedValue: string) => {
+      dispatch(updateInput({ field: Field.CURRENCY_A, typedValue }))
+    },
+    [dispatch]
+  )
+  const onFieldBInput = useCallback(
+    (typedValue: string) => {
+      dispatch(updateInput({ field: Field.CURRENCY_B, typedValue }))
+    },
+    [dispatch]
+  )
+
+  return {
+    onFieldAInput,
+    onFieldBInput,
+  }
+}
+
+export function useVaultInputState(): {
+  typedValue: string
+  independentField: string
+} {
+  const typedValue = useSelector((state) => state.vaults.typedValue)
+  const independentField = useSelector((state) => state.vaults.independentField)
+
+  return { typedValue, independentField }
 }
