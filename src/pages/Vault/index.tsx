@@ -25,8 +25,7 @@ import { FullDivider, VaultWrapper } from 'components/vault/styled'
 import VaultHeader from 'components/vault/VaultHeader'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { useCurrency } from 'hooks/Tokens'
-import { useAllVaults, useVaultActionHandlers, useVaultInputState } from 'state/vaults/hooks'
-import { useUnderlyingVaultAssets } from 'components/vault/hooks'
+import { useAllVaults, useVaultActionHandlers, useVaultDerivedInfo, useVaultInputState } from 'state/vaults/hooks'
 import { Field } from 'state/vaults/actions'
 
 const PageWrapper = styled(AutoColumn)`
@@ -204,6 +203,7 @@ function NoVaultsPanel() {
 const noop = () => {}
 const UserBalance = ({ tokenAddress, vaultAddress, tokenPrice, getResult = noop }) => {
   const { address, isConnected } = useAccountDetails()
+
   const {
     data: userBalanceData,
     isLoading: isUserBalanceLoading,
@@ -444,18 +444,14 @@ export function VaultElement({
 }: //   initialInputCurrencyId,
 //   initialOutputCurrencyId,
 //   className,
-//   allPools,
-//   allPairs,
 //   onCurrencyChange,
 //   disableTokenInputs = false,
 {
+  chainId?: ChainId
+  currentVault: any
   //   initialInputCurrencyId?: string | null
   //   initialOutputCurrencyId?: string | null
   //   className?: string
-  //   allPools: [] | string[]
-  //   allPairs: [] | string[]
-  chainId?: ChainId
-  currentVault: any
   //   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
   //   disableTokenInputs?: boolean
 }) {
@@ -464,24 +460,17 @@ export function VaultElement({
 
   // Vault Input state
   const { independentField, typedValue } = useVaultInputState()
-
   const baseCurrency = useCurrency(currentVault.token0.address)
   const currencyB = useCurrency(currentVault.token1.address)
-  const { data, isLoading, isError } = useUnderlyingVaultAssets()
-  let token0Amount
-  let token1Amount
-  let tokenRatio
-  if (data && !isLoading && !isError) {
-    token0Amount = data[0]
-    token1Amount = data[1]
-    tokenRatio = token0Amount / token1Amount
-  }
-  const dependentField = independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
-  //   // get formatted amounts
+
+  const { dependentField, currencies, parsedAmounts } = useVaultDerivedInfo(
+    baseCurrency ?? undefined,
+    currencyB ?? undefined
+  )
+  // get formatted amounts
   const formattedAmounts = {
     [independentField]: typedValue,
-    [dependentField]:
-      independentField === Field.CURRENCY_A ? tokenRatio * BigInt(typedValue) : (1 / tokenRatio) * BigInt(typedValue),
+    [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
 
   const vaultElement = (
@@ -495,7 +484,7 @@ export function VaultElement({
         //   onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
         // }}
         // showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
-        // currency={currencies[Field.CURRENCY_A] ?? null}
+        currency={currencies[Field.CURRENCY_A] ?? null}
         // id="add-liquidity-input-tokena"
         // fiatValue={currencyAFiat}
         // showCommonBases
@@ -508,7 +497,7 @@ export function VaultElement({
         //   onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
         // }}
         // showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
-        // currency={currencies[Field.CURRENCY_A] ?? null}
+        currency={currencies[Field.CURRENCY_B] ?? null}
         // id="add-liquidity-input-tokena"
         // fiatValue={currencyAFiat}
         // showCommonBases

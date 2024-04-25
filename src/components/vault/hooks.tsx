@@ -20,6 +20,7 @@ export const useTotalSharesSupply = () => {
 }
 
 export const useUnderlyingVaultAssets = () => {
+  // neeed to pass on the correct contract address later on
   const { data, isLoading, isError } = useContractRead({
     functionName: 'vault_all_underlying_assets',
     args: [],
@@ -27,7 +28,6 @@ export const useUnderlyingVaultAssets = () => {
     address: vaultAddress,
     watch: true,
   })
-
 
   //   if (!data || typeof data !== 'object') return undefined
   // //   const tokenQuantities: any = data

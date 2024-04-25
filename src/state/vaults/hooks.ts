@@ -5,7 +5,7 @@ import { validateAndParseAddress } from 'starknet'
 import { useDispatch, useSelector } from 'react-redux'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isEmpty, uniq } from 'lodash'
-import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { useBalance } from '@starknet-react/core'
 
 import { updateAllVaults, updateUserVaults, updateInput } from './reducer'
@@ -15,26 +15,34 @@ import { useAccountDetails } from '../../hooks/starknet-react'
 import formatBalance from '../../utils/formatBalance'
 import { Field } from './actions'
 import { AppDispatch } from 'state'
+import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
+import { useUnderlyingVaultAssets } from 'components/vault/hooks'
+import { useDefaultActiveTokens } from 'hooks/Tokens'
+import { useCurrencyFromMap } from 'lib/hooks/useCurrency'
+
+type Maybe<T> = T | null | undefined
 
 const TEAHOUSE_CONTENT_ENDPOINT = 'https://vault-content-api.teahouse.finance'
+const TEAHOUSE_TESTNET_CONTENT_ENDPOINT = 'https://test-vault-content-api.teahouse.finance/vaults'
 const TEAHOUSE_VAULT_ENDPOINT = ' https://vault-api.teahouse.finance'
+const TEAHOUSE_TESTNET_VAULT_ENDPOINT = 'https://test-vault-api.teahouse.finance/vaults/type/permissionless'
+
 // const TEAHOUSE_CONTENT_ENDPOINT = 'https://test-vault-content-api.teahouse.finance';
 // const TEAHOUSE_VAULT_ENDPOINT = ' https://test-vault-api.teahouse.finance';
 const TEAHOUSE_LOGO_URI = 'https://vault.teahouse.finance/icon-token'
 
 const getTeaHouseLogoUriPath = (iconName = '') => (iconName ? `${TEAHOUSE_LOGO_URI}/${iconName}` : null)
 const getVaultListWithContents = async () => {
-  const endpoint = `${TEAHOUSE_CONTENT_ENDPOINT}/vaults`
+  //   const endpoint = `${TEAHOUSE_CONTENT_ENDPOINT}/vaults`
+  const endpoint = TEAHOUSE_TESTNET_CONTENT_ENDPOINT
   const result = {}
   const response = await fetch(endpoint)
   const { vaults } = (await response.json()) ?? {}
   if (!vaults) {
     return
   }
-  const filteredVaults = vaults
-    .filter((vault) => vault.isActive)
-    // .filter((vault) => vault.protocol === 'jediswap');
-    .filter((vault) => vault.chain === 'arbitrum')
+  const filteredVaults = vaults.filter((vault) => vault.isActive).filter((vault) => vault.protocol === 'jediswap')
+  // .filter((vault) => vault.chain === 'arbitrum')
   for (const vault of filteredVaults) {
     const shareAddress = vault.share?.address
     const data = {}
@@ -83,7 +91,8 @@ const getVaultListWithContents = async () => {
 }
 
 const getPermissionlessVaultDataList = async () => {
-  const endpoint = `${TEAHOUSE_VAULT_ENDPOINT}/vaults/type/permissionless`
+  //   const endpoint = `${TEAHOUSE_VAULT_ENDPOINT}/vaults/type/permissionless`
+  const endpoint = TEAHOUSE_TESTNET_VAULT_ENDPOINT
   const result = {}
   const response = await fetch(endpoint)
   const { vaults } = (await response.json()) ?? {}
@@ -217,4 +226,62 @@ export function useVaultInputState(): {
   const independentField = useSelector((state) => state.vaults.independentField)
 
   return { typedValue, independentField }
+}
+
+export function useVaultDerivedInfo(
+  currencyA: Currency | undefined,
+  currencyB: Currency | undefined
+): {
+  dependentField: Field
+  currencies: { [field in Field]?: Currency }
+  parsedAmounts: { [field in Field]?: CurrencyAmount }
+} {
+  const { independentField, typedValue } = useVaultInputState()
+  const { data, isLoading, isError } = useUnderlyingVaultAssets()
+  let token0Amount: number = 0.0
+  let token1Amount: number = 0.0
+  let tokenRatio: number = 1.0
+  if (data && !isLoading && !isError) {
+    token0Amount = Number(data[0])
+    token1Amount = Number(data[1])
+    tokenRatio = token0Amount / token1Amount
+  }
+
+  const dependentField = independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
+
+  // tokens
+  const currencies: { [field in Field]?: Currency } = useMemo(
+    () => ({
+      [Field.CURRENCY_A]: currencyA ?? undefined,
+      [Field.CURRENCY_B]: currencyB ?? undefined,
+    }),
+    [currencyA, currencyB]
+  )
+  // amounts
+  const independentAmount: CurrencyAmount | undefined = tryParseCurrencyAmount(typedValue, currencies[independentField])
+
+  const dependentAmount: CurrencyAmount | undefined = useMemo(() => {
+    if (independentAmount && tokenRatio) {
+      const dependentTokenAmount =
+        independentField === Field.CURRENCY_A ? (1 / tokenRatio) * Number(typedValue) : tokenRatio * Number(typedValue)
+
+      return tryParseCurrencyAmount(dependentTokenAmount.toString(), currencies[dependentField])
+    } else {
+      return undefined
+    }
+  }, [currencies, dependentField, independentAmount, currencyA, currencyB])
+
+  const parsedAmounts: { [field in Field]: CurrencyAmount | undefined } = useMemo(
+    () => ({
+      [Field.CURRENCY_A]: independentField === Field.CURRENCY_A ? independentAmount : dependentAmount,
+      [Field.CURRENCY_B]: independentField === Field.CURRENCY_A ? dependentAmount : independentAmount,
+    }),
+    [dependentAmount, independentAmount, independentField]
+  )
+
+  return {
+    dependentField,
+    currencies,
+    parsedAmounts,
+  }
 }
