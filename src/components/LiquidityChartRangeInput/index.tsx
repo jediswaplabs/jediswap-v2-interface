@@ -16,6 +16,7 @@ import { ThemedText } from 'theme/components'
 import { Chart } from './Chart'
 import { useDensityChartData } from './hooks'
 import { ZoomLevels } from './types'
+import JSBI from 'jsbi'
 
 const ZOOM_LEVELS: Record<FeeAmount, ZoomLevels> = {
   [FeeAmount.LOWEST]: {
@@ -66,6 +67,7 @@ function InfoBox({ message, icon }: { message?: ReactNode; icon: ReactNode }) {
 }
 
 export default function LiquidityChartRangeInput({
+  rangePercentage,
   currencyA,
   currencyB,
   feeAmount,
@@ -77,6 +79,7 @@ export default function LiquidityChartRangeInput({
   onRightRangeInput,
   interactive,
 }: {
+  rangePercentage: number | null
   currencyA?: Currency
   currencyB?: Currency
   feeAmount?: FeeAmount
@@ -134,13 +137,34 @@ export default function LiquidityChartRangeInput({
   interactive = interactive && Boolean(formattedData?.length)
 
   const brushDomain: [number, number] | undefined = useMemo(() => {
-    const leftPrice = isSorted ? priceLower : priceUpper?.invert()
-    const rightPrice = isSorted ? priceUpper : priceLower?.invert()
+    if (priceLower && priceUpper && price) {
+      if (!rangePercentage) {
+        const leftPrice = isSorted ? priceLower : priceUpper?.invert()
+        const rightPrice = isSorted ? priceUpper : priceLower?.invert()
+        return [parseFloat(leftPrice?.toSignificant(6)), parseFloat(rightPrice?.toSignificant(6))]
+      } else {
+        const percentage = JSBI.BigInt(rangePercentage) // 20%
+        const base = JSBI.BigInt(100) // 100 to represent the whole
+        // Calculate the percentage value
+        const percentageValue = JSBI.divide(JSBI.multiply(JSBI.BigInt(Math.floor(price)), percentage), base)
 
-    return leftPrice && rightPrice
-      ? [parseFloat(leftPrice?.toSignificant(6)), parseFloat(rightPrice?.toSignificant(6))]
-      : undefined
-  }, [isSorted, priceLower, priceUpper])
+        const leftPriceWithPercentage = JSBI.subtract(JSBI.BigInt(Math.floor(price)), percentageValue)
+        const rightPriceWithPercentage = JSBI.add(JSBI.BigInt(Math.floor(price)), percentageValue)
+
+        // Combine with the base number
+        const leftPriceWithScaledPercentage =
+          Number(leftPriceWithPercentage) - Math.round(Math.random() * 10000) / 10000
+        const rightPriceWithScaledPercentage =
+          Number(rightPriceWithPercentage) + Math.round(Math.random() * 10000) / 10000
+        return [
+          parseFloat(leftPriceWithScaledPercentage.toString()),
+          parseFloat(rightPriceWithScaledPercentage.toString()),
+        ]
+      }
+    }
+
+    return undefined
+  }, [priceLower, priceUpper, rangePercentage])
 
   const brushLabelValue = useCallback(
     (d: 'w' | 'e', x: number) => {
@@ -157,10 +181,10 @@ export default function LiquidityChartRangeInput({
   )
 
   const isUninitialized = !currencyA || !currencyB || (formattedData === undefined && !isLoading)
-
+  console.log(formattedData, currencyA, currencyB)
   return (
     <AutoColumn gap="md" style={{ minHeight: '200px' }}>
-      {isUninitialized ? (
+      {/* {isUninitialized ? (
         <InfoBox
           message={<Trans>Your position will appear here.</Trans>}
           icon={<Inbox size={56} stroke={theme.neutral1} />}
@@ -177,10 +201,11 @@ export default function LiquidityChartRangeInput({
           message={<Trans>There is no liquidity data.</Trans>}
           icon={<BarChart2 size={56} stroke={theme.neutral2} />}
         />
-      ) : (
+      ) : ( */}
+      {price && (
         <ChartWrapper>
           <Chart
-            data={{ series: formattedData, current: price }}
+            data={{ series: [], current: price }}
             dimensions={{ width: 560, height: 200 }}
             margins={{ top: 10, right: 2, bottom: 20, left: 0 }}
             styles={{
@@ -203,6 +228,7 @@ export default function LiquidityChartRangeInput({
           />
         </ChartWrapper>
       )}
+      {/* )} */}
     </AutoColumn>
   )
 }

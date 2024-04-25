@@ -39,7 +39,10 @@ export function useV3MintState(): AppState['mintV3'] {
   return useAppSelector((state) => state.mintV3)
 }
 
-export function useV3MintActionHandlers(noLiquidity: boolean | undefined): {
+export function useV3MintActionHandlers(
+  noLiquidity: boolean | undefined,
+  setRangePercentage: any
+): {
   onFieldAInput: (typedValue: string) => void
   onFieldBInput: (typedValue: string) => void
   onLeftRangeInput: (typedValue: string) => void
@@ -66,6 +69,7 @@ export function useV3MintActionHandlers(noLiquidity: boolean | undefined): {
 
   const onLeftRangeInput = useCallback(
     (typedValue: string) => {
+      setRangePercentage(null)
       dispatch(typeLeftRangeInput({ typedValue }))
       const paramMinPrice = searchParams.get('minPrice')
       if (!paramMinPrice || (paramMinPrice && paramMinPrice !== typedValue)) {
@@ -78,6 +82,7 @@ export function useV3MintActionHandlers(noLiquidity: boolean | undefined): {
 
   const onRightRangeInput = useCallback(
     (typedValue: string) => {
+      setRangePercentage(null)
       dispatch(typeRightRangeInput({ typedValue }))
       const paramMaxPrice = searchParams.get('maxPrice')
       if (!paramMaxPrice || (paramMaxPrice && paramMaxPrice !== typedValue)) {
