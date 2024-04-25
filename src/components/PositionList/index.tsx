@@ -87,7 +87,7 @@ export default function PositionList({
               setUserHideClosedPositions(!userHideClosedPositions)
             }}
           >
-            {userHideClosedPositions ? <Trans>Show closed positions</Trans> : <Trans>Hide inactive positions</Trans>}
+            {userHideClosedPositions ? <Trans>Show closed positions</Trans> : <Trans>Hide closed positions</Trans>}
           </ToggleLabel>
         </HeaderToggleLabelCell>
       </Header>

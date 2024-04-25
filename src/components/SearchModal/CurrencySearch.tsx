@@ -286,19 +286,6 @@ export function CurrencySearch({
             onSelect={(hasWarning: boolean) => searchToken && handleCurrencySelect(searchToken, hasWarning)}
             otherSelected={Boolean(searchToken && otherSelectedCurrency && otherSelectedCurrency.equals(searchToken))}
             showCurrencyAmount={showCurrencyAmount}
-            eventProperties={formatAnalyticsEventProperties(
-              searchToken,
-              0,
-              [searchToken],
-              searchQuery,
-              isAddressSearch
-            )}
-            balance={
-              tryParseCurrencyAmount(
-                String(balances[searchToken.isNative ? 'ETH' : searchToken.address?.toLowerCase()]?.balance ?? 0),
-                searchToken
-              ) ?? CurrencyAmount.fromRawAmount(searchToken, 0)
-            }
           />
         </Column>
       ) : searchCurrencies?.length > 0 || filteredInactiveTokens?.length > 0 || isLoading ? (
