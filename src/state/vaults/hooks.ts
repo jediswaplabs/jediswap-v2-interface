@@ -240,11 +240,11 @@ export function useVaultDerivedInfo(
   const { data, isLoading, isError } = useUnderlyingVaultAssets()
   let token0Amount: number = 0.0
   let token1Amount: number = 0.0
-  let tokenRatio: number = 1.0
+  let priceRatio: number = 1.0
   if (data && !isLoading && !isError) {
     token0Amount = Number(data[0])
     token1Amount = Number(data[1])
-    tokenRatio = token0Amount / token1Amount
+    priceRatio = token0Amount / token1Amount
   }
 
   const dependentField = independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
@@ -261,9 +261,9 @@ export function useVaultDerivedInfo(
   const independentAmount: CurrencyAmount | undefined = tryParseCurrencyAmount(typedValue, currencies[independentField])
 
   const dependentAmount: CurrencyAmount | undefined = useMemo(() => {
-    if (independentAmount && tokenRatio) {
+    if (independentAmount && priceRatio) {
       const dependentTokenAmount =
-        independentField === Field.CURRENCY_A ? (1 / tokenRatio) * Number(typedValue) : tokenRatio * Number(typedValue)
+        independentField === Field.CURRENCY_A ? (1 / priceRatio) * Number(typedValue) : priceRatio * Number(typedValue)
 
       return tryParseCurrencyAmount(dependentTokenAmount.toString(), currencies[dependentField])
     } else {
