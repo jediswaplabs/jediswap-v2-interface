@@ -126,9 +126,6 @@ export function useDerivedSwapInfo(
     outputCurrency?.isToken && fotAdjustmentsEnabled ? outputCurrency.address : undefined
   )
 
-  const recipientLookup = useENS(recipient ?? undefined)
-  const to: string | null = (recipient === null ? account : recipientLookup.address) ?? null
-
   const relevantTokenBalances = useCurrencyBalances(
     account ?? undefined,
     useMemo(() => [inputCurrency ?? undefined, outputCurrency ?? undefined], [inputCurrency, outputCurrency])
@@ -195,7 +192,7 @@ export function useDerivedSwapInfo(
     } else if (!bestV2TradeExactOut && bestV3TradeExactOut) {
       return bestV3TradeExactOut
     } else if (bestV2TradeExactOut && !bestV3TradeExactOut?.trade) {
-      return bestV2TradeExactOut
+      return { state: TradeState.VALID, trade: bestV2TradeExactOut }
     }
 
     return {
@@ -204,10 +201,14 @@ export function useDerivedSwapInfo(
     }
   }, [bestV2TradeExactOut, bestV3TradeExactOut])
 
-  const trade = isExactIn ? bestTradeExactIn : bestTradeExactOut
-
-  const { data: outputFeeFiatValue } = useUSDPrice(undefined, trade.trade?.outputAmount.currency)
-
+  const trade =
+    chainId === ChainId.GOERLI
+      ? isExactIn
+        ? bestV3TradeExactIn
+        : bestV3TradeExactOut
+      : isExactIn
+      ? bestTradeExactIn
+      : bestTradeExactOut
   const currencyBalances = useMemo(
     () => ({
       [Field.INPUT]: relevantTokenBalances[0],
@@ -253,15 +254,6 @@ export function useDerivedSwapInfo(
       inputError = inputError ?? <Trans>Enter an amount</Trans>
     }
 
-    const formattedTo = isAddressValidForStarknet(to)
-    if (!to || !formattedTo) {
-      inputError = inputError ?? <Trans>Enter a recipient</Trans>
-    } else {
-      if (BAD_RECIPIENT_ADDRESSES[formattedTo]) {
-        inputError = inputError ?? <Trans>Invalid recipient</Trans>
-      }
-    }
-
     // compare input balance to max input based on version
     const maxAmountIn = Number(trade?.trade?.maximumAmountIn(allowedSlippage)?.toSignificant())
 
@@ -270,7 +262,7 @@ export function useDerivedSwapInfo(
     }
 
     return inputError
-  }, [account, currencies, parsedAmount, to, currencyBalances, trade?.trade, allowedSlippage, connectionReady])
+  }, [account, currencies, parsedAmount, currencyBalances, trade?.trade, allowedSlippage, connectionReady])
 
   return useMemo(
     () => ({
@@ -283,20 +275,8 @@ export function useDerivedSwapInfo(
       allowedSlippage,
       inputTax,
       outputTax,
-      outputFeeFiatValue,
     }),
-    [
-      allowedSlippage,
-      autoSlippage,
-      currencies,
-      currencyBalances,
-      inputError,
-      inputTax,
-      outputFeeFiatValue,
-      outputTax,
-      parsedAmount,
-      trade,
-    ]
+    [allowedSlippage, autoSlippage, currencies, currencyBalances, inputError, inputTax, outputTax, parsedAmount, trade]
   )
 }
 

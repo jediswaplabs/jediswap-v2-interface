@@ -126,7 +126,7 @@ function Web3StatusInner() {
           <IconWrapper size={20}>
             <img src={StarknetIcon} alt="Starknet" />
           </IconWrapper>
-          <Text>{chainId === ChainId.MAINNET ? 'Mainnet' : 'Goerli'}</Text>
+          <Text>{chainId === ChainId.MAINNET ? 'Mainnet' : 'Sepolia'}</Text>
         </NetworkSelected>
         <Web3StatusConnected data-testid="web3-status-connected" onClick={handleWalletDropdownClick}>
           <StatusIcon account={address} connection={connector} size={40} />

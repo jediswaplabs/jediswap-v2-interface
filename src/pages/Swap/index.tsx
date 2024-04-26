@@ -354,7 +354,6 @@ export function Swap({
     inputError: swapInputError,
     inputTax,
     outputTax,
-    outputFeeFiatValue,
   } = swapInfo
 
   const [inputTokenHasTax, outputTokenHasTax] = useMemo(
@@ -496,18 +495,6 @@ export function Swap({
     [currencyBalances]
   )
   const showMaxButton = Boolean(maxInputAmount?.greaterThan(0) && !parsedAmounts[Field.INPUT]?.equalTo(maxInputAmount))
-  const swapFiatValues = useMemo(
-    () => ({ amountIn: fiatValueTradeInput.data, amountOut: fiatValueTradeOutput.data, feeUsd: outputFeeFiatValue }),
-    [fiatValueTradeInput.data, fiatValueTradeOutput.data, outputFeeFiatValue]
-  )
-
-  // the callback to execute the swap
-  const swapCallback = useSwapCallback(
-    trade,
-    swapFiatValues,
-    allowedSlippage,
-    allowance.state === AllowanceState.ALLOWED ? allowance.permitSignature : undefined
-  )
 
   const handleContinueToReview = useCallback(() => {
     setSwapState({
@@ -870,7 +857,7 @@ export function Swap({
   useEffect(() => {
     if (!trade || prevTrade === trade) {
     } // no new swap quote to log
-  }, [prevTrade, trade, allowedSlippage, swapQuoteLatency, inputTax, outputTax, outputFeeFiatValue])
+  }, [prevTrade, trade, allowedSlippage, swapQuoteLatency, inputTax, outputTax])
 
   const showDetailsDropdown = Boolean(
     !showWrap && userHasSpecifiedInputOutput && (trade || routeIsLoading || routeIsSyncing)

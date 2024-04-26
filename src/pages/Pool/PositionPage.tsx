@@ -403,7 +403,6 @@ function CollectFees(props) {
     parsedTokenId,
   } = props
   const [feeValue0, feeValue1] = useStaticFeeResults(poolAddress, owner, position, showCollectAsWeth, parsedTokenId)
-
   const theme = useTheme()
 
   const feeValueUpper = inverted ? feeValue0 : feeValue1
@@ -575,7 +574,7 @@ function PositionPageContent() {
     tokenId,
   } = positionDetails?.[0] || {}
 
-  const removed = !parseInt(liquidity?.toString())
+  const removed = liquidity?.eq(0)
 
   const metadata = useV3PositionTokenURI(parsedTokenId)
 
