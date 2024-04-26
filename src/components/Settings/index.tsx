@@ -1,24 +1,24 @@
-import { Percent } from '@vnaysn/jediswap-sdk-core';
-import { useCallback, useRef } from 'react';
-import styled from 'styled-components';
+import { Percent } from '@vnaysn/jediswap-sdk-core'
+import { useCallback, useRef } from 'react'
+import styled from 'styled-components'
 
-import { Scrim } from 'components/AccountDrawer';
-import AnimatedDropdown from 'components/AnimatedDropdown';
-import { AutoColumn, Column } from 'components/Column';
-import Row from 'components/Row';
-import { isSupportedChain } from 'constants/chains';
-import { useAccountDetails } from 'hooks/starknet-react';
-import useDisableScrolling from 'hooks/useDisableScrolling';
-import { useOnClickOutside } from 'hooks/useOnClickOutside';
-import { Portal } from 'nft/components/common/Portal';
-import { useIsMobile } from 'nft/hooks';
-import { useCloseModal, useModalIsOpen, useToggleSettingsMenu } from 'state/application/hooks';
-import { ApplicationModal } from 'state/application/reducer';
-import { InterfaceTrade } from 'state/routing/types';
-import { isUniswapXTrade } from 'state/routing/utils';
-import { Z_INDEX } from 'theme/zIndex';
-import MaxSlippageSettings from './MaxSlippageSettings';
-import MenuButton from './MenuButton';
+import { Scrim } from 'components/AccountDrawer'
+import AnimatedDropdown from 'components/AnimatedDropdown'
+import { AutoColumn, Column } from 'components/Column'
+import Row from 'components/Row'
+import { isSupportedChain } from 'constants/chains'
+import { useAccountDetails } from 'hooks/starknet-react'
+import useDisableScrolling from 'hooks/useDisableScrolling'
+import { useOnClickOutside } from 'hooks/useOnClickOutside'
+import { Portal } from 'nft/components/common/Portal'
+import { useIsMobile } from 'nft/hooks'
+import { useCloseModal, useModalIsOpen, useToggleSettingsMenu } from 'state/application/hooks'
+import { ApplicationModal } from 'state/application/reducer'
+import { InterfaceTrade } from 'state/routing/types'
+import { isUniswapXTrade } from 'state/routing/utils'
+import { Z_INDEX } from 'theme/zIndex'
+import MaxSlippageSettings from './MaxSlippageSettings'
+import MenuButton from './MenuButton'
 
 const CloseButton = styled.button`
   background: transparent;
@@ -28,11 +28,11 @@ const CloseButton = styled.button`
   height: 24px;
   padding: 0;
   width: 24px;
-`;
+`
 
 const Menu = styled.div`
   position: relative;
-`;
+`
 
 const MenuFlyout = styled(AutoColumn)`
   min-width: 20.125rem;
@@ -57,8 +57,7 @@ const MenuFlyout = styled(AutoColumn)`
     position: absolute;
     inset: 0;
     border-radius: 12px;
-    background: linear-gradient(200.98deg, #EF35FF 1.04%, #50D5FF 55.28%);
-
+    background: linear-gradient(200.98deg, #ef35ff 1.04%, #50d5ff 55.28%);
 
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
@@ -66,12 +65,12 @@ const MenuFlyout = styled(AutoColumn)`
     pointer-events: none;
     padding: 2px;
   }
-`;
+`
 
 const ExpandColumn = styled(AutoColumn)`
   gap: 16px;
   padding-top: 0;
-`;
+`
 
 const MobileMenuContainer = styled(Row)`
   overflow: visible;
@@ -82,9 +81,9 @@ const MobileMenuContainer = styled(Row)`
   right: 0;
   width: 100%;
   z-index: ${Z_INDEX.fixed};
-`;
+`
 
-const MobileMenuWrapper = styled(Column) <{ $open: boolean }>`
+const MobileMenuWrapper = styled(Column)<{ $open: boolean }>`
   height: min-content;
   width: 100%;
   padding: 8px 16px 24px;
@@ -100,15 +99,19 @@ const MobileMenuWrapper = styled(Column) <{ $open: boolean }>`
   font-size: 16px;
   box-shadow: unset;
   z-index: ${Z_INDEX.modal};
-`;
+`
 
 const MobileMenuHeader = styled(Row)`
   margin-bottom: 16px;
-`;
+`
 
-const Settings = ({ trade, closeMenu, autoSlippage }: {
-  trade?: InterfaceTrade,
-  closeMenu: () => void,
+const Settings = ({
+  trade,
+  closeMenu,
+  autoSlippage,
+}: {
+  trade?: InterfaceTrade
+  closeMenu: () => void
   autoSlippage: Percent
 }) => (
   <AnimatedDropdown open={!isUniswapXTrade(trade)}>
@@ -116,33 +119,35 @@ const Settings = ({ trade, closeMenu, autoSlippage }: {
       <MaxSlippageSettings closeMenu={closeMenu} autoSlippage={autoSlippage} />
     </ExpandColumn>
   </AnimatedDropdown>
-);
+)
 
-export default function SettingsTab({ autoSlippage,
+export default function SettingsTab({
+  autoSlippage,
   chainId,
   trade,
-  hideRoutingSettings = false }: {
-    autoSlippage: Percent
-    chainId?: string
-    trade?: InterfaceTrade
-    hideRoutingSettings?: boolean
-  }) {
-  const { chainId: connectedChainId } = useAccountDetails();
-  const node = useRef<HTMLDivElement | null>(null);
-  const isOpen = useModalIsOpen(ApplicationModal.SETTINGS);
+  hideRoutingSettings = false,
+}: {
+  autoSlippage: Percent
+  chainId?: string
+  trade?: InterfaceTrade
+  hideRoutingSettings?: boolean
+}) {
+  const { chainId: connectedChainId } = useAccountDetails()
+  const node = useRef<HTMLDivElement | null>(null)
+  const isOpen = useModalIsOpen(ApplicationModal.SETTINGS)
 
-  const closeModal = useCloseModal();
-  const closeMenu = useCallback(() => closeModal(ApplicationModal.SETTINGS), [closeModal]);
-  const toggleMenu = useToggleSettingsMenu();
+  const closeModal = useCloseModal()
+  const closeMenu = useCallback(() => closeModal(ApplicationModal.SETTINGS), [closeModal])
+  const toggleMenu = useToggleSettingsMenu()
 
-  const isMobile = useIsMobile();
-  const isOpenMobile = isOpen && isMobile;
-  const isOpenDesktop = isOpen && !isMobile;
+  const isMobile = useIsMobile()
+  const isOpenMobile = isOpen && isMobile
+  const isOpenDesktop = isOpen && !isMobile
 
-  useOnClickOutside(node, isOpenDesktop ? closeMenu : undefined);
-  useDisableScrolling(isOpen);
+  useOnClickOutside(node, isOpenDesktop ? closeMenu : undefined)
+  useDisableScrolling(isOpen)
 
-  const isChainSupported = isSupportedChain(connectedChainId);
+  const isChainSupported = isSupportedChain(connectedChainId)
 
   return (
     <Menu ref={node}>
@@ -152,7 +157,11 @@ export default function SettingsTab({ autoSlippage,
         onClick={toggleMenu}
         trade={trade}
       />
-      {isOpenDesktop && <MenuFlyout><Settings autoSlippage={autoSlippage} closeMenu={closeMenu} trade={trade} /></MenuFlyout>}
+      {isOpenDesktop && (
+        <MenuFlyout>
+          <Settings autoSlippage={autoSlippage} closeMenu={closeMenu} trade={trade} />
+        </MenuFlyout>
+      )}
       {isOpenMobile && (
         <Portal>
           <MobileMenuContainer data-testid="mobile-settings-menu">
@@ -164,5 +173,5 @@ export default function SettingsTab({ autoSlippage,
         </Portal>
       )}
     </Menu>
-  );
+  )
 }

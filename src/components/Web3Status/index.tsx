@@ -21,6 +21,7 @@ import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
 import { RowBetween } from '../Row'
 import { useStarkName } from '@starknet-react/core'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import StarknetIcon from 'assets/svg/starknet.svg'
 
 const FULL_BORDER_RADIUS = 9999
 
@@ -50,7 +51,7 @@ const Web3StatusConnected = styled(Web3StatusGeneric)<{
 }>`
   font-family: 'Avenir LT Std';
   background-color: ${({ theme }) => theme.surface5};
-  border: none;
+  border: 1px solid transparent;
   color: ${({ theme }) => theme.white};
   padding: 10px 24px;
 `
@@ -75,7 +76,7 @@ const NetworkContainer = styled.div`
 const NetworkSelected = styled(Web3StatusGeneric)<{}>`
   font-family: 'Avenir LT Std';
   background-color: ${({ theme }) => theme.jediNavyBlue};
-  border: none;
+  border: 1px solid transparent;
   color: ${({ theme }) => theme.white};
   margin-right: 16px;
   padding: 10px 24px;
@@ -122,7 +123,10 @@ function Web3StatusInner() {
     return (
       <NetworkContainer>
         <NetworkSelected data-testid="web3-status-connected" onClick={handleWalletDropdownClick}>
-          <Text>Starknet {chainId === ChainId.MAINNET ? 'Mainnet' : 'Goerli'}</Text>
+          <IconWrapper size={20}>
+            <img src={StarknetIcon} alt="Starknet" />
+          </IconWrapper>
+          <Text>{chainId === ChainId.MAINNET ? 'Mainnet' : 'Sepolia'}</Text>
         </NetworkSelected>
         <Web3StatusConnected data-testid="web3-status-connected" onClick={handleWalletDropdownClick}>
           <StatusIcon account={address} connection={connector} size={40} />

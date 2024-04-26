@@ -2,7 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
-import { Currency, CurrencyAmount, Percent, validateAndParseAddress } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Percent, validateAndParseAddress } from '@vnaysn/jediswap-sdk-core'
 import { FeeAmount, NonfungiblePositionManager, Position, toHex } from '@vnaysn/jediswap-sdk-v3'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
@@ -101,12 +101,10 @@ function AddLiquidity() {
   }>()
   const { address: account, chainId } = useAccountDetails()
   const theme = useTheme()
-  const trace = useTrace()
-
   const toggleWalletDrawer = useToggleAccountDrawer() // toggle wallet when disconnected
-  const addTransaction = useTransactionAdder()
   const positionManager = useV3NFTPositionManagerContract()
   const parsedTokenId = tokenId ? parseInt(tokenId) : undefined
+
   // check for existing position if tokenId in url
   const { position: existingPositionDetails, loading: positionLoading } = useV3PosFromTokenId(parsedTokenId)
   const hasExistingPosition = !!existingPositionDetails && !positionLoading
@@ -123,6 +121,9 @@ function AddLiquidity() {
 
   // mint state
   const { independentField, typedValue, startPriceTypedValue } = useV3MintState()
+
+  const [showWarning, setShowWarning] = useState(false)
+  const [mintCallData, setMintCallData] = useState<Call[]>([])
 
   const {
     pool,
@@ -156,8 +157,6 @@ function AddLiquidity() {
 
   const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
     useV3MintActionHandlers(noLiquidity)
-
-  const [mintCallData, setMintCallData] = useState<Call[]>([])
 
   const { writeAsync, data: txData } = useContractWrite({
     calls: mintCallData,
@@ -213,6 +212,12 @@ function AddLiquidity() {
   useEffect(() => {
     if (txData) console.log(txData, 'txData')
   }, [txData])
+
+  useEffect(() => {
+    if (chainId) {
+      if (chainId === ChainId.GOERLI) setShowWarning(false)
+    }
+  }, [chainId])
 
   useEffect(() => {
     if (mintCallData) {
@@ -504,10 +509,12 @@ function AddLiquidity() {
           onClick={() => {
             setShowConfirm(true)
           }}
-          disabled={!isValid}
+          disabled={!isValid || showWarning}
           error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
         >
-          <Text fontWeight={535}>{errorMessage ? errorMessage : <Trans>Preview</Trans>}</Text>
+          <Text fontWeight={535}>
+            {showWarning ? 'Add liquidity is paused' : errorMessage ? errorMessage : <Trans>Preview</Trans>}
+          </Text>
         </ButtonError>
       </AutoColumn>
     )

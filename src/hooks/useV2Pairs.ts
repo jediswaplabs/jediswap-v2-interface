@@ -8,6 +8,8 @@ import { validateAndParseAddress } from 'starknet'
 import { useAllPairs } from 'state/pairs/hooks'
 import { useMultipleContractSingleData } from 'state/multicall/hooks'
 import JediswapPairABI from 'constants/abis/Pair.json'
+import useFetchAllPairsCallback from './useFetchAllPairs'
+import useFetchPairReserves from './useFetchPairReserves'
 
 const PAIR_INTERFACE = new Interface(IUniswapV2PairJSON.abi)
 
@@ -27,7 +29,7 @@ export function useV2Pairs(
     [currencies]
   )
 
-  const allPairs = useAllPairs()
+  const allPairs = useFetchAllPairsCallback()
 
   const pairAddresses = useMemo(
     () =>
@@ -44,10 +46,10 @@ export function useV2Pairs(
     [allPairs, pairAddresses]
   )
 
-  const results = useMultipleContractSingleData(validatedPairAddress, JediswapPairABI, 'get_reserves')
+  const results: any = useFetchPairReserves(validatedPairAddress)
 
   return useMemo(() => {
-    return results.map((result, i) => {
+    return results.map((result: any, i: number) => {
       const { result: reserves, loading } = result
       const tokenA = tokens[i][0]
       const tokenB = tokens[i][1]

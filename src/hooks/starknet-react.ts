@@ -8,8 +8,7 @@ import formatBalance from 'utils/formatBalance'
 // Define the type for the balances object
 declare enum StarknetChainId {
   SN_MAIN = '0x534e5f4d41494e',
-  SN_GOERLI = '0x534e5f474f45524c49',
-  SN_GOERLI2 = '0x534e5f474f45524c4932',
+  SN_GOERLI = '0x534e5f5345504f4c4941',
 }
 
 // Function to convert StarknetChainId to ChainId
@@ -18,7 +17,6 @@ const convertStarknetToChainId = (starknetId: StarknetChainId): ChainId | undefi
     case StarknetChainId.SN_MAIN:
       return ChainId.MAINNET
     case StarknetChainId.SN_GOERLI:
-    case StarknetChainId.SN_GOERLI2:
       return ChainId.GOERLI
     default:
       return undefined // Return undefined if no match found
@@ -41,7 +39,7 @@ export const useAccountDetails = (): {
     const fetchChainId = async () => {
       if (account) {
         try {
-          const Id = await provider.getChainId()
+          const Id: any = await provider.getChainId()
           const convertedId: ChainId | undefined = convertStarknetToChainId(Id)
           setChainId(convertedId)
         } catch (error) {

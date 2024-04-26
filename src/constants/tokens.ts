@@ -13,6 +13,7 @@ export const isBsc = false
 export const isPolygon = false
 export const isCelo = false
 export const MAX_UINT128 = BigInt(2) ** BigInt(128) - BigInt(1)
+export const ETH_ADDRESS = '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7'
 
 export const NATIVE_CHAIN_ID = 'NATIVE'
 export const ZERO_ADDRESS_STARKNET = '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -25,12 +26,12 @@ export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {
 }
 
 export const POOL_CLASS_HASH = {
-  [ChainId.MAINNET]: '0x28f45f8cb529a51c5beead847c659802b978801e5303201859175f6d9a5939e',
-  [ChainId.GOERLI]: '0x06b8ae9efb0dbe07d7d047fb377734d4e8b881febd38f480cd1dc4f077fd3d84',
+  [ChainId.MAINNET]: '0x426a4fb3b82644a07dbab45099214976f880d7aba0d399c88f59297a3cf1aa6',
+  [ChainId.GOERLI]: '0x426a4fb3b82644a07dbab45099214976f880d7aba0d399c88f59297a3cf1aa6',
 }
 export const FACTORY_ADDRESS = {
-  [ChainId.MAINNET]: '0x04ba0de31008f4e3edd42b3c31db8f49490505885d684b78f5aa1572850b3a5a',
-  [ChainId.GOERLI]: '0x06b4115fa43c48118d3f79fbc500c75917c8a28d0f867479acb81893ea1e036c',
+  [ChainId.MAINNET]: '0x07bf9f8fc91a0c0814a254c8e77218620801e077d090cb627fa9a25674ce2970',
+  [ChainId.GOERLI]: '0x06dbda35590e23a4eb5f4550e4f783d3d3dc1f3cb7009dae72cf382fed225a0e',
 }
 
 export const FACTORY_ADDRESS_CLASS_HASH: { [chainId in ChainId]: string } = {
@@ -39,12 +40,12 @@ export const FACTORY_ADDRESS_CLASS_HASH: { [chainId in ChainId]: string } = {
 }
 
 export const NONFUNGIBLE_POOL_MANAGER_ADDRESS: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]: '0x00287d2ff1c39a44cd18d9dc7ed5617c9cb16b65090db6a0f689aa14755e4e5e',
-  [ChainId.GOERLI]: '0x00d61e6af51443e01bc62cc5ce2692c26ce7b3a228ded99b3c5cfc84ae3ac6a3',
+  [ChainId.MAINNET]: '0x045cb97368b10d6a5345bf7cfde71bc99360687451519a0e2a3508b32f50ece0',
+  [ChainId.GOERLI]: '0x04b5fa8e1fe5d5f6955e222ea530af78bb866cc7e43e1ae8169059cd36729f78',
 }
 export const SWAP_ROUTER_ADDRESS_V2 = {
-  [ChainId.MAINNET]: '0x031a0c1ec4b27d0d0ce75a56b0d35d7ca79138aed511857627b33295b1175ffa',
-  [ChainId.GOERLI]: '0x038eaefeb9950c40a0a85f35378055e4c9739a1eb20e87e122ff66b4223d65ab',
+  [ChainId.MAINNET]: '0x039c6dac17d1968f5bbbf65b4180fc3cb83cfea08147cbb1950e053f647d21f8',
+  [ChainId.GOERLI]: '0x05e50cdc6062f96efdb7f871e04a8f878c827b8941cd4b4ddbc4d861e625b478',
 }
 
 export const SWAP_ROUTER_ADDRESS_V1 = {
