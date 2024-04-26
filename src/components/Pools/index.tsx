@@ -217,6 +217,7 @@ function PairList({
   useTracked = false,
   waitForData = true,
   noPairsPlaceholderText = DEFAULT_NO_PAIRS_PLACEHOLDER_TEXT,
+  showRewardedOnly = false
 }: {
   pairs: any
   color?: string
@@ -224,7 +225,8 @@ function PairList({
   maxItems?: number
   useTracked?: boolean
   waitForData?: boolean
-  noPairsPlaceholderText?: string
+  noPairsPlaceholderText?: string,
+  showRewardedOnly?: boolean
 }) {
   const below600 = useMedia('(max-width: 600px)')
   const below740 = useMedia('(max-width: 740px)')
@@ -243,11 +245,16 @@ function PairList({
   const filteredPairsAddresses = useMemo(() => {
     return (
       pairs &&
-      Object.keys(pairs).filter((address) => {
-        return true
+      Object.keys(pairs)
+      .filter((address: string) => {
+        if (!showRewardedOnly) {
+          return true
+        }
+        const pair = pairs[address]
+        return pair.rewarded
       })
     )
-  }, [pairs])
+  }, [pairs, showRewardedOnly])
 
   useEffect(() => {
     setMaxPage(1) // edit this to do modular
@@ -406,16 +413,9 @@ function PairList({
   const pairList =
     filteredPairsAddresses &&
     filteredPairsAddresses
-      .filter((address: string) => (useTracked ? !!pairs[address].totalValueLockedUSD : true))
       .sort((addressA: string, addressB: string) => {
         const pairA = pairs[addressA]
         const pairB = pairs[addressB]
-        if (pairA.rewarded && !pairB.rewarded) {
-          return -1
-        }
-        if (!pairA.rewarded && pairB.rewarded) {
-          return 1
-        }
         if (sortedColumn === SORT_FIELD.APY) {
           const pairAFeeRation24H = pairA.oneDayFeesUSD / pairA.totalValueLockedUSD
           const pairBFeeRation24H = pairB.oneDayFeesUSD / pairB.totalValueLockedUSD
@@ -558,11 +558,23 @@ function PairList({
         </>
       )}
       <List p={0}>{pairList}</List>
-      <ViewAll>
-        <a href="https://info.v2.jediswap.xyz/pools" target="_blank">
-          View all
-        </a>
-      </ViewAll>
+      <PageButtons>
+        <div
+          onClick={(e) => {
+            setPage(page === 1 ? page : page - 1)
+          }}
+        >
+          <Arrow faded={page === 1 ? true : false}>{'<'}</Arrow>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center' }}>{page + ' of ' + maxPage}</div>
+        <div
+          onClick={(e) => {
+            setPage(page === maxPage ? page : page + 1)
+          }}
+        >
+          <Arrow faded={page === maxPage ? true : false}>{'>'}</Arrow>
+        </div>
+      </PageButtons>
       <ReactTooltip
         anchorSelect=".apr-wrapper"
         style={{

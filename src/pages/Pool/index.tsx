@@ -232,7 +232,7 @@ const ResponsiveButtonPrimary = styled(ButtonPrimary)`
   }
 `
 
-const ResponsiveButtonTabs = styled(ButtonPrimary)<{ secondary: boolean; active: boolean }>`
+const ResponsiveButtonTabs = styled(ButtonPrimary) <{ secondary: boolean; active: boolean }>`
   font-family: 'DM Sans';
   border-radius: 4px;
   font-size: 16px;
@@ -303,7 +303,7 @@ const panelPseudo = css`
   }
 `
 
-const Panel = styled(RebassBox)<{
+const Panel = styled(RebassBox) <{
   hover?: boolean
   background?: boolean
   area?: boolean
@@ -374,6 +374,10 @@ const PageHeader = styled.div`
   font-size: 24px;
   font-weight: 750;
   margin-bottom: 20px;
+`
+
+const OnlyRewarded = styled.div`
+  margin: 15px 0;
 `
 
 function PositionsLoadingPlaceholder() {
@@ -495,6 +499,8 @@ export default function Pool() {
   const [tokenIds, setTokenIds] = useState<number[]>([])
   const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
   const [showMyPositions, setShowMyPositions] = useState<boolean>(false)
+  const [showRewardedOnly, setShowRewardedOnly] = useState(false)
+
   //fetch Token Ids
   useEffect(() => {
     const getTokenIds = async () => {
@@ -536,7 +542,7 @@ export default function Pool() {
         const rewardName = data?.token0?.symbol + '/' + data?.token1?.symbol
         const rewardsData = jediRewards[rewardName]?.pop();
         // console.log(rewardName, rewardsData)
-        
+
         if (rewardsData) {
           data.aprStarknet = rewardsData.apr
         }
@@ -560,9 +566,16 @@ export default function Pool() {
 
   const showConnectAWallet = Boolean(!address)
   const poolsTable = (
-    <Panel style={{ padding: '0' }}>
-      <Pools pairs={poolsData} disbaleLinks={true} />
-    </Panel>
+    <div>
+      <OnlyRewarded>
+        <label>
+          <input style={{marginRight: '10px'}} type="checkbox" checked={showRewardedOnly} onChange={e => setShowRewardedOnly(e.target.checked)} />Only Pools with Rewards
+        </label>
+      </OnlyRewarded>
+      <Panel style={{ padding: '0' }}>
+        <Pools pairs={poolsData} disbaleLinks={true} showRewardedOnly={showRewardedOnly} />
+      </Panel>
+    </div>
   )
   const totalValueLockedUSD = 10
   const liquidityChangeUSD = 20
