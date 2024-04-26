@@ -540,7 +540,8 @@ export default function Pool() {
       const poolsData: any = {}
       poolsDataRaw?.forEach((data) => {
         const rewardName = data?.token0?.symbol + '/' + data?.token1?.symbol
-        const rewardsData = jediRewards[rewardName]?.pop();
+        const rewardsDataList = jediRewards[rewardName]
+        const rewardsData = rewardsDataList?.length ? rewardsDataList[rewardsDataList.length -1] : null
         // console.log(rewardName, rewardsData)
 
         if (rewardsData) {

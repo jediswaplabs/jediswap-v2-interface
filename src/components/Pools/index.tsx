@@ -308,14 +308,26 @@ function PairList({
       const fees = formattedNum(pairData.oneDayFeesUSD, true)
 
       const feeRatio24H = pairData.oneDayFeesUSD / pairData.totalValueLockedUSD
-      const apy = ((1 + feeRatio24H) ** 365 - 1) * 100
-      const cleanedApy = isNaN(apy) || !isFinite(apy) ? 0 : apy
-      const displayApy = formattedPercent(cleanedApy, true)
+      const aprFee = feeRatio24H * 365 * 100
+      const aprStarknet = pairData.aprStarknet *100
+      
+      const cleanedAprFee = isNaN(aprFee) || !isFinite(aprFee) ? 0 : aprFee
+      const displayAprFee = formattedPercent(cleanedAprFee, true)
+  
+      const cleanedAprStarknet = isNaN(aprStarknet) || !isFinite(aprStarknet) ? 0 : aprStarknet
+      const displayAprStarknet = formattedPercent(cleanedAprStarknet, true)
+  
+      const cleanedAprCommon = cleanedAprFee + cleanedAprStarknet
+      const displayAprCommon = formattedPercent(cleanedAprCommon, true)
+
+      // const apy = ((1 + feeRatio24H) ** 365 - 1) * 100
+      // const cleanedApy = isNaN(apy) || !isFinite(apy) ? 0 : apy
+      // const displayApy = formattedPercent(cleanedApy, true)
       const getTooltipMarkup = () => {
         return (
           <div style={{ fontSize: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}><span style={{ opacity: 0.7 }}>Fee APR:</span> {displayApy}</Flex>
-            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}><span style={{ opacity: 0.7 }}>STRK APR:</span> {displayApy}</Flex>
+            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}><span style={{ opacity: 0.7 }}>Fee APR:</span> {displayAprFee}</Flex>
+            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}><span style={{ opacity: 0.7 }}>STRK APR:</span> {displayAprStarknet}</Flex>
           </div>
         )
       }
@@ -399,7 +411,7 @@ function PairList({
             {!below1080 && <DataText area="fees">{formatDataText(fees, pairData.oneDayVolumeUSD)}</DataText>}
             {!below1080 && (
               <DataText area="apy" color={darkTheme.jediBlue} className="apr-wrapper" data-tooltip-html={pairData.rewarded ? renderToStaticMarkup(getTooltipMarkup()) : null} data-tooltip-place="bottom-start" data-tooltip-offset={-20}>
-                {formatDataText(displayApy, pairData.oneDayVolumeUSD, pairData.oneDayVolumeUSD === 0)}
+                {formatDataText(displayAprCommon, String(displayAprCommon), pairData.oneDayVolumeUSD === 0)}
               </DataText>
             )}
           </DashGrid>
