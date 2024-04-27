@@ -209,6 +209,16 @@ const formatDataText = (
 
 const DEFAULT_NO_PAIRS_PLACEHOLDER_TEXT = 'Pairs will appear here'
 
+function calcCommonApr(pairData: any) {
+  const feeRatio24H = pairData.oneDayFeesUSD / pairData.totalValueLockedUSD
+  const aprFee = feeRatio24H * 365 * 100
+  const aprStarknet = pairData.aprStarknet *100
+  const cleanedAprFee = isNaN(aprFee) || !isFinite(aprFee) ? 0 : aprFee
+  const cleanedAprStarknet = isNaN(aprStarknet) || !isFinite(aprStarknet) ? 0 : aprStarknet
+  const cleanedAprCommon = cleanedAprFee + cleanedAprStarknet
+  return cleanedAprCommon
+}
+
 function PairList({
   pairs,
   color,
@@ -429,11 +439,10 @@ function PairList({
         const pairA = pairs[addressA]
         const pairB = pairs[addressB]
         if (sortedColumn === SORT_FIELD.APY) {
-          const pairAFeeRation24H = pairA.oneDayFeesUSD / pairA.totalValueLockedUSD
-          const pairBFeeRation24H = pairB.oneDayFeesUSD / pairB.totalValueLockedUSD
-          const apy0 = ((1 + pairAFeeRation24H) ** 365 - 1) * 100
-          const apy1 = ((1 + pairBFeeRation24H) ** 365 - 1) * 100
-          return apy0 > apy1 ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
+          const cleanedAprCommonA = calcCommonApr(pairA)
+          const cleanedAprCommonB = calcCommonApr(pairB)
+
+          return cleanedAprCommonA > cleanedAprCommonB ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1
         }
         return parseFloat(pairA[FIELD_TO_VALUE(sortedColumn)]) > parseFloat(pairB[FIELD_TO_VALUE(sortedColumn)])
           ? (sortDirection ? -1 : 1) * 1
