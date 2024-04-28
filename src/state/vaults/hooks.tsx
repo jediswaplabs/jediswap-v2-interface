@@ -8,6 +8,7 @@ import { isEmpty, uniq } from 'lodash'
 import { ChainId, Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { useBalance } from '@starknet-react/core'
 
+import { Trans } from '@lingui/macro'
 import { updateAllVaults, updateUserVaults, updateInput } from './reducer'
 import { useAppDispatch } from '../hooks'
 import teahouseLogo from '../../assets/vaults/teahouse.svg'
@@ -19,6 +20,8 @@ import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { useUnderlyingVaultAssets } from 'components/vault/hooks'
 import { useDefaultActiveTokens } from 'hooks/Tokens'
 import { useCurrencyFromMap } from 'lib/hooks/useCurrency'
+import { useConnectionReady } from 'connection/eagerlyConnect'
+import { useCurrencyBalances } from '../connection/hooks'
 
 type Maybe<T> = T | null | undefined
 
@@ -236,11 +239,13 @@ export function useVaultDerivedInfo(
   currencies: { [field in Field]?: Currency }
   parsedAmounts: { [field in Field]?: CurrencyAmount }
 } {
+  const { address: account } = useAccountDetails()
   const { independentField, typedValue } = useVaultInputState()
+
   const { data, isLoading, isError } = useUnderlyingVaultAssets()
-  let token0Amount: number = 0.0
-  let token1Amount: number = 0.0
-  let priceRatio: number = 1.0
+  let token0Amount = 0.0
+  let token1Amount = 0.0
+  let priceRatio = 1.0
   if (data && !isLoading && !isError) {
     token0Amount = Number(data[0])
     token1Amount = Number(data[1])
@@ -257,6 +262,16 @@ export function useVaultDerivedInfo(
     }),
     [currencyA, currencyB]
   )
+
+  // balances
+  const balances = useCurrencyBalances(
+    account ?? undefined,
+    useMemo(() => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]], [currencies])
+  )
+  const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {
+    [Field.CURRENCY_A]: balances[0],
+    [Field.CURRENCY_B]: balances[1],
+  }
   // amounts
   const independentAmount: CurrencyAmount | undefined = tryParseCurrencyAmount(typedValue, currencies[independentField])
 
@@ -266,9 +281,8 @@ export function useVaultDerivedInfo(
         independentField === Field.CURRENCY_A ? (1 / priceRatio) * Number(typedValue) : priceRatio * Number(typedValue)
 
       return tryParseCurrencyAmount(dependentTokenAmount.toString(), currencies[dependentField])
-    } else {
-      return undefined
     }
+    return undefined
   }, [currencies, dependentField, independentAmount, currencyA, currencyB])
 
   const parsedAmounts: { [field in Field]: CurrencyAmount | undefined } = useMemo(
@@ -278,10 +292,39 @@ export function useVaultDerivedInfo(
     }),
     [dependentAmount, independentAmount, independentField]
   )
+  const connectionReady = useConnectionReady()
+  const inputError = useMemo(() => {
+    let error: ReactNode | undefined
+
+    if (!account) {
+      error = connectionReady ? <Trans>Connect wallet</Trans> : <Trans>Connecting wallet...</Trans>
+    }
+
+    if (!currencies[Field.CURRENCY_A] || !currencies[Field.CURRENCY_B]) {
+      error = error ?? <Trans>Select a token</Trans>
+    }
+
+    if (!parsedAmounts[Field.CURRENCY_A] || !parsedAmounts[Field.CURRENCY_B]) {
+      error = error ?? <Trans>Enter an amount</Trans>
+    }
+
+    const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
+
+    if (currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) {
+      error = <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
+    }
+
+    if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) {
+      error = <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
+    }
+
+    return error
+  }, [account, currencies, currencyBalances, connectionReady, parsedAmounts])
 
   return {
     dependentField,
     currencies,
     parsedAmounts,
+    inputError,
   }
 }

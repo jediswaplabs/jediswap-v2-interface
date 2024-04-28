@@ -26,8 +26,10 @@ import { isAddressValidForStarknet } from '../../utils/addresses'
 import { AutoRow } from 'components/Row'
 import { FullDivider, VaultWrapper } from 'components/vault/styled'
 import VaultHeader from 'components/vault/VaultHeader'
-import { useAllVaults } from 'state/vaults/hooks'
+import { useAllVaults, useVaultDerivedInfo } from 'state/vaults/hooks'
 import VaultDeposit from 'components/vault/VaultDeposit'
+import { ButtonError, ButtonPrimary, ButtonSize } from 'components/Button'
+import { useConnectionReady } from 'connection/eagerlyConnect'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -461,6 +463,28 @@ export function VaultElement({
   //   disableTokenInputs?: boolean
 }) {
   const [activeButton, setActiveButton] = useState<string>('Deposit')
+  const connectionReady = useConnectionReady()
+  const { address: account } = useAccountDetails()
+  const vaultInfo = useVaultDerivedInfo()
+  const { inputError: vaultInputError } = vaultInfo
+
+  const getActionContent = () => {
+    switch (true) {
+      case connectionReady && !account:
+        return (
+          <ButtonPrimary onClick={() => {}} size={ButtonSize.large}>
+            <Trans>Connect wallet</Trans>
+          </ButtonPrimary>
+        )
+
+      default:
+        return (
+          <ButtonError disabled size={ButtonSize.large} error={!vaultInputError}>
+            {vaultInputError}
+          </ButtonError>
+        )
+    }
+  }
 
   const vaultElement = (
     <VaultWrapper>
@@ -469,6 +493,7 @@ export function VaultElement({
       <VaultInputWrapper>
         {activeButton === 'Deposit' && <VaultDeposit currentVault={currentVault} />}
       </VaultInputWrapper>
+      {getActionContent()}
     </VaultWrapper>
   )
 
