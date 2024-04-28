@@ -1,3 +1,6 @@
+/* eslint-disable comma-dangle */
+/* eslint-disable object-curly-newline */
+/* eslint-disable semi */
 // @ts-nocheck
 
 import { Trans } from '@lingui/macro'
@@ -23,10 +26,8 @@ import { isAddressValidForStarknet } from '../../utils/addresses'
 import { AutoRow } from 'components/Row'
 import { FullDivider, VaultWrapper } from 'components/vault/styled'
 import VaultHeader from 'components/vault/VaultHeader'
-import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import { useCurrency } from 'hooks/Tokens'
-import { useAllVaults, useVaultActionHandlers, useVaultDerivedInfo, useVaultInputState } from 'state/vaults/hooks'
-import { Field } from 'state/vaults/actions'
+import { useAllVaults } from 'state/vaults/hooks'
+import VaultDeposit from 'components/vault/VaultDeposit'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -175,6 +176,14 @@ const VaultDataHeaders = styled.div`
   font-size: 12px;
   font-weight: 700;
   color: #d9d9d9;
+`
+const VaultInputWrapper = styled(AutoColumn)`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 20px;
+  margin-bottom: 20px;
 `
 
 function ErrorPanel({ text }) {
@@ -366,25 +375,25 @@ export default function Vault({ className }: { className?: string }) {
               <VaultDetailsContainer>
                 <AutoColumn gap="37px">
                   <AutoRow>
-                    <AutoColumn gap="15px" grow={true}>
+                    <AutoColumn gap="15px" grow>
                       <VaultDataHeaders>PROVIDER</VaultDataHeaders>
                       <ThemedText.BodySmall>{currentVault.provider.name}</ThemedText.BodySmall>
                     </AutoColumn>
-                    <AutoColumn gap="15px" grow={true}>
+                    <AutoColumn gap="15px" grow>
                       <VaultDataHeaders>TVL</VaultDataHeaders>
                       <ThemedText.BodySmall fontWeight={500}>{tvl ? formatUsdPrice(tvl) : '-'}</ThemedText.BodySmall>
                     </AutoColumn>
                     <ProviderLogo src={currentVault.provider.logo} />
                   </AutoRow>
                   <AutoRow>
-                    <AutoColumn gap="15px" grow={true}>
+                    <AutoColumn gap="15px" grow>
                       <VaultDataHeaders>APR RANGE</VaultDataHeaders>
                       <ThemedText.BodySmall color={'accent1'} fontWeight={700}>
                         {totalApr ? formatPercent(Number(totalApr)) : '-'}
                       </ThemedText.BodySmall>
                     </AutoColumn>
                     <VerticalDivider />
-                    <AutoColumn gap="15px" grow={true}>
+                    <AutoColumn gap="15px" grow>
                       <AutoRow justify="space-between">
                         <ThemedText.BodySmall fontWeight={500}>Fee APR:</ThemedText.BodySmall>
                         <ThemedText.BodySmall color={'accent1'} fontWeight={700}>
@@ -408,10 +417,10 @@ export default function Vault({ className }: { className?: string }) {
                   <VaultStrategyType>{currentVault.strategyType}</VaultStrategyType>
                   <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: currentVault.details }} />
                   <VaultStrategyLinks gap="24px">
-                    <a href={currentVault.links.details} target={'_blank'}>
+                    <a href={currentVault.links.details} target={'_blank'} rel="noreferrer">
                       View Contract
                     </a>
-                    <a href={currentVault.links.details} target={'_blank'}>
+                    <a href={currentVault.links.details} target={'_blank'} rel="noreferrer">
                       View Details
                     </a>
                   </VaultStrategyLinks>
@@ -441,68 +450,25 @@ export default function Vault({ className }: { className?: string }) {
 export function VaultElement({
   chainId,
   currentVault,
-}: //   initialInputCurrencyId,
-//   initialOutputCurrencyId,
-//   className,
+}: //   className,
 //   onCurrencyChange,
 //   disableTokenInputs = false,
 {
   chainId?: ChainId
   currentVault: any
-  //   initialInputCurrencyId?: string | null
-  //   initialOutputCurrencyId?: string | null
   //   className?: string
   //   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
   //   disableTokenInputs?: boolean
 }) {
   const [activeButton, setActiveButton] = useState<string>('Deposit')
-  const { onFieldAInput, onFieldBInput } = useVaultActionHandlers()
-
-  // Vault Input state
-  const { independentField, typedValue } = useVaultInputState()
-  const baseCurrency = useCurrency(currentVault.token0.address)
-  const currencyB = useCurrency(currentVault.token1.address)
-
-  const { dependentField, currencies, parsedAmounts } = useVaultDerivedInfo(
-    baseCurrency ?? undefined,
-    currencyB ?? undefined
-  )
-  // get formatted amounts
-  const formattedAmounts = {
-    [independentField]: typedValue,
-    [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
-  }
 
   const vaultElement = (
     <VaultWrapper>
       <VaultHeader activeButton={activeButton} setActiveButton={setActiveButton} />
       <FullDivider />
-      <CurrencyInputPanel
-        value={formattedAmounts[Field.CURRENCY_A]}
-        onUserInput={onFieldAInput}
-        // onMax={() => {
-        //   onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
-        // }}
-        // showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
-        currency={currencies[Field.CURRENCY_A] ?? null}
-        // id="add-liquidity-input-tokena"
-        // fiatValue={currencyAFiat}
-        // showCommonBases
-        // locked={depositADisabled}
-      />
-      <CurrencyInputPanel
-        value={formattedAmounts[Field.CURRENCY_B]}
-        onUserInput={onFieldBInput}
-        // onMax={() => {
-        //   onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
-        // }}
-        // showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
-        currency={currencies[Field.CURRENCY_B] ?? null}
-        // id="add-liquidity-input-tokena"
-        // fiatValue={currencyAFiat}
-        // showCommonBases
-        // locked={depositADisabled}
-      />
+      <VaultInputWrapper>
+        {activeButton === 'Deposit' && <VaultDeposit currentVault={currentVault} />}
+      </VaultInputWrapper>
     </VaultWrapper>
   )
 
