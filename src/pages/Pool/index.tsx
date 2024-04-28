@@ -28,6 +28,8 @@ import Pools from 'components/Pools'
 import { ToggleElement, ToggleWrapper } from 'components/Toggle/MultiToggle'
 import { formattedNum, formattedPercent } from 'utils/dashboard'
 import { REWARDS_SELECTOR, STARKNET_REWARDS_API_URL } from 'constants/misc'
+import { HISTORICAL_GLOBAL_DATA } from 'graphql/data/queries'
+import { apolloClient } from 'graphql/data/apollo'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -534,8 +536,8 @@ export default function Pool() {
       const rewardsRespStrClean = rewardsRespStr.replace(/\bNaN\b/g, "null")
       const rewardsRespJson = JSON.parse(rewardsRespStrClean)
       const jediRewards = rewardsRespJson[REWARDS_SELECTOR]
-      console.log('jediRewards', jediRewards)
-      console.log('poolsDataRaw', poolsDataRaw)
+      // console.log('jediRewards', jediRewards)
+      // console.log('poolsDataRaw', poolsDataRaw)
 
       const poolsData: any = {}
       poolsDataRaw?.forEach((data) => {
@@ -557,6 +559,23 @@ export default function Pool() {
 
     getPoolsData()
   }, [lists])
+
+   //fetch global pools data data
+   useEffect(() => {
+    const getGlobalPoolsData = async () => {
+      try {
+        const historicalData = await apolloClient.query({
+          query: HISTORICAL_GLOBAL_DATA(),
+          fetchPolicy: 'cache-first',
+        })
+        console.log('historicalData', historicalData)
+      } catch(e) {
+        console.log(e)
+      }
+    }
+
+    getGlobalPoolsData()
+  }, [])
 
   const toggleWalletDrawer = useToggleAccountDrawer()
   // const filteredPositions = useFilterPossiblyMaliciousPositions(userSelectedPositionSet)

@@ -44,12 +44,9 @@ const PoolFields = `
 
 export const HISTORICAL_GLOBAL_DATA = () => {
   const queryString = ` query jediswapFactories {
-      factoriesDayData(first: 2, orderBy: "dayId", orderByDirection: "desc") {
-        totalValueLockedUSD
-        volumeUSD
-        feesUSD
-        dayId
-        id
+      factoriesData {
+        oneDay
+        twoDays
       }
     }`
   return gql(queryString)
