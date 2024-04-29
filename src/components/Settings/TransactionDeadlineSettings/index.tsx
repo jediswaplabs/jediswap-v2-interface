@@ -1,18 +1,22 @@
+import ms from 'ms'
+import { useState } from 'react'
+
+import Row from 'components/Row'
+import { DEFAULT_DEADLINE_FROM_NOW } from 'constants/misc'
+import { useUserTransactionTTL } from 'state/user/hooks'
+import { PercentageInput, SettingsInputContainer } from '../MaxSlippageSettings'
 import { Trans } from '@lingui/macro'
 import Expand from 'components/Expand'
 import QuestionHelper from 'components/QuestionHelper'
-import Row from 'components/Row'
 import { Input, InputContainer } from 'components/Settings/Input'
-import {DEFAULT_DEADLINE_FROM_NOW, MAX_DEADLINE_TIME_IN_SECONDS, MIN_DEADLINE_TIME_IN_SECONDS} from 'constants/misc'
-import ms from 'ms'
-import React, { useState } from 'react'
-import { useUserTransactionTTL } from 'state/user/hooks'
+import React from 'react'
 import { ThemedText } from 'theme/components'
 
 enum DeadlineError {
   InvalidInput = 'InvalidInput',
 }
 
+const THREE_DAYS_IN_SECONDS = ms('3d') / 1000
 const NUMBERS_ONLY = /^[0-9\b]+$/
 
 export default function TransactionDeadlineSettings() {
@@ -25,9 +29,6 @@ export default function TransactionDeadlineSettings() {
   const [deadlineInput, setDeadlineInput] = useState(defaultInputValue)
   const [deadlineError, setDeadlineError] = useState<DeadlineError | false>(false)
 
-  // If user has previously entered a custom deadline, we want to show the settings expanded by default.
-  const [isOpen, setIsOpen] = useState(defaultInputValue.length > 0)
-
   function parseCustomDeadline(value: string) {
     // Do not allow non-numerical characters in the input field
     if (value.length > 0 && !NUMBERS_ONLY.test(value)) {
@@ -38,7 +39,7 @@ export default function TransactionDeadlineSettings() {
     setDeadlineError(false)
 
     // If the input is empty, set the deadline to the default
-    if (!value.length) {
+    if (value.length === 0) {
       setDeadline(DEFAULT_DEADLINE_FROM_NOW)
       return
     }
@@ -46,7 +47,7 @@ export default function TransactionDeadlineSettings() {
     // Parse user input and set the deadline if valid, error otherwise
     try {
       const parsed: number = Number.parseInt(value) * 60
-      if (parsed < MIN_DEADLINE_TIME_IN_SECONDS || parsed > MAX_DEADLINE_TIME_IN_SECONDS) {
+      if (parsed === 0 || parsed > THREE_DAYS_IN_SECONDS) {
         setDeadlineError(DeadlineError.InvalidInput)
       } else {
         setDeadline(parsed)
@@ -57,40 +58,17 @@ export default function TransactionDeadlineSettings() {
   }
 
   return (
-    <Expand
-      isOpen={isOpen}
-      onToggle={() => setIsOpen(!isOpen)}
-      testId="transaction-deadline-settings"
-      header={
-        <Row width="auto">
-          <ThemedText.BodyPrimary>
-            <Trans>Transaction deadline</Trans>
-          </ThemedText.BodyPrimary>
-          <QuestionHelper
-            text={<Trans>Your transaction will revert if it is pending for more than this period of time.</Trans>}
-          />
-        </Row>
-      }
-      button={<Trans>{deadline / 60}m</Trans>}
-    >
-      <Row>
-        <InputContainer gap="md" error={!!deadlineError}>
-          <Input
-            data-testid="deadline-input"
-            placeholder={(DEFAULT_DEADLINE_FROM_NOW / 60).toString()}
-            value={deadlineInput}
-            onChange={(e) => parseCustomDeadline(e.target.value)}
-            onBlur={() => {
-              // When the input field is blurred, reset the input field to the current deadline
-              setDeadlineInput(defaultInputValue)
-              setDeadlineError(false)
-            }}
-          />
-          <ThemedText.BodyPrimary>
-            <Trans>minutes</Trans>
-          </ThemedText.BodyPrimary>
-        </InputContainer>
-      </Row>
-    </Expand>
+    <SettingsInputContainer error={!!deadlineError}>
+      <PercentageInput
+        placeholder={(DEFAULT_DEADLINE_FROM_NOW / 60).toString()}
+        value={deadlineInput}
+        onChange={(e) => parseCustomDeadline(e.target.value)}
+        onBlur={() => {
+          // When the input field is blurred, reset the input field to the current deadline
+          setDeadlineInput(defaultInputValue)
+          setDeadlineError(false)
+        }}
+      />
+    </SettingsInputContainer>
   )
 }

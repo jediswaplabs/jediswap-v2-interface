@@ -1,15 +1,13 @@
-import { Trans } from '@lingui/macro'
 import { Percent } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
-import { useCallback, useMemo, useRef } from 'react'
-import { X } from 'react-feather'
+import { useCallback, useRef } from 'react'
 import styled from 'styled-components'
 
 import { Scrim } from 'components/AccountDrawer'
 import AnimatedDropdown from 'components/AnimatedDropdown'
-import Column, { AutoColumn } from 'components/Column'
+import { AutoColumn, Column } from 'components/Column'
 import Row from 'components/Row'
-import { isSupportedChain, isUniswapXSupportedChain } from 'constants/chains'
+import { isSupportedChain } from 'constants/chains'
+import { useAccountDetails } from 'hooks/starknet-react'
 import useDisableScrolling from 'hooks/useDisableScrolling'
 import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import { Portal } from 'nft/components/common/Portal'
@@ -18,12 +16,9 @@ import { useCloseModal, useModalIsOpen, useToggleSettingsMenu } from 'state/appl
 import { ApplicationModal } from 'state/application/reducer'
 import { InterfaceTrade } from 'state/routing/types'
 import { isUniswapXTrade } from 'state/routing/utils'
-import { Divider, ThemedText } from 'theme/components'
 import { Z_INDEX } from 'theme/zIndex'
 import MaxSlippageSettings from './MaxSlippageSettings'
 import MenuButton from './MenuButton'
-import RouterPreferenceSettings from './RouterPreferenceSettings'
-import TransactionDeadlineSettings from './TransactionDeadlineSettings'
 
 const CloseButton = styled.button`
   background: transparent;
@@ -42,7 +37,6 @@ const Menu = styled.div`
 const MenuFlyout = styled(AutoColumn)`
   min-width: 20.125rem;
   background-color: ${({ theme }) => theme.surface1};
-  border: 1px solid ${({ theme }) => theme.surface3};
   box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
     0px 24px 32px rgba(0, 0, 0, 0.01);
   border-radius: 12px;
@@ -57,6 +51,20 @@ const MenuFlyout = styled(AutoColumn)`
   `};
   user-select: none;
   padding: 16px;
+
+  &:before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 12px;
+    background: linear-gradient(200.98deg, #ef35ff 1.04%, #50d5ff 55.28%);
+
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    padding: 2px;
+  }
 `
 
 const ExpandColumn = styled(AutoColumn)`
@@ -97,6 +105,22 @@ const MobileMenuHeader = styled(Row)`
   margin-bottom: 16px;
 `
 
+const Settings = ({
+  trade,
+  closeMenu,
+  autoSlippage,
+}: {
+  trade?: InterfaceTrade
+  closeMenu: () => void
+  autoSlippage: Percent
+}) => (
+  <AnimatedDropdown open={!isUniswapXTrade(trade)}>
+    <ExpandColumn>
+      <MaxSlippageSettings closeMenu={closeMenu} autoSlippage={autoSlippage} />
+    </ExpandColumn>
+  </AnimatedDropdown>
+)
+
 export default function SettingsTab({
   autoSlippage,
   chainId,
@@ -124,17 +148,6 @@ export default function SettingsTab({
   useDisableScrolling(isOpen)
 
   const isChainSupported = isSupportedChain(connectedChainId)
-  const Settings = useMemo(
-    () => (
-      <AnimatedDropdown open={!isUniswapXTrade(trade)}>
-        <ExpandColumn>
-          <MaxSlippageSettings autoSlippage={autoSlippage} />
-          <TransactionDeadlineSettings />
-        </ExpandColumn>
-      </AnimatedDropdown>
-    ),
-    [autoSlippage, trade]
-  )
 
   return (
     <Menu ref={node}>
@@ -144,23 +157,17 @@ export default function SettingsTab({
         onClick={toggleMenu}
         trade={trade}
       />
-      {isOpenDesktop && <MenuFlyout>{Settings}</MenuFlyout>}
+      {isOpenDesktop && (
+        <MenuFlyout>
+          <Settings autoSlippage={autoSlippage} closeMenu={closeMenu} trade={trade} />
+        </MenuFlyout>
+      )}
       {isOpenMobile && (
         <Portal>
           <MobileMenuContainer data-testid="mobile-settings-menu">
             <Scrim onClick={closeMenu} $open />
             <MobileMenuWrapper $open>
-              <MobileMenuHeader padding="8px 0px 4px">
-                <CloseButton data-testid="mobile-settings-close" onClick={closeMenu}>
-                  <X size={24} />
-                </CloseButton>
-                <Row padding="0px 24px 0px 0px" justify="center">
-                  <ThemedText.SubHeader>
-                    <Trans>Settings</Trans>
-                  </ThemedText.SubHeader>
-                </Row>
-              </MobileMenuHeader>
-              {Settings}
+              <Settings autoSlippage={autoSlippage} closeMenu={closeMenu} trade={trade} />
             </MobileMenuWrapper>
           </MobileMenuContainer>
         </Portal>
