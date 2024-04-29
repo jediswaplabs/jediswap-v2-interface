@@ -82,7 +82,12 @@ export function useV3SwapPools(
 } {
   if (!allPools || !allPools?.length) return { pools: [], loading: false }
 
-  const poolProps = allPools.map((poolAddress: string) => getPoolProps(poolAddress))
+  const checkedPools = useMemo(() => {
+    if (!currencyIn || !currencyOut) return []
+    return allPools
+  }, [])
+
+  const poolProps = checkedPools.map((poolAddress: string) => getPoolProps(poolAddress))
 
   const pools = usePoolsForSwap(poolProps as any)
 
