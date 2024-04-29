@@ -302,13 +302,28 @@ function WrongNetworkCard() {
   )
 }
 
-function PositionDetails(props: any) {
+export function PositionDetails(props: any) {
   const { address } = useAccountDetails()
-  const { tokenIds, showConnectAWallet, toggleWalletDrawer } = props
+  const { tokenIds, showConnectAWallet, toggleWalletDrawer, token0, token1 } = props
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
   const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds, address)
+  let filteredPositions = positions
+  if (token0 && token1) {
+    filteredPositions = positions?.filter(pos => {
+      //@ts-ignore
+       //@ts-ignore
+      if (pos?.token0.toString(16) === token0.slice(2) && pos?.token1.toString(16) === token1.slice(2)) {
+        return true
+      }
+       //@ts-ignore
+      if (pos?.token0.toString(16) === token1.slice(2) && pos?.token1.toString(16) === token0.slice(2)) {
+        return true
+      }
+      return false
+    })
+  }
   const theme = useTheme()
-  const [openPositions, closedPositions] = positions?.reduce<[FlattenedPositions[], FlattenedPositions[]]>(
+  const [openPositions, closedPositions] = filteredPositions?.reduce<[FlattenedPositions[], FlattenedPositions[]]>(
     (acc, p) => {
       acc[!parseInt(p.liquidity.toString()) ? 1 : 0].push(p)
       return acc

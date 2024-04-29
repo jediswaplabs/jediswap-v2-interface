@@ -16,6 +16,9 @@ import DoubleTokenLogo from '../../components/DoubleLogo'
 import FeeBadge from 'components/FeeBadge'
 import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button'
 import CurrencyLogo from 'components/Logo/CurrencyLogo'
+import fetchTokenIds from 'api/fetchTokenId'
+import { PositionDetails } from 'pages/Pool'
+import { useToggleAccountDrawer } from 'components/AccountDrawer'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -178,8 +181,31 @@ export default function PoolDetails() {
   const [poolData, setpoolData] = useState<any | undefined>({})
   const lists = useAllLists()
   const tokenList = Object.values(lists)[0]?.current
-  const { chainId } = useAccountDetails()
+  const { address, chainId } = useAccountDetails()
   const allTokens = useDefaultActiveTokens(chainId)
+
+  const [tokenIds, setTokenIds] = useState<number[]>([])
+  const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
+
+  const toggleWalletDrawer = useToggleAccountDrawer()
+  const showConnectAWallet = Boolean(!address)
+
+  //fetch Token Ids
+  useEffect(() => {
+    const getTokenIds = async () => {
+      if (address && chainId) {
+        setLoadingPositions(true)
+        const result = await fetchTokenIds(address, chainId)
+        if (result && result.data) {
+          const tokenIdsArray: number[] = result.data.map((item: any) => parseInt(item.token_id))
+          setTokenIds(tokenIdsArray)
+        }
+        setLoadingPositions(false)
+      }
+    }
+
+    getTokenIds()
+  }, [chainId, address])
 
   //fetch pools data
   useEffect(() => {
@@ -291,7 +317,7 @@ export default function PoolDetails() {
         </div>
       </AutoColumn>
 
-      <AutoColumn style={{ gap: '12px' }}>
+      <AutoColumn style={{ gap: '12px', marginBottom: '15px' }}>
         <PanelWrapper>
           <PanelTopLight>
             <AutoColumn gap="20px">
@@ -347,6 +373,18 @@ export default function PoolDetails() {
           </PanelTopLight>
         </PanelWrapper>
       </AutoColumn>
+      {loadingPositions ? (
+        <div></div>
+      ) : (
+        <PositionDetails
+          tokenIds={tokenIds}
+          token0={poolData?.token0?.tokenAddress}
+          token1={poolData?.token1?.tokenAddress}
+          showConnectAWallet={showConnectAWallet}
+          toggleWalletDrawer={toggleWalletDrawer}
+        />
+      )
+      }
     </PageWrapper >
   )
 }
