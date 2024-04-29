@@ -28,6 +28,7 @@ import { useAccountDetails } from 'hooks/starknet-react'
 import { validateAndParseAddress } from 'starknet'
 import { WETH } from 'constants/tokens'
 import StarknetIcon from 'assets/svg/starknet.svg'
+import LocalLoader from 'components/LocalLoader'
 
 dayjs.extend(utc)
 
@@ -480,13 +481,13 @@ function PairList({
         )
       })
 
-  //   if (!pairList) {
-  //     return <LocalLoader />
-  //   }
+    if (!pairList) {
+      return <LocalLoader />
+    }
 
-  //   if (waitForData && !pairList.length) {
-  //     return <LocalLoader />
-  //   }
+    if (waitForData && !pairList.length) {
+      return <LocalLoader />
+    }
 
   if (!waitForData && !pairList.length) {
     return (
