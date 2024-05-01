@@ -260,6 +260,7 @@ export function useVaultDerivedInfo(
     [Field.CURRENCY_A]: balance1,
     [Field.CURRENCY_B]: balance2,
   }
+  let insufficientBalance = false
   // amounts
   const independentAmount: CurrencyAmount | undefined = tryParseCurrencyAmount(typedValue, currencies[independentField])
 
@@ -284,10 +285,6 @@ export function useVaultDerivedInfo(
   const inputError = useMemo(() => {
     let error: ReactNode | undefined
 
-    if (!account) {
-      error = connectionReady ? <Trans>Connect wallet</Trans> : <Trans>Connecting wallet...</Trans>
-    }
-
     const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
     const currencyAAmount = parsedAmountA?.toSignificant() // check - apply proper decimal value
     const currencyBAmount = parsedAmountB?.toSignificant() // check - same
@@ -297,9 +294,11 @@ export function useVaultDerivedInfo(
     }
 
     if (currencyAAmount && currencyBalances?.[Field.CURRENCY_A] < currencyAAmount) {
+      insufficientBalance = true
       error = error ?? <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
     }
     if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B] < currencyBAmount) {
+      insufficientBalance = true
       error = error ?? <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
     }
     return error
@@ -310,5 +309,6 @@ export function useVaultDerivedInfo(
     currencies,
     parsedAmounts,
     inputError,
+    insufficientBalance,
   }
 }

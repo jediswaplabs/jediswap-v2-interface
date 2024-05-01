@@ -33,6 +33,7 @@ import { ButtonError, ButtonPrimary, ButtonSize } from 'components/Button'
 import { useConnectionReady } from 'connection/eagerlyConnect'
 import { Z_INDEX } from 'theme/zIndex'
 import { useCurrency } from 'hooks/Tokens'
+import { useToggleAccountDrawer } from 'components/AccountDrawer'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -506,26 +507,36 @@ export function VaultElement({
   const [activeButton, setActiveButton] = useState<string>('Deposit')
   const connectionReady = useConnectionReady()
   const { address: account } = useAccountDetails()
+
   const vaultState = useSelector((state) => state.vaults)
   // Vault Input state
   const baseCurrency = useCurrency(currentVault.token0.address)
   const currencyB = useCurrency(currentVault.token1.address)
 
+  // toggle wallet when disconnected
+  const toggleWalletDrawer = useToggleAccountDrawer()
+
   const vaultInfo = useVaultDerivedInfo(vaultState, baseCurrency ?? undefined, currencyB ?? undefined)
-  const { inputError: vaultInputError } = vaultInfo
+  const { inputError: vaultInputError, insufficientBalance } = vaultInfo
   const getActionContent = () => {
     switch (true) {
       case connectionReady && !account:
         return (
-          <ButtonPrimary onClick={() => {}} size={ButtonSize.large}>
+          <ButtonPrimary onClick={toggleWalletDrawer} size={ButtonSize.large}>
             <Trans>Connect wallet</Trans>
           </ButtonPrimary>
         )
 
       default:
         return (
-          <ButtonError disabled size={ButtonSize.large} error={false}>
-            {vaultInputError}
+          <ButtonError
+            disabled={vaultInputError}
+            size={ButtonSize.large}
+            error={insufficientBalance}
+            id="deposit-button"
+            data-testid="deposit-button"
+          >
+            {vaultInputError ? vaultInputError : <Trans>{activeButton === 'Deposit' ? 'Deposit' : 'Withdraw'}</Trans>}
           </ButtonError>
         )
     }
