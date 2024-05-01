@@ -75,6 +75,7 @@ import fetchAllPairs from 'api/fetchAllPairs'
 import { useQuery } from 'react-query'
 import { jediSwapClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
+import findClosestPrice from 'utils/getClosestPrice'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -553,15 +554,16 @@ export function Swap({
         if (result.data) {
           const tokensData = result.data.tokensData
           if (tokensData) {
-            const [price0, price1] = [tokensData[0], tokensData[1]]
+            const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
             const isToken0InputAmount =
               validateAndParseAddress((trade?.inputAmount.currency as any).address) ===
-              validateAndParseAddress(price0.token.tokenAddress)
-            const price0_one_day = price0?.period?.one_day?.close
-            const price1_one_day = price1?.period?.one_day?.close
+              validateAndParseAddress(price0Obj.token.tokenAddress)
+            const price0 = findClosestPrice(price0Obj?.period)
+            const price1 = findClosestPrice(price1Obj?.period)
+
             return {
-              token0usdPrice: isToken0InputAmount ? price0_one_day : price1_one_day,
-              token1usdPrice: isToken0InputAmount ? price1_one_day : price0_one_day,
+              token0usdPrice: isToken0InputAmount ? price0 : price1,
+              token1usdPrice: isToken0InputAmount ? price1 : price0,
             }
           }
         }

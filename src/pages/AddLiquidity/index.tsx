@@ -75,6 +75,7 @@ import { useQuery } from 'react-query'
 import { jediSwapClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import { isAddressValidForStarknet } from 'utils/addresses'
+import findClosestPrice from 'utils/getClosestPrice'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -229,15 +230,15 @@ function AddLiquidity() {
         if (result.data) {
           const tokensData = result.data.tokensData
           if (tokensData) {
-            const [price0, price1] = [tokensData[0], tokensData[1]]
+            const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
             const isToken0InputAmount =
               isAddressValidForStarknet(position?.amount0.currency.address) ===
-              isAddressValidForStarknet(price0.token.tokenAddress)
-            const price0_one_day = price0?.period?.one_day?.close
-            const price1_one_day = price1?.period?.one_day?.close
+              isAddressValidForStarknet(price0Obj.token.tokenAddress)
+            const price0 = findClosestPrice(price0Obj?.period)
+            const price1 = findClosestPrice(price1Obj?.period)
             return {
-              token0usdPrice: isToken0InputAmount ? price0_one_day : price1_one_day,
-              token1usdPrice: isToken0InputAmount ? price1_one_day : price0_one_day,
+              token0usdPrice: isToken0InputAmount ? price0 : price1,
+              token1usdPrice: isToken0InputAmount ? price1 : price0,
             }
           }
         }

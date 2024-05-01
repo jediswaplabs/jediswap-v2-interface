@@ -172,6 +172,7 @@ const NFTImage = styled.img`
 import { useQuery } from 'react-query'
 import { jediSwapClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
+import findClosestPrice from 'utils/getClosestPrice'
 
 function CurrentPriceCard({
   inverted,
@@ -687,8 +688,11 @@ function PositionPageContent() {
         if (result.data) {
           const tokensData = result.data.tokensData
           if (tokensData) {
-            const [price0, price1] = [tokensData[0], tokensData[1]]
-            return { token0usdPrice: price1?.period?.one_day?.close, token1usdPrice: price0?.period?.one_day?.close }
+            const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
+            return {
+              token0usdPrice: findClosestPrice(price1Obj?.period),
+              token1usdPrice: findClosestPrice(price0Obj?.period),
+            }
           }
         }
       } catch (e) {
