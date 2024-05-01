@@ -27,7 +27,7 @@ export function FiatValue({ fiatValue, usdPriceDifference }: { fiatValue: number
       <ThemedText.LabelSmall color="neutral1">
         {fiatValue ? (
           <USDPriceContainer>
-            {formatNumber({ input: fiatValue, type: NumberType.FiatTokenPrice })}{' '}
+            ~{formatNumber({ input: fiatValue, type: NumberType.FiatTokenPrice })}{' '}
             {usdPriceDifference && (
               <USDPriceDifferenceText difference={usdPriceDifference}>({usdPriceDifference}%)</USDPriceDifferenceText>
             )}
