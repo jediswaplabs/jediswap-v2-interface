@@ -22,7 +22,7 @@ export const TOKENS_DATA = ({ tokenIds = [] }) => {
   let queryString = `
     ${TokenFields}
     query tokensData {
-      tokensData(first: 500, where: {tokenAddressIn: ${tokenString}, periodIn: "one_day"}) {
+      tokensData(first: 500, where: {tokenAddressIn: ${tokenString}}) {
         token{...TokenFields}
         period
       }
