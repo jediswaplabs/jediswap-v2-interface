@@ -6,6 +6,7 @@ import POOL_ABI from 'contracts/pool/abi.json'
 import { toInt } from 'utils/toInt'
 import { Pool } from '@vnaysn/jediswap-sdk-v3'
 import { Currency } from '@vnaysn/jediswap-sdk-core'
+import { BlockTag } from 'starknet'
 
 /**
  * Returns all the existing pools that should be considered for swapping between an input currency and an output currency
@@ -20,6 +21,7 @@ const getPoolProps = (address: string) => {
     abi: POOL_ABI,
     address,
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   const tickCurrent = useMemo(() => {
@@ -32,6 +34,7 @@ const getPoolProps = (address: string) => {
     abi: POOL_ABI,
     address,
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   const { data: sqrtPriceX96 } = useContractRead({
@@ -40,6 +43,7 @@ const getPoolProps = (address: string) => {
     abi: POOL_ABI,
     address,
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   const { data: token0Address } = useContractRead({
@@ -48,6 +52,7 @@ const getPoolProps = (address: string) => {
     abi: POOL_ABI,
     address,
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   const { data: token1Address } = useContractRead({
@@ -56,6 +61,7 @@ const getPoolProps = (address: string) => {
     abi: POOL_ABI,
     address,
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   const { data: fee } = useContractRead({
@@ -64,6 +70,7 @@ const getPoolProps = (address: string) => {
     abi: POOL_ABI,
     address,
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   const token0 = useToken(token0Address as string)

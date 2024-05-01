@@ -15,7 +15,7 @@ import { isAddress } from '../../utils'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import { useContractRead } from '@starknet-react/core'
 import ERC20_ABI from 'abis/erc20.json'
-import { cairo, num, shortString } from 'starknet'
+import { BlockTag, cairo, num, shortString } from 'starknet'
 
 // parse a name or symbol from a token response
 const BYTES32_REGEX = /^0x[a-fA-F0-9]{64}$/
@@ -39,6 +39,7 @@ const useSingleCallResult = (address: string | undefined, type: string) => {
     abi: ERC20_ABI,
     address,
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   return { result, isLoading }
