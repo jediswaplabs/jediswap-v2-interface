@@ -130,8 +130,12 @@ export default function App() {
     return () => window.removeEventListener('scroll', scrollListener)
   }, [])
 
+  function getClient(chainId: string | undefined) {
+    return !chainId || chainId === ChainId.MAINNET ? jediSwapClient : jediSwapClientSepolia
+  }
+
   return (
-    <ApolloProvider client={!chainId || chainId === ChainId.MAINNET ? jediSwapClient : jediSwapClientSepolia}>
+    <ApolloProvider client={getClient(chainId)}>
       <ErrorBoundary>
         {showWarning && <WarningBanner />}
         <HeaderWrapper scrollY={scrollY} transparent={isHeaderTransparent} bannerIsVisible={showWarning}>
