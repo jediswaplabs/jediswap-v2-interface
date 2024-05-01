@@ -25,6 +25,8 @@ import {
   WarningBanner,
 } from 'components/NavBar/WarningBanner'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { ApolloProvider } from '@apollo/client'
+import { jediSwapClient, jediSwapClientSepolia } from 'apollo/client'
 // import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
@@ -129,34 +131,36 @@ export default function App() {
   }, [])
 
   return (
-    <ErrorBoundary>
-      {showWarning && <WarningBanner />}
-      <HeaderWrapper scrollY={scrollY} transparent={isHeaderTransparent} bannerIsVisible={showWarning}>
-        <NavBar />
-      </HeaderWrapper>
-      <BodyWrapper>
-        <Suspense fallback={<Loader />}>
-          {isLoaded ? (
-            <Routes>
-              {routes.map((route: RouteDefinition) =>
-                route.enabled(routerConfig) ? (
-                  <Route key={route.path} path={route.path} element={route.getElement(routerConfig)}>
-                    {route.nestedPaths.map((nestedPath) => (
-                      <Route path={nestedPath} key={`${route.path}/${nestedPath}`} />
-                    ))}
-                  </Route>
-                ) : null
-              )}
-            </Routes>
-          ) : (
-            <Loader />
-          )}
-        </Suspense>
-      </BodyWrapper>
-      {/* <Footer /> */}
-      <MobileBottomBar>
-        <PageTabs />
-      </MobileBottomBar>
-    </ErrorBoundary>
+    <ApolloProvider client={!chainId || chainId === ChainId.MAINNET ? jediSwapClient : jediSwapClientSepolia}>
+      <ErrorBoundary>
+        {showWarning && <WarningBanner />}
+        <HeaderWrapper scrollY={scrollY} transparent={isHeaderTransparent} bannerIsVisible={showWarning}>
+          <NavBar />
+        </HeaderWrapper>
+        <BodyWrapper>
+          <Suspense fallback={<Loader />}>
+            {isLoaded ? (
+              <Routes>
+                {routes.map((route: RouteDefinition) =>
+                  route.enabled(routerConfig) ? (
+                    <Route key={route.path} path={route.path} element={route.getElement(routerConfig)}>
+                      {route.nestedPaths.map((nestedPath) => (
+                        <Route path={nestedPath} key={`${route.path}/${nestedPath}`} />
+                      ))}
+                    </Route>
+                  ) : null
+                )}
+              </Routes>
+            ) : (
+              <Loader />
+            )}
+          </Suspense>
+        </BodyWrapper>
+        {/* <Footer /> */}
+        <MobileBottomBar>
+          <PageTabs />
+        </MobileBottomBar>
+      </ErrorBoundary>
+    </ApolloProvider>
   )
 }

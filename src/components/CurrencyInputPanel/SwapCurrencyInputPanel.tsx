@@ -400,7 +400,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
                   <span />
                 )}
                 <LoadingOpacityContainer $loading={loading}>
-                  {fiatValue === 0
+                  {fiatValue === 0 || (parseFloat(value) && fiatValue === undefined)
                     ? 'N/A'
                     : fiatValue && <FiatValue fiatValue={fiatValue} usdPriceDifference={usdPriceDifference} />}
                 </LoadingOpacityContainer>

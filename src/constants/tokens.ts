@@ -19,13 +19,6 @@ export const ETH_ADDRESS = '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b15
 export const NATIVE_CHAIN_ID = 'NATIVE'
 export const ZERO_ADDRESS_STARKNET = '0x0000000000000000000000000000000000000000000000000000000000000000'
 
-export const getApiUrl = () => {
-  if (isProductionEnvironment()) {
-    return 'https://api.v2.goerli.jediswap.xyz/graphql'
-  }
-  return 'https://api.v2.jediswap.xyz/graphql'
-}
-
 const cachedNativeCurrency: { [chainId: string]: NativeCurrency | Token } = {}
 export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {
   if (cachedNativeCurrency[chainId]) return cachedNativeCurrency[chainId]
