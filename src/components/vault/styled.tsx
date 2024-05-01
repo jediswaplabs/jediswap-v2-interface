@@ -26,35 +26,22 @@ const VaultWrapperOuter = styled.main`
   position: relative;
   z-index: ${Z_INDEX.default};
   transition: transform 250ms ease;
-  border-radius: 16px;
+  border-radius: 8px;
+  height: fit-content;
 `
 
 const VaultWrapperInner = styled.div`
-  border-radius: 16px;
+  border-radius: 8px;
   z-index: -1;
   padding: 20px;
   position: relative;
 
   backdrop-filter: blur(38px);
   background-color: rgba(196, 196, 196, 0.01);
-  box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
-    0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
-    0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset,
-    0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.3) inset, 0px 5.38841px 8.46749px -3.07909px #fff inset,
-    0px 30.02111px 43.10724px -27.7118px rgba(255, 255, 255, 0.5) inset;
-
-  &:before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: 16px;
-    background: linear-gradient(270deg, #ef35ff, #50d5ff);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    pointer-events: none;
-    padding: 2px;
-  }
+  box-shadow: 0px 30.021px 43.107px -27.712px rgba(255, 255, 255, 0.5) inset, 0px 5.388px 8.467px -3.079px #fff inset,
+    0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset,
+    0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.3) inset,
+    0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset, 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset;
 `
 
 export const StyledButton = styled.button`

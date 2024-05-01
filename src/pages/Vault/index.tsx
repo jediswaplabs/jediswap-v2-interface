@@ -23,13 +23,14 @@ import noPositionsBg from '../../assets/svg/no-positions-bg.svg'
 import { useFormatter } from '../../utils/formatNumbers.ts'
 import { formatUsdPrice } from '../../nft/utils'
 import { isAddressValidForStarknet } from '../../utils/addresses'
-import { AutoRow } from 'components/Row'
+import Row, { AutoRow } from 'components/Row'
 import { FullDivider, VaultWrapper } from 'components/vault/styled'
 import VaultHeader from 'components/vault/VaultHeader'
 import { useAllVaults, useVaultDerivedInfo } from 'state/vaults/hooks'
 import VaultDeposit from 'components/vault/VaultDeposit'
 import { ButtonError, ButtonPrimary, ButtonSize } from 'components/Button'
 import { useConnectionReady } from 'connection/eagerlyConnect'
+import { Z_INDEX } from 'theme/zIndex'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -186,6 +187,36 @@ const VaultInputWrapper = styled(AutoColumn)`
   gap: 12px;
   padding-top: 20px;
   margin-bottom: 20px;
+`
+
+const VaultTransactionPanel = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`
+
+const MyDepositWrapperOuter = styled.div`
+  position: relative;
+  z-index: ${Z_INDEX.default};
+  transition: transform 250ms ease;
+  border-radius: 8px;
+  height: fit-content;
+`
+const MyDepositWrapperInner = styled.div`
+  border-radius: 8px;
+  z-index: -1;
+  position: relative;
+  padding: 24px 32px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  backdrop-filter: blur(38px);
+  background-color: rgba(196, 196, 196, 0.01);
+  box-shadow: 0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset,
+    0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.3) inset,
+    0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset, 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset;
+  font-size: 20px;
 `
 
 function ErrorPanel({ text }) {
@@ -418,6 +449,7 @@ export default function Vault({ className }: { className?: string }) {
                   {/* update later - img takes time to load issue */}
                   <VaultStrategyType>{currentVault.strategyType}</VaultStrategyType>
                   <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: currentVault.details }} />
+                  <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: currentVault.details }} />
                   <VaultStrategyLinks gap="24px">
                     <a href={currentVault.links.details} target={'_blank'} rel="noreferrer">
                       View Contract
@@ -428,7 +460,15 @@ export default function Vault({ className }: { className?: string }) {
                   </VaultStrategyLinks>
                 </AutoColumn>
               </VaultDetailsContainer>
-              <VaultElement chainId={chainId} currentVault={currentVault} />
+              <VaultTransactionPanel>
+                <VaultElement chainId={chainId} currentVault={currentVault} />
+                <MyDepositWrapperOuter>
+                  <MyDepositWrapperInner>
+                    <span>My Deposits</span>
+                    <span>$16.89</span>
+                  </MyDepositWrapperInner>
+                </MyDepositWrapperOuter>
+              </VaultTransactionPanel>
             </PageContentWrapper>
           </AutoColumn>
         )
@@ -467,7 +507,7 @@ export function VaultElement({
   const { address: account } = useAccountDetails()
   const vaultInfo = useVaultDerivedInfo()
   const { inputError: vaultInputError } = vaultInfo
-
+  console.log('received', vaultInputError)
   const getActionContent = () => {
     switch (true) {
       case connectionReady && !account:
@@ -479,7 +519,7 @@ export function VaultElement({
 
       default:
         return (
-          <ButtonError disabled size={ButtonSize.large} error={!vaultInputError}>
+          <ButtonError disabled size={ButtonSize.large} error={false}>
             {vaultInputError}
           </ButtonError>
         )

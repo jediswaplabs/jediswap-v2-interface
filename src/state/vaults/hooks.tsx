@@ -12,7 +12,7 @@ import { Trans } from '@lingui/macro'
 import { updateAllVaults, updateUserVaults, updateInput } from './reducer'
 import { useAppDispatch } from '../hooks'
 import teahouseLogo from '../../assets/vaults/teahouse.svg'
-import { useAccountDetails } from '../../hooks/starknet-react'
+import { useAccountBalance, useAccountDetails } from '../../hooks/starknet-react'
 import formatBalance from '../../utils/formatBalance'
 import { Field } from './actions'
 import { AppDispatch } from 'state'
@@ -263,14 +263,11 @@ export function useVaultDerivedInfo(
     [currencyA, currencyB]
   )
 
-  // balances
-  const balances = useCurrencyBalances(
-    account ?? undefined,
-    useMemo(() => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]], [currencies])
-  )
+  const { balance: balance1 } = useAccountBalance(currencies[Field.CURRENCY_A])
+  const { balance: balance2 } = useAccountBalance(currencies[Field.CURRENCY_B])
   const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {
-    [Field.CURRENCY_A]: balances[0],
-    [Field.CURRENCY_B]: balances[1],
+    [Field.CURRENCY_A]: balance1,
+    [Field.CURRENCY_B]: balance2,
   }
   // amounts
   const independentAmount: CurrencyAmount | undefined = tryParseCurrencyAmount(typedValue, currencies[independentField])
@@ -300,27 +297,25 @@ export function useVaultDerivedInfo(
       error = connectionReady ? <Trans>Connect wallet</Trans> : <Trans>Connecting wallet...</Trans>
     }
 
-    if (!currencies[Field.CURRENCY_A] || !currencies[Field.CURRENCY_B]) {
-      error = error ?? <Trans>Select a token</Trans>
-    }
+    const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
+    const currencyAAmount = parsedAmountA?.toSignificant() // check - apply proper decimal value
+    const currencyBAmount = parsedAmountB?.toSignificant() // check - same
 
-    if (!parsedAmounts[Field.CURRENCY_A] || !parsedAmounts[Field.CURRENCY_B]) {
+    if (!currencyAAmount || !currencyBAmount) {
       error = error ?? <Trans>Enter an amount</Trans>
     }
 
-    const { [Field.CURRENCY_A]: currencyAAmount, [Field.CURRENCY_B]: currencyBAmount } = parsedAmounts
-
-    if (currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) {
-      error = <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
+    if (currencyAAmount && currencyBalances?.[Field.CURRENCY_A] < currencyAAmount) {
+      error = error ?? <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
     }
-
-    if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) {
-      error = <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
+    if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B] < currencyBAmount) {
+      error = error ?? <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
     }
-
+    console.log('returned error', error, !currencyAAmount || !currencyBAmount)
     return error
   }, [account, currencies, currencyBalances, connectionReady, parsedAmounts])
 
+  console.log('inputError', inputError)
   return {
     dependentField,
     currencies,
