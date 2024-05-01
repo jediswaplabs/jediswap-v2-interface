@@ -13,6 +13,7 @@ import { ChainId, Token } from '@vnaysn/jediswap-sdk-core'
 import { isEmpty } from 'lodash'
 import { Link, useParams } from 'react-router-dom'
 import { useBalance } from '@starknet-react/core'
+import { useSelector } from 'react-redux'
 
 import { useAccountDetails } from 'hooks/starknet-react'
 import { AutoColumn } from 'components/Column'
@@ -31,6 +32,7 @@ import VaultDeposit from 'components/vault/VaultDeposit'
 import { ButtonError, ButtonPrimary, ButtonSize } from 'components/Button'
 import { useConnectionReady } from 'connection/eagerlyConnect'
 import { Z_INDEX } from 'theme/zIndex'
+import { useCurrency } from 'hooks/Tokens'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -449,7 +451,6 @@ export default function Vault({ className }: { className?: string }) {
                   {/* update later - img takes time to load issue */}
                   <VaultStrategyType>{currentVault.strategyType}</VaultStrategyType>
                   <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: currentVault.details }} />
-                  <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: currentVault.details }} />
                   <VaultStrategyLinks gap="24px">
                     <a href={currentVault.links.details} target={'_blank'} rel="noreferrer">
                       View Contract
@@ -505,9 +506,13 @@ export function VaultElement({
   const [activeButton, setActiveButton] = useState<string>('Deposit')
   const connectionReady = useConnectionReady()
   const { address: account } = useAccountDetails()
-  const vaultInfo = useVaultDerivedInfo()
+  const vaultState = useSelector((state) => state.vaults)
+  // Vault Input state
+  const baseCurrency = useCurrency(currentVault.token0.address)
+  const currencyB = useCurrency(currentVault.token1.address)
+
+  const vaultInfo = useVaultDerivedInfo(vaultState, baseCurrency ?? undefined, currencyB ?? undefined)
   const { inputError: vaultInputError } = vaultInfo
-  console.log('received', vaultInputError)
   const getActionContent = () => {
     switch (true) {
       case connectionReady && !account:

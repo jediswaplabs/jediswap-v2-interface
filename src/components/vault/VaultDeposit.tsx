@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useContractWrite } from '@starknet-react/core'
 import { cairo, Call, CallData } from 'starknet'
 import styled, { css } from 'styled-components'
+import { useSelector } from 'react-redux'
+
 import { AutoColumn } from 'components/Column'
 import CurrencyInputPanel from 'components/CurrencyInputPanel'
-import { useVaultActionHandlers, useVaultDerivedInfo, useVaultInputState } from 'state/vaults/hooks'
+import { useVaultActionHandlers, useVaultDerivedInfo } from 'state/vaults/hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { Field } from 'state/vaults/actions'
 
@@ -20,11 +22,13 @@ function VaultDeposit({ currentVault }: { currentVault: any }) {
   const { onFieldAInput, onFieldBInput } = useVaultActionHandlers()
 
   // Vault Input state
-  const { independentField, typedValue } = useVaultInputState()
   const baseCurrency = useCurrency(currentVault.token0.address)
   const currencyB = useCurrency(currentVault.token1.address)
+  const vaultState = useSelector((state: any) => state.vaults)
+  const { independentField, typedValue } = vaultState
 
   const { dependentField, currencies, parsedAmounts } = useVaultDerivedInfo(
+    vaultState,
     baseCurrency ?? undefined,
     currencyB ?? undefined
   )

@@ -7,8 +7,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isEmpty, uniq } from 'lodash'
 import { ChainId, Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { useBalance } from '@starknet-react/core'
-
 import { Trans } from '@lingui/macro'
+
 import { updateAllVaults, updateUserVaults, updateInput } from './reducer'
 import { useAppDispatch } from '../hooks'
 import teahouseLogo from '../../assets/vaults/teahouse.svg'
@@ -221,17 +221,8 @@ export function useVaultActionHandlers(): {
   }
 }
 
-export function useVaultInputState(): {
-  typedValue: string
-  independentField: string
-} {
-  const typedValue = useSelector((state) => state.vaults.typedValue)
-  const independentField = useSelector((state) => state.vaults.independentField)
-
-  return { typedValue, independentField }
-}
-
 export function useVaultDerivedInfo(
+  state: any,
   currencyA: Currency | undefined,
   currencyB: Currency | undefined
 ): {
@@ -240,7 +231,7 @@ export function useVaultDerivedInfo(
   parsedAmounts: { [field in Field]?: CurrencyAmount }
 } {
   const { address: account } = useAccountDetails()
-  const { independentField, typedValue } = useVaultInputState()
+  const { independentField, typedValue } = state
 
   const { data, isLoading, isError } = useUnderlyingVaultAssets()
   let token0Amount = 0.0
@@ -311,11 +302,9 @@ export function useVaultDerivedInfo(
     if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B] < currencyBAmount) {
       error = error ?? <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
     }
-    console.log('returned error', error, !currencyAAmount || !currencyBAmount)
     return error
-  }, [account, currencies, currencyBalances, connectionReady, parsedAmounts])
+  }, [account, currencies, currencyBalances, connectionReady, parsedAmounts, priceRatio])
 
-  console.log('inputError', inputError)
   return {
     dependentField,
     currencies,
