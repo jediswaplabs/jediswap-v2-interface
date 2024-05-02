@@ -68,8 +68,8 @@ const PlaceholderContainer = styled.div`
 const DashGrid = styled.div<{ fade?: boolean; disbaleLinks?: boolean; focus?: boolean; center?: boolean }>`
   display: grid;
   grid-gap: 1em;
-  grid-template-columns: 100px 1fr 1fr;
-  grid-template-areas: 'name liq vol';
+  grid-template-columns: 100px 100px 1fr 1fr;
+  grid-template-areas: 'name rew liq vol';
   padding: 0 1.125rem;
 
   opacity: ${({ fade }) => (fade ? '0.6' : '1')};
@@ -96,7 +96,7 @@ const DashGrid = styled.div<{ fade?: boolean; disbaleLinks?: boolean; focus?: bo
   }
 
   @media screen and (min-width: 1200px) {
-    grid-template-columns: 2.7fr 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1.7fr 1fr 1fr 1fr 1fr 1fr;
     grid-template-areas: ' name liq vol fees apy';
   }
 `
@@ -303,7 +303,6 @@ function PairList({
     </StrkBadgeOuter>
     if (pairData.rewarded) {
       rewardsBadges = <Rewards>
-        <div style={{ marginRight: '4px', fontSize: '0.75rem' }}>Rewards:</div>
         {pairData.aprStarknet && strkBadge}
       </Rewards>
     }
@@ -414,8 +413,8 @@ function PairList({
                 />
                 <FeeBadge>{feePercent}</FeeBadge>
               </AutoRow>
-              {rewardsBadges}
             </DataText>
+            <DataText area="rew">{rewardsBadges}</DataText>
             <DataText area="liq">{formatDataText(liquidity, pairData.totalValueLockedUSD)}</DataText>
             <DataText area="vol">{formatDataText(volume, pairData.oneDayVolumeUSD)}</DataText>
             {/* {!below1080 && <DataText area="volWeek">{formatDataText(weekVolume, pairData.oneWeekVolumeUSD)}</DataText>} */}
@@ -512,6 +511,9 @@ function PairList({
               {/* <TYPE.main area="name"> */}
               Pool Name
               {/* </TYPE.main> */}
+            </Flex>
+            <Flex alignItems="center" justifyContent="flexStart">
+              Rewards
             </Flex>
             <Flex alignItems="center" justifyContent="flexEnd">
               <ClickableText
