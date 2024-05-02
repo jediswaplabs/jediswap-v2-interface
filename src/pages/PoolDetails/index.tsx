@@ -322,52 +322,46 @@ export default function PoolDetails() {
           <PanelTopLight>
             <AutoColumn gap="20px">
               <RowBetween>
-                {/* <TYPE.subHeader> */}
                 Total Liquidity
-                {/* </TYPE.subHeader> */}
               </RowBetween>
               <RowBetween align="baseline">
-                {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
-                {formattedNum(totalValueLockedUSD, true)}
-                {/* </TYPE.main> */}
-                {/* <TYPE.main fontSize="1rem"> */}
-                {formattedPercent(liquidityChangeUSD)}
-                {/* </TYPE.main> */}
+                <div>
+                  {formattedNum(totalValueLockedUSD, true)}
+                </div>
+                <div>
+                  {formattedPercent(liquidityChangeUSD)}
+                </div>
               </RowBetween>
             </AutoColumn>
           </PanelTopLight>
           <PanelTopLight>
             <AutoColumn gap="20px">
               <RowBetween>
-                {/* <TYPE.subHeader> */}
                 Volume (24hr)
-                {/* </TYPE.subHeader> */}
                 <div />
               </RowBetween>
               <RowBetween align="baseline">
-                {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
-                {formattedNum(oneDayVolumeUSD, true)}
-                {/* </TYPE.main> */}
-                {/* <TYPE.main fontSize="1rem"> */}
-                {formattedPercent(volumeChangeUSD)}
-                {/* </TYPE.main> */}
+                <div>
+                  {formattedNum(oneDayVolumeUSD, true)}
+                </div>
+                <div>
+                  {formattedPercent(volumeChangeUSD)}
+                </div>
               </RowBetween>
             </AutoColumn>
           </PanelTopLight>
           <PanelTopLight>
             <AutoColumn gap="20px">
               <RowBetween>
-                {/* <TYPE.subHeader> */}
                 Total fees (24hr)
-                {/* </TYPE.subHeader> */}
               </RowBetween>
               <RowBetween align="baseline">
-                {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
-                {formattedNum(oneDayFeesUSD, true)}
-                {/* </TYPE.main> */}
-                {/* <TYPE.main fontSize="1rem"> */}
-                {formattedPercent(feesChangeUSD)}
-                {/* </TYPE.main> */}
+                <div>
+                  {formattedNum(oneDayFeesUSD, true)}
+                </div>
+                <div>
+                  {formattedPercent(feesChangeUSD)}
+                </div>
               </RowBetween>
             </AutoColumn>
           </PanelTopLight>

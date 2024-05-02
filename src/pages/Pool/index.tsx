@@ -26,10 +26,11 @@ import { getAllPools } from 'graphql/data/PoolsData'
 import { useAllLists } from 'state/lists/hooks'
 import Pools from 'components/Pools'
 import { ToggleElement, ToggleWrapper } from 'components/Toggle/MultiToggle'
-import { formattedNum, formattedPercent } from 'utils/dashboard'
+import { formattedNum, formattedPercent, get2DayPercentChange, getPercentChange } from 'utils/dashboard'
 import { REWARDS_SELECTOR, STARKNET_REWARDS_API_URL } from 'constants/misc'
 import { HISTORICAL_GLOBAL_DATA } from 'graphql/data/queries'
 import { apolloClient } from 'graphql/data/apollo'
+import { apiTimeframeOptions } from 'constants/dashboardApi'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -386,6 +387,7 @@ export default function Pool() {
   const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
   const [showMyPositions, setShowMyPositions] = useState<boolean>(false)
   const [showRewardedOnly, setShowRewardedOnly] = useState(false)
+  const [globalPoolsData, setGlobalPoolsData] = useState<any>({})
 
   //fetch Token Ids
   useEffect(() => {
@@ -452,7 +454,17 @@ export default function Pool() {
           query: HISTORICAL_GLOBAL_DATA(),
           fetchPolicy: 'cache-first',
         })
-        console.log('historicalData', historicalData)
+        const oneDayData = historicalData.data.factoriesData[0].oneDay
+        const twoDaysData = historicalData.data.factoriesData[0].twoDays
+        console.log('historicalData', oneDayData)
+        setGlobalPoolsData({
+          totalValueLockedUSD: oneDayData.totalValueLockedUSD,
+          totalValueLockedUSDChange: getPercentChange(oneDayData.totalValueLockedUSD, oneDayData.totalValueLockedUSDFirst),
+          volumeUSD: oneDayData.volumeUSD,
+          volumeUSDChange: get2DayPercentChange(oneDayData.volumeUSD, twoDaysData.volumeUSD),
+          feesUSD: oneDayData.feesUSD,
+          feesUSDChange: get2DayPercentChange(oneDayData.feesUSD, twoDaysData.feesUSD),
+        })
       } catch(e) {
         console.log(e)
       }
@@ -481,12 +493,6 @@ export default function Pool() {
       </Panel>
     </div>
   )
-  const totalValueLockedUSD = 10
-  const liquidityChangeUSD = 20
-  const totalVolumeUSD = 0
-  const volumeChangeUSD = 0
-  const totalFeesUSD = 0
-  const feesChangeUSD = 0
 
   return (
     <PageWrapper>
@@ -499,52 +505,46 @@ export default function Pool() {
           <PanelTopLight>
             <AutoColumn gap="20px">
               <RowBetween>
-                {/* <TYPE.subHeader> */}
                 Total Liquidity
-                {/* </TYPE.subHeader> */}
               </RowBetween>
               <RowBetween align="baseline">
-                {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
-                {formattedNum(totalValueLockedUSD, true)}
-                {/* </TYPE.main> */}
-                {/* <TYPE.main fontSize="1rem"> */}
-                {formattedPercent(liquidityChangeUSD)}
-                {/* </TYPE.main> */}
+                <div>
+                  {formattedNum(globalPoolsData.totalValueLockedUSD, true)}
+                </div>
+                <div>
+                  {formattedPercent(globalPoolsData.totalValueLockedUSDChange)}
+                </div>
               </RowBetween>
             </AutoColumn>
           </PanelTopLight>
           <PanelTopLight>
             <AutoColumn gap="20px">
               <RowBetween>
-                {/* <TYPE.subHeader> */}
                 Volume (24hr)
-                {/* </TYPE.subHeader> */}
                 <div />
               </RowBetween>
               <RowBetween align="baseline">
-                {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
-                {formattedNum(totalVolumeUSD, true)}
-                {/* </TYPE.main> */}
-                {/* <TYPE.main fontSize="1rem"> */}
-                {formattedPercent(volumeChangeUSD)}
-                {/* </TYPE.main> */}
+                <div>
+                  {formattedNum(globalPoolsData.volumeUSD, true)}
+                </div>
+                <div>
+                  {formattedPercent(globalPoolsData.volumeUSDChange)}
+                </div>
               </RowBetween>
             </AutoColumn>
           </PanelTopLight>
           <PanelTopLight>
             <AutoColumn gap="20px">
               <RowBetween>
-                {/* <TYPE.subHeader> */}
                 Total fees (24hr)
-                {/* </TYPE.subHeader> */}
               </RowBetween>
               <RowBetween align="baseline">
-                {/* <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}> */}
-                {formattedNum(totalFeesUSD, true)}
-                {/* </TYPE.main> */}
-                {/* <TYPE.main fontSize="1rem"> */}
-                {formattedPercent(feesChangeUSD)}
-                {/* </TYPE.main> */}
+                <div>
+                  {formattedNum(globalPoolsData.feesUSD, true)}
+                </div>
+                <div>
+                  {formattedPercent(globalPoolsData.feesUSDChange)}
+                </div>
               </RowBetween>
             </AutoColumn>
           </PanelTopLight>
