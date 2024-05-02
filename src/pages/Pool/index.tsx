@@ -3,6 +3,7 @@ import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfacePageNa
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle, BookOpen, ChevronDown, ChevronsRight, Inbox, Layers } from 'react-feather'
+import Switch from 'react-switch'
 import { Link } from 'react-router-dom'
 import styled, { css, useTheme } from 'styled-components'
 import { Box as RebassBox } from 'rebass'
@@ -248,9 +249,23 @@ const PageHeader = styled.div`
   margin-bottom: 20px;
 `
 
-const OnlyRewarded = styled.div`
-  margin: 15px 0;
+const OnlyRewardedSwitcherContainer = styled.div`
+display: flex;
+align-items: center;
+gap: 16px;
+margin: 15px 0;
 `
+
+const OnlyRewardedSwitcherLabel = styled.div`
+font-family: Avenir LT Std;
+font-size: 18px;
+font-weight: 750;
+line-height: 18px;
+text-align: left;
+`
+
+const OnlyRewardedSwitcher = styled(Switch)``
+
 
 function PositionsLoadingPlaceholder() {
   return (
@@ -483,11 +498,22 @@ export default function Pool() {
   const showConnectAWallet = Boolean(!address)
   const poolsTable = (
     <div>
-      <OnlyRewarded>
-        <label>
-          <input style={{marginRight: '10px'}} type="checkbox" checked={showRewardedOnly} onChange={e => setShowRewardedOnly(e.target.checked)} />Only Pools with Rewards
-        </label>
-      </OnlyRewarded>
+      <OnlyRewardedSwitcherContainer>
+          <OnlyRewardedSwitcherLabel>Only Pools with Rewards</OnlyRewardedSwitcherLabel>
+          <OnlyRewardedSwitcher
+            onChange={(checked) => setShowRewardedOnly(checked)}
+            checked={showRewardedOnly}
+            handleDiameter={20}
+            uncheckedIcon={false}
+            checkedIcon={false}
+            width={35}
+            height={14}
+            offHandleColor={'#959595'}
+            onHandleColor={'#50D5FF'}
+            offColor={'#372554'}
+            onColor={'#26346d'}
+          />
+        </OnlyRewardedSwitcherContainer>
       <Panel style={{ padding: '0' }}>
         <Pools pairs={poolsData} disbaleLinks={true} showRewardedOnly={showRewardedOnly} />
       </Panel>
