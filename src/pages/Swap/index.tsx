@@ -73,7 +73,7 @@ import { useApprovalCall } from 'hooks/useApproveCall'
 import { Pool, TradeType, toHex } from '@vnaysn/jediswap-sdk-v3'
 import fetchAllPairs from 'api/fetchAllPairs'
 import { useQuery } from 'react-query'
-import { jediSwapClient, jediSwapClientSepolia } from 'apollo/client'
+import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import findClosestPrice from 'utils/getClosestPrice'
 
@@ -545,7 +545,7 @@ export function Swap({
       if (!trade?.inputAmount && !trade?.outputAmount) return
       if (trade?.inputAmount) ids.push((trade?.inputAmount.currency as any).address)
       if (trade?.outputAmount) ids.push((trade?.outputAmount.currency as any).address)
-      const graphqlClient = chainId === ChainId.MAINNET ? jediSwapClient : jediSwapClientSepolia
+      const graphqlClient = getClient(chainId)
       let result = await graphqlClient.query({
         query: TOKENS_DATA({ tokenIds: ids }),
         // fetchPolicy: 'cache-first',

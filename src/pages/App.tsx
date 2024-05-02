@@ -26,7 +26,7 @@ import {
 } from 'components/NavBar/WarningBanner'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { ApolloProvider } from '@apollo/client'
-import { jediSwapClient, jediSwapClientSepolia } from 'apollo/client'
+import { getClient } from 'apollo/client'
 // import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
@@ -129,10 +129,6 @@ export default function App() {
     window.addEventListener('scroll', scrollListener)
     return () => window.removeEventListener('scroll', scrollListener)
   }, [])
-
-  function getClient(chainId: string | undefined) {
-    return !chainId || chainId === ChainId.MAINNET ? jediSwapClient : jediSwapClientSepolia
-  }
 
   return (
     <ApolloProvider client={getClient(chainId)}>

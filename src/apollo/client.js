@@ -1,4 +1,5 @@
 import { ApolloClient } from '@apollo/client'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { InMemoryCache } from 'apollo-cache-inmemory'
 import { HttpLink } from 'apollo-link-http'
 
@@ -39,3 +40,7 @@ export const jediSwapClientSepolia = new ApolloClient({
   cache,
   shouldBatch: true,
 })
+
+export const getClient = (chainId) => {
+  return !chainId || chainId === ChainId.MAINNET ? jediSwapClient : jediSwapClientSepolia
+}

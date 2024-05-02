@@ -72,7 +72,7 @@ import JSBI from 'jsbi'
 import { toI32 } from 'utils/toI32'
 import { useApprovalCall } from 'hooks/useApproveCall'
 import { useQuery } from 'react-query'
-import { jediSwapClient, jediSwapClientSepolia } from 'apollo/client'
+import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import findClosestPrice from 'utils/getClosestPrice'
@@ -221,7 +221,7 @@ function AddLiquidity() {
       if (!position?.amount0 && !position?.amount1) return
       if (position?.amount0) ids.push(position?.amount0.currency.address)
       if (position?.amount1) ids.push(position?.amount1.currency.address)
-      const graphqlClient = chainId === ChainId.MAINNET ? jediSwapClient : jediSwapClientSepolia
+      const graphqlClient = getClient(chainId)
       let result = await graphqlClient.query({
         query: TOKENS_DATA({ tokenIds: ids }),
         // fetchPolicy: 'cache-first',

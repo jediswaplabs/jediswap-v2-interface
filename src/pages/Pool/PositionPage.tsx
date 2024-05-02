@@ -170,7 +170,7 @@ const NFTImage = styled.img`
 `
 
 import { useQuery } from 'react-query'
-import { jediSwapClient } from 'apollo/client'
+import { getClient, jediSwapClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import findClosestPrice from 'utils/getClosestPrice'
 
@@ -679,7 +679,8 @@ function PositionPageContent() {
       if (!position?.amount0 && !position?.amount1) return
       if (position?.amount0) ids.push(position?.amount0.currency.address)
       if (position?.amount1) ids.push(position?.amount1.currency.address)
-      let result = await jediSwapClient.query({
+      const graphqlClient = getClient(chainId)
+      let result = await graphqlClient.query({
         query: TOKENS_DATA({ tokenIds: ids }),
         fetchPolicy: 'cache-first',
       })
