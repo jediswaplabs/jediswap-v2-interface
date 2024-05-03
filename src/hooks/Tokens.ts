@@ -18,7 +18,7 @@ import { useTokenContract } from './useContractV2'
 import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { ETH_ADDRESS, WETH } from 'constants/tokens'
 import { useContractRead } from '@starknet-react/core'
-import { num } from 'starknet'
+import { BlockTag, num } from 'starknet'
 
 type Maybe<T> = T | null | undefined
 
@@ -203,6 +203,7 @@ export function useToken(tokenAddress?: string | null): Token | null | undefined
     abi: ERC20_ABI,
     address: validTokenAddress,
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   const { data: rpc_symbol } = useContractRead({
@@ -211,6 +212,7 @@ export function useToken(tokenAddress?: string | null): Token | null | undefined
     abi: ERC20_ABI,
     address: validTokenAddress,
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   const { data: rpc_decimals } = useContractRead({
@@ -219,6 +221,7 @@ export function useToken(tokenAddress?: string | null): Token | null | undefined
     abi: ERC20_ABI,
     address: validTokenAddress,
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   const tokenName = useMemo(() => {

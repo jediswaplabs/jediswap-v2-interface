@@ -17,7 +17,6 @@ import { useRouterPreference, useUserOptedOutOfUniswapX } from 'state/user/hooks
 import { flexRowNoWrap } from 'theme/styles'
 import { Z_INDEX } from 'theme/zIndex'
 import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions'
-import useFetchAllPairsCallback from 'hooks/useFetchAllPairs'
 import {
   UK_BANNER_HEIGHT,
   UK_BANNER_HEIGHT_MD,
