@@ -77,10 +77,6 @@ export function useUniversalRouterSwapCallback(
       if (!trade) {
         throw new Error('missing trade')
       }
-      const connectedChainId = await provider.getSigner().getChainId()
-      if (chainId !== connectedChainId) {
-        throw new WrongChainError()
-      }
 
       // universal-router-sdk reconstructs V2Trade objects, so rather than updating the trade amounts to account for tax, we adjust the slippage tolerance as a workaround
       // TODO(WEB-2725): update universal-router-sdk to not reconstruct trades

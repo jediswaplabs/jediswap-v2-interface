@@ -398,7 +398,6 @@ function CollectFees(props) {
     parsedTokenId,
   } = props
   const [feeValue0, feeValue1] = useStaticFeeResults(poolAddress, owner, position, showCollectAsWeth, parsedTokenId)
-
   const theme = useTheme()
 
   const feeValueUpper = inverted ? feeValue0 : feeValue1

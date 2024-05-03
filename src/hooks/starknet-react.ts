@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Connector, useAccount, useBalance, useConnect, useProvider } from '@starknet-react/core'
 import { AccountInterface, constants } from 'starknet'
 import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { WETH } from '@jediswap/sdk'
 import { useDefaultActiveTokens } from './Tokens'
 import formatBalance from 'utils/formatBalance'
+import { useQuery } from 'react-query'
 // Define the type for the balances object
 declare enum StarknetChainId {
   SN_MAIN = '0x534e5f4d41494e',
-  SN_GOERLI = '0x534e5f474f45524c49',
-  SN_GOERLI2 = '0x534e5f474f45524c4932',
+  SN_GOERLI = '0x534e5f5345504f4c4941',
 }
 
 // Function to convert StarknetChainId to ChainId
@@ -18,7 +18,6 @@ const convertStarknetToChainId = (starknetId: StarknetChainId): ChainId | undefi
     case StarknetChainId.SN_MAIN:
       return ChainId.MAINNET
     case StarknetChainId.SN_GOERLI:
-    case StarknetChainId.SN_GOERLI2:
       return ChainId.GOERLI
     default:
       return undefined // Return undefined if no match found
@@ -33,25 +32,23 @@ export const useAccountDetails = (): {
   connector: Connector | undefined
 } => {
   const { account, address, isConnected, status, connector } = useAccount()
-  const [chainId, setChainId] = useState<ChainId | undefined>(undefined)
 
   const { provider } = useProvider()
 
-  useEffect(() => {
-    const fetchChainId = async () => {
-      if (account) {
-        try {
-          const Id = await provider.getChainId()
-          const convertedId: ChainId | undefined = convertStarknetToChainId(Id)
-          setChainId(convertedId)
-        } catch (error) {
-          console.error('Error fetching chainId:', error)
-        }
-      }
-    }
+  const connectedChainId = useQuery({
+    queryKey: [`get_chainId/${address}`],
+    queryFn: async () => {
+      if (!address) return
+      const results: any = await provider.getChainId()
+      const convertedId: ChainId | undefined = convertStarknetToChainId(results)
+      return results
+    },
+  })
 
-    fetchChainId()
-  }, [status, provider, account])
+  const chainId = useMemo(() => {
+    if (!connectedChainId || !connectedChainId.data) return undefined
+    return connectedChainId.data
+  }, [connectedChainId, address])
 
   return { account, address, isConnected, chainId, connector }
 }
