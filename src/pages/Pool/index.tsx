@@ -489,9 +489,8 @@ export default function Pool() {
           query: HISTORICAL_GLOBAL_DATA(),
           fetchPolicy: 'cache-first',
         })
-        const oneDayData = historicalData.data.factoriesData[0].oneDay
-        const twoDaysData = historicalData.data.factoriesData[0].twoDays
-        console.log('historicalData', oneDayData)
+        const oneDayData = historicalData.data.factoriesData[0][apiTimeframeOptions.oneDay]
+        const twoDaysData = historicalData.data.factoriesData[0][apiTimeframeOptions.twoDays]
         setGlobalPoolsData({
           totalValueLockedUSD: oneDayData.totalValueLockedUSD,
           totalValueLockedUSDChange: getPercentChange(oneDayData.totalValueLockedUSD, oneDayData.totalValueLockedUSDFirst),

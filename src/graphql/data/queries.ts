@@ -1,3 +1,4 @@
+import { apiTimeframeOptions } from 'constants/dashboardApi'
 import gql from 'graphql-tag'
 
 const TokenFields = `
@@ -45,8 +46,8 @@ const PoolFields = `
 export const HISTORICAL_GLOBAL_DATA = () => {
   const queryString = ` query jediswapFactories {
       factoriesData {
-        oneDay
-        twoDays
+        ${apiTimeframeOptions.oneDay}
+        ${apiTimeframeOptions.twoDays}
       }
     }`
   return gql(queryString)
