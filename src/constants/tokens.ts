@@ -3,6 +3,7 @@ import { ChainId, Currency, NativeCurrency, Percent, Token } from '@vnaysn/jedis
 
 // import { fortmatic, injected, portis, walletconnect, walletlink, argentX } from '../connectors'
 import JSBI from 'jsbi'
+import { isProductionEnvironment } from 'connectors'
 
 export const DEFAULT_CHAIN_ID = ChainId.MAINNET
 export const NONFUNGIBLE_POSITION_MANAGER_ADDRESSES = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
