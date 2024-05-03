@@ -237,8 +237,6 @@ export default function CurrencyList({
     return currencies
   }, [currencies, otherListTokens])
 
-  console.log(currencies, 'currencies list')
-
   const Row = useCallback(
     ({ data, index, style }: TokenRowProps) => {
       const row: Currency = data[index]

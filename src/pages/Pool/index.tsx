@@ -32,6 +32,10 @@ import { REWARDS_SELECTOR, STARKNET_REWARDS_API_URL } from 'constants/misc'
 import { HISTORICAL_GLOBAL_DATA } from 'graphql/data/queries'
 import { apolloClient } from 'graphql/data/apollo'
 import { apiTimeframeOptions } from 'constants/dashboardApi'
+import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import { providerInstance } from 'utils/getLibrary'
+import { cairo, hash, num, uint256 } from 'starknet'
+import JSBI from 'jsbi'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -409,9 +413,25 @@ export default function Pool() {
     const getTokenIds = async () => {
       if (address && chainId) {
         setLoadingPositions(true)
-        const result = await fetchTokenIds(address, chainId)
-        if (result && result.data) {
-          const tokenIdsArray: number[] = result.data.map((item: any) => parseInt(item.token_id))
+        const provider = providerInstance(chainId ?? DEFAULT_CHAIN_ID)
+        const contract_address = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+        const tokenIdsResults = await provider.callContract({
+          entrypoint: 'get_all_tokens_for_owner',
+          contractAddress: contract_address,
+          calldata: [address],
+        })
+        if (tokenIdsResults && tokenIdsResults.result) {
+          // Slice the first index
+          const tokenIdsResultsArr = tokenIdsResults.result
+
+          //converting array of uint256 tokenids into bn
+          const tokenIdsResultsArrWithoutLength = tokenIdsResultsArr.slice(1)
+          const returnDataIterator = tokenIdsResultsArrWithoutLength.flat()[Symbol.iterator]()
+          const tokenIdsArray = [...Array(tokenIdsResultsArrWithoutLength.length / 2)].map(() => {
+            return Number(
+              uint256.uint256ToBN({ low: returnDataIterator.next().value, high: returnDataIterator.next().value })
+            )
+          })
           setTokenIds(tokenIdsArray)
         }
         setLoadingPositions(false)

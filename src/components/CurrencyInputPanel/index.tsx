@@ -47,8 +47,7 @@ const Container = styled.div<{ hideInput: boolean; disabled: boolean }>`
   ${({ theme, hideInput, disabled }) =>
     !disabled &&
     `
-    :focus,
-    :hover {
+    :focus{
       border: 1px solid ${hideInput ? ' transparent' : theme.surface2};
     }
   `}
@@ -179,7 +178,7 @@ interface CurrencyInputPanelProps {
   pair?: Pair | null
   hideInput?: boolean
   otherCurrency?: Currency | null
-  fiatValue?: { data?: number; isLoading: boolean }
+  fiatValue?: number | undefined
   id: string
   showCommonBases?: boolean
   showCurrencyAmount?: boolean
@@ -310,9 +309,11 @@ export default function CurrencyInputPanel({
                     </ThemedText.DeprecatedBody>
                   </RowFixed>
                 )}
-                {/* <LoadingOpacityContainer $loading={loading}>
-                  {fiatValue && <FiatValue fiatValue={fiatValue} />}
-                </LoadingOpacityContainer> */}
+                <LoadingOpacityContainer $loading={loading}>
+                  {fiatValue === 0 || (parseFloat(value) && fiatValue === undefined)
+                    ? 'N/A'
+                    : fiatValue && <FiatValue fiatValue={fiatValue} />}
+                </LoadingOpacityContainer>
               </RowBetween>
             </FiatRow>
           )}

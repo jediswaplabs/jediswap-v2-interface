@@ -28,9 +28,6 @@ import OrderUpdater from './state/signatures/updater'
 import ThemeProvider, { ThemedGlobalStyle } from './theme'
 import TransactionUpdater from './state/transactions/updater'
 import RadialGradientByChainUpdater from './theme/components/RadialGradientByChainUpdater'
-
-import { goerli, mainnet, sepolia } from '@starknet-react/chains'
-import { StarknetConfig, publicProvider, argent, braavos } from '@starknet-react/core'
 import { StarknetProvider } from 'context/StarknetProvider'
 
 function Updaters() {
@@ -66,15 +63,13 @@ createRoot(container).render(
             <HashRouter>
               <LanguageProvider>
                 {/* <Web3Provider> */}
-                <ApolloProvider client={apolloClient}>
-                  <BlockNumberProvider>
-                    <Updaters />
-                    <ThemeProvider>
-                      <ThemedGlobalStyle />
-                      <App />
-                    </ThemeProvider>
-                  </BlockNumberProvider>
-                </ApolloProvider>
+                <BlockNumberProvider>
+                  <Updaters />
+                  <ThemeProvider>
+                    <ThemedGlobalStyle />
+                    <App />
+                  </ThemeProvider>
+                </BlockNumberProvider>
                 {/* </Web3Provider> */}
               </LanguageProvider>
             </HashRouter>
