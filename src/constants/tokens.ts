@@ -41,7 +41,7 @@ export const FACTORY_ADDRESS_CLASS_HASH: { [chainId in ChainId]: string } = {
 
 export const NONFUNGIBLE_POOL_MANAGER_ADDRESS: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: '0x045cb97368b10d6a5345bf7cfde71bc99360687451519a0e2a3508b32f50ece0',
-  [ChainId.GOERLI]: '0x0335f4113869aa0cd7cb2a20f4ae8b8fc0f725c8ce29bb0085183c5cfbd3defe',
+  [ChainId.GOERLI]: '0x0039f2ddabfabc3ff69c27870ef5d10d5af29a268166e5cd5a557c2a0305e714',
 }
 export const SWAP_ROUTER_ADDRESS_V2 = {
   [ChainId.MAINNET]: '0x039c6dac17d1968f5bbbf65b4180fc3cb83cfea08147cbb1950e053f647d21f8',
