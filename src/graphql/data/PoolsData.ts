@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react'
 
-import { apolloClient }  from './apollo'
 import { HISTORICAL_POOLS_DATA } from './queries'
 
 
 import { getPercentChange, get2DayPercentChange } from '../../utils/dashboard'
 import { apiTimeframeOptions } from '../../constants/dashboardApi'
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 // import { useWhitelistedTokens } from './Application'
 
 const UPDATE = 'UPDATE'
@@ -13,7 +13,7 @@ const UPDATE_TOP_PAIRS = 'UPDATE_TOP_PAIRS'
 const UPDATE_HOURLY_DATA = 'UPDATE_HOURLY_DATA'
 
 
-async function getBulkPairData(tokenList: string[]) {
+async function getBulkPairData(apolloClient: ApolloClient<NormalizedCacheObject>, tokenList: string[]) {
   try {
     let historicalData = await apolloClient.query({
       query: HISTORICAL_POOLS_DATA({
@@ -82,9 +82,9 @@ function parseData(data: any, oneDayData: any, twoDayData: any, oneWeekData: any
   return newData
 }
 
-export const getAllPools = async (whitelistedIds: string[] = []) => {
+export const getAllPools = async (apolloClient: ApolloClient<NormalizedCacheObject>, whitelistedIds: string[] = []) => {
   try {
-    const bulkResults = getBulkPairData(whitelistedIds)
+    const bulkResults = getBulkPairData(apolloClient, whitelistedIds)
     return bulkResults
   } catch (e) {
     console.log(e)

@@ -30,12 +30,12 @@ import { ToggleElement, ToggleWrapper } from 'components/Toggle/MultiToggle'
 import { formattedNum, formattedPercent, get2DayPercentChange, getPercentChange } from 'utils/dashboard'
 import { REWARDS_SELECTOR, STARKNET_REWARDS_API_URL } from 'constants/misc'
 import { HISTORICAL_GLOBAL_DATA } from 'graphql/data/queries'
-import { apolloClient } from 'graphql/data/apollo'
 import { apiTimeframeOptions } from 'constants/dashboardApi'
 import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { providerInstance } from 'utils/getLibrary'
 import { cairo, hash, num, uint256 } from 'starknet'
 import JSBI from 'jsbi'
+import { getClient } from 'apollo/client'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -443,22 +443,21 @@ export default function Pool() {
 
   const lists = useAllLists()
   const tokenList = Object.values(lists)[0]?.current
+  const graphqlClient = getClient(chainId)
   //fetch pools data
   useEffect(() => {
     const getPoolsData = async () => {
-      if (!tokenList) {
+      if (!tokenList || !chainId) {
         return
       }
       const whitelistedIds = tokenList.tokens.map((token) => token.address)
       whitelistedIds.push('0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') //add ETH token
-      const poolsDataRaw = await getAllPools(whitelistedIds)
+      const poolsDataRaw = await getAllPools(graphqlClient, whitelistedIds)
       const rewardsResp = await fetch(STARKNET_REWARDS_API_URL)
       const rewardsRespStr = await rewardsResp.text()
       const rewardsRespStrClean = rewardsRespStr.replace(/\bNaN\b/g, "null")
       const rewardsRespJson = JSON.parse(rewardsRespStrClean)
       const jediRewards = rewardsRespJson[REWARDS_SELECTOR]
-      // console.log('jediRewards', jediRewards)
-      // console.log('poolsDataRaw', poolsDataRaw)
 
       const poolsData: any = {}
       poolsDataRaw?.forEach((data) => {
@@ -479,13 +478,16 @@ export default function Pool() {
     }
 
     getPoolsData()
-  }, [lists])
+  }, [lists, chainId])
 
    //fetch global pools data data
    useEffect(() => {
     const getGlobalPoolsData = async () => {
+      if (!chainId) {
+        return
+      }
       try {
-        const historicalData = await apolloClient.query({
+        const historicalData = await graphqlClient.query({
           query: HISTORICAL_GLOBAL_DATA(),
           fetchPolicy: 'cache-first',
         })
@@ -505,7 +507,7 @@ export default function Pool() {
     }
 
     getGlobalPoolsData()
-  }, [])
+  }, [chainId])
 
   const toggleWalletDrawer = useToggleAccountDrawer()
   // const filteredPositions = useFilterPossiblyMaliciousPositions(userSelectedPositionSet)

@@ -19,6 +19,7 @@ import CurrencyLogo from 'components/Logo/CurrencyLogo'
 import fetchTokenIds from 'api/fetchTokenId'
 import { PositionDetails } from 'pages/Pool'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
+import { getClient } from 'apollo/client'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -190,6 +191,8 @@ export default function PoolDetails() {
   const toggleWalletDrawer = useToggleAccountDrawer()
   const showConnectAWallet = Boolean(!address)
 
+  const graphqlClient = getClient(chainId)
+
   //fetch Token Ids
   useEffect(() => {
     const getTokenIds = async () => {
@@ -210,12 +213,12 @@ export default function PoolDetails() {
   //fetch pools data
   useEffect(() => {
     const getPoolsData = async () => {
-      if (!tokenList) {
+      if (!tokenList || ! chainId) {
         return
       }
       const whitelistedIds = tokenList.tokens.map((token) => token.address)
       whitelistedIds.push('0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') //add ETH token
-      const poolsDataRaw: any = await getAllPools(whitelistedIds)
+      const poolsDataRaw: any = await getAllPools(graphqlClient, whitelistedIds)
       if (poolId && poolsDataRaw) {
         const poolData: any = poolsDataRaw.find((data: any) => data?.poolAddress === poolId)
 
@@ -224,7 +227,7 @@ export default function PoolDetails() {
     }
 
     getPoolsData()
-  }, [lists])
+  }, [lists, chainId])
 
 
   const {
