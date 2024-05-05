@@ -760,24 +760,24 @@ function AddLiquidity() {
                     {outOfRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
                         <RowBetween>
-                          <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
-                          <ThemedText.DeprecatedYellow ml="12px" fontSize="12px">
+                          <AlertTriangle stroke={theme.jediPink} size="16px" />
+                          <ThemedText.UtilityBadge ml="12px" fontSize="12px" fontWeight={600}>
                             <Trans>
                               Your position will not earn fees or be used in trades until the market price moves into
                               your range.
                             </Trans>
-                          </ThemedText.DeprecatedYellow>
+                          </ThemedText.UtilityBadge>
                         </RowBetween>
                       </YellowCard>
                     )}
                     {invalidRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
-                        <RowBetween>
-                          <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
-                          <ThemedText.DeprecatedYellow ml="12px" fontSize="12px">
+                        <Row>
+                          <AlertTriangle stroke={theme.jediPink} size="16px" />
+                          <ThemedText.UtilityBadge ml="12px" fontSize="12px" fontWeight={600}>
                             <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
-                          </ThemedText.DeprecatedYellow>
-                        </RowBetween>
+                          </ThemedText.UtilityBadge>
+                        </Row>
                       </YellowCard>
                     )}
                   </DynamicSection>
