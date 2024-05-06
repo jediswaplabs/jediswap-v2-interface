@@ -212,8 +212,9 @@ export default function PoolDetails() {
 
   //fetch pools data
   useEffect(() => {
+    let ignore = false;
     const getPoolsData = async () => {
-      if (!tokenList || ! chainId) {
+      if (!tokenList) {
         return
       }
       const whitelistedIds = tokenList.tokens.map((token) => token.address)
@@ -221,12 +222,18 @@ export default function PoolDetails() {
       const poolsDataRaw: any = await getAllPools(graphqlClient, whitelistedIds)
       if (poolId && poolsDataRaw) {
         const poolData: any = poolsDataRaw.find((data: any) => data?.poolAddress === poolId)
-
-        setpoolData(poolData)
+        if (!ignore) {
+          if (poolData) {
+            setpoolData(poolData)
+          }
+        }
       }
     }
 
     getPoolsData()
+    return () => {
+      ignore = true
+    }
   }, [lists, chainId])
 
 

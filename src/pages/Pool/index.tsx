@@ -331,11 +331,11 @@ export function PositionDetails(props: any) {
   if (token0 && token1) {
     filteredPositions = positions?.filter(pos => {
       //@ts-ignore
-       //@ts-ignore
+      //@ts-ignore
       if (pos?.token0.toString(16) === token0.slice(2) && pos?.token1.toString(16) === token1.slice(2)) {
         return true
       }
-       //@ts-ignore
+      //@ts-ignore
       if (pos?.token0.toString(16) === token1.slice(2) && pos?.token1.toString(16) === token0.slice(2)) {
         return true
       }
@@ -446,8 +446,9 @@ export default function Pool() {
   const graphqlClient = getClient(chainId)
   //fetch pools data
   useEffect(() => {
+    let ignore = false;
     const getPoolsData = async () => {
-      if (!tokenList || !chainId) {
+      if (!tokenList) {
         return
       }
       const whitelistedIds = tokenList.tokens.map((token) => token.address)
@@ -463,7 +464,7 @@ export default function Pool() {
       poolsDataRaw?.forEach((data) => {
         const rewardName = data?.token0?.symbol + '/' + data?.token1?.symbol
         const rewardsDataList = jediRewards[rewardName]
-        const rewardsData = rewardsDataList?.length ? rewardsDataList[rewardsDataList.length -1] : null
+        const rewardsData = rewardsDataList?.length ? rewardsDataList[rewardsDataList.length - 1] : null
         // console.log(rewardName, rewardsData)
 
         if (rewardsData) {
@@ -474,18 +475,21 @@ export default function Pool() {
 
         poolsData[data.poolAddress] = data
       })
-      setpoolsData(poolsData)
+      if (!ignore) {
+        setpoolsData(poolsData)
+      }
     }
 
     getPoolsData()
+    return () => {
+      ignore = true
+    }
   }, [lists, chainId])
 
-   //fetch global pools data data
-   useEffect(() => {
+  //fetch global pools data data
+  useEffect(() => {
+    let ignore = false;
     const getGlobalPoolsData = async () => {
-      if (!chainId) {
-        return
-      }
       try {
         const historicalData = await graphqlClient.query({
           query: HISTORICAL_GLOBAL_DATA(),
@@ -493,20 +497,25 @@ export default function Pool() {
         })
         const oneDayData = historicalData.data.factoriesData[0][apiTimeframeOptions.oneDay]
         const twoDaysData = historicalData.data.factoriesData[0][apiTimeframeOptions.twoDays]
-        setGlobalPoolsData({
-          totalValueLockedUSD: oneDayData.totalValueLockedUSD,
-          totalValueLockedUSDChange: getPercentChange(oneDayData.totalValueLockedUSD, oneDayData.totalValueLockedUSDFirst),
-          volumeUSD: oneDayData.volumeUSD,
-          volumeUSDChange: get2DayPercentChange(oneDayData.volumeUSD, twoDaysData.volumeUSD),
-          feesUSD: oneDayData.feesUSD,
-          feesUSDChange: get2DayPercentChange(oneDayData.feesUSD, twoDaysData.feesUSD),
-        })
-      } catch(e) {
+        if (!ignore) {
+          setGlobalPoolsData({
+            totalValueLockedUSD: oneDayData.totalValueLockedUSD,
+            totalValueLockedUSDChange: getPercentChange(oneDayData.totalValueLockedUSD, oneDayData.totalValueLockedUSDFirst),
+            volumeUSD: oneDayData.volumeUSD,
+            volumeUSDChange: get2DayPercentChange(oneDayData.volumeUSD, twoDaysData.volumeUSD),
+            feesUSD: oneDayData.feesUSD,
+            feesUSDChange: get2DayPercentChange(oneDayData.feesUSD, twoDaysData.feesUSD),
+          })
+        }
+      } catch (e) {
         console.log(e)
       }
     }
 
     getGlobalPoolsData()
+    return () => {
+      ignore = true
+    }
   }, [chainId])
 
   const toggleWalletDrawer = useToggleAccountDrawer()
@@ -520,21 +529,21 @@ export default function Pool() {
   const poolsTable = (
     <div>
       <OnlyRewardedSwitcherContainer>
-          <OnlyRewardedSwitcherLabel>Only Pools with Rewards</OnlyRewardedSwitcherLabel>
-          <OnlyRewardedSwitcher
-            onChange={(checked) => setShowRewardedOnly(checked)}
-            checked={showRewardedOnly}
-            handleDiameter={20}
-            uncheckedIcon={false}
-            checkedIcon={false}
-            width={35}
-            height={14}
-            offHandleColor={'#959595'}
-            onHandleColor={'#50D5FF'}
-            offColor={'#372554'}
-            onColor={'#26346d'}
-          />
-        </OnlyRewardedSwitcherContainer>
+        <OnlyRewardedSwitcherLabel>Only Pools with Rewards</OnlyRewardedSwitcherLabel>
+        <OnlyRewardedSwitcher
+          onChange={(checked) => setShowRewardedOnly(checked)}
+          checked={showRewardedOnly}
+          handleDiameter={20}
+          uncheckedIcon={false}
+          checkedIcon={false}
+          width={35}
+          height={14}
+          offHandleColor={'#959595'}
+          onHandleColor={'#50D5FF'}
+          offColor={'#372554'}
+          onColor={'#26346d'}
+        />
+      </OnlyRewardedSwitcherContainer>
       <Panel style={{ padding: '0' }}>
         <Pools pairs={poolsData} disbaleLinks={true} showRewardedOnly={showRewardedOnly} />
       </Panel>
