@@ -28,11 +28,11 @@ export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {
 
 export const POOL_CLASS_HASH = {
   [ChainId.MAINNET]: '0x426a4fb3b82644a07dbab45099214976f880d7aba0d399c88f59297a3cf1aa6',
-  [ChainId.GOERLI]: '0x426a4fb3b82644a07dbab45099214976f880d7aba0d399c88f59297a3cf1aa6',
+  [ChainId.GOERLI]: '0x2cd3c16a0112b22ded4903707f268125fcf46fd7733761e62c13fc0157afd8d',
 }
 export const FACTORY_ADDRESS = {
   [ChainId.MAINNET]: '0x07bf9f8fc91a0c0814a254c8e77218620801e077d090cb627fa9a25674ce2970',
-  [ChainId.GOERLI]: '0x06dbda35590e23a4eb5f4550e4f783d3d3dc1f3cb7009dae72cf382fed225a0e',
+  [ChainId.GOERLI]: '0x050d3df81b920d3e608c4f7aeb67945a830413f618a1cf486bdcce66a395109c',
 }
 
 export const FACTORY_ADDRESS_CLASS_HASH: { [chainId in ChainId]: string } = {
@@ -42,11 +42,11 @@ export const FACTORY_ADDRESS_CLASS_HASH: { [chainId in ChainId]: string } = {
 
 export const NONFUNGIBLE_POOL_MANAGER_ADDRESS: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: '0x045cb97368b10d6a5345bf7cfde71bc99360687451519a0e2a3508b32f50ece0',
-  [ChainId.GOERLI]: '0x0039f2ddabfabc3ff69c27870ef5d10d5af29a268166e5cd5a557c2a0305e714',
+  [ChainId.GOERLI]: '0x024fd9721eea36cf8cebc226fd9414057bbf895b47739822f849f622029f9399',
 }
 export const SWAP_ROUTER_ADDRESS_V2 = {
   [ChainId.MAINNET]: '0x039c6dac17d1968f5bbbf65b4180fc3cb83cfea08147cbb1950e053f647d21f8',
-  [ChainId.GOERLI]: '0x05e50cdc6062f96efdb7f871e04a8f878c827b8941cd4b4ddbc4d861e625b478',
+  [ChainId.GOERLI]: '0x03c8e56d7f6afccb775160f1ae3b69e3db31b443e544e56bd845d8b3b3a87a21',
 }
 
 export const SWAP_ROUTER_ADDRESS_V1 = {
