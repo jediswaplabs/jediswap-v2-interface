@@ -38,7 +38,7 @@ import { useIsSwapUnsupported } from 'hooks/useIsSwapUnsupported'
 import { useMaxAmountIn } from 'hooks/useMaxAmountIn'
 import usePermit2Allowance, { AllowanceState } from 'hooks/usePermit2Allowance'
 import usePrevious from 'hooks/usePrevious'
-import { useTraderReferralCode, useUserCode } from 'hooks/useReferral'
+import { useTraderReferralCode } from 'hooks/useReferral'
 import { SwapResult, useSwapCallback } from 'hooks/useSwapCallback'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useUSDPrice } from 'hooks/useUSDPrice'
@@ -55,6 +55,7 @@ import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { warningSeverity } from 'utils/prices'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
+import { isAddressValidForStarknet } from 'utils/addresses'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -154,7 +155,10 @@ export default function SwapPage({ className }: { className?: string }) {
   useEffect(() => {
     if (loadedUrlParams?.referralCode) {
       //set referral code in local storage if the current stored is not this one
-      if (loadedUrlParams?.referralCode !== localStorage.getItem('referralCode')) {
+      if (
+        loadedUrlParams?.referralCode !== localStorage.getItem('referralCode') &&
+        isAddressValidForStarknet(loadedUrlParams?.referralCode) !== false
+      ) {
         localStorage.setItem('referralCode', loadedUrlParams?.referralCode)
       }
     }
@@ -248,7 +252,6 @@ export function Swap({
 }) {
   const connectionReady = useConnectionReady()
   const referralContract = useReferralContract()
-  const { data: userReferralCode } = useUserCode()
 
   const { address, account, chainId: connectedChainId } = useAccountDetails()
   const swapRouterAddressV2 = SWAP_ROUTER_ADDRESS_V2[connectedChainId ?? DEFAULT_CHAIN_ID]
@@ -589,7 +592,7 @@ export function Swap({
     const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
 
-    if (urlReferralCode && urlReferralCode !== userReferralCode && registeredReferralCode === undefined) {
+    if (urlReferralCode && registeredReferralCode === undefined) {
       const referralCode = {
         _code: cairo.felt(urlReferralCode),
       }

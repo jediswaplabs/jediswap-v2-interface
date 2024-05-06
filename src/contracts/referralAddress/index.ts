@@ -5,8 +5,8 @@ import REFERRAL_ABI from './abi.json'
 // change ABI and Contracts
 
 const REFERRAL_ADDRESS: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]: '0x247b0a6a2170b2891280f36488220a57f7fe5446ae0d13c4fe883fc29c3cf8a',
-  [ChainId.GOERLI]: '0x247b0a6a2170b2891280f36488220a57f7fe5446ae0d13c4fe883fc29c3cf8a',
+  [ChainId.MAINNET]: '0x7d6d06a46ed9c270254f5ac7c02792b8acfd08e7b4d102ef3ac3de4fb972b6f',
+  [ChainId.GOERLI]: '0x7d6d06a46ed9c270254f5ac7c02792b8acfd08e7b4d102ef3ac3de4fb972b6f',
 }
 
 export { REFERRAL_ABI, REFERRAL_ADDRESS }

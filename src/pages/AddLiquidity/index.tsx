@@ -13,7 +13,7 @@ import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useApprovalCall } from 'hooks/useApproveCall'
 import usePrevious from 'hooks/usePrevious'
-import { useTraderReferralCode, useUserCode } from 'hooks/useReferral'
+import { useTraderReferralCode } from 'hooks/useReferral'
 import { BodyWrapper } from 'pages/AppBody'
 import { Call, CallData, cairo } from 'starknet'
 import {
@@ -218,7 +218,6 @@ function AddLiquidity() {
   }, [mintCallData])
 
   const referralContract = useReferralContract()
-  const { data: userReferralCode, error: userCodeError } = useUserCode()
   const { data: registeredReferralCode, error: tradeReferralCodeError } = useTraderReferralCode()
 
   async function onAdd() {
@@ -232,8 +231,7 @@ function AddLiquidity() {
       !quoteCurrency ||
       !parsedAmounts ||
       !referralContract ||
-      !!tradeReferralCodeError ||
-      !!userCodeError
+      !!tradeReferralCodeError
     ) {
       return
     }
@@ -257,7 +255,7 @@ function AddLiquidity() {
       const router_address: string = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
       const callData = []
       const urlReferralCode = localStorage.getItem('referralCode')
-      if (urlReferralCode && urlReferralCode !== userReferralCode && registeredReferralCode === undefined) {
+      if (urlReferralCode && registeredReferralCode === undefined) {
         const referralCode = {
           _code: cairo.felt(urlReferralCode),
         }
