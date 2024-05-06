@@ -844,7 +844,7 @@ function PositionPageContent() {
               {ownsNFT && (
                 <ActionButtonResponsiveRow>
                   {currency0 && currency1 && feeAmount && tokenId ? (
-                    <ButtonGray
+                    <SmallButtonPrimary
                       as={Link}
                       to={`/increase/${currencyId(currency0)}/${currencyId(currency1)}/${feeAmount}/${tokenId}`}
                       padding="6px 8px"
@@ -853,18 +853,19 @@ function PositionPageContent() {
                       style={{ marginRight: '8px' }}
                     >
                       <Trans>Increase liquidity</Trans>
-                    </ButtonGray>
+                    </SmallButtonPrimary>
                   ) : null}
                   {tokenId && !removed ? (
-                    <SmallButtonPrimary
+                    <ButtonGray
                       as={Link}
                       to={`/remove/${tokenId}`}
                       padding="6px 8px"
                       width="fit-content"
                       $borderRadius="12px"
+                      style={{color: theme.jediWhite}}
                     >
                       <Trans>Remove liquidity</Trans>
-                    </SmallButtonPrimary>
+                    </ButtonGray>
                   ) : null}
                 </ActionButtonResponsiveRow>
               )}

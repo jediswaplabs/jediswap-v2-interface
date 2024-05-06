@@ -250,7 +250,7 @@ export function useV3DerivedMintInfo(
       [Bound.LOWER]:
         typeof existingPosition?.tickLower === 'number'
           ? existingPosition.tickLower
-          : (invertPrice && typeof rightRangeTypedValue === 'boolean') ||
+          : (invertPrice && (typeof rightRangeTypedValue === 'boolean' || rightRangeTypedValue === '∞')) ||
             (!invertPrice && typeof leftRangeTypedValue === 'boolean')
           ? tickSpaceLimits[Bound.LOWER]
           : invertPrice
@@ -260,7 +260,7 @@ export function useV3DerivedMintInfo(
         typeof existingPosition?.tickUpper === 'number'
           ? existingPosition.tickUpper
           : (!invertPrice && typeof rightRangeTypedValue === 'boolean') ||
-            (invertPrice && typeof leftRangeTypedValue === 'boolean')
+            (invertPrice && (typeof leftRangeTypedValue === 'boolean' || leftRangeTypedValue === '0'))
           ? tickSpaceLimits[Bound.UPPER]
           : invertPrice
           ? tryParseTick(token1, token0, feeAmount, leftRangeTypedValue.toString())
