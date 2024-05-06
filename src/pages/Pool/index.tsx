@@ -36,6 +36,7 @@ import { providerInstance } from 'utils/getLibrary'
 import { cairo, hash, num, uint256 } from 'starknet'
 import JSBI from 'jsbi'
 import { getClient } from 'apollo/client'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -451,7 +452,9 @@ export default function Pool() {
       if (!tokenList) {
         return
       }
-      const whitelistedIds = tokenList.tokens.map((token) => token.address)
+      const chainIdFilter = chainId ? chainId : ChainId.MAINNET
+      //@ts-ignore
+      const whitelistedIds = tokenList.tokens.filter(token=> token.chainId == chainIdFilter).map((token) => token.address)
       whitelistedIds.push('0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') //add ETH token
       const poolsDataRaw = await getAllPools(graphqlClient, whitelistedIds)
       const rewardsResp = await fetch(STARKNET_REWARDS_API_URL)
