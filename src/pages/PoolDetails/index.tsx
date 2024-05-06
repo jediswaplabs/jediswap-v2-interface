@@ -13,7 +13,7 @@ import { TokenDescription } from 'components/Tokens/TokenDetails/TokenDescriptio
 import { getValidUrlChainName, supportedChainIdFromGQLChain } from 'graphql/data/util'
 import { usePoolData } from 'graphql/thegraph/PoolData'
 import { BREAKPOINTS } from 'theme'
-import { isAddressValidForStarknet } from 'utils/addresses'
+import { isAddressValid } from 'utils/addresses'
 import { PoolDetailsHeader } from './PoolDetailsHeader'
 import { PoolDetailsStats } from './PoolDetailsStats'
 import { PoolDetailsStatsButtons } from './PoolDetailsStatsButtons'
@@ -109,8 +109,7 @@ export default function PoolDetailsPage() {
   const [isReversed, toggleReversed] = useReducer((x) => !x, false)
   const token0 = isReversed ? poolData?.token1 : poolData?.token0
   const token1 = isReversed ? poolData?.token0 : poolData?.token1
-  const isInvalidPool =
-    !chainName || !poolAddress || !getValidUrlChainName(chainName) || !isAddressValidForStarknet(poolAddress)
+  const isInvalidPool = !chainName || !poolAddress || !getValidUrlChainName(chainName) || !isAddressValid(poolAddress)
   const poolNotFound = (!loading && !poolData) || isInvalidPool
 
   if (poolNotFound) {

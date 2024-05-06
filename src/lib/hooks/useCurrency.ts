@@ -11,8 +11,8 @@ import { useEffect, useMemo } from 'react'
 
 import { DEFAULT_CHAIN_ID, DEFAULT_ERC20_DECIMALS, WETH } from '../../constants/tokens'
 // import { TOKEN_SHORTHANDS } from '../../constants/tokens'
-import { isAddress } from '../../utils'
-import { isAddressValidForStarknet } from 'utils/addresses'
+import { isAddressValidForERC20 } from '../../utils'
+import { isAddressValid } from 'utils/addresses'
 import { useContractRead } from '@starknet-react/core'
 import ERC20_ABI from 'abis/erc20.json'
 import { BlockTag, cairo, num, shortString } from 'starknet'
@@ -65,7 +65,7 @@ export function parseStringFromArgs(data: any, isHexNumber?: boolean): string | 
 export function useTokenFromActiveNetwork(tokenAddress: string | undefined): Token | null | undefined {
   const { chainId } = useAccountDetails()
 
-  const formattedAddress = isAddressValidForStarknet(tokenAddress)
+  const formattedAddress = isAddressValid(tokenAddress)
   const tokenContract = useTokenContract(formattedAddress ? formattedAddress : undefined, false)
 
   // TODO (WEB-1709): reduce this to one RPC call instead of 5
@@ -116,7 +116,7 @@ type TokenMap = { [address: string]: Token }
  */
 export function useTokenFromMapOrNetwork(tokens: TokenMap, tokenAddress?: string | null): Token | undefined {
   const { chainId } = useAccountDetails()
-  const address = isAddressValidForStarknet(tokenAddress)
+  const address = isAddressValid(tokenAddress)
   const token: Token | undefined =
     WETH[chainId ?? DEFAULT_CHAIN_ID].address === address
       ? WETH[chainId ?? DEFAULT_CHAIN_ID]

@@ -21,7 +21,7 @@ import {
   TransactionDetailsPartsFragment,
 } from 'graphql/data/types-and-hooks'
 import { gqlToCurrency, logSentryErrorForUnsupportedChain, supportedChainIdFromGQLChain } from 'graphql/data/util'
-import { isAddressValidForStarknet } from 'utils/addresses'
+import { isAddressValid } from 'utils/addresses'
 import { isSameAddress } from 'utils/addresses'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { MOONPAY_SENDER_ADDRESSES, OrderStatusTable, OrderTextTable } from '../constants'
@@ -266,14 +266,14 @@ function parseSendReceive(
         : {
             title: t`Received`,
             descriptor: `${amount} ${assetName} ${t`from`} `,
-            otherAccount: isAddressValidForStarknet(transfer.sender) || undefined,
+            otherAccount: isAddressValid(transfer.sender) || undefined,
             currencies,
           }
     }
     return {
       title: t`Sent`,
       descriptor: `${amount} ${assetName} ${t`to`} `,
-      otherAccount: isAddressValidForStarknet(transfer.recipient) || undefined,
+      otherAccount: isAddressValid(transfer.recipient) || undefined,
       currencies,
     }
   }

@@ -8,7 +8,7 @@ import { useMemo } from 'react'
 
 import { nativeOnChain } from '../../constants/tokens'
 import { useInterfaceMulticall } from '../../hooks/useContract'
-import { isAddress } from '../../utils'
+import { isAddressValidForERC20 } from '../../utils'
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
@@ -23,7 +23,7 @@ export function useNativeCurrencyBalances(uncheckedAddresses?: (string | undefin
     () =>
       uncheckedAddresses
         ? uncheckedAddresses
-            .map(isAddress)
+            .map(isAddressValidForERC20)
             .filter((a): a is string => a !== false)
             .sort()
             .map((addr) => [addr])
@@ -57,7 +57,7 @@ export function useTokenBalancesWithLoadingIndicator(
 ): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
   const { chainId } = useAccountDetails() // we cannot fetch balances cross-chain
   // const validatedTokens: Token[] = useMemo(
-  //   () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId) ?? [],
+  //   () => tokens?.filter((t?: Token): t is Token => isAddressValidForERC20(t?.address) !== false && t?.chainId === chainId) ?? [],
   //   [chainId, tokens]
   // )
   const validatedTokens: Token[] = []

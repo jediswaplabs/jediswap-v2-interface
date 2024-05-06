@@ -1,8 +1,8 @@
 import { FunctionAbi, Calldata } from 'starknet'
 import { createAction } from '@reduxjs/toolkit'
-import { isAddress } from '../../utils'
+import { isAddressValidForERC20 } from '../../utils'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { isAddressValidForStarknet } from 'utils/addresses'
+import { isAddressValid } from 'utils/addresses'
 
 export interface Call {
   address: string
@@ -19,7 +19,7 @@ export function callDataToString(data: Calldata): string {
 const ADDRESS_REGEX = /^0x[a-fA-F0-9]{1,63}$/
 const LOWER_HEX_REGEX = /^0x[a-f0-9]*$/
 export function toCallKey(call: Call): string {
-  if (!isAddressValidForStarknet(call.address)) {
+  if (!isAddressValid(call.address)) {
     throw new Error(`Invalid address: ${call.address}`)
   }
   //   if (!LOWER_HEX_REGEX.test(call.calldata)) {
