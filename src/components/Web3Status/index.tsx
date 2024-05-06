@@ -17,7 +17,7 @@ import { Portal } from 'nft/components/common/Portal'
 import { useAppSelector } from 'state/hooks'
 import { flexRowNoWrap } from 'theme/styles'
 import { shortenAddress } from 'utils'
-import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
+import { BaseButton, ButtonPrimary, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
 import { RowBetween } from '../Row'
 import { useStarkName } from '@starknet-react/core'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
@@ -42,7 +42,6 @@ const Web3StatusConnectWrapper = styled.div`
   background-color: ${({ theme }) => theme.surface5};
   border: none;
   color: ${({ theme }) => theme.white};
-  padding: 10px 24px;
 `
 
 const Web3StatusConnected = styled(Web3StatusGeneric)<{
@@ -139,9 +138,9 @@ function Web3StatusInner() {
   } else {
     return (
       <Web3StatusConnectWrapper tabIndex={0} onClick={handleWalletDropdownClick}>
-        <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet">
-          <Trans>Connect</Trans>
-        </StyledConnectButton>
+        <ButtonPrimary tabIndex={-1} data-testid="navbar-connect-wallet" style={{padding: "10px 25px"}}>
+          <Trans>Connect wallet</Trans>
+        </ButtonPrimary>
       </Web3StatusConnectWrapper>
     )
   }
