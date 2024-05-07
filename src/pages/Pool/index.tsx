@@ -18,7 +18,7 @@ import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { isSupportedChain } from 'constants/chains'
 // import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
 import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
-import { FlattenedPositions, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
+import { FlattenedPositions, useTokenIds, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
 import { useUserHideClosedPositions } from 'state/user/hooks'
 import { ThemedText } from 'theme/components'
 import { LoadingRows } from './styled'
@@ -403,47 +403,13 @@ export function PositionDetails(props: any) {
 export default function Pool() {
   const [poolsData, setpoolsData] = useState<any[] | undefined>([])
   const { address, chainId } = useAccountDetails()
-  const [tokenIds, setTokenIds] = useState<number[]>([])
-  const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
+  
+  const { tokenIds, loading: loadingPositions } = useTokenIds(address, chainId);
+
   const [showMyPositions, setShowMyPositions] = useState<boolean>(false)
   const [showRewardedOnly, setShowRewardedOnly] = useState(false)
   const [globalPoolsData, setGlobalPoolsData] = useState<any>({})
 
-  //fetch Token Ids
-  useEffect(() => {
-    const getTokenIds = async () => {
-      if (address && chainId) {
-        setLoadingPositions(true)
-        const provider = providerInstance(chainId ?? DEFAULT_CHAIN_ID)
-        const contract_address = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
-        const tokenIdsResults = await provider.callContract({
-          entrypoint: 'get_all_tokens_for_owner',
-          contractAddress: contract_address,
-          calldata: [address],
-        })
-        if (tokenIdsResults && tokenIdsResults.result) {
-          // Slice the first index
-          const tokenIdsResultsArr = tokenIdsResults.result
-
-          //converting array of uint256 tokenids into bn
-          const tokenIdsResultsArrWithoutLength = tokenIdsResultsArr.slice(1)
-          const returnDataIterator = tokenIdsResultsArrWithoutLength.flat()[Symbol.iterator]()
-          const tokenIdsArray = [...Array(tokenIdsResultsArrWithoutLength.length / 2)].map(() => {
-            return Number(
-              uint256.uint256ToBN({ low: returnDataIterator.next().value, high: returnDataIterator.next().value })
-            )
-          })
-          setTokenIds(tokenIdsArray)
-        }
-        setLoadingPositions(false)
-      }
-    }
-
-    getTokenIds()
-  }, [chainId, address])
-
-
-  //TODO add sepolia site chainId
   const chainIdFinal = chainId || ChainId.MAINNET
   const allTokens = useDefaultActiveTokens(chainIdFinal)
   const whitelistedIds = Object.keys(allTokens)

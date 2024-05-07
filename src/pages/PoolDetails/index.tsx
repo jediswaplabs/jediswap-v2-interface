@@ -23,6 +23,7 @@ import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { providerInstance } from 'utils/getLibrary'
 import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { cairo, hash, num, uint256 } from 'starknet'
+import { useTokenIds } from 'hooks/useV3Positions'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -185,8 +186,7 @@ export default function PoolDetails() {
   const [poolData, setpoolData] = useState<any | undefined>({})
   const { address, chainId } = useAccountDetails()
 
-  const [tokenIds, setTokenIds] = useState<number[]>([])
-  const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
+  const { tokenIds, loading: loadingPositions } = useTokenIds(address, chainId);
 
   const toggleWalletDrawer = useToggleAccountDrawer()
   const showConnectAWallet = Boolean(!address)
@@ -195,39 +195,6 @@ export default function PoolDetails() {
   const allTokens = useDefaultActiveTokens(chainIdFinal)
   const whitelistedIds = Object.keys(allTokens)
   const graphqlClient = getClient(chainIdFinal)
-
-  //fetch Token Ids
-  useEffect(() => {
-    const getTokenIds = async () => {
-      if (address && chainId) {
-        setLoadingPositions(true)
-        const provider = providerInstance(chainId ?? DEFAULT_CHAIN_ID)
-        const contract_address = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
-        const tokenIdsResults = await provider.callContract({
-          entrypoint: 'get_all_tokens_for_owner',
-          contractAddress: contract_address,
-          calldata: [address],
-        })
-        if (tokenIdsResults && tokenIdsResults.result) {
-          // Slice the first index
-          const tokenIdsResultsArr = tokenIdsResults.result
-
-          //converting array of uint256 tokenids into bn
-          const tokenIdsResultsArrWithoutLength = tokenIdsResultsArr.slice(1)
-          const returnDataIterator = tokenIdsResultsArrWithoutLength.flat()[Symbol.iterator]()
-          const tokenIdsArray = [...Array(tokenIdsResultsArrWithoutLength.length / 2)].map(() => {
-            return Number(
-              uint256.uint256ToBN({ low: returnDataIterator.next().value, high: returnDataIterator.next().value })
-            )
-          })
-          setTokenIds(tokenIdsArray)
-        }
-        setLoadingPositions(false)
-      }
-    }
-
-    getTokenIds()
-  }, [chainId, address])
 
   //fetch pools data
   useEffect(() => {
