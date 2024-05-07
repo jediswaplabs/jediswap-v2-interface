@@ -332,7 +332,6 @@ export function PositionDetails(props: any) {
   if (token0 && token1) {
     filteredPositions = positions?.filter(pos => {
       //@ts-ignore
-      //@ts-ignore
       if (pos?.token0.toString(16) === token0.slice(2) && pos?.token1.toString(16) === token1.slice(2) && pos?.fee === fee) {
         return true
       }

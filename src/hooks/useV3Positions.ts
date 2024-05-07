@@ -61,7 +61,6 @@ const flattenedPositionsV3 = (positionsV3: FlattenedPositions): FlattenedPositio
 
 const usePositionResults = (tokenId: number): UseV3Positions => {
   const { chainId } = useAccountDetails()
-
   const { data, isLoading, error } = useContractRead({
     functionName: 'get_position',
     args: [cairo.uint256(tokenId)],
@@ -264,7 +263,6 @@ export function useTokenIds(address: string | undefined, chainId: ChainId | unde
   useEffect(() => {
     const getTokenIds = async () => {
       if (address && chainId) {
-        console.log('getTokenIds', chainId)
         setLoading(true)
         const provider = providerInstance(chainId ?? DEFAULT_CHAIN_ID)
         const contract_address = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
