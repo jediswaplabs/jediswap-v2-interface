@@ -382,6 +382,7 @@ export default function PoolDetails() {
           tokenIds={tokenIds}
           token0={poolData?.token0?.tokenAddress}
           token1={poolData?.token1?.tokenAddress}
+          fee={poolData?.fee}
           showConnectAWallet={showConnectAWallet}
           toggleWalletDrawer={toggleWalletDrawer}
         />

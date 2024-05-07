@@ -325,7 +325,7 @@ function WrongNetworkCard() {
 
 export function PositionDetails(props: any) {
   const { address } = useAccountDetails()
-  const { tokenIds, showConnectAWallet, toggleWalletDrawer, token0, token1 } = props
+  const { tokenIds, showConnectAWallet, toggleWalletDrawer, token0, token1, fee } = props
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
   const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds, address)
   let filteredPositions = positions
@@ -333,11 +333,11 @@ export function PositionDetails(props: any) {
     filteredPositions = positions?.filter(pos => {
       //@ts-ignore
       //@ts-ignore
-      if (pos?.token0.toString(16) === token0.slice(2) && pos?.token1.toString(16) === token1.slice(2)) {
+      if (pos?.token0.toString(16) === token0.slice(2) && pos?.token1.toString(16) === token1.slice(2) && pos?.fee === fee) {
         return true
       }
       //@ts-ignore
-      if (pos?.token0.toString(16) === token1.slice(2) && pos?.token1.toString(16) === token0.slice(2)) {
+      if (pos?.token0.toString(16) === token1.slice(2) && pos?.token1.toString(16) === token0.slice(2) && pos?.fee === fee) {
         return true
       }
       return false
