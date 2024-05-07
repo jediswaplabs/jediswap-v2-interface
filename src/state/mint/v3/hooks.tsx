@@ -250,7 +250,7 @@ export function useV3DerivedMintInfo(
       [Bound.LOWER]:
         typeof existingPosition?.tickLower === 'number'
           ? existingPosition.tickLower
-          : (invertPrice && typeof rightRangeTypedValue === 'boolean') ||
+          : (invertPrice && (typeof rightRangeTypedValue === 'boolean' || rightRangeTypedValue === '∞')) ||
             (!invertPrice && typeof leftRangeTypedValue === 'boolean')
           ? tickSpaceLimits[Bound.LOWER]
           : invertPrice
