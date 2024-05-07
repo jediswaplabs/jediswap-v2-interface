@@ -7,7 +7,6 @@ import { validateAndParseAddress } from 'starknet'
 import { AutoColumn } from "components/Column";
 import Row, { AutoRow, RowBetween, RowFixed } from "components/Row";
 import { formattedNum, formattedPercent } from "utils/dashboard";
-import { useAllLists } from 'state/lists/hooks';
 import { getAllPools } from 'graphql/data/PoolsData';
 import { useDefaultActiveTokens } from 'hooks/Tokens'
 import { useAccountDetails } from 'hooks/starknet-react'
@@ -181,10 +180,7 @@ const ResponsiveButtonPrimary = styled(ButtonPrimary)`
 export default function PoolDetails() {
   const { poolId } = useParams<{ poolId?: string }>()
   const [poolData, setpoolData] = useState<any | undefined>({})
-  const lists = useAllLists()
-  const tokenList = Object.values(lists)[0]?.current
   const { address, chainId } = useAccountDetails()
-  const allTokens = useDefaultActiveTokens(chainId)
 
   const [tokenIds, setTokenIds] = useState<number[]>([])
   const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
@@ -192,7 +188,10 @@ export default function PoolDetails() {
   const toggleWalletDrawer = useToggleAccountDrawer()
   const showConnectAWallet = Boolean(!address)
 
-  const graphqlClient = getClient(chainId)
+  const chainIdFinal = chainId || ChainId.MAINNET
+  const allTokens = useDefaultActiveTokens(chainIdFinal)
+  const whitelistedIds = Object.keys(allTokens)
+  const graphqlClient = getClient(chainIdFinal)
 
   //fetch Token Ids
   useEffect(() => {
@@ -215,14 +214,10 @@ export default function PoolDetails() {
   useEffect(() => {
     let ignore = false;
     const getPoolsData = async () => {
-      if (!tokenList) {
+      if (whitelistedIds.length === 0) {
         return
       }
-      const chainIdFilter = chainId ? chainId : ChainId.MAINNET
-      //@ts-ignore
-      const whitelistedIds = tokenList.tokens.filter(token=> token.chainId == chainIdFilter).map((token) => token.address)
-      whitelistedIds.push('0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') //add ETH token
-      const poolsDataRaw: any = await getAllPools(graphqlClient, whitelistedIds)
+      const poolsDataRaw: any = await getAllPools(graphqlClient, [...whitelistedIds, '0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7']) //add ETH token
       if (poolId && poolsDataRaw) {
         const poolData: any = poolsDataRaw.find((data: any) => data?.poolAddress === poolId)
         if (!ignore) {
@@ -237,7 +232,7 @@ export default function PoolDetails() {
     return () => {
       ignore = true
     }
-  }, [lists, chainId])
+  }, [Object.keys(allTokens).join(','), chainIdFinal])
 
 
   const {
@@ -258,15 +253,15 @@ export default function PoolDetails() {
     loadingEnd,
   } = poolData
   let doubleCurrencyImageData = undefined
-  if (poolData && poolData.token0 && poolData.token1 && chainId) {
+  if (poolData && poolData.token0 && poolData.token1 && chainIdFinal) {
     doubleCurrencyImageData = {
       token0:
         poolData.token0.symbol === 'ETH'
-          ? WETH[chainId]
+          ? WETH[chainIdFinal]
           : allTokens[validateAndParseAddress(poolData.token0.tokenAddress)],
       token1:
         poolData.token1.symbol === 'ETH'
-          ? WETH[chainId]
+          ? WETH[chainIdFinal]
           : allTokens[validateAndParseAddress(poolData.token1.tokenAddress)],
     }
   }

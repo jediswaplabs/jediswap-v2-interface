@@ -24,7 +24,6 @@ import { ThemedText } from 'theme/components'
 import { LoadingRows } from './styled'
 import fetchTokenIds from 'api/fetchTokenId'
 import { getAllPools } from 'graphql/data/PoolsData'
-import { useAllLists } from 'state/lists/hooks'
 import Pools from 'components/Pools'
 import { ToggleElement, ToggleWrapper } from 'components/Toggle/MultiToggle'
 import { formattedNum, formattedPercent, get2DayPercentChange, getPercentChange } from 'utils/dashboard'
@@ -37,6 +36,7 @@ import { cairo, hash, num, uint256 } from 'starknet'
 import JSBI from 'jsbi'
 import { getClient } from 'apollo/client'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { useDefaultActiveTokens } from 'hooks/Tokens'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -442,21 +442,20 @@ export default function Pool() {
     getTokenIds()
   }, [chainId, address])
 
-  const lists = useAllLists()
-  const tokenList = Object.values(lists)[0]?.current
-  const graphqlClient = getClient(chainId)
+
+  //TODO add sepolia site chainId
+  const chainIdFinal = chainId || ChainId.MAINNET
+  const allTokens = useDefaultActiveTokens(chainIdFinal)
+  const whitelistedIds = Object.keys(allTokens)
+  const graphqlClient = getClient(chainIdFinal)
   //fetch pools data
   useEffect(() => {
     let ignore = false;
     const getPoolsData = async () => {
-      if (!tokenList) {
+      if (whitelistedIds.length === 0) {
         return
       }
-      const chainIdFilter = chainId ? chainId : ChainId.MAINNET
-      //@ts-ignore
-      const whitelistedIds = tokenList.tokens.filter(token=> token.chainId == chainIdFilter).map((token) => token.address)
-      whitelistedIds.push('0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7') //add ETH token
-      const poolsDataRaw = await getAllPools(graphqlClient, whitelistedIds)
+      const poolsDataRaw = await getAllPools(graphqlClient, [...whitelistedIds, '0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7']) //add ETH token
       const rewardsResp = await fetch(STARKNET_REWARDS_API_URL)
       const rewardsRespStr = await rewardsResp.text()
       const rewardsRespStrClean = rewardsRespStr.replace(/\bNaN\b/g, "null")
@@ -468,7 +467,6 @@ export default function Pool() {
         const rewardName = data?.token0?.symbol + '/' + data?.token1?.symbol
         const rewardsDataList = jediRewards[rewardName]
         const rewardsData = rewardsDataList?.length ? rewardsDataList[rewardsDataList.length - 1] : null
-        // console.log(rewardName, rewardsData)
 
         if (rewardsData) {
           data.aprStarknet = rewardsData.apr
@@ -487,7 +485,7 @@ export default function Pool() {
     return () => {
       ignore = true
     }
-  }, [lists, chainId])
+  }, [Object.keys(allTokens).join(','), chainIdFinal])
 
   //fetch global pools data data
   useEffect(() => {
@@ -519,7 +517,7 @@ export default function Pool() {
     return () => {
       ignore = true
     }
-  }, [chainId])
+  }, [chainIdFinal])
 
   const toggleWalletDrawer = useToggleAccountDrawer()
   // const filteredPositions = useFilterPossiblyMaliciousPositions(userSelectedPositionSet)

@@ -29,6 +29,7 @@ import { validateAndParseAddress } from 'starknet'
 import { WETH } from 'constants/tokens'
 import StarknetIcon from 'assets/svg/starknet.svg'
 import LocalLoader from 'components/LocalLoader'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 dayjs.extend(utc)
 
@@ -247,8 +248,9 @@ function PairList({
   const [maxPage, setMaxPage] = useState(1)
   const ITEMS_PER_PAGE = maxItems
   const { chainId } = useAccountDetails()
-  const allTokens = useDefaultActiveTokens(chainId)
-
+  
+  const chainIdFinal = chainId || ChainId.MAINNET
+  const allTokens = useDefaultActiveTokens(chainIdFinal)
   // sorting
   const [sortDirection, setSortDirection] = useState(true)
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ)
@@ -452,15 +454,15 @@ function PairList({
       .map((pairAddress: string, index: number) => {
         const pairData = pairs[pairAddress]
         let doubleCurrencyImageData = undefined
-        if (pairData && pairData.token0 && pairData.token1 && chainId) {
+        if (pairData && pairData.token0 && pairData.token1 && chainIdFinal) {
           doubleCurrencyImageData = {
             token0:
               pairData.token0.symbol === 'ETH'
-                ? WETH[chainId]
+                ? WETH[chainIdFinal]
                 : allTokens[validateAndParseAddress(pairData.token0.tokenAddress)],
             token1:
               pairData.token1.symbol === 'ETH'
-                ? WETH[chainId]
+                ? WETH[chainIdFinal]
                 : allTokens[validateAndParseAddress(pairData.token1.tokenAddress)],
           }
         }
