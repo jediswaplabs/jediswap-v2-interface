@@ -310,7 +310,7 @@ function parseIndependentFieldURLParameter(urlParam: any): Field {
   return typeof urlParam === 'string' && urlParam.toLowerCase() === 'output' ? Field.OUTPUT : Field.INPUT
 }
 
-function parseReferralCodeURLParameter(urlParam: any): string | null {
+export function parseReferralCodeURLParameter(urlParam: any): string | null {
   return typeof urlParam === 'string' ? urlParam : null
 }
 
@@ -340,7 +340,6 @@ export function queryParametersToSwapState(parsedQs: ParsedQs): SwapState {
   }
 
   const recipient = validatedRecipient(parsedQs.recipient)
-  const referralCode = parseReferralCodeURLParameter(parsedQs.referralCode)
 
   return {
     [Field.INPUT]: {
@@ -352,7 +351,6 @@ export function queryParametersToSwapState(parsedQs: ParsedQs): SwapState {
     typedValue,
     independentField,
     recipient,
-    referralCode,
   }
 }
 
@@ -378,7 +376,6 @@ export function useDefaultsFromURLSearch(): SwapState {
         inputCurrencyId,
         outputCurrencyId,
         recipient: parsedSwapState.recipient,
-        referralCode: parsedSwapState.referralCode,
       })
     )
   }, [dispatch, chainId, parsedSwapState])

@@ -25,6 +25,9 @@ import {
   WarningBanner,
 } from 'components/NavBar/WarningBanner'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+import { parseReferralCodeURLParameter } from 'state/swap/hooks'
+import { isAddressValidForStarknet } from 'utils/addresses'
 // import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
@@ -106,6 +109,21 @@ export default function App() {
   const scrolledState = scrollY > 0
   const routerConfig = useRouterConfig()
   const { chainId } = useAccountDetails()
+
+  const parsedQs = useParsedQueryString()
+  const referralCodeFromUrl = parseReferralCodeURLParameter(parsedQs.referralCode)
+
+  useEffect(() => {
+    if (referralCodeFromUrl) {
+      //set referral code in local storage if the current stored is not this one
+      if (
+        referralCodeFromUrl !== localStorage.getItem('referralCode') &&
+        isAddressValidForStarknet(referralCodeFromUrl) !== false
+      ) {
+        localStorage.setItem('referralCode', referralCodeFromUrl)
+      }
+    }
+  }, [referralCodeFromUrl])
 
   const isHeaderTransparent = !scrolledState
 

@@ -55,7 +55,6 @@ import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { maxAmountSpend } from 'utils/maxAmountSpend'
 import { warningSeverity } from 'utils/prices'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
-import { isAddressValidForStarknet } from 'utils/addresses'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -151,18 +150,6 @@ export default function SwapPage({ className }: { className?: string }) {
   const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
 
   const { data: traderReferralCode, isLoading: isTraderReferralCodeFetching } = useTraderReferralCode()
-
-  useEffect(() => {
-    if (loadedUrlParams?.referralCode) {
-      //set referral code in local storage if the current stored is not this one
-      if (
-        loadedUrlParams?.referralCode !== localStorage.getItem('referralCode') &&
-        isAddressValidForStarknet(loadedUrlParams?.referralCode) !== false
-      ) {
-        localStorage.setItem('referralCode', loadedUrlParams?.referralCode)
-      }
-    }
-  }, [loadedUrlParams?.referralCode])
 
   //fetch Token Ids
   useEffect(() => {
