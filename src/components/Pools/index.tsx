@@ -301,7 +301,7 @@ function PairList({
       <div>
         <img src={StarknetIcon} style={{ width: '10px' }} />
       </div>
-      <div>STRK</div>
+      <div style={{fontWeight: 500}}>STRK</div>
     </StrkBadgeOuter>
     if (pairData.rewarded) {
       rewardsBadges = <Rewards>
