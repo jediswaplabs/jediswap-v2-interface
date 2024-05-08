@@ -10,7 +10,6 @@ import { cairo, CallData, encode, num } from 'starknet'
 import { useQuery } from 'react-query'
 import { providerInstance } from 'utils/getLibrary'
 import { useAccountDetails } from './starknet-react'
-import { useV3NFTPositionManagerContract } from './useContract'
 
 type TokenId = number | JSBI | BigNumber
 
