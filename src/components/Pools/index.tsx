@@ -330,7 +330,7 @@ function PairList({
       const displayAprStarknet = formattedPercent(cleanedAprStarknet, true)
   
       const cleanedAprCommon = cleanedAprFee + cleanedAprStarknet
-      const displayAprCommon = formattedPercent(cleanedAprCommon, true, darkTheme.jediBlue)
+      const displayAprCommon = formattedPercent(cleanedAprCommon, true, darkTheme.jediBlue, 700)
 
       // const apy = ((1 + feeRatio24H) ** 365 - 1) * 100
       // const cleanedApy = isNaN(apy) || !isFinite(apy) ? 0 : apy
@@ -406,7 +406,7 @@ function PairList({
                   margin
                 />
               )}
-              <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap', marginLeft: '10px' }}>
+              <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap', marginLeft: '10px', fontWeight: 700 }}>
                 <FormattedName
                   text={pairData.token0.symbol + '-' + pairData.token1.symbol}
                   maxCharacters={below600 ? 8 : 16}

@@ -402,7 +402,7 @@ export function PositionDetails(props: any) {
 export default function Pool() {
   const [poolsData, setpoolsData] = useState<any[] | undefined>([])
   const { address, chainId } = useAccountDetails()
-  
+
   const { tokenIds, loading: loadingPositions } = useTokenIds(address, chainId);
 
   const [showMyPositions, setShowMyPositions] = useState<boolean>(false)
@@ -510,7 +510,7 @@ export default function Pool() {
           onColor={'#26346d'}
         />
       </OnlyRewardedSwitcherContainer>
-      <Panel style={{ padding: '0' }}>
+      <Panel style={{ padding: '0', fontWeight: 700, fontSize: '0.875rem' }}>
         <Pools pairs={poolsData} disbaleLinks={true} showRewardedOnly={showRewardedOnly} />
       </Panel>
     </div>
@@ -526,11 +526,11 @@ export default function Pool() {
         <PanelWrapper>
           <PanelTopLight>
             <AutoColumn gap="20px">
-              <RowBetween>
+              <RowBetween style={{ fontWeight: 700 }}>
                 Total Liquidity
               </RowBetween>
               <RowBetween align="baseline">
-                <div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
                   {formattedNum(globalPoolsData.totalValueLockedUSD, true)}
                 </div>
                 <div>
@@ -541,12 +541,12 @@ export default function Pool() {
           </PanelTopLight>
           <PanelTopLight>
             <AutoColumn gap="20px">
-              <RowBetween>
+              <RowBetween style={{ fontWeight: 700 }}>
                 Volume (24hr)
                 <div />
               </RowBetween>
               <RowBetween align="baseline">
-                <div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
                   {formattedNum(globalPoolsData.volumeUSD, true)}
                 </div>
                 <div>
@@ -557,11 +557,11 @@ export default function Pool() {
           </PanelTopLight>
           <PanelTopLight>
             <AutoColumn gap="20px">
-              <RowBetween>
+              <RowBetween style={{ fontWeight: 700 }}>
                 Total fees (24hr)
               </RowBetween>
               <RowBetween align="baseline">
-                <div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
                   {formattedNum(globalPoolsData.feesUSD, true)}
                 </div>
                 <div>
@@ -577,13 +577,13 @@ export default function Pool() {
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <ButtonRow justifyContent={'space-between'}>
             {/* <PositionsText>My Positions</PositionsText> */}
-            <ResponsiveButtonTabs secondary={false} active={!showMyPositions} onClick={() => setShowMyPositions(false)}>
+            <ResponsiveButtonTabs secondary={false} active={!showMyPositions} onClick={() => setShowMyPositions(false)} style={{fontSize: "0.875rem"}}>
               <Trans>Top Pools</Trans>
             </ResponsiveButtonTabs>
-            <ResponsiveButtonTabs secondary={true} active={showMyPositions} onClick={() => setShowMyPositions(true)}>
+            <ResponsiveButtonTabs secondary={true} active={showMyPositions} onClick={() => setShowMyPositions(true)} style={{fontSize: "0.875rem"}}>
               <Trans>My Positions</Trans>
             </ResponsiveButtonTabs>
-            <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
+            <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH" style={{fontSize: "1.125rem", fontWeight: 750 }}>
               + <Trans>New position</Trans>
             </ResponsiveButtonPrimary>
           </ButtonRow>

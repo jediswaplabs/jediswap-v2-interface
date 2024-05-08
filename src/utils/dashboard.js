@@ -21,17 +21,17 @@ export const get2DayPercentChange = (oneDayData, twoDaysData) => {
   return adjustedPercentChange
 }
 
-export function formattedPercent(percent, useAbs = false, color = '') {
+export function formattedPercent(percent, useAbs = false, color = '', fontWeight=500) {
   const green = '#21E70F'
   const red = '#FC4D4D'
   percent = parseFloat(percent)
   if (!percent || percent === 0) {
-    return <Text fontWeight={500} color={color}>0%</Text>
+    return <Text fontWeight={fontWeight} color={color}>0%</Text>
   }
 
   if (percent < 0.0001 && percent > 0) {
     return (
-      <Text fontWeight={500} color={color || green}>
+      <Text fontWeight={fontWeight} color={color || green}>
         {'< 0.0001%'}
       </Text>
     )
@@ -39,7 +39,7 @@ export function formattedPercent(percent, useAbs = false, color = '') {
 
   if (percent < 0 && percent > -0.0001) {
     return (
-      <Text fontWeight={500} color={color || red}>
+      <Text fontWeight={fontWeight} color={color || red}>
         {'< 0.0001%'}
       </Text>
     )
@@ -47,7 +47,7 @@ export function formattedPercent(percent, useAbs = false, color = '') {
 
   if (percent > 999999) {
     return (
-      <Text fontWeight={500} color={color ||  green}>
+      <Text fontWeight={fontWeight} color={color ||  green}>
         {'> 999999%'}
       </Text>
     )
@@ -55,16 +55,16 @@ export function formattedPercent(percent, useAbs = false, color = '') {
 
   let fixedPercent = percent.toFixed(2)
   if (fixedPercent === '0.00') {
-    return <Text fontWeight={500} color={color}>0%</Text>
+    return <Text fontWeight={fontWeight} color={color}>0%</Text>
   }
   if (fixedPercent > 0) {
     if (fixedPercent > 100) {
-      return <Text fontWeight={500} color={color || green}>{`${useAbs ? '' : '+'}${percent?.toFixed(0).toLocaleString()}%`}</Text>
+      return <Text fontWeight={fontWeight} color={color || green}>{`${useAbs ? '' : '+'}${percent?.toFixed(0).toLocaleString()}%`}</Text>
     } else {
-      return <Text fontWeight={500} color={color || green}>{`${useAbs ? '' : '+'}${fixedPercent}%`}</Text>
+      return <Text fontWeight={fontWeight} color={color || green}>{`${useAbs ? '' : '+'}${fixedPercent}%`}</Text>
     }
   } else {
-    return <Text fontWeight={500} color={color || red}>{`${fixedPercent}%`}</Text>
+    return <Text fontWeight={fontWeight} color={color || red}>{`${fixedPercent}%`}</Text>
   }
 }
 

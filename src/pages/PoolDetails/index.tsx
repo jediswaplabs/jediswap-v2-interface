@@ -136,14 +136,14 @@ const ResponsiveButtonTabs = styled(ButtonPrimary) <{ secondary: boolean; active
   font-family: 'DM Sans';
   border-radius: 4px;
   font-size: 16px;
-  padding: 6px 8px;
+  padding: 6px 12px;
   background: ${({ theme, active }) => (!active ? 'transparent' : theme.jediWhite)};
   box-shadow: 0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset,
     0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset;
   color: ${({ theme, active }) => (!active ? theme.jediWhite : theme.jediPink)};
-  width: 121px;
+  // width: 121px;
   margin-left: 0;
-  height: 38px;
+  height: 26px;
   &:hover {
     background: ${({ theme, active }) => (!active ? 'transparent' : theme.jediWhite)};
     color: ${({ theme, active }) => (!active ? theme.jediWhite : theme.jediPink)};
@@ -263,9 +263,9 @@ export default function PoolDetails() {
         style={{ textDecoration: 'none', width: 'fit-content', marginBottom: '0.5rem', color: '#fff' }}
         to="/pools"
       >
-        ← <span style={{ color: '#50D5FF' }}>Back to top pools</span>
+        ← <span style={{ color: '#50D5FF', fontWeight: 500 }}>Back to top pools</span>
       </Link>
-      <Row align="center" style={{ gap: '8px', marginTop: '10px' }}>
+      <Row align="center" style={{ gap: '8px', marginTop: '10px', fontSize: '1.25rem', fontWeight: 700  }}>
         {doubleCurrencyImageData && (
           <DoubleTokenLogo
             // size={below600 ? 16 : 20}
@@ -277,16 +277,16 @@ export default function PoolDetails() {
         )}
         {poolData?.token0?.symbol} - {poolData?.token1?.symbol}
         <FeeBadge>{feePercent}</FeeBadge>
-        <ResponsiveButtonPrimary as={Link} to={`/add/${poolData?.token0?.tokenAddress}/${poolData?.token1?.tokenAddress}/${poolData?.fee}`}>
+        <ResponsiveButtonPrimary as={Link} to={`/add/${poolData?.token0?.tokenAddress}/${poolData?.token1?.tokenAddress}/${poolData?.fee}`} style={{fontSize: "1.125rem", fontWeight: 750 }}>
           + New position
         </ResponsiveButtonPrimary>
       </Row>
       <AutoColumn gap="12px">
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', background: '#141451', padding: '15px', margin: '20px 0', gap: '30px' }}>
+        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', background: '#141451', padding: '15px', margin: '20px 0', gap: '30px', fontWeight: 700 }}>
           {/* <TYPE.main fontSize="16px" fontWeight={500}> */}
           Current Price:
           {/* </TYPE.main> */}
-          <div style={{ display: 'flex', gap: '20px' }}>
+          <div style={{ display: 'flex', gap: '20px', fontSize: '1.125rem', fontWeight: 700 }}>
             {currentPriceDisplayMode === 'token0' && (
               <FixedPanel style={{ width: '100%', display: 'flex', gap: '10px' }}>
                 <CurrencyLogo currency={doubleCurrencyImageData?.token0} />
@@ -301,10 +301,10 @@ export default function PoolDetails() {
             )}
           </div>
           <div style={{ display: 'flex' }}>
-            <ResponsiveButtonTabs active={currentPriceDisplayMode === 'token0'} onClick={() => setCurrentPriceDisplayMode('token0')}>
+            <ResponsiveButtonTabs active={currentPriceDisplayMode === 'token0'} onClick={() => setCurrentPriceDisplayMode('token0')} style={{fontSize: '0.875rem', borderRadius: "4px 0px 0px 4px"}}>
               {poolData?.token0?.symbol}
             </ResponsiveButtonTabs>
-            <ResponsiveButtonTabs active={currentPriceDisplayMode === 'token1'} onClick={() => setCurrentPriceDisplayMode('token1')}>
+            <ResponsiveButtonTabs active={currentPriceDisplayMode === 'token1'} onClick={() => setCurrentPriceDisplayMode('token1')} style={{fontSize: '0.875rem', borderRadius: "0px 4px 4px 0px"}}>
               {poolData?.token1?.symbol}
             </ResponsiveButtonTabs>
           </div>
@@ -315,11 +315,11 @@ export default function PoolDetails() {
         <PanelWrapper>
           <PanelTopLight>
             <AutoColumn gap="20px">
-              <RowBetween>
+              <RowBetween style={{ fontWeight: 700 }}>
                 Total Liquidity
               </RowBetween>
               <RowBetween align="baseline">
-                <div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
                   {formattedNum(totalValueLockedUSD, true)}
                 </div>
                 <div>
@@ -330,12 +330,12 @@ export default function PoolDetails() {
           </PanelTopLight>
           <PanelTopLight>
             <AutoColumn gap="20px">
-              <RowBetween>
+              <RowBetween style={{ fontWeight: 700 }}>
                 Volume (24hr)
                 <div />
               </RowBetween>
               <RowBetween align="baseline">
-                <div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
                   {formattedNum(oneDayVolumeUSD, true)}
                 </div>
                 <div>
@@ -346,11 +346,11 @@ export default function PoolDetails() {
           </PanelTopLight>
           <PanelTopLight>
             <AutoColumn gap="20px">
-              <RowBetween>
+              <RowBetween style={{ fontWeight: 700 }}>
                 Total fees (24hr)
               </RowBetween>
               <RowBetween align="baseline">
-                <div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
                   {formattedNum(oneDayFeesUSD, true)}
                 </div>
                 <div>
