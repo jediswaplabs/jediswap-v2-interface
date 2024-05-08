@@ -330,7 +330,7 @@ function PairList({
       const displayAprStarknet = formattedPercent(cleanedAprStarknet, true)
   
       const cleanedAprCommon = cleanedAprFee + cleanedAprStarknet
-      const displayAprCommon = formattedPercent(cleanedAprCommon, true)
+      const displayAprCommon = formattedPercent(cleanedAprCommon, true, darkTheme.jediBlue)
 
       // const apy = ((1 + feeRatio24H) ** 365 - 1) * 100
       // const cleanedApy = isNaN(apy) || !isFinite(apy) ? 0 : apy
@@ -422,7 +422,7 @@ function PairList({
             {/* {!below1080 && <DataText area="volWeek">{formatDataText(weekVolume, pairData.oneWeekVolumeUSD)}</DataText>} */}
             {!below1080 && <DataText area="fees">{formatDataText(fees, pairData.oneDayVolumeUSD)}</DataText>}
             {!below1080 && (
-              <DataText area="apy" color={darkTheme.jediBlue} className="apr-wrapper" data-tooltip-html={pairData.rewarded ? renderToStaticMarkup(getTooltipMarkup()) : null} data-tooltip-place="bottom-start" data-tooltip-offset={-20}>
+              <DataText area="apy" className="apr-wrapper" data-tooltip-html={pairData.rewarded ? renderToStaticMarkup(getTooltipMarkup()) : null} data-tooltip-place="bottom-start" data-tooltip-offset={-20}>
                 {formatDataText(displayAprCommon, String(displayAprCommon), pairData.oneDayVolumeUSD === 0)}
               </DataText>
             )}
