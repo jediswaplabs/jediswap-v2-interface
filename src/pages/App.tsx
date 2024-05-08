@@ -17,7 +17,6 @@ import { useRouterPreference, useUserOptedOutOfUniswapX } from 'state/user/hooks
 import { flexRowNoWrap } from 'theme/styles'
 import { Z_INDEX } from 'theme/zIndex'
 import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions'
-import useFetchAllPairsCallback from 'hooks/useFetchAllPairs'
 import {
   UK_BANNER_HEIGHT,
   UK_BANNER_HEIGHT_MD,
@@ -28,6 +27,8 @@ import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { parseReferralCodeURLParameter } from 'state/swap/hooks'
 import { isAddressValidForStarknet } from 'utils/addresses'
+import { ApolloProvider } from '@apollo/client'
+import { getClient } from 'apollo/client'
 // import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
@@ -147,34 +148,36 @@ export default function App() {
   }, [])
 
   return (
-    <ErrorBoundary>
-      {showWarning && <WarningBanner />}
-      <HeaderWrapper scrollY={scrollY} transparent={isHeaderTransparent} bannerIsVisible={showWarning}>
-        <NavBar />
-      </HeaderWrapper>
-      <BodyWrapper>
-        <Suspense fallback={<Loader />}>
-          {isLoaded ? (
-            <Routes>
-              {routes.map((route: RouteDefinition) =>
-                route.enabled(routerConfig) ? (
-                  <Route key={route.path} path={route.path} element={route.getElement(routerConfig)}>
-                    {route.nestedPaths.map((nestedPath) => (
-                      <Route path={nestedPath} key={`${route.path}/${nestedPath}`} />
-                    ))}
-                  </Route>
-                ) : null
-              )}
-            </Routes>
-          ) : (
-            <Loader />
-          )}
-        </Suspense>
-      </BodyWrapper>
-      {/* <Footer /> */}
-      <MobileBottomBar>
-        <PageTabs />
-      </MobileBottomBar>
-    </ErrorBoundary>
+    <ApolloProvider client={getClient(chainId)}>
+      <ErrorBoundary>
+        {showWarning && <WarningBanner />}
+        <HeaderWrapper scrollY={scrollY} transparent={isHeaderTransparent} bannerIsVisible={showWarning}>
+          <NavBar />
+        </HeaderWrapper>
+        <BodyWrapper>
+          <Suspense fallback={<Loader />}>
+            {isLoaded ? (
+              <Routes>
+                {routes.map((route: RouteDefinition) =>
+                  route.enabled(routerConfig) ? (
+                    <Route key={route.path} path={route.path} element={route.getElement(routerConfig)}>
+                      {route.nestedPaths.map((nestedPath) => (
+                        <Route path={nestedPath} key={`${route.path}/${nestedPath}`} />
+                      ))}
+                    </Route>
+                  ) : null
+                )}
+              </Routes>
+            ) : (
+              <Loader />
+            )}
+          </Suspense>
+        </BodyWrapper>
+        {/* <Footer /> */}
+        <MobileBottomBar>
+          <PageTabs />
+        </MobileBottomBar>
+      </ErrorBoundary>
+    </ApolloProvider>
   )
 }

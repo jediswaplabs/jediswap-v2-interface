@@ -1,5 +1,5 @@
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { FACTORY_ADDRESS_CLASS_HASH, POOL_CLASS_HASH, STARKSCAN_PROXY_ADDRESS } from 'constants/tokens'
+import { FACTORY_ADDRESS_CLASS_HASH, STARKSCAN_PROXY_ADDRESS } from 'constants/tokens'
 
 const options = {
   method: 'GET',

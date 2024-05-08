@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Connector, useAccount, useBalance, useConnect, useProvider } from '@starknet-react/core'
 import { AccountInterface, constants } from 'starknet'
 import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { WETH } from '@jediswap/sdk'
 import { useDefaultActiveTokens } from './Tokens'
 import formatBalance from 'utils/formatBalance'
+import { useQuery } from 'react-query'
 // Define the type for the balances object
 declare enum StarknetChainId {
   SN_MAIN = '0x534e5f4d41494e',
@@ -31,25 +32,23 @@ export const useAccountDetails = (): {
   connector: Connector | undefined
 } => {
   const { account, address, isConnected, status, connector } = useAccount()
-  const [chainId, setChainId] = useState<ChainId | undefined>(undefined)
 
   const { provider } = useProvider()
 
-  useEffect(() => {
-    const fetchChainId = async () => {
-      if (account) {
-        try {
-          const Id: any = await provider.getChainId()
-          const convertedId: ChainId | undefined = convertStarknetToChainId(Id)
-          setChainId(convertedId)
-        } catch (error) {
-          console.error('Error fetching chainId:', error)
-        }
-      }
-    }
+  const connectedChainId = useQuery({
+    queryKey: [`get_chainId/${address}`],
+    queryFn: async () => {
+      if (!address) return
+      const results: any = await provider.getChainId()
+      const convertedId: ChainId | undefined = convertStarknetToChainId(results)
+      return results
+    },
+  })
 
-    fetchChainId()
-  }, [status, provider, account])
+  const chainId = useMemo(() => {
+    if (!connectedChainId || !connectedChainId.data) return undefined
+    return connectedChainId.data
+  }, [connectedChainId, address])
 
   return { account, address, isConnected, chainId, connector }
 }
