@@ -1,5 +1,4 @@
 import styled, { css, useTheme } from 'styled-components'
-import { Box as RebassBox } from 'rebass'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { validateAndParseAddress } from 'starknet'
@@ -15,119 +14,13 @@ import DoubleTokenLogo from '../../components/DoubleLogo'
 import FeeBadge from 'components/FeeBadge'
 import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button'
 import CurrencyLogo from 'components/Logo/CurrencyLogo'
-import { PositionDetails } from 'pages/Pool'
+import { PositionDetails } from '../Pool/PositionDetails'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { getClient } from 'apollo/client'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { useTokenIds } from 'hooks/useV3Positions'
+import { PageWrapper, PanelWrapper, PanelTopLight, ResponsiveButtonPrimary } from 'pages/Pool/styled'
 
-const PageWrapper = styled(AutoColumn)`
-  padding: 0px 8px 0px;
-  max-width: 1020px;
-  width: 100%;
-
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
-    padding-top: 20px;
-  }
-`
-
-const PanelWrapper = styled.div`
-  display: flex;
-  gap: 12px;
-  width: 100%;
-  align-items: start;
-  @media screen and (max-width: 1024px) {
-    flex-direction: column;
-  }
-`
-const panelPseudo = css`
-  :after {
-    content: '';
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 10px;
-  }
-
-  @media only screen and (min-width: 40em) {
-    :after {
-      content: unset;
-    }
-  }
-`
-
-const Panel = styled(RebassBox) <{
-  hover?: boolean
-  background?: boolean
-  area?: boolean
-  grouped?: boolean
-  rounded?: boolean
-  last?: boolean
-}>`
-  position: relative;
-  // background-color: ${({ theme }) => theme.advancedBG};
-  border-radius: 8px;
-  padding: 1.25rem;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  background: rgba(196, 196, 196, 0.01);
-  box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset,
-    0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset,
-    0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.3) inset,
-    0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset;
-
-  :hover {
-    cursor: ${({ hover }) => hover && 'pointer'};
-    border: ${({ hover, theme }) => hover && '1px solid' + theme.bg5};
-  }
-
-  ${(props) => props.background && `background-color: ${props.theme.advancedBG};`}
-
-  ${(props) => (props.area ? `grid-area: ${props.area};` : null)}
-
-  ${(props) =>
-    props.grouped &&
-    css`
-      @media only screen and (min-width: 40em) {
-        &:first-of-type {
-          border-radius: 20px 20px 0 0;
-        }
-        &:last-of-type {
-          border-radius: 0 0 20px 20px;
-        }
-      }
-    `}
-
-  ${(props) =>
-    props.rounded &&
-    css`
-      border-radius: 8px;
-      @media only screen and (min-width: 40em) {
-        border-radius: 10px;
-      }
-    `};
-
-  ${(props) => !props.last && panelPseudo}
-`
-const PanelTopLight = styled(Panel)`
-  box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset,
-    0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset,
-    0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.3) inset,
-    0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset, 0px 5.388px 8.467px -3.079px #fff inset,
-    0px 30.021px 43.107px -27.712px rgba(255, 255, 255, 0.5) inset;
-`
-
-const PageHeader = styled.div`
-  color: ${({ theme }) => theme.jediWhite};
-  font-family: "Avenir LT Std";
-  font-size: 24px;
-  font-weight: 750;
-  margin-bottom: 20px;
-`
 const ResponsiveButtonTabs = styled(ButtonPrimary) <{ secondary: boolean; active: boolean }>`
   font-family: 'DM Sans';
   border-radius: 4px;
@@ -163,18 +56,6 @@ const FixedPanel = styled.div`
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.1);
   cursor: pointer;
-`
-const ResponsiveButtonPrimary = styled(ButtonPrimary)`
-  font-family: 'DM Sans';
-  border-radius: 8px;
-  font-size: 16px;
-  padding: 6px 8px;
-  width: 175px;
-  margin-left: auto;
-  height: 38px;
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    width: 132px;
-  }
 `
 
 export default function PoolDetails() {
