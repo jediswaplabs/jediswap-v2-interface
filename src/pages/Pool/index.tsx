@@ -30,7 +30,7 @@ import { formattedNum, formattedPercent, get2DayPercentChange, getPercentChange 
 import { REWARDS_SELECTOR, STARKNET_REWARDS_API_URL } from 'constants/misc'
 import { HISTORICAL_GLOBAL_DATA } from 'graphql/data/queries'
 import { apiTimeframeOptions } from 'constants/dashboardApi'
-import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import { DEFAULT_CHAIN_ID, ETH_ADDRESS, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { providerInstance } from 'utils/getLibrary'
 import { cairo, hash, num, uint256 } from 'starknet'
 import JSBI from 'jsbi'
@@ -420,7 +420,7 @@ export default function Pool() {
       if (whitelistedIds.length === 0) {
         return
       }
-      const poolsDataRaw = await getAllPools(graphqlClient, [...whitelistedIds, '0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7']) //add ETH token
+      const poolsDataRaw = await getAllPools(graphqlClient, [...whitelistedIds, ETH_ADDRESS]) //add ETH token
       const rewardsResp = await fetch(STARKNET_REWARDS_API_URL)
       const rewardsRespStr = await rewardsResp.text()
       const rewardsRespStrClean = rewardsRespStr.replace(/\bNaN\b/g, "null")

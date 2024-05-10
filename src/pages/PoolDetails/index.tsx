@@ -10,7 +10,7 @@ import { formattedNum, formattedPercent } from "utils/dashboard";
 import { getAllPools } from 'graphql/data/PoolsData';
 import { useDefaultActiveTokens } from 'hooks/Tokens'
 import { useAccountDetails } from 'hooks/starknet-react'
-import { WETH } from 'constants/tokens'
+import { ETH_ADDRESS, WETH } from 'constants/tokens'
 import DoubleTokenLogo from '../../components/DoubleLogo'
 import FeeBadge from 'components/FeeBadge'
 import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button'
@@ -203,7 +203,7 @@ export default function PoolDetails() {
       if (whitelistedIds.length === 0) {
         return
       }
-      const poolsDataRaw: any = await getAllPools(graphqlClient, [...whitelistedIds, '0x49d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7']) //add ETH token
+      const poolsDataRaw: any = await getAllPools(graphqlClient, [...whitelistedIds, ETH_ADDRESS]) //add ETH token
       if (poolId && poolsDataRaw) {
         const poolData: any = poolsDataRaw.find((data: any) => data?.poolAddress === poolId)
         if (!ignore) {
