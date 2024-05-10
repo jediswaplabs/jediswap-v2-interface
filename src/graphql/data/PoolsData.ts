@@ -4,7 +4,7 @@ import { HISTORICAL_POOLS_DATA } from './queries'
 
 
 import { getPercentChange, get2DayPercentChange } from '../../utils/dashboard'
-import { apiTimeframeOptions } from '../../constants/dashboardApi'
+import { apiTimeframeOptions } from '../../constants/apiTimeframeOptions'
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 // import { useWhitelistedTokens } from './Application'
 

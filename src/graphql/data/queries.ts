@@ -1,4 +1,4 @@
-import { apiTimeframeOptions } from 'constants/dashboardApi'
+import { apiTimeframeOptions } from 'constants/apiTimeframeOptions'
 import gql from 'graphql-tag'
 
 const TokenFields = `
