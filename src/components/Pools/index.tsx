@@ -10,7 +10,6 @@ import { Tooltip as ReactTooltip } from 'react-tooltip'
 
 // import { CustomLink } from '../Link'
 import { Link as CustomLink, Link } from 'react-router-dom'
-import { Divider } from '../../components'
 // import { withRouter } from 'react-router-dom'
 import { formattedNum, formattedPercent } from '../../utils/dashboard.js'
 import DoubleTokenLogo from '../DoubleLogo'
@@ -173,6 +172,11 @@ const StrkBadgeOuter = styled.div`
   // flex-shrink: 0;
   align-items: center;
 `
+const Divider = styled(Box)`
+  height: 1px;
+  background-color: ${({ theme }) => theme.divider};
+`
+
 const SORT_FIELD = {
   LIQ: 0,
   VOL: 1,
