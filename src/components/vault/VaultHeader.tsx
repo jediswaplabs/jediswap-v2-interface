@@ -6,6 +6,7 @@ import { InterfaceTrade } from 'state/routing/types'
 import { RowBetween, RowFixed } from '../Row'
 import SettingsTab from '../Settings'
 import { StyledButton, ActiveStyledButton } from './styled'
+import { DEFAULT_VAULT_SLIPPAGE_TOLERANCE } from 'pages/Vault'
 
 const StyledVaultHeader = styled(RowBetween)`
   font-family: 'Avenir LT Std';
@@ -59,7 +60,7 @@ export default function VaultHeader({
         </PanelButton>
       </HeaderButtonContainer>
       <RowFixed>
-        <SettingsTab autoSlippage={autoSlippage} chainId={chainId} trade={trade} />
+        <SettingsTab autoSlippage={DEFAULT_VAULT_SLIPPAGE_TOLERANCE} chainId={chainId} trade={trade} />
       </RowFixed>
     </StyledVaultHeader>
   )

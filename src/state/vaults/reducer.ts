@@ -4,7 +4,13 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { Field } from './actions'
 
-export const initialState = {
+export interface VaultState {
+  readonly allVaults: any
+  readonly users: any
+  readonly independentField: Field
+  readonly typedValue: string
+}
+export const initialState: VaultState = {
   allVaults: null,
   users: {},
   independentField: Field.CURRENCY_A,

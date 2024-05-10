@@ -10,29 +10,37 @@ import { useBalance } from '@starknet-react/core'
 import { Trans } from '@lingui/macro'
 
 import { updateAllVaults, updateUserVaults, updateInput } from './reducer'
-import { useAppDispatch } from '../hooks'
+import { useAppDispatch, useAppSelector } from '../hooks'
 import teahouseLogo from '../../assets/vaults/teahouse.svg'
 import { useAccountBalance, useAccountDetails } from '../../hooks/starknet-react'
 import formatBalance from '../../utils/formatBalance'
 import { Field } from './actions'
 import { AppDispatch } from 'state'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
-import { useUnderlyingVaultAssets } from 'components/vault/hooks'
+import { useUnderlyingVaultAssets, useVaultTotalSupply } from 'components/vault/hooks'
 import { useDefaultActiveTokens } from 'hooks/Tokens'
 import { useCurrencyFromMap } from 'lib/hooks/useCurrency'
 import { useConnectionReady } from 'connection/eagerlyConnect'
 import { useCurrencyBalances } from '../connection/hooks'
+import { useTotalSupply } from 'hooks/useTotalSupply'
+import { AppState } from 'state/reducer'
+import JSBI from 'jsbi'
+import { DEFAULT_PERMISSIONLESS_API_RESPONSE } from '../../components/vault/constants'
 
 type Maybe<T> = T | null | undefined
 
 const TEAHOUSE_CONTENT_ENDPOINT = 'https://vault-content-api.teahouse.finance'
 const TEAHOUSE_TESTNET_CONTENT_ENDPOINT = 'https://test-vault-content-api.teahouse.finance/vaults'
 const TEAHOUSE_VAULT_ENDPOINT = ' https://vault-api.teahouse.finance'
-const TEAHOUSE_TESTNET_VAULT_ENDPOINT = 'https://test-vault-api.teahouse.finance/vaults/type/permissionless'
+const TEAHOUSE_TESTNET_VAULT_ENDPOINT = 'https://test20-vault-api.teahouse.finance/vaults/type/permissionless'
 
 // const TEAHOUSE_CONTENT_ENDPOINT = 'https://test-vault-content-api.teahouse.finance';
 // const TEAHOUSE_VAULT_ENDPOINT = ' https://test-vault-api.teahouse.finance';
 const TEAHOUSE_LOGO_URI = 'https://vault.teahouse.finance/icon-token'
+
+export function useVaultState(): AppState['vaults'] {
+  return useAppSelector((state) => state.vaults)
+}
 
 const getTeaHouseLogoUriPath = (iconName = '') => (iconName ? `${TEAHOUSE_LOGO_URI}/${iconName}` : null)
 const getVaultListWithContents = async () => {
@@ -97,8 +105,9 @@ const getPermissionlessVaultDataList = async () => {
   //   const endpoint = `${TEAHOUSE_VAULT_ENDPOINT}/vaults/type/permissionless`
   const endpoint = TEAHOUSE_TESTNET_VAULT_ENDPOINT
   const result = {}
-  const response = await fetch(endpoint)
-  const { vaults } = (await response.json()) ?? {}
+  //   const response = await fetch(endpoint)
+  //   const { vaults } = (await response.json()) ?? {}
+  const { vaults } = DEFAULT_PERMISSIONLESS_API_RESPONSE // check --> api was failing
   if (!vaults) {
     return
   }
@@ -228,19 +237,26 @@ export function useVaultDerivedInfo(
 ): {
   dependentField: Field
   currencies: { [field in Field]?: Currency }
-  parsedAmounts: { [field in Field]?: CurrencyAmount }
+  parsedAmounts: { [field in Field]?: CurrencyAmount<Currency> }
 } {
   const { address: account } = useAccountDetails()
-  const { independentField, typedValue } = state
+  const { independentField, typedValue } = useVaultState()
 
   const { data, isLoading, isError } = useUnderlyingVaultAssets()
-  let token0Amount = 0.0
-  let token1Amount = 0.0
-  let priceRatio = 1.0
+  let token0All = 0
+  let token1All = 0
+  let priceRatio = 1
+
   if (data && !isLoading && !isError) {
-    token0Amount = Number(data[0])
-    token1Amount = Number(data[1])
-    priceRatio = token0Amount / token1Amount
+    token0All = data[0]
+    token1All = data[1]
+    priceRatio = token0All / token1All // get clarity if need to add token decimals here
+    console.log(priceRatio)
+  }
+  let totalSupply = 0
+  const { data: data2, isLoading: isLoading2, isError: isError2 } = useVaultTotalSupply()
+  if (data2 && !isLoading2 && !isError2) {
+    totalSupply = data2
   }
 
   const dependentField = independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
@@ -262,19 +278,21 @@ export function useVaultDerivedInfo(
   }
   let insufficientBalance = false
   // amounts
-  const independentAmount: CurrencyAmount | undefined = tryParseCurrencyAmount(typedValue, currencies[independentField])
-
-  const dependentAmount: CurrencyAmount | undefined = useMemo(() => {
+  const independentAmount: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(
+    typedValue,
+    currencies[independentField]
+  )
+  console.log(independentAmount?.raw, typedValue, 'typedValue')
+  const dependentAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
     if (independentAmount && priceRatio) {
       const dependentTokenAmount =
-        independentField === Field.CURRENCY_A ? (1 / priceRatio) * Number(typedValue) : priceRatio * Number(typedValue)
-
+        independentField === Field.CURRENCY_A ? typedValue / priceRatio : typedValue * priceRatio
       return tryParseCurrencyAmount(dependentTokenAmount.toString(), currencies[dependentField])
     }
     return undefined
-  }, [currencies, dependentField, independentAmount, currencyA, currencyB])
+  }, [currencies, dependentField, independentAmount])
 
-  const parsedAmounts: { [field in Field]: CurrencyAmount | undefined } = useMemo(
+  const parsedAmounts: { [field in Field]: CurrencyAmount<Currency> | undefined } = useMemo(
     () => ({
       [Field.CURRENCY_A]: independentField === Field.CURRENCY_A ? independentAmount : dependentAmount,
       [Field.CURRENCY_B]: independentField === Field.CURRENCY_A ? dependentAmount : independentAmount,
@@ -310,5 +328,7 @@ export function useVaultDerivedInfo(
     parsedAmounts,
     inputError,
     insufficientBalance,
+    token0All,
+    totalSupply,
   }
 }

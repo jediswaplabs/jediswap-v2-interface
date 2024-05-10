@@ -9,7 +9,7 @@ import { AlertTriangle, ArrowLeft } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled, { css } from 'styled-components'
 import { Flex } from 'rebass'
-import { ChainId, Token } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Percent, Token } from '@vnaysn/jediswap-sdk-core'
 import { isEmpty } from 'lodash'
 import { Link, useParams } from 'react-router-dom'
 import { useBalance } from '@starknet-react/core'
@@ -34,6 +34,13 @@ import { useConnectionReady } from 'connection/eagerlyConnect'
 import { Z_INDEX } from 'theme/zIndex'
 import { useCurrency } from 'hooks/Tokens'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
+import { cairo, Call, CallData } from 'starknet'
+import { useContractWrite } from '@starknet-react/core'
+import { Field } from 'state/vaults/actions'
+import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
+import JSBI from 'jsbi'
+
+export const DEFAULT_VAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -504,6 +511,7 @@ export function VaultElement({
   //   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
   //   disableTokenInputs?: boolean
 }) {
+  const [callData, setCallData] = useState<Call[]>([])
   const [activeButton, setActiveButton] = useState<string>('Deposit')
   const connectionReady = useConnectionReady()
   const { address: account } = useAccountDetails()
@@ -513,11 +521,64 @@ export function VaultElement({
   const baseCurrency = useCurrency(currentVault.token0.address)
   const currencyB = useCurrency(currentVault.token1.address)
 
+  console.log(baseCurrency, currentVault.token0.address)
+  console.log(currencyB, currentVault.token1.address)
+
   // toggle wallet when disconnected
   const toggleWalletDrawer = useToggleAccountDrawer()
 
   const vaultInfo = useVaultDerivedInfo(vaultState, baseCurrency ?? undefined, currencyB ?? undefined)
-  const { inputError: vaultInputError, insufficientBalance } = vaultInfo
+  const { inputError: vaultInputError, insufficientBalance, parsedAmounts, token0All, totalSupply } = vaultInfo
+  const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
+  const currencyAAmount = parsedAmountA?.toSignificant() // check - apply proper decimal value
+  const currencyBAmount = parsedAmountB?.toSignificant(6) // check - same
+
+  const {
+    writeAsync,
+    data: txData,
+    error,
+  } = useContractWrite({
+    calls: callData,
+  })
+
+  useEffect(() => {
+    if (callData) {
+      writeAsync()
+        .then((response) => {
+          if (response?.transaction_hash) {
+          }
+        })
+        .catch((err) => {
+          console.log(err?.message)
+        })
+    }
+  }, [callData])
+
+  const allowedSlippage = useUserSlippageToleranceWithDefault(DEFAULT_VAULT_SLIPPAGE_TOLERANCE)
+  const defaultDpositSlippage = 1.01 // for deposit
+  const onDeposit = () => {
+    const callData = []
+    const vaultAddress = '0x054d911ef2a0c44fc92d28d55fb0abe1f8a93c1c2b3035c0c47d7965a6378da9' // check - replace vault address
+    const amount0_with_slippage = JSBI.multiply(parsedAmountA, 1.01)
+    const amount1_with_slippage = JSBI.multiply(parsedAmountB, 1.01)
+    const derivedShares = JSBI.BigInt((parsedAmountA / token0All) * totalSupply)
+
+    const callParams = {
+      shares: cairo.uint256(derivedShares),
+      amount0_max: cairo.uint256(amount0_with_slippage),
+      amount1_max: cairo.uint256(amount1_with_slippage),
+    }
+
+    const compiledDepositCalls = CallData.compile(callParams)
+    const calls = {
+      contractAddress: vaultAddress,
+      entrypoint: 'deposit',
+      calldata: compiledDepositCalls,
+    }
+    callData.push(calls)
+    console.log(callData)
+    // setCallData(callData)
+  }
   const getActionContent = () => {
     switch (true) {
       case connectionReady && !account:
@@ -535,6 +596,7 @@ export function VaultElement({
             error={insufficientBalance}
             id="deposit-button"
             data-testid="deposit-button"
+            onClick={activeButton === 'Deposit' ? onDeposit : () => {}}
           >
             {vaultInputError ? vaultInputError : <Trans>{activeButton === 'Deposit' ? 'Deposit' : 'Withdraw'}</Trans>}
           </ButtonError>
@@ -544,7 +606,7 @@ export function VaultElement({
 
   const vaultElement = (
     <VaultWrapper>
-      <VaultHeader activeButton={activeButton} setActiveButton={setActiveButton} />
+      <VaultHeader activeButton={activeButton} setActiveButton={setActiveButton} chainId={chainId} />
       <FullDivider />
       <VaultInputWrapper>
         {activeButton === 'Deposit' && <VaultDeposit currentVault={currentVault} />}

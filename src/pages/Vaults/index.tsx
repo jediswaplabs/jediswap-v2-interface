@@ -410,7 +410,7 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }) => 
 }
 
 export default function Vaults({ maxItems = 10 }) {
-  const { address, isConnected } = useAccountDetails()
+  const { address, isConnected, chainId } = useAccountDetails()
   const [isMyVaultsFilterEnabled, setIsMyVaultsFilterEnabled] = useState(false)
   const [generalError, setGeneralError] = useState(null)
   const [generalLoading, setGeneralLoading] = useState(true)
@@ -449,7 +449,6 @@ export default function Vaults({ maxItems = 10 }) {
     }
     setUserPools({})
   }, [isConnected])
-
   useEffect(() => {
     setGeneralError(allVaultsError)
     setGeneralLoading(isAllVaultsLoading)
