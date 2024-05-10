@@ -352,7 +352,7 @@ function PairList({
       // const weekVolume = Math.round(pairData.oneWeekVolumeUSD)
       if (below1080) {
         return (
-          <Link to={'/expore/pools/' + pairAddress} style={{ color: 'unset', textDecoration: 'none' }}>
+          <Link to={'/explore/pools/' + pairAddress} style={{ color: 'unset', textDecoration: 'none' }}>
             <div style={{ margin: '10px 0', padding: '20px', borderRadius: '8px', border: '1px solid #959595' }}>
               <div style={{ display: 'flex' }}>
                 {doubleCurrencyImageData && (
@@ -394,7 +394,7 @@ function PairList({
         )
       }
       return (
-        <Link to={'/expore/pools/' + pairAddress} style={{ color: 'unset', textDecoration: 'none' }}>
+        <Link to={'/explore/pools/' + pairAddress} style={{ color: 'unset', textDecoration: 'none' }}>
           <DashGrid style={{ height: '48px' }} disbaleLinks={disbaleLinks} focus={true}>
             <DataText area="name" fontWeight="500">
               {/* {!below600 && <div style={{ marginRight: '20px', width: '10px' }}>{index}</div>} */}

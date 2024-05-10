@@ -80,7 +80,7 @@ export const routes: RouteDefinition[] = [
     getElement: () => <AddLiquidity />,
   }),
   createRouteDefinition({ path: '/remove/:tokenId', getElement: () => <RemoveLiquidityV3 /> }),
-  createRouteDefinition({ path: '/expore/pools/:poolId', getElement: () =>  <PoolDetails />}),
+  createRouteDefinition({ path: '/explore/pools/:poolId', getElement: () =>  <PoolDetails />}),
   // @ts-ignore
   createRouteDefinition({ path: '*', getElement: () => <RedirectPathToSwapOnly /> }),
 ];
