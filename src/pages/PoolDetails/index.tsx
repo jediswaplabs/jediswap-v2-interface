@@ -7,7 +7,7 @@ import { validateAndParseAddress } from 'starknet'
 import { AutoColumn } from "components/Column";
 import Row, { AutoRow, RowBetween, RowFixed } from "components/Row";
 import { formattedNum, formattedPercent } from "utils/dashboard";
-import { getAllPools } from 'graphql/data/PoolsData';
+import { getAllPools } from 'api/PoolsData';
 import { useDefaultActiveTokens } from 'hooks/Tokens'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { ETH_ADDRESS, WETH } from 'constants/tokens'

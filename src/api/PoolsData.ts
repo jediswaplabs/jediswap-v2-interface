@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react'
 
-import { HISTORICAL_POOLS_DATA } from './queries'
+import { HISTORICAL_POOLS_DATA } from '../apollo/queries'
 
 
-import { getPercentChange, get2DayPercentChange } from '../../utils/dashboard'
-import { apiTimeframeOptions } from '../../constants/apiTimeframeOptions'
+import { getPercentChange, get2DayPercentChange } from '../utils/dashboard'
+import { apiTimeframeOptions } from '../constants/apiTimeframeOptions'
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 // import { useWhitelistedTokens } from './Application'
 
