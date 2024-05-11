@@ -11,7 +11,7 @@ import { Tooltip as ReactTooltip } from 'react-tooltip'
 // import { CustomLink } from '../Link'
 import { Link as CustomLink, Link } from 'react-router-dom'
 // import { withRouter } from 'react-router-dom'
-import { formattedNum, formattedPercent } from '../../utils/dashboard.js'
+import { formattedNum, formattedPercent } from '../../utils/formatNum.js'
 import DoubleTokenLogo from '../DoubleLogo'
 
 import FormattedName from '../FormattedName'

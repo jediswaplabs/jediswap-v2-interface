@@ -5,7 +5,7 @@ import { validateAndParseAddress } from 'starknet'
 
 import { AutoColumn } from "components/Column";
 import Row, { AutoRow, RowBetween, RowFixed } from "components/Row";
-import { formattedNum, formattedPercent } from "utils/dashboard";
+import { formattedNum, formattedPercent } from "utils/formatNum";
 import { getAllPools } from 'api/PoolsData';
 import { useDefaultActiveTokens } from 'hooks/Tokens'
 import { useAccountDetails } from 'hooks/starknet-react'

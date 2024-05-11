@@ -3,7 +3,7 @@ import React, { createContext, useContext, useReducer, useMemo, useCallback, use
 import { HISTORICAL_POOLS_DATA } from '../apollo/queries'
 
 
-import { getPercentChange, get2DayPercentChange } from '../utils/dashboard'
+import { getPercentChange, get2DayPercentChange } from '../utils/formatNum'
 import { apiTimeframeOptions } from '../constants/apiTimeframeOptions'
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 // import { useWhitelistedTokens } from './Application'
