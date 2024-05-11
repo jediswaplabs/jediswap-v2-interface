@@ -18,6 +18,8 @@ import {
   Nav,
   StatusContainer,
 } from './styled'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const MenuItemLink = ({ to, dataTestId, id, isActive, children }) => {
   const Component = isActive ? ActiveMenuItem : MenuItem
@@ -37,6 +39,7 @@ const ExternalMenuItemLink = ({ to, children }) => (
 export const PageTabs = () => {
   const { pathname } = useLocation()
   const isPoolActive = useIsPoolsPage()
+  const { chainId } = useAccountDetails()
 
   return (
     <>
@@ -46,7 +49,7 @@ export const PageTabs = () => {
       <MenuItemLink to="/pool" dataTestId="pool-nav-link" isActive={isPoolActive}>
         <Trans>Pool</Trans>
       </MenuItemLink>
-      <ExternalMenuItemLink to="https://info.v2.jediswap.xyz/">
+      <ExternalMenuItemLink to={chainId === ChainId.GOERLI ? "https://info.v2.sepolia.jediswap.xyz/" : "https://info.v2.jediswap.xyz/"}>
         <Trans>Dashboard</Trans>
       </ExternalMenuItemLink>
       <ExternalMenuItemLink to="https://app.v1.jediswap.xyz/">
