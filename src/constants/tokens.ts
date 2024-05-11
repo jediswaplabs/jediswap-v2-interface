@@ -61,7 +61,7 @@ export const STARKSCAN_PROXY_ADDRESS = {
 
 export const STARKSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: '',
-  [ChainId.GOERLI]: 'testnet.',
+  [ChainId.GOERLI]: 'sepolia.',
 }
 
 export function getSwapCurrencyId(currency: Currency): string {
