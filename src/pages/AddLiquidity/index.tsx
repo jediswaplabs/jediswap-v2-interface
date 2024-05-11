@@ -75,7 +75,7 @@ import { useQuery } from 'react-query'
 import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import { isAddressValidForStarknet } from 'utils/addresses'
-import findClosestPrice from 'utils/getClosestPrice'
+import { findClosestPrice } from 'utils/getClosest'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 

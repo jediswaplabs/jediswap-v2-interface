@@ -75,7 +75,7 @@ import fetchAllPairs from 'api/fetchAllPairs'
 import { useQuery } from 'react-query'
 import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
-import findClosestPrice from 'utils/getClosestPrice'
+import { findClosestPrice } from 'utils/getClosest'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;

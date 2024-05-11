@@ -22,6 +22,7 @@ import { CardSection, DataCard } from 'components/earn/styled'
 import { colors } from 'theme/colors'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
+import { findClosestAPRPeriod } from 'utils/getClosest'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 996px;
@@ -482,46 +483,21 @@ export default function Rewards() {
         for (const pool of pools?.data?.poolsData) {
           const pair = `${pool?.pool?.token0.symbol}/${pool?.pool?.token1.symbol}`
           if (jediRewards[pair]) {
-            const rewardsData = jediRewards[pair].pop()
+            const rewardsData = jediRewards[pair][jediRewards[pair].length - 1]
             const aprStarknet = rewardsData.apr * 100
-            console.log(aprStarknet)
-            const rewardsPool = { ...pool.pool, aprStarknet }
+            const closestAPRPeriod = findClosestAPRPeriod(pool?.period)
+            const feeRatio24H =
+              closestAPRPeriod?.feesUSD && closestAPRPeriod?.totalValueLockedUSD
+                ? parseFloat(closestAPRPeriod.feesUSD) / parseFloat(closestAPRPeriod?.totalValueLockedUSD)
+                : 0
+            const aprFee = feeRatio24H * 365 * 100
+            const rewardsPool = { ...pool.pool, aprStarknet, aprFee, period: closestAPRPeriod }
             eligiblePools.push(rewardsPool)
           }
         }
       } catch (e) {
         console.log(e)
       }
-
-      // const rewardsPositions: any = []
-      // for (const pool of pairs) {
-      //   const rewardsData = jediRewards[pool.rewardName].pop()
-      //   if (!rewardsData) {
-      //     continue
-      //   }
-      //   const recentDate = rewardsData.date
-      //   const pairDayData = pairsResp.data.pairDayDatas.find(
-      //     (dayData: any) => dayData.pairId === pool.poolAddress && dayData.date === recentDate + 'T00:00:00'
-      //   )
-      //   const aprFee = ((pairDayData.dailyVolumeUSD * 0.003) / pairDayData.reserveUSD) * 365 * 100
-      //   const aprStarknet = rewardsData.apr * 100
-      //   rewardsPositions.push({
-      //     ...pool,
-      //     reserveUSD: pairDayData.reserveUSD,
-      //     aprFee,
-      //     aprStarknet,
-      //   })
-      // }
-      // const sortedRewardsPositions = rewardsPositions.sort((a: any, b: any) => {
-      //   if (a.aprFee + a.aprStarknet > b.aprFee + b.aprStarknet) {
-      //     return -1
-      //   }
-      //   if (a.aprFee + a.aprStarknet < b.aprFee + b.aprStarknet) {
-      //     return 1
-      //   }
-
-      //   return
-      // })
 
       setAllPools(eligiblePools)
       setPoolsLoading(false)
@@ -736,7 +712,7 @@ export default function Rewards() {
           <LiquidityWrapperCard>
             <RowBetween>
               <ClaimHeader>
-                <ClaimHeaderText>Next claim available on May 03</ClaimHeaderText>
+                <ClaimHeaderText>Next claim available on May 17</ClaimHeaderText>
               </ClaimHeader>
             </RowBetween>
             <CardSection>
