@@ -23,6 +23,7 @@ import { colors } from 'theme/colors'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { findClosestAPRPeriod } from 'utils/getClosest'
+import { formattedPercent } from 'utils/formattedPercent'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 996px;
@@ -423,39 +424,6 @@ const apiTimeframeOptions = {
   oneMonth: 'one_month',
 }
 
-function formattedPercent(percent: any, useAbs = false, useColors = true) {
-  percent = parseFloat(percent)
-  if (!percent || percent === 0) {
-    return '0'
-  }
-
-  if (percent < 0.0001 && percent > 0) {
-    return '< 0.0001%'
-  }
-
-  if (percent < 0 && percent > -0.0001) {
-    return '< 0.0001%'
-  }
-
-  if (percent > 999999) {
-    return '> 999999%'
-  }
-
-  let fixedPercent = percent.toFixed(2)
-  if (fixedPercent === '0.00') {
-    return '0%'
-  }
-  if (fixedPercent > 0) {
-    if (fixedPercent > 100) {
-      return `${useAbs ? '' : '+'}${percent?.toFixed(0).toLocaleString()}%`
-    } else {
-      return `${useAbs ? '' : '+'}${fixedPercent}%`
-    }
-  } else {
-    return `${fixedPercent}%`
-  }
-}
-
 export default function Rewards() {
   const [allPools, setAllPools] = useState<any[]>([])
   const { address, chainId } = useAccountDetails()
@@ -491,7 +459,27 @@ export default function Rewards() {
                 ? parseFloat(closestAPRPeriod.feesUSD) / parseFloat(closestAPRPeriod?.totalValueLockedUSD)
                 : 0
             const aprFee = feeRatio24H * 365 * 100
-            const rewardsPool = { ...pool.pool, aprStarknet, aprFee, period: closestAPRPeriod }
+
+            const cleanedAprFee = isNaN(aprFee) || !isFinite(aprFee) ? 0 : aprFee
+            const displayAprFee = formattedPercent(cleanedAprFee, true, false)
+
+            const cleanedAprStarknet = isNaN(aprStarknet) || !isFinite(aprStarknet) ? 0 : aprStarknet
+            const displayAprStarknet = formattedPercent(cleanedAprStarknet, true, false)
+
+            const cleanedAprCommon = cleanedAprFee + cleanedAprStarknet
+            const displayAprCommon = formattedPercent(cleanedAprCommon, true, false)
+
+            const rewardsPool = {
+              ...pool.pool,
+              pair,
+              aprStarknet,
+              aprFee,
+              cleanedAprCommon,
+              displayAprFee,
+              displayAprStarknet,
+              displayAprCommon,
+              period: closestAPRPeriod,
+            }
             eligiblePools.push(rewardsPool)
           }
         }
@@ -499,7 +487,23 @@ export default function Rewards() {
         console.log(e)
       }
 
-      setAllPools(eligiblePools)
+      // Function to filter unique pairs with highest cleanedAprCommon value
+      const filterUniquePairs = (data: any) => {
+        const pairsMap = new Map()
+        data.forEach((obj: any) => {
+          const pair = obj.pair
+          const cleanedAprCommon = obj.cleanedAprCommon
+
+          if (!pairsMap.has(pair) || pairsMap.get(pair).cleanedAprCommon < cleanedAprCommon) {
+            pairsMap.set(pair, obj)
+          }
+        })
+
+        return Array.from(pairsMap.values())
+      }
+      const uniquePools = filterUniquePairs(eligiblePools)
+
+      setAllPools(uniquePools)
       setPoolsLoading(false)
     }
 
@@ -620,19 +624,12 @@ export default function Rewards() {
     [claimError]
   )
 
+  console.log(allPools, 'smsdlsm')
+
   const buttonText =
     (totalRewardsClaimed && 'Claimed') || (unclaimed_rewards && 'Claim STRK') || (attemptingTxn && 'Claiming...')
 
   const PairListItem = ({ pool }: { pool: any }) => {
-    const cleanedAprFee = isNaN(pool.aprFee) || !isFinite(pool.aprFee) ? 0 : pool.aprFee
-    const displayAprFee = formattedPercent(cleanedAprFee, true, false)
-
-    const cleanedAprStarknet = isNaN(pool.aprStarknet) || !isFinite(pool.aprStarknet) ? 0 : pool.aprStarknet
-    const displayAprStarknet = formattedPercent(cleanedAprStarknet, true, false)
-
-    const cleanedAprCommon = cleanedAprFee + cleanedAprStarknet
-    const displayAprCommon = formattedPercent(cleanedAprCommon, true, false)
-
     const token0 =
       pool.token0.symbol === 'ETH' ? pool.token0 : allTokens[validateAndParseAddress(pool.token0.tokenAddress)]
     const token1 =
@@ -648,15 +645,15 @@ export default function Rewards() {
         </PairName>
         <TotalAPR>
           <div>Total APR:</div>
-          <div>{displayAprCommon}</div>
+          <div>{pool.displayAprCommon}</div>
         </TotalAPR>
         <TokenAPR>
           <div>Fee APR:</div>
-          <div>{displayAprFee}</div>
+          <div>{pool.displayAprFee}</div>
         </TokenAPR>
         <TokenAPR>
           <div>STRK APR:</div>
-          <div>{displayAprStarknet}</div>
+          <div>{pool.displayAprStarknet}</div>
         </TokenAPR>
       </Column>
     )
