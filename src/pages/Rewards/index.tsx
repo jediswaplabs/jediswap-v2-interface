@@ -623,9 +623,6 @@ export default function Rewards() {
     () => (claimError ? <TransactionErrorContent onDismiss={handleConfirmDismiss} message={claimError} /> : <></>),
     [claimError]
   )
-
-  console.log(allPools, 'smsdlsm')
-
   const buttonText =
     (totalRewardsClaimed && 'Claimed') || (unclaimed_rewards && 'Claim STRK') || (attemptingTxn && 'Claiming...')
 
