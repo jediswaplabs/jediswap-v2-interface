@@ -593,7 +593,7 @@ export function Swap({
     if (!token0usdPrice || !token1usdPrice) return undefined
     else
       return parseFloat(
-        (((token1usdPrice - token0usdPrice) / ((token0usdPrice + token1usdPrice) / 2)) * 100).toFixed(2)
+        ((token1usdPrice - token0usdPrice) / token0usdPrice * 100).toFixed(2)
       )
   }, [token0usdPrice, token1usdPrice])
 
