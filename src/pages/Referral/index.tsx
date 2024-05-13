@@ -4,10 +4,8 @@ import styled from 'styled-components'
 import { CopyHelper } from 'theme/components'
 import { PanelTopLight } from './Panel'
 import { useAccountDetails } from 'hooks/starknet-react'
-import { useConnectionReady } from 'connection/eagerlyConnect'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { ButtonPrimary, ButtonSize } from 'components/Button'
-import { shortenAddress } from 'utils'
 
 const ReferralWrapper = styled.div`
   .page-head {
@@ -57,23 +55,43 @@ const ReferralWrapper = styled.div`
     margin: 1.6rem auto;
     color: #f2f2f2;
   }
+  .lp-link {
+    margin-top: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+
+    .button {
+      width: fit-content;
+      padding: 8px 24px;
+      font-family: Avenir LT Std;
+      font-size: 18px;
+      font-weight: 750;
+      line-height: 20px;
+      text-align: center;
+    }
+  }
 `
 const CodeBox = styled.div`
   background-color: ${({ theme }) => theme.surface4};
-  padding: 18px 0;
   border-radius: 8px;
-  box-shadow: 0px 0.77px 30.79px 0px #e3deff33 inset, 0px 3.08px 13.86px 0px #9a92d24d inset,
-    0px 75.44px 76.98px -36.95px #caacff4d inset, 0px -63.12px 52.34px -49.27px #6044904d inset;
-  margin-top: 32px;
+  background: #d9d9d91a;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
 `
 const CopyText = styled(CopyHelper).attrs({
-  iconPosition: 'right',
+  iconPosition: 'left',
 })``
 
 const AccountNamesWrapper = styled.div`
-  font-family: DM Sans;
-  font-size: 32px;
-  font-weight: 500;
+  font-family: Avenir LT Std;
+  font-size: 24px;
+  font-weight: 750;
+  line-height: 24px;
   text-align: center;
   overflow: hidden;
   white-space: nowrap;
@@ -97,6 +115,7 @@ export function Referral() {
         </div>
 
         {!account ? <ConnectWalletBox /> : <CopyReferralCodeBox userReferralCode={account.address} />}
+        {account && <LpLeaderboardLink />}
       </ReferralWrapper>
     </PageWrapper>
   )
@@ -108,20 +127,19 @@ const CopyReferralCodeBox: React.FC<{ userReferralCode: string }> = ({ userRefer
       <div className="heading">
         <Trans>Your Referral Code</Trans>
       </div>
-
+      <div className="description">
+        <Trans>
+          Copy your referral link using the button below
+          <br /> and share with others
+        </Trans>
+      </div>
       <CodeBox>
         <AccountNamesWrapper>
           <CopyText toCopy={`https://${window.location.hostname}/#/swap?referralCode=${userReferralCode}`}>
-            {shortenAddress(userReferralCode)}
+            Copy Referral Link
           </CopyText>
         </AccountNamesWrapper>
       </CodeBox>
-
-      <div className="description">
-        <Trans>
-          Copy and share the link with your friends <br /> You earn reward points for each successful account
-        </Trans>
-      </div>
     </PanelTopLight>
   )
 }
@@ -132,17 +150,28 @@ const ConnectWalletBox: React.FC<{}> = () => {
   return (
     <PanelTopLight className={''} id="referral-page">
       <div className="heading">
-        <Trans>Create Referral Code</Trans>
+        <Trans>Referral Link</Trans>
       </div>
       <div className="description">
-        <Trans>
-          Looks like you don't have a referral code to share.
-          <br />
-          Create one now and start earning reward points!
-        </Trans>
+        <Trans>Connect wallet to get your referral link</Trans>
       </div>
       <ButtonPrimary onClick={toggleWalletDrawer} size={ButtonSize.large}>
         <Trans>Connect wallet</Trans>
+      </ButtonPrimary>
+    </PanelTopLight>
+  )
+}
+
+const LpLeaderboardLink: React.FC<{}> = () => {
+  function redirectToLpLeaderboard() {}
+  return (
+    <PanelTopLight className="lp-link">
+      <Trans>
+        All your referral points can be <br />
+        viewed on leaderboard page.
+      </Trans>
+      <ButtonPrimary size={ButtonSize.medium} onClick={redirectToLpLeaderboard} className="button">
+        See Points
       </ButtonPrimary>
     </PanelTopLight>
   )

@@ -29,10 +29,10 @@ const Panel = styled(RebassBox)`
   flex-direction: column;
   justify-content: center;
   background: rgba(196, 196, 196, 0.01);
-  box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset,
+  /* box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset,
     0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset,
     0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.3) inset,
-    0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset;
+    0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset; */
 
   :hover {
     cursor: 'pointer';
@@ -40,11 +40,13 @@ const Panel = styled(RebassBox)`
   }
 `
 export const PanelTopLight = styled(Panel)`
-  box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset,
+  /* box-shadow: 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset,
     0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset,
     0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.3) inset,
     0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset, 0px 5.388px 8.467px -3.079px #fff inset,
-    0px 30.021px 43.107px -27.712px rgba(255, 255, 255, 0.5) inset;
+    0px 30.021px 43.107px -27.712px rgba(255, 255, 255, 0.5) inset; */
+  border: 1px solid #a0a0a066;
+  background: #ffffff0d;
 `
 export default Panel
 
