@@ -1,7 +1,7 @@
 import { useContractRead } from '@starknet-react/core'
 import VAULT_ABI from './abi.json'
 import { cairo } from 'starknet'
-const vaultAddress = '0x054d911ef2a0c44fc92d28d55fb0abe1f8a93c1c2b3035c0c47d7965a6378da9' //replace vault address
+const vaultAddress = '0x033bb35548c9cfcfdafe1c18cf8040644a52881f8fd2f4be56770767c12e3a41' //replace vault address
 
 interface TokenData {
   [key: string]: any
