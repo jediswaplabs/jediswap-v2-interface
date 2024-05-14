@@ -12,8 +12,10 @@ import { Flex } from 'rebass'
 import { ChainId, Percent, Token } from '@vnaysn/jediswap-sdk-core'
 import { isEmpty } from 'lodash'
 import { Link, useParams } from 'react-router-dom'
-import { useBalance } from '@starknet-react/core'
+import { useBalance, useContractWrite } from '@starknet-react/core'
 import { useSelector } from 'react-redux'
+import { cairo, Call, CallData } from 'starknet'
+import JSBI from 'jsbi'
 
 import { useAccountDetails } from 'hooks/starknet-react'
 import { AutoColumn } from 'components/Column'
@@ -34,11 +36,8 @@ import { useConnectionReady } from 'connection/eagerlyConnect'
 import { Z_INDEX } from 'theme/zIndex'
 import { useCurrency } from 'hooks/Tokens'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
-import { cairo, Call, CallData } from 'starknet'
-import { useContractWrite } from '@starknet-react/core'
 import { Field } from 'state/vaults/actions'
 import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
-import JSBI from 'jsbi'
 
 export const DEFAULT_VAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -229,6 +228,16 @@ const MyDepositWrapperInner = styled.div`
   font-size: 20px;
 `
 
+const VaultDetailsBottom = styled(AutoColumn)`
+  gap: 16px;
+  max-width: 100%;
+`
+
+const VaultDetailsImage = styled.img`
+  width: 100%;
+  height: auto;
+`
+
 function ErrorPanel({ text }) {
   return (
     <ErrorContainer>
@@ -412,7 +421,7 @@ export default function Vault({ className }: { className?: string }) {
           shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
         }
         return (
-          <AutoColumn gap={'12px'}>
+          <AutoColumn gap={'18px'}>
             <PageTitle token0={token0} token1={token1} />
             <PageContentWrapper>
               <VaultDetailsContainer>
@@ -436,15 +445,19 @@ export default function Vault({ className }: { className?: string }) {
                       </ThemedText.BodySmall>
                     </AutoColumn>
                     <VerticalDivider />
-                    <AutoColumn gap="15px" grow>
+                    <AutoColumn gap="10px" grow>
                       <AutoRow justify="space-between">
-                        <ThemedText.BodySmall fontWeight={500}>Fee APR:</ThemedText.BodySmall>
+                        <ThemedText.BodySmall fontWeight={500} fontSize={'12px'}>
+                          Fee APR:
+                        </ThemedText.BodySmall>
                         <ThemedText.BodySmall color={'accent1'} fontWeight={700}>
                           {feeApr !== undefined ? formatPercent(Number(feeApr)) : '-'}
                         </ThemedText.BodySmall>
                       </AutoRow>
                       <AutoRow justify="space-between">
-                        <ThemedText.BodySmall fontWeight={500}>STRK APR:</ThemedText.BodySmall>
+                        <ThemedText.BodySmall fontWeight={500} fontSize={'12px'}>
+                          STRK APR:
+                        </ThemedText.BodySmall>
                         <ThemedText.BodySmall color={'accent1'} fontWeight={700}>
                           {apr ? formatPercent(Number(apr)) : '-'}
                         </ThemedText.BodySmall>
@@ -453,9 +466,9 @@ export default function Vault({ className }: { className?: string }) {
                   </AutoRow>
                 </AutoColumn>
                 <Divider />
-                <AutoColumn gap="16px">
+                <VaultDetailsBottom>
                   <VaultName>{currentVault.provider.name}</VaultName>
-                  <img src={currentVault.lpStrategyGraph} />
+                  <VaultDetailsImage src={currentVault.lpStrategyGraph} />
                   {/* update later - img takes time to load issue */}
                   <VaultStrategyType>{currentVault.strategyType}</VaultStrategyType>
                   <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: currentVault.details }} />
@@ -467,7 +480,7 @@ export default function Vault({ className }: { className?: string }) {
                       View Details
                     </a>
                   </VaultStrategyLinks>
-                </AutoColumn>
+                </VaultDetailsBottom>
               </VaultDetailsContainer>
               <VaultTransactionPanel>
                 <VaultElement chainId={chainId} currentVault={currentVault} />
@@ -598,7 +611,7 @@ export function VaultElement({
             data-testid="deposit-button"
             onClick={activeButton === 'Deposit' ? onDeposit : () => {}}
           >
-            {vaultInputError ? vaultInputError : <Trans>{activeButton === 'Deposit' ? 'Deposit' : 'Withdraw'}</Trans>}
+            {vaultInputError || <Trans>{activeButton === 'Deposit' ? 'Deposit' : 'Withdraw'}</Trans>}
           </ButtonError>
         )
     }

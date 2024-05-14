@@ -2,11 +2,11 @@ import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
-import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { darken } from 'polished'
 import { ReactNode, useCallback, useState } from 'react'
 import styled, { useTheme } from 'styled-components'
 
+import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { TraceEvent } from 'analytics'
 import { LoadingOpacityContainer, loadingOpacityMixin } from 'components/Loader/styled'
 import PrefetchBalancesWrapper from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
@@ -224,7 +224,9 @@ export default function CurrencyInputPanel({
   const chainAllowed = isSupportedChain(chainId)
 
   const handleMaxAmount = () => {
-    if (balance) onUserInput(balance)
+    if (balance) {
+      onUserInput(balance)
+    }
   }
 
   const containerStyles = hideShadow ? { boxShadow: 'none' } : {}

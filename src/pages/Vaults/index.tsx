@@ -518,21 +518,29 @@ export default function Vaults({ maxItems = 10 }) {
               }}
             >
               <Flex alignItems="center" justifyContent="flexStart">
-                <ThemedText.BodySmall area="name">Pool Name</ThemedText.BodySmall>
+                <ThemedText.BodySmall area="name" fontWeight={700}>
+                  Pool Name
+                </ThemedText.BodySmall>
               </Flex>
               {!below768 && (
                 <Flex alignItems="center" justifyContent="flexStart">
-                  <ThemedText.BodySmall area="provider">Provider</ThemedText.BodySmall>
+                  <ThemedText.BodySmall area="provider" fontWeight={700}>
+                    Provider
+                  </ThemedText.BodySmall>
                 </Flex>
               )}
               <Flex alignItems="center" justifyContent="flexStart">
-                <ThemedText.BodySmall area="tvl">TVL</ThemedText.BodySmall>
+                <ThemedText.BodySmall area="tvl" fontWeight={700}>
+                  TVL
+                </ThemedText.BodySmall>
               </Flex>
               <Flex alignItems="center" justifyContent="flexStart">
-                <ThemedText.BodySmall area="apr">APR</ThemedText.BodySmall>
+                <ThemedText.BodySmall area="apr" fontWeight={700}>
+                  APR
+                </ThemedText.BodySmall>
               </Flex>
               <Flex alignItems="center" justifyContent="flexStart">
-                <ThemedText.BodySmall area="deposite" textAlign={'center'}>
+                <ThemedText.BodySmall area="deposite" textAlign={'center'} fontWeight={700}>
                   My deposit
                 </ThemedText.BodySmall>
               </Flex>

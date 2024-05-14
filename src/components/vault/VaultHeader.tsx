@@ -59,9 +59,9 @@ export default function VaultHeader({
           <Trans>Withdraw</Trans>
         </PanelButton>
       </HeaderButtonContainer>
-      <RowFixed>
+      {/* <RowFixed>
         <SettingsTab autoSlippage={DEFAULT_VAULT_SLIPPAGE_TOLERANCE} chainId={chainId} trade={trade} />
-      </RowFixed>
+      </RowFixed> */}
     </StyledVaultHeader>
   )
 }
