@@ -5,9 +5,10 @@ import { validateAndParseAddress } from 'starknet'
 import { useDispatch, useSelector } from 'react-redux'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isEmpty, uniq } from 'lodash'
-import { ChainId, Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
 import { useBalance } from '@starknet-react/core'
 import { Trans } from '@lingui/macro'
+import JSBI from 'jsbi'
 
 import { updateAllVaults, updateUserVaults, updateInput } from './reducer'
 import { useAppDispatch, useAppSelector } from '../hooks'
@@ -24,7 +25,6 @@ import { useConnectionReady } from 'connection/eagerlyConnect'
 import { useCurrencyBalances } from '../connection/hooks'
 import { useTotalSupply } from 'hooks/useTotalSupply'
 import { AppState } from 'state/reducer'
-import JSBI from 'jsbi'
 import { DEFAULT_PERMISSIONLESS_API_RESPONSE } from '../../components/vault/constants'
 
 type Maybe<T> = T | null | undefined
@@ -251,7 +251,6 @@ export function useVaultDerivedInfo(
     token0All = data[0]
     token1All = data[1]
     priceRatio = token0All / token1All // get clarity if need to add token decimals here
-    console.log(priceRatio)
   }
   let totalSupply = 0
   const { data: data2, isLoading: isLoading2, isError: isError2 } = useVaultTotalSupply()
@@ -282,7 +281,6 @@ export function useVaultDerivedInfo(
     typedValue,
     currencies[independentField]
   )
-  console.log(independentAmount?.raw, typedValue, 'typedValue')
   const dependentAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
     if (independentAmount && priceRatio) {
       const dependentTokenAmount =
@@ -331,4 +329,26 @@ export function useVaultDerivedInfo(
     token0All,
     totalSupply,
   }
+}
+
+export function useVaultTokens(vault: any): { token0: Token; token1: Token } {
+  const token0 = new Token(
+    vault.token0.chainId,
+    vault.token0.address,
+    vault.token0.decimals,
+    vault.token0.symbol,
+    vault.token0.name
+  )
+  token0.logoURI = vault.token0.logoURI
+
+  const token1 = new Token(
+    vault.token1.chainId,
+    vault.token1.address,
+    vault.token1.decimals,
+    vault.token1.symbol,
+    vault.token1.name
+  )
+  token1.logoURI = vault.token1.logoURI
+
+  return { token0, token1 }
 }

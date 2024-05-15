@@ -1,3 +1,4 @@
+/* eslint-disable semi */
 import styled, { css } from 'styled-components'
 import { useSelector } from 'react-redux'
 import { AutoColumn } from 'components/Column'

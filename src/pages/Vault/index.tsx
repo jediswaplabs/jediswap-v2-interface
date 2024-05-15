@@ -38,6 +38,7 @@ import { useCurrency } from 'hooks/Tokens'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { Field } from 'state/vaults/actions'
 import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
+import VaultWithdraw from 'components/vault/VaultWithdraw'
 
 export const DEFAULT_VAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -534,9 +535,6 @@ export function VaultElement({
   const baseCurrency = useCurrency(currentVault.token0.address)
   const currencyB = useCurrency(currentVault.token1.address)
 
-  console.log(baseCurrency, currentVault.token0.address)
-  console.log(currencyB, currentVault.token1.address)
-
   // toggle wallet when disconnected
   const toggleWalletDrawer = useToggleAccountDrawer()
 
@@ -589,7 +587,6 @@ export function VaultElement({
       calldata: compiledDepositCalls,
     }
     callData.push(calls)
-    console.log(callData)
     // setCallData(callData)
   }
   const getActionContent = () => {
@@ -623,6 +620,7 @@ export function VaultElement({
       <FullDivider />
       <VaultInputWrapper>
         {activeButton === 'Deposit' && <VaultDeposit currentVault={currentVault} />}
+        {activeButton === 'Withdraw' && <VaultWithdraw currentVault={currentVault} />}
       </VaultInputWrapper>
       {getActionContent()}
     </VaultWrapper>
