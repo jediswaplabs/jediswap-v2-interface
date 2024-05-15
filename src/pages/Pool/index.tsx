@@ -1,29 +1,24 @@
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfacePageName } from '@uniswap/analytics-events'
 import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import { useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, BookOpen, ChevronDown, ChevronsRight, Inbox, Layers } from 'react-feather'
+import { AlertTriangle,Inbox } from 'react-feather'
 import { Link } from 'react-router-dom'
 import styled, { css, useTheme } from 'styled-components'
-import { Trace, TraceEvent } from 'analytics'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button'
 import { AutoColumn } from 'components/Column'
-import { FlyoutAlignment, Menu } from 'components/Menu'
 import PositionList from 'components/PositionList'
 import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { isSupportedChain } from 'constants/chains'
-// import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
-import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
 import { FlattenedPositions, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
 import { useUserHideClosedPositions } from 'state/user/hooks'
 import { ThemedText } from 'theme/components'
 import { LoadingRows } from './styled'
-import fetchTokenIds from 'api/fetchTokenId'
-import { useStarknetkitConnectModal } from 'starknetkit'
-import { useAvailableConnectors } from 'context/StarknetProvider'
-import { useConnect } from '@starknet-react/core'
+
+import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
+import { providerInstance } from 'utils/getLibrary'
+import { uint256 } from 'starknet'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -43,98 +38,7 @@ const TitleRow = styled(RowBetween)`
     padding-left: 12px;
   }
 `
-const PoolStats = styled.div`
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(3, 1fr);
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
-    grid-template-columns: 1fr;
-  }
-`
 
-const PoolsCard = styled.div`
-  padding: 20px;
-  border-radius: 8px;
-  backdrop-filter: blur(38px);
-  background-color: rgba(196, 196, 196, 0.01);
-  box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
-    0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
-    0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset,
-    0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.3) inset, 0px 5.38841px 8.46749px -3.07909px #fff inset,
-    0px 30.02111px 43.10724px -27.7118px rgba(255, 255, 255, 0.5) inset;
-  color: ${({ theme }) => theme.jediWhite};
-`
-const PoolsCardHeader = styled.div`
-  color: ${({ theme }) => theme.notice};
-  font-family: DM Sans;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 20px;
-  margin-bottom: 20px;
-
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
-    font-size: 14px;
-  }
-`
-const PoolsCardDetails = styled.div`
-  display: flex;
-  align-items: center;
-`
-
-const PoolsCardNumbers = styled.div`
-  color: ${({ theme }) => theme.jediWhite};
-  font-family: DM Sans;
-  font-size: 24px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 20px;
-
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
-    font-size: 18px;
-  }
-`
-
-const PoolsCardPercent = styled.div`
-  color: ${({ theme }) => theme.signalGreen};
-  text-align: right;
-  margin-left: auto;
-  font-family: DM Sans;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 100%;
-
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.lg}px`}) {
-    font-size: 12px;
-  }
-`
-const PoolsCardPercentNegative = styled(PoolsCardPercent)`
-  color: ${({ theme }) => theme.signalRed};
-`
-
-const NoPositions = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin: auto;
-  min-height: 25vh;
-  height: 240px;
-`
-
-const NewPositionText = styled.div`
-  margin-top: 12px;
-  margin-bottom: 20px;
-`
-
-const PoolsHeading = styled.div`
-  color: ${({ theme }) => theme.jediWhite};
-  font-family: 'Avenir LT Std', sans-serif;
-  text-transform: uppercase;
-  font-size: 24px;
-  font-weight: 750;
-`
 const PositionsText = styled.div`
   color: ${({ theme }) => theme.jediWhite};
   font-family: DM Sans;
@@ -144,38 +48,6 @@ const PositionsText = styled.div`
   line-height: 100%; /* 20px */
 `
 const ButtonRow = styled(AutoRow)``
-
-const PoolMenu = styled(Menu)`
-  margin-left: 0;
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    flex: 1 1 auto;
-  }
-
-  a {
-    width: 100%;
-  }
-`
-const PoolMenuItem = styled.div`
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  font-weight: 535;
-`
-const MoreOptionsButton = styled(ButtonGray)`
-  border-radius: 12px;
-  flex: 1 1 auto;
-  padding: 6px 8px;
-  width: 100%;
-  background-color: ${({ theme }) => theme.surface1};
-  border: 1px solid ${({ theme }) => theme.surface3};
-  margin-right: 8px;
-`
-
-const MoreOptionsText = styled(ThemedText.BodyPrimary)`
-  align-items: center;
-  display: flex;
-`
 
 const ErrorContainer = styled.div`
   align-items: center;
@@ -197,14 +69,6 @@ const IconStyle = css`
   width: 48px;
   height: 48px;
   margin-bottom: 0.5rem;
-`
-
-const IconWrapper = styled.div`
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-  justify-content: center;
-  margin-top: 20px;
 `
 
 const NetworkIcon = styled(AlertTriangle)`
@@ -241,8 +105,6 @@ const MainContentWrapper = styled.main<{ isWalletConnected?: boolean; filteredPo
   @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
   }
 `
-
-const PositionWrapper = styled.div``
 
 function PositionsLoadingPlaceholder() {
   return (
@@ -368,9 +230,25 @@ export default function Pool() {
     const getTokenIds = async () => {
       if (address && chainId) {
         setLoadingPositions(true)
-        const result = await fetchTokenIds(address, chainId)
-        if (result && result.data) {
-          const tokenIdsArray: number[] = result.data.map((item: any) => parseInt(item.token_id))
+        const provider = providerInstance(chainId ?? DEFAULT_CHAIN_ID)
+        const contract_address = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+        const tokenIdsResults = await provider.callContract({
+          entrypoint: 'get_all_tokens_for_owner',
+          contractAddress: contract_address,
+          calldata: [address],
+        })
+        if (tokenIdsResults && tokenIdsResults.result) {
+          // Slice the first index
+          const tokenIdsResultsArr = tokenIdsResults.result
+
+          //converting array of uint256 tokenids into bn
+          const tokenIdsResultsArrWithoutLength = tokenIdsResultsArr.slice(1)
+          const returnDataIterator = tokenIdsResultsArrWithoutLength.flat()[Symbol.iterator]()
+          const tokenIdsArray = [...Array(tokenIdsResultsArrWithoutLength.length / 2)].map(() => {
+            return Number(
+              uint256.uint256ToBN({ low: returnDataIterator.next().value, high: returnDataIterator.next().value })
+            )
+          })
           setTokenIds(tokenIdsArray)
         }
         setLoadingPositions(false)

@@ -2,7 +2,7 @@ import { BigNumber } from '@ethersproject/bignumber'
 import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
 import { LiquidityEventName, LiquiditySource } from '@uniswap/analytics-events'
-import { CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
 import { NonfungiblePositionManager, Position } from '@vnaysn/jediswap-sdk-v3'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
@@ -110,6 +110,12 @@ function Remove({ tokenId }: { tokenId: number }) {
   const { writeAsync, data: txData } = useContractWrite({
     calls: mintCallData,
   })
+
+  useEffect(() => {
+    if (chainId) {
+      if (chainId === ChainId.GOERLI) setShowWarning(false)
+    }
+  }, [chainId])
 
   useEffect(() => {
     if (mintCallData) {

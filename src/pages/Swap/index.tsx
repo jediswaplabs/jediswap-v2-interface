@@ -72,6 +72,10 @@ import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useApprovalCall } from 'hooks/useApproveCall'
 import { Pool, TradeType, toHex } from '@vnaysn/jediswap-sdk-v3'
 import fetchAllPairs from 'api/fetchAllPairs'
+import { useQuery } from 'react-query'
+import { getClient } from 'apollo/client'
+import { TOKENS_DATA } from 'apollo/queries'
+import findClosestPrice from 'utils/getClosestPrice'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -328,7 +332,6 @@ export function Swap({
     inputError: swapInputError,
     inputTax,
     outputTax,
-    outputFeeFiatValue,
   } = swapInfo
 
   const [inputTokenHasTax, outputTokenHasTax] = useMemo(
@@ -363,23 +366,13 @@ export function Swap({
           },
     [independentField, parsedAmount, showWrap, trade]
   )
-  const showFiatValueInput = Boolean(parsedAmounts[Field.INPUT])
-  const showFiatValueOutput = Boolean(parsedAmounts[Field.OUTPUT])
+
   const getSingleUnitAmount = (currency?: Currency) => {
     if (!currency) {
       return
     }
     return CurrencyAmount.fromRawAmount(currency, JSBI.BigInt(10 ** currency.decimals))
   }
-
-  const fiatValueInput = useUSDPrice(
-    parsedAmounts[Field.INPUT] ?? getSingleUnitAmount(currencies[Field.INPUT]),
-    currencies[Field.INPUT]
-  )
-  const fiatValueOutput = useUSDPrice(
-    parsedAmounts[Field.OUTPUT] ?? getSingleUnitAmount(currencies[Field.OUTPUT]),
-    currencies[Field.OUTPUT]
-  )
 
   const [routeNotFound, routeIsLoading, routeIsSyncing] = useMemo(
     () => [
@@ -480,18 +473,6 @@ export function Swap({
     [currencyBalances]
   )
   const showMaxButton = Boolean(maxInputAmount?.greaterThan(0) && !parsedAmounts[Field.INPUT]?.equalTo(maxInputAmount))
-  const swapFiatValues = useMemo(
-    () => ({ amountIn: fiatValueTradeInput.data, amountOut: fiatValueTradeOutput.data, feeUsd: outputFeeFiatValue }),
-    [fiatValueTradeInput.data, fiatValueTradeOutput.data, outputFeeFiatValue]
-  )
-
-  // the callback to execute the swap
-  const swapCallback = useSwapCallback(
-    trade,
-    swapFiatValues,
-    allowedSlippage,
-    allowance.state === AllowanceState.ALLOWED ? allowance.permitSignature : undefined
-  )
 
   const handleContinueToReview = useCallback(() => {
     setSwapState({
@@ -524,6 +505,65 @@ export function Swap({
         })
     }
   }, [swapCallData])
+
+  const separatedFiatValueofLiquidity = useQuery({
+    queryKey: ['fiat_value', trade?.inputAmount, trade?.outputAmount],
+    queryFn: async () => {
+      const ids = []
+      if (!trade?.inputAmount && !trade?.outputAmount) return
+      if (trade?.inputAmount) ids.push((trade?.inputAmount.currency as any).address)
+      if (trade?.outputAmount) ids.push((trade?.outputAmount.currency as any).address)
+      const graphqlClient = getClient(chainId)
+      let result = await graphqlClient.query({
+        query: TOKENS_DATA({ tokenIds: ids }),
+        // fetchPolicy: 'cache-first',
+      })
+
+      try {
+        if (result.data) {
+          const tokensData = result.data.tokensData
+          if (tokensData) {
+            const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
+            const isToken0InputAmount =
+              validateAndParseAddress((trade?.inputAmount.currency as any).address) ===
+              validateAndParseAddress(price0Obj.token.tokenAddress)
+            const price0 = findClosestPrice(price0Obj?.period)
+            const price1 = findClosestPrice(price1Obj?.period)
+
+            return {
+              token0usdPrice: isToken0InputAmount ? price0 : price1,
+              token1usdPrice: isToken0InputAmount ? price1 : price0,
+            }
+          }
+        }
+
+        return { token0usdPrice: undefined, token1usdPrice: undefined }
+      } catch (e) {
+        console.log(e)
+        return { token0usdPrice: null, token1usdPrice: null }
+      }
+    },
+  })
+
+  const { token0usdPrice, token1usdPrice } = useMemo(() => {
+    if (!separatedFiatValueofLiquidity.data || !trade) return { token0usdPrice: undefined, token1usdPrice: undefined }
+    return {
+      token0usdPrice: separatedFiatValueofLiquidity.data.token0usdPrice
+        ? Number(separatedFiatValueofLiquidity.data.token0usdPrice) * Number(trade.inputAmount.toSignificant())
+        : undefined,
+      token1usdPrice: separatedFiatValueofLiquidity.data.token1usdPrice
+        ? Number(separatedFiatValueofLiquidity.data.token1usdPrice) * Number(trade?.outputAmount.toSignificant())
+        : undefined,
+    }
+  }, [separatedFiatValueofLiquidity])
+
+  const usdPriceDifference = useMemo(() => {
+    if (!token0usdPrice || !token1usdPrice) return undefined
+    else
+      return parseFloat(
+        ((token1usdPrice - token0usdPrice) / token0usdPrice * 100).toFixed(2)
+      )
+  }, [token0usdPrice, token1usdPrice])
 
   const amountToApprove = useMemo(
     () => (trade ? trade.maximumAmountIn(allowedSlippage) : undefined),
@@ -788,7 +828,7 @@ export function Swap({
   useEffect(() => {
     if (!trade || prevTrade === trade) {
     } // no new swap quote to log
-  }, [prevTrade, trade, allowedSlippage, swapQuoteLatency, inputTax, outputTax, outputFeeFiatValue])
+  }, [prevTrade, trade, allowedSlippage, swapQuoteLatency, inputTax, outputTax])
 
   const showDetailsDropdown = Boolean(
     !showWrap && userHasSpecifiedInputOutput && (trade || routeIsLoading || routeIsSyncing)
@@ -848,7 +888,7 @@ export function Swap({
             currency={currencies[Field.INPUT] ?? null}
             onUserInput={handleTypeInput}
             onMax={handleMaxInput}
-            fiatValue={showFiatValueInput ? fiatValueInput : undefined}
+            fiatValue={token0usdPrice}
             onCurrencySelect={handleInputSelect}
             otherCurrency={currencies[Field.OUTPUT]}
             showCommonBases
@@ -882,11 +922,12 @@ export function Swap({
               label={<Trans>To</Trans>}
               showMaxButton={false}
               hideBalance={false}
-              fiatValue={showFiatValueOutput ? fiatValueOutput : undefined}
+              fiatValue={token1usdPrice}
               priceImpact={stablecoinPriceImpact}
               currency={currencies[Field.OUTPUT] ?? null}
               onCurrencySelect={handleOutputSelect}
               otherCurrency={currencies[Field.INPUT]}
+              usdPriceDifference={usdPriceDifference}
               showCommonBases
               id={InterfaceSectionName.CURRENCY_OUTPUT_PANEL}
               loading={independentField === Field.INPUT && routeIsSyncing}

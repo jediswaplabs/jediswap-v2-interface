@@ -11,6 +11,7 @@ import { useV3NFTPositionManagerContract } from './useContract'
 import { DEFAULT_CHAIN_ID, MAX_UINT128, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import {
   BigNumberish,
+  BlockTag,
   CallData,
   RpcProvider,
   TransactionType,
@@ -90,6 +91,7 @@ export const usePositionOwner = (tokenId: number) => {
     abi: NFTPositionManagerABI,
     address: NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID],
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
   return { ownerOf: ownerOf ? validateAndParseAddress(ownerOf.toString()) : undefined, isLoading, error }
 }
@@ -124,14 +126,12 @@ export const useStaticFeeResults = (
   const collect_call_data_length = { approve_call_data_length: '0x05' }
 
   const nonce_results = useQuery({
-    queryKey: [`nonce/${poolAddress}/${parsedTokenId}/${account?.address}`],
+    queryKey: [`nonce/${address}/${chainId}`],
     queryFn: async () => {
-      if (!account) return
-      const results = await account?.getNonce()
+      if (!account || !chainId || !address) return
+      const provider = providerInstance(chainId)
+      const results = await provider?.getNonceForAddress(address)
       return cairo.felt(results.toString())
-    },
-    onSuccess: (data) => {
-      // Handle the successful data fetching here if needed
     },
   })
 

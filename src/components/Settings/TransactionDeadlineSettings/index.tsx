@@ -3,7 +3,7 @@ import Expand from 'components/Expand'
 import QuestionHelper from 'components/QuestionHelper'
 import Row from 'components/Row'
 import { Input, InputContainer } from 'components/Settings/Input'
-import { DEFAULT_DEADLINE_FROM_NOW } from 'constants/misc'
+import {DEFAULT_DEADLINE_FROM_NOW, MAX_DEADLINE_TIME_IN_SECONDS, MIN_DEADLINE_TIME_IN_SECONDS} from 'constants/misc'
 import ms from 'ms'
 import React, { useState } from 'react'
 import { useUserTransactionTTL } from 'state/user/hooks'
@@ -13,7 +13,6 @@ enum DeadlineError {
   InvalidInput = 'InvalidInput',
 }
 
-const THREE_DAYS_IN_SECONDS = ms(`3d`) / 1000
 const NUMBERS_ONLY = /^[0-9\b]+$/
 
 export default function TransactionDeadlineSettings() {
@@ -39,7 +38,7 @@ export default function TransactionDeadlineSettings() {
     setDeadlineError(false)
 
     // If the input is empty, set the deadline to the default
-    if (value.length === 0) {
+    if (!value.length) {
       setDeadline(DEFAULT_DEADLINE_FROM_NOW)
       return
     }
@@ -47,7 +46,7 @@ export default function TransactionDeadlineSettings() {
     // Parse user input and set the deadline if valid, error otherwise
     try {
       const parsed: number = Number.parseInt(value) * 60
-      if (parsed === 0 || parsed > THREE_DAYS_IN_SECONDS) {
+      if (parsed < MIN_DEADLINE_TIME_IN_SECONDS || parsed > MAX_DEADLINE_TIME_IN_SECONDS) {
         setDeadlineError(DeadlineError.InvalidInput)
       } else {
         setDeadline(parsed)
@@ -64,9 +63,9 @@ export default function TransactionDeadlineSettings() {
       testId="transaction-deadline-settings"
       header={
         <Row width="auto">
-          <ThemedText.BodySecondary>
+          <ThemedText.BodyPrimary>
             <Trans>Transaction deadline</Trans>
-          </ThemedText.BodySecondary>
+          </ThemedText.BodyPrimary>
           <QuestionHelper
             text={<Trans>Your transaction will revert if it is pending for more than this period of time.</Trans>}
           />

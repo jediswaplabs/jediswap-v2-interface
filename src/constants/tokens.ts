@@ -3,6 +3,7 @@ import { ChainId, Currency, NativeCurrency, Percent, Token } from '@vnaysn/jedis
 
 // import { fortmatic, injected, portis, walletconnect, walletlink, argentX } from '../connectors'
 import JSBI from 'jsbi'
+import { isProductionEnvironment } from 'connectors'
 
 export const DEFAULT_CHAIN_ID = ChainId.MAINNET
 export const NONFUNGIBLE_POSITION_MANAGER_ADDRESSES = '0xC36442b4a4522E871399CD717aBDD847Ab11FE88'
@@ -13,6 +14,7 @@ export const isBsc = false
 export const isPolygon = false
 export const isCelo = false
 export const MAX_UINT128 = BigInt(2) ** BigInt(128) - BigInt(1)
+export const ETH_ADDRESS = '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7'
 
 export const NATIVE_CHAIN_ID = 'NATIVE'
 export const ZERO_ADDRESS_STARKNET = '0x0000000000000000000000000000000000000000000000000000000000000000'
@@ -25,12 +27,12 @@ export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {
 }
 
 export const POOL_CLASS_HASH = {
-  [ChainId.MAINNET]: '0x28f45f8cb529a51c5beead847c659802b978801e5303201859175f6d9a5939e',
-  [ChainId.GOERLI]: '0x06b8ae9efb0dbe07d7d047fb377734d4e8b881febd38f480cd1dc4f077fd3d84',
+  [ChainId.MAINNET]: '0x2cd3c16a0112b22ded4903707f268125fcf46fd7733761e62c13fc0157afd8d',
+  [ChainId.GOERLI]: '0x2cd3c16a0112b22ded4903707f268125fcf46fd7733761e62c13fc0157afd8d',
 }
 export const FACTORY_ADDRESS = {
-  [ChainId.MAINNET]: '0x04ba0de31008f4e3edd42b3c31db8f49490505885d684b78f5aa1572850b3a5a',
-  [ChainId.GOERLI]: '0x06b4115fa43c48118d3f79fbc500c75917c8a28d0f867479acb81893ea1e036c',
+  [ChainId.MAINNET]: '0x01aa950c9b974294787de8df8880ecf668840a6ab8fa8290bf2952212b375148',
+  [ChainId.GOERLI]: '0x050d3df81b920d3e608c4f7aeb67945a830413f618a1cf486bdcce66a395109c',
 }
 
 export const FACTORY_ADDRESS_CLASS_HASH: { [chainId in ChainId]: string } = {
@@ -39,12 +41,12 @@ export const FACTORY_ADDRESS_CLASS_HASH: { [chainId in ChainId]: string } = {
 }
 
 export const NONFUNGIBLE_POOL_MANAGER_ADDRESS: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]: '0x00287d2ff1c39a44cd18d9dc7ed5617c9cb16b65090db6a0f689aa14755e4e5e',
-  [ChainId.GOERLI]: '0x00d61e6af51443e01bc62cc5ce2692c26ce7b3a228ded99b3c5cfc84ae3ac6a3',
+  [ChainId.MAINNET]: '0x0469b656239972a2501f2f1cd71bf4e844d64b7cae6773aa84c702327c476e5b',
+  [ChainId.GOERLI]: '0x024fd9721eea36cf8cebc226fd9414057bbf895b47739822f849f622029f9399',
 }
 export const SWAP_ROUTER_ADDRESS_V2 = {
-  [ChainId.MAINNET]: '0x031a0c1ec4b27d0d0ce75a56b0d35d7ca79138aed511857627b33295b1175ffa',
-  [ChainId.GOERLI]: '0x038eaefeb9950c40a0a85f35378055e4c9739a1eb20e87e122ff66b4223d65ab',
+  [ChainId.MAINNET]: '0x0359550b990167afd6635fa574f3bdadd83cb51850e1d00061fe693158c23f80',
+  [ChainId.GOERLI]: '0x03c8e56d7f6afccb775160f1ae3b69e3db31b443e544e56bd845d8b3b3a87a21',
 }
 
 export const SWAP_ROUTER_ADDRESS_V1 = {
@@ -59,7 +61,7 @@ export const STARKSCAN_PROXY_ADDRESS = {
 
 export const STARKSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: '',
-  [ChainId.GOERLI]: 'testnet.',
+  [ChainId.GOERLI]: 'sepolia.',
 }
 
 export function getSwapCurrencyId(currency: Currency): string {

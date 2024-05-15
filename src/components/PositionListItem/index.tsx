@@ -173,8 +173,7 @@ export default function PositionListItem({
   tick_lower: tickLower,
   tick_upper: tickUpper,
 }: PositionListItemProps) {
-  const { formatDelta, formatTickPrice } = useFormatter()
-
+  const { formatTickPrice } = useFormatter()
   const token0 = useToken(token0Address)
   const token1 = useToken(token1Address)
 
@@ -203,7 +202,7 @@ export default function PositionListItem({
 
   const positionSummaryLink = `/pools/${tokenId}`
 
-  const removed = !parseInt(liquidity.toString())
+  const removed = liquidity?.eq(0)
   return (
     <LinkRow to={positionSummaryLink}>
       <RowBetween>

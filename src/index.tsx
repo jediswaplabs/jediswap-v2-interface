@@ -1,9 +1,5 @@
 import '@reach/dialog/styles.css'
-// import 'inter-ui'
-// import 'polyfills'
-// import 'connection/eagerlyConnect'
 
-import { ApolloProvider } from '@apollo/client'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Helmet } from 'react-helmet'
@@ -14,10 +10,7 @@ import { HashRouter, useLocation } from 'react-router-dom'
 import { MulticallUpdater } from 'lib/state/multicall'
 import StarkMulticallUpdater from './state/multicall/updater'
 import { BlockNumberProvider } from 'lib/hooks/useBlockNumber'
-import { apolloClient } from 'graphql/data/apollo'
 import { FeatureFlagsProvider } from 'featureFlags'
-// import { SystemThemeUpdater, ThemeColorMetaUpdater } from 'theme/components/ThemeToggle'
-import Web3Provider from './components/Web3Provider'
 import { LanguageProvider } from './i18n'
 import App from './pages/App'
 import store from './state'
@@ -64,15 +57,13 @@ createRoot(container).render(
             <HashRouter>
               <LanguageProvider>
                 {/* <Web3Provider> */}
-                <ApolloProvider client={apolloClient}>
-                  <BlockNumberProvider>
-                    <Updaters />
-                    <ThemeProvider>
-                      <ThemedGlobalStyle />
-                      <App />
-                    </ThemeProvider>
-                  </BlockNumberProvider>
-                </ApolloProvider>
+                <BlockNumberProvider>
+                  <Updaters />
+                  <ThemeProvider>
+                    <ThemedGlobalStyle />
+                    <App />
+                  </ThemeProvider>
+                </BlockNumberProvider>
                 {/* </Web3Provider> */}
               </LanguageProvider>
             </HashRouter>
