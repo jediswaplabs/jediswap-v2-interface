@@ -19910,10 +19910,10 @@ starknet@^5.24.3:
     pako "^2.0.4"
     url-join "^4.0.1"
 
-starknetkit@^1.1.4:
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/starknetkit/-/starknetkit-1.1.4.tgz#d135a87c8adebe88971b5258e97b244d24fef2f8"
-  integrity sha512-KZ/OvhtGEJPyAXKS6Dht5DL6CtjUtGDfNuzaX1bsYawGgnftOOZ0DXD2SBOQ6ErYLKELbVv3RKBlHs6KonORcQ==
+starknetkit@^1.1.9:
+  version "1.1.9"
+  resolved "https://registry.yarnpkg.com/starknetkit/-/starknetkit-1.1.9.tgz#92ff7536b2bdc36017e4b16067f4c5ba264b4981"
+  integrity sha512-KarnNS9sJoImTdpTKizyNzDlQSAOutbzuZ6CzHQpJHWzaf8ION9aIf+d87sY7hSlbmD7cqGRUG28Hpke24arCg==
   dependencies:
     "@trpc/client" "^10.38.1"
     "@trpc/server" "^10.38.1"

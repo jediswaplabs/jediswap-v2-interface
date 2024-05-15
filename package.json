@@ -283,7 +283,7 @@
     "redux": "^4.1.2",
     "redux-persist": "^6.0.0",
     "starknet": "^5.24.3",
-    "starknetkit": "^1.1.4",
+    "starknetkit": "^1.1.9",
     "statsig-react": "^1.22.0",
     "styled-components": "^5.3.5",
     "tiny-invariant": "^1.2.0",
