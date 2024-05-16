@@ -1,8 +1,3 @@
-/* eslint-disable comma-dangle */
-/* eslint-disable object-curly-newline */
-/* eslint-disable semi */
-// @ts-nocheck
-
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { AlertTriangle, ArrowLeft } from 'react-feather'
@@ -529,6 +524,7 @@ export function VaultElement({
   const [activeButton, setActiveButton] = useState<string>('Deposit')
   const connectionReady = useConnectionReady()
   const { address: account } = useAccountDetails()
+  const { vaultId: vaultAddressFromUrl } = useParams()
 
   const vaultState = useSelector((state) => state.vaults)
   // Vault Input state
@@ -569,7 +565,7 @@ export function VaultElement({
   const defaultDpositSlippage = 1.01 // for deposit
   const onDeposit = () => {
     const callData = []
-    const vaultAddress = '0x054d911ef2a0c44fc92d28d55fb0abe1f8a93c1c2b3035c0c47d7965a6378da9' // check - replace vault address
+    const vaultAddress = vaultAddressFromUrl
     const amount0_with_slippage = JSBI.multiply(parsedAmountA, 1.01)
     const amount1_with_slippage = JSBI.multiply(parsedAmountB, 1.01)
     const derivedShares = JSBI.BigInt((parsedAmountA / token0All) * totalSupply)
