@@ -1,7 +1,3 @@
-/* eslint-disable operator-linebreak */
-/* eslint-disable object-curly-newline */
-/* eslint-disable semi */
-/* eslint-disable indent */
 import { Trans } from '@lingui/macro'
 import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
@@ -35,8 +31,12 @@ const InputPanel = styled.div<{ hideInput?: boolean }>`
 `
 
 const Container = styled.div<{ hideInput: boolean; disabled: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   border-radius: ${({ hideInput }) => (hideInput ? '8px' : '8px')};
   background-color: rgba(196, 196, 196, 0.01);
+  padding: 16px;
   box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
     0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
     0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset,
@@ -76,8 +76,8 @@ const CurrencySelect = styled(ButtonGray)<{
   width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
   padding: 0 8px;
   justify-content: space-between;
-  margin-left: ${({ hideInput }) => (hideInput ? '0' : '12px')};
   visibility: ${({ visible }) => (visible ? 'visible' : 'hidden')};
+  border-radius: 8px;
   ${({ pointerEvents }) => pointerEvents && 'pointer-events: none'}
 `
 
@@ -85,7 +85,6 @@ const InputRow = styled.div<{ selected: boolean }>`
   ${flexRowNoWrap};
   align-items: center;
   justify-content: space-between;
-  padding: ${({ selected }) => (selected ? ' 1rem 1rem 0.75rem 0' : '1rem 1rem 1rem 0')};
 `
 
 const LabelRow = styled.div`
@@ -94,7 +93,6 @@ const LabelRow = styled.div`
   color: ${({ theme }) => theme.neutral1};
   font-size: 0.75rem;
   line-height: 1rem;
-  padding: 0 1rem 1rem;
   span:hover {
     cursor: pointer;
     color: ${({ theme }) => darken(0.2, theme.neutral2)};
@@ -103,7 +101,6 @@ const LabelRow = styled.div`
 
 const FiatRow = styled(LabelRow)`
   justify-content: flex-end;
-  padding: 0px 1rem 0.75rem;
   height: 32px;
 `
 
@@ -161,8 +158,8 @@ const StyledNumericalInput = styled(NumericalInput)<{ $loading: boolean }>`
   text-align: left;
 `
 
-const StyledPrefetchBalancesWrapper = styled(PrefetchBalancesWrapper)<{ $fullWidth: boolean }>`
-  width: ${({ $fullWidth }) => ($fullWidth ? '100%' : 'auto')};
+const StyledPrefetchBalancesWrapper = styled(PrefetchBalancesWrapper)`
+  width: 50%;
 `
 
 interface CurrencyInputPanelProps {
@@ -252,16 +249,14 @@ export default function VaultWithdrawInput({
               </CurrencySelect>
             </StyledPrefetchBalancesWrapper>
             {!hideInput && (
-              <div>
-                <StyledNumericalInput
-                  className="token-amount-input"
-                  value={value}
-                  onUserInput={onUserInput}
-                  disabled={!chainAllowed}
-                  $loading={loading}
-                  style={{ width: 'auto', textAlign: 'right' }}
-                />
-              </div>
+              <StyledNumericalInput
+                className="token-amount-input"
+                value={value}
+                onUserInput={onUserInput}
+                disabled={!chainAllowed}
+                $loading={loading}
+                style={{ width: 'auto', textAlign: 'right' }}
+              />
             )}
           </InputRow>
           {Boolean(!hideInput && !hideBalance) && (
