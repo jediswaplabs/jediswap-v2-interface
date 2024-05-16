@@ -330,7 +330,6 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }) => 
   const below600 = useMedia('(max-width: 600px)')
   const below768 = useMedia('(max-width: 768px)')
 
-  // const shareTokenAddress = (vaultAddress === '0x054d911ef2a0c44fc92d28d55fb0abe1f8a93c1c2b3035c0c47d7965a6378da9') ? '0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d' : '0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7';
   const shareTokenAddress = vaultData?.share?.address
   const performanceData = vaultData.performance[vaultData.mainAssetKey]
 
