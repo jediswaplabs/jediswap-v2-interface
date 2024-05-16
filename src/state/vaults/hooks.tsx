@@ -1,6 +1,3 @@
-// @ts-nocheck
-// @ts-ignore
-
 import { validateAndParseAddress } from 'starknet'
 import { useDispatch, useSelector } from 'react-redux'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -9,6 +6,7 @@ import { ChainId, Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-c
 import { useBalance } from '@starknet-react/core'
 import { Trans } from '@lingui/macro'
 import JSBI from 'jsbi'
+import { useParams } from 'react-router-dom'
 
 import { updateAllVaults, updateUserVaults, updateInput } from './reducer'
 import { useAppDispatch, useAppSelector } from '../hooks'
@@ -241,8 +239,9 @@ export function useVaultDerivedInfo(
 } {
   const { address: account } = useAccountDetails()
   const { independentField, typedValue } = useVaultState()
+  const { vaultId: vaultAddressFromUrl } = useParams()
 
-  const { data, isLoading, isError } = useUnderlyingVaultAssets()
+  const { data, isLoading, isError } = useUnderlyingVaultAssets(vaultAddressFromUrl)
   let token0All = 0
   let token1All = 0
   let priceRatio = 1
@@ -253,7 +252,7 @@ export function useVaultDerivedInfo(
     priceRatio = token0All / token1All // get clarity if need to add token decimals here
   }
   let totalSupply = 0
-  const { data: data2, isLoading: isLoading2, isError: isError2 } = useVaultTotalSupply()
+  const { data: data2, isLoading: isLoading2, isError: isError2 } = useVaultTotalSupply(vaultAddressFromUrl)
   if (data2 && !isLoading2 && !isError2) {
     totalSupply = data2
   }
