@@ -1,13 +1,13 @@
 import { useContractRead } from '@starknet-react/core'
-import VAULT_ABI from './abi.json'
 import { cairo } from 'starknet'
-const vaultAddress = '0x054d911ef2a0c44fc92d28d55fb0abe1f8a93c1c2b3035c0c47d7965a6378da9' //replace vault address
+
+import VAULT_ABI from './abi.json'
 
 interface TokenData {
   [key: string]: any
 }
 
-export const useTotalSharesSupply = () => {
+export const useTotalSharesSupply = (vaultAddress: string) => {
   const { data, isLoading, isError } = useContractRead({
     functionName: 'total_supply',
     args: [],
@@ -19,7 +19,7 @@ export const useTotalSharesSupply = () => {
   return { data, isLoading, isError }
 }
 
-export const useUnderlyingVaultAssets = () => {
+export const useUnderlyingVaultAssets = (vaultAddress: string) => {
   // neeed to pass on the correct contract address later on
   const { data, isLoading, isError } = useContractRead({
     functionName: 'vault_all_underlying_assets',
@@ -39,7 +39,7 @@ export const useUnderlyingVaultAssets = () => {
   return { data, isLoading, isError }
 }
 
-export const useVaultTotalSupply = () => {
+export const useVaultTotalSupply = (vaultAddress: string) => {
   // neeed to pass on the correct contract address later on
   const { data, isLoading, isError } = useContractRead({
     functionName: 'total_supply',
