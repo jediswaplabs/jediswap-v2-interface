@@ -1,9 +1,8 @@
-/* eslint-disable object-curly-newline */
-/* eslint-disable semi */
 import styled, { css } from 'styled-components'
 import React, { useEffect, useState } from 'react'
 import { useContractWrite } from '@starknet-react/core'
 import { cairo, Call, CallData } from 'starknet'
+import { useParams } from 'react-router-dom'
 
 import { AutoColumn } from 'components/Column'
 import VaultWithdrawInput from './VaultWithdrawInput'
@@ -21,6 +20,7 @@ const WithdrawWrapper = styled(AutoColumn)`
 
 function VaultWithdraw({ currentVault }: { currentVault: any }) {
   const [callData, setCallData] = useState<Call[]>([])
+  const { vaultId: vaultAddressFromUrl } = useParams()
   // Vault Input state
   const baseCurrency = useCurrency(currentVault.token0.address)
   const currencyB = useCurrency(currentVault.token1.address)
@@ -58,7 +58,7 @@ function VaultWithdraw({ currentVault }: { currentVault: any }) {
 
   const onWithdraw = () => {
     const callData = []
-    const vaultAddress = '0x054d911ef2a0c44fc92d28d55fb0abe1f8a93c1c2b3035c0c47d7965a6378da9' // vault address
+    const vaultAddress = vaultAddressFromUrl
     const callParams = {
       shares: cairo.uint256('0'),
       amount0_min: cairo.uint256('2'),
