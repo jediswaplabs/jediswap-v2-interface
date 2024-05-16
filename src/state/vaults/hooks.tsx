@@ -23,7 +23,6 @@ import { useConnectionReady } from 'connection/eagerlyConnect'
 import { useCurrencyBalances } from '../connection/hooks'
 import { useTotalSupply } from 'hooks/useTotalSupply'
 import { AppState } from 'state/reducer'
-import { DEFAULT_PERMISSIONLESS_API_RESPONSE } from '../../components/vault/constants'
 
 type Maybe<T> = T | null | undefined
 
@@ -103,9 +102,8 @@ const getPermissionlessVaultDataList = async () => {
   //   const endpoint = `${TEAHOUSE_VAULT_ENDPOINT}/vaults/type/permissionless`
   const endpoint = TEAHOUSE_TESTNET_VAULT_ENDPOINT
   const result = {}
-  //   const response = await fetch(endpoint)
-  //   const { vaults } = (await response.json()) ?? {}
-  const { vaults } = DEFAULT_PERMISSIONLESS_API_RESPONSE // check --> api was failing
+    const response = await fetch(endpoint)
+    const { vaults } = (await response.json()) ?? {}
   if (!vaults) {
     return
   }
