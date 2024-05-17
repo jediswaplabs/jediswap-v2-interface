@@ -3788,6 +3788,18 @@
   resolved "https://registry.npmjs.org/@metamask/safe-event-emitter/-/safe-event-emitter-2.0.0.tgz"
   integrity sha512-/kSXhY692qiV1MXu6EeOZvg5nECLclxNXcKCxJ3cXQgYuRymRHpdx/t7JXfsK+JLjwA1e1c1/SBrlQYpusC29Q==
 
+"@module-federation/runtime@^0.1.2":
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/@module-federation/runtime/-/runtime-0.1.13.tgz#11881474cad412042bf48a3e578c85db9a61ded1"
+  integrity sha512-bWKvo1WDAVkFzW/dYz9hUltG4yf4qkj90m3xtId3WGcZlFNviKD51/viltQPCutiBpimIe6W+YuJDfWOZc8Bnw==
+  dependencies:
+    "@module-federation/sdk" "0.1.13"
+
+"@module-federation/sdk@0.1.13":
+  version "0.1.13"
+  resolved "https://registry.yarnpkg.com/@module-federation/sdk/-/sdk-0.1.13.tgz#26a4449a7583b5fcbc162ac555d21e32fec1cd3a"
+  integrity sha512-B1eKDnZjdWINmaaci9QMfQn24izzgoX3kQn6F77U1kiEMnum7yTTwBlB1jxgmNqlRYQ9ul4xcEOCnCUEM3nNHA==
+
 "@motionone/animation@^10.15.1":
   version "10.15.1"
   resolved "https://registry.yarnpkg.com/@motionone/animation/-/animation-10.15.1.tgz#4a85596c31cbc5100ae8eb8b34c459fb0ccf6807"
@@ -12897,10 +12909,12 @@ get-source@^2.0.12:
     data-uri-to-buffer "^2.0.0"
     source-map "^0.6.1"
 
-get-starknet-core@^3.0.1, get-starknet-core@^3.1.0, get-starknet-core@^3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/get-starknet-core/-/get-starknet-core-3.2.0.tgz#44cabcbd573262340d575cb6b9a38e469a8029ed"
-  integrity sha512-SZhxtLlKoPKLZ2H3l9WIU7CiNmkL3qLWGksALmvZdAXa/9PykYfLtvIB5B8A2UZMpf2ojTZlWLfuo1KhgmVobA==
+get-starknet-core@3.3.0, get-starknet-core@^3.0.1, get-starknet-core@^3.1.0, get-starknet-core@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/get-starknet-core/-/get-starknet-core-3.3.0.tgz#d21e6c13c6f63b23245128c738583a1023bb1ba6"
+  integrity sha512-TG17zIBdjHIyO0CTjkB7lkuvo24OHLrkB/rZSEdspEAcwcysMpZOVgwrNPIzD89kU8gZ3m1UANarFNPVLULS5Q==
+  dependencies:
+    "@module-federation/runtime" "^0.1.2"
 
 get-stream@^5.0.0, get-stream@^5.1.0:
   version "5.2.0"

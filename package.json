@@ -242,7 +242,7 @@
     "ext-name": "^5.0.0",
     "focus-visible": "^5.2.0",
     "get-graphql-schema": "^2.1.2",
-    "get-starknet-core": "^3.2.0",
+    "get-starknet-core": "^3.3.0",
     "global": "^4.4.0",
     "graphql": "^16.5.0",
     "graphql-request": "^3.4.0",
@@ -306,5 +306,8 @@
   "engines": {
     "npm": "please-use-yarn",
     "yarn": ">=1.22"
+  },
+  "resolutions": {
+    "get-starknet-core": "3.3.0"
   }
 }
