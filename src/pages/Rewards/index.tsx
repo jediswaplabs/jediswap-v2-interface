@@ -232,7 +232,7 @@ const ClaimWrapper = styled.div`
 
 const ClaimButtonGradient = styled(ButtonPrimary)`
   display: flex;
-  width: 160px;
+  width: auto;
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
@@ -724,7 +724,7 @@ export default function Rewards() {
                           STRK ALLOCATED
                         </>
                       </HeaderText>
-                      <AmountText>{allocations?.toSignificant() ?? 0}</AmountText>
+                      <AmountText>{address && allocations ? allocations?.toSignificant() : 0}</AmountText>
                     </Column>
                     <Column>
                       <HeaderText>
@@ -733,7 +733,9 @@ export default function Rewards() {
                           STRK CLAIMED
                         </>
                       </HeaderText>
-                      <AmountText>{formattedClaimRewards?.toSignificant() ?? 0}</AmountText>
+                      <AmountText>
+                        {address && formattedClaimRewards ? formattedClaimRewards?.toSignificant() : 0}
+                      </AmountText>
                     </Column>
                     <Column>
                       <HeaderText>
@@ -743,7 +745,7 @@ export default function Rewards() {
                         </>
                       </HeaderText>
                       <ClaimWrapper>
-                        <AmountText>{unclaimed_rewards.toSignificant() ?? 0}</AmountText>
+                        <AmountText>{address && unclaimed_rewards ? unclaimed_rewards.toSignificant(5) : 0}</AmountText>
 
                         {!address ? (
                           <ClaimButtonGradient
