@@ -23,6 +23,8 @@ import { useConnectionReady } from 'connection/eagerlyConnect'
 import { useCurrencyBalances } from '../connection/hooks'
 import { useTotalSupply } from 'hooks/useTotalSupply'
 import { AppState } from 'state/reducer'
+import { DEFAULT_PERMISSIONLESS_API_RESPONSE } from '../../components/vault/constants'
+import { formatUsdPrice } from 'nft/utils'
 
 type Maybe<T> = T | null | undefined
 
@@ -102,8 +104,9 @@ const getPermissionlessVaultDataList = async () => {
   //   const endpoint = `${TEAHOUSE_VAULT_ENDPOINT}/vaults/type/permissionless`
   const endpoint = TEAHOUSE_TESTNET_VAULT_ENDPOINT
   const result = {}
-    const response = await fetch(endpoint)
-    const { vaults } = (await response.json()) ?? {}
+  //   const { vaults } = DEFAULT_PERMISSIONLESS_API_RESPONSE // check --> api was failing
+  const response = await fetch(endpoint)
+  const { vaults } = (await response.json()) ?? {}
   if (!vaults) {
     return
   }
@@ -348,4 +351,80 @@ export function useVaultTokens(vault: any): { token0: Token; token1: Token } {
   token1.logoURI = vault.token1.logoURI
 
   return { token0, token1 }
+}
+
+export function useVaultTableContent(
+  vault: any,
+  vaultAddress: string
+): { token0: Token; token1: Token; tvl: number; apr: number } {
+  const { address, isConnected } = useAccountDetails()
+  const { token0, token1 } = useVaultTokens(vault)
+  const shareTokenAddress = vault?.share?.address
+  const {
+    data: userBalanceData,
+    isLoading: isUserBalanceLoading,
+    isError: isUserBalanceError,
+    isSuccess: isUserBalanceSuccess,
+  } = useBalance({
+    token: shareTokenAddress,
+    address,
+    watch: true,
+  })
+
+  if (!(vault?.token0 && vault?.token1 && shareTokenAddress)) {
+    return null
+  }
+
+  const performanceData = vault?.performance[vault?.mainAssetKey]
+
+  let tvl
+  let apr
+  let feeApr
+  let totalApr
+  let shareTokenPriceUsd
+
+  if (!isEmpty(performanceData)) {
+    const mainTokenDecimals = vault[vault.mainAssetKey].decimals
+    const tvlInMainToken = performanceData.tvl / 10 ** mainTokenDecimals
+    const tokenPrice = vault.prices[vault.mainAssetKey]
+    const shareTokenDecimals = vault?.share?.decimals
+    const shareTokenPriceInUnits = performanceData.shareTokenPrice / 10 ** (18 + shareTokenDecimals)
+    tvl = tvlInMainToken * tokenPrice
+    apr = Number(performanceData.shareTokenApr / 10 ** 4)?.toFixed(2)
+    feeApr = Number(performanceData.feeApr / 10 ** 4)?.toFixed(2)
+    totalApr = Number((performanceData?.shareTokenApr + performanceData?.feeApr) / 10 ** 4)?.toFixed(2)
+    shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
+  }
+
+  const balanceInUsd = Number(userBalanceData?.formatted ?? 0) * (shareTokenPriceUsd ?? 0)
+
+  let balance
+  switch (true) {
+    case !isConnected:
+    case isUserBalanceError: {
+      balance = formatUsdPrice(0)
+      break
+    }
+    case isUserBalanceLoading: {
+      balance = '...'
+      break
+    }
+    case isUserBalanceSuccess: {
+      balance = formatUsdPrice(balanceInUsd)
+      break
+    }
+    default: {
+      balance = formatUsdPrice(0)
+    }
+  }
+
+  return {
+    token0,
+    token1,
+    tvl,
+    apr,
+    feeApr,
+    totalApr,
+    balance,
+  }
 }
