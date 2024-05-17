@@ -42,6 +42,7 @@ import JSBI from 'jsbi'
 import { useApprovalCall } from 'hooks/useApproveCall'
 import { calculateMaximumAmountWithSlippage } from 'utils/calculateSlippage'
 import { decimalToBigInt } from 'utils/decimalToBigint'
+import VaultWithdraw from 'components/vault/VaultWithdraw'
 
 export const DEFAULT_VAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -515,7 +516,7 @@ export function VaultElement({
   //   disableTokenInputs?: boolean
 }) {
   const [callData, setCallData] = useState<Call[]>([])
-  const [activeButton, setActiveButton] = useState<string>('Deposit')
+  const [activeButton, setActiveButton] = useState<string>('Withdraw')
   const connectionReady = useConnectionReady()
   const { address: account } = useAccountDetails()
 
@@ -640,7 +641,9 @@ export function VaultElement({
       <FullDivider />
       <VaultInputWrapper>
         {activeButton === 'Deposit' && <VaultDeposit currentVault={currentVault} />}
+        {activeButton === 'Withdraw' && <VaultWithdraw currentVault={currentVault} />}
       </VaultInputWrapper>
+
       {getActionContent()}
     </VaultWrapper>
   )

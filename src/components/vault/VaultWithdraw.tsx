@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useContractWrite } from '@starknet-react/core'
 import { cairo, Call, CallData } from 'starknet'
+import { useUserShares } from './hooks'
+import { useAccountDetails } from 'hooks/starknet-react'
 
 function VaultWithdraw() {
   const [callData, setCallData] = useState<Call[]>([])
+
+  const { data: shares, isError } = useUserShares()
 
   const {
     writeAsync,
