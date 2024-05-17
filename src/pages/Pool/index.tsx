@@ -15,8 +15,7 @@ import { ButtonRow, ErrorContainer, LoadingRows, MainContentWrapper, NetworkIcon
 import { getAllPools } from 'api/PoolsData'
 import Pools from 'components/Pools'
 import { formattedNum, formattedPercent, get2DayPercentChange, getPercentChange } from 'utils/formatNum'
-import { REWARDS_SELECTOR, STARKNET_REWARDS_API_URL } from 'constants/strkRewards'
-import { HISTORICAL_GLOBAL_DATA } from 'apollo/queries'
+import { HISTORICAL_GLOBAL_DATA, STRK_REWARDS_DATA } from 'apollo/queries'
 import { apiTimeframeOptions } from 'constants/apiTimeframeOptions'
 import { ETH_ADDRESS } from 'constants/tokens'
 import { getClient } from 'apollo/client'
@@ -97,17 +96,15 @@ export default function Pool() {
         return
       }
       const poolsDataRaw = await getAllPools(graphqlClient, [...whitelistedIds, ETH_ADDRESS]) //add ETH token
-      const rewardsResp = await fetch(STARKNET_REWARDS_API_URL)
-      const rewardsRespStr = await rewardsResp.text()
-      const rewardsRespStrClean = rewardsRespStr.replace(/\bNaN\b/g, "null")
-      const rewardsRespJson = JSON.parse(rewardsRespStrClean)
-      const jediRewards = rewardsRespJson[REWARDS_SELECTOR]
-
+      const rewardsResp = await graphqlClient.query({
+        query: STRK_REWARDS_DATA(),
+        fetchPolicy: 'cache-first'
+      })
+      const jediRewards = rewardsResp?.data?.strkGrantData
       const poolsData: any = {}
       poolsDataRaw?.forEach((data) => {
         const rewardName = data?.token0?.symbol + '/' + data?.token1?.symbol
-        const rewardsDataList = jediRewards[rewardName]
-        const rewardsData = rewardsDataList?.length ? rewardsDataList[rewardsDataList.length - 1] : null
+        const rewardsData = jediRewards?.[rewardName]
 
         if (rewardsData) {
           data.aprStarknet = rewardsData.apr

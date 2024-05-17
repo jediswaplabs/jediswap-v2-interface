@@ -92,3 +92,10 @@ export const HISTORICAL_GLOBAL_DATA = () => {
     }`
   return gql(queryString)
 }
+
+export const STRK_REWARDS_DATA = () => {
+  const queryString = ` query strkGrantData {
+      strkGrantData
+    }`
+  return gql(queryString)
+}
