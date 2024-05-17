@@ -4,9 +4,8 @@ import { cairo, CallData, num, uint256 } from 'starknet'
 import { isError, useQuery } from 'react-query'
 import { providerInstance } from 'utils/getLibrary'
 import { useAccountDetails } from 'hooks/starknet-react'
-import { DEFAULT_CHAIN_ID } from 'constants/tokens'
+import { DEFAULT_CHAIN_ID, WETH } from 'constants/tokens'
 import { useMemo } from 'react'
-import JSBI from 'jsbi'
 const vaultAddress = '0x033bb35548c9cfcfdafe1c18cf8040644a52881f8fd2f4be56770767c12e3a41' //replace vault address
 
 export const useTotalSharesSupply = () => {
@@ -63,15 +62,11 @@ export const useUserShares = () => {
 
   const token1 = token0 && priceRatio ? token0 / BigInt(priceRatio) : 0
 
-  console.log(token0, token1, 'token0')
-
-  console.log(totalSupply, token0All, token1All, priceRatio)
-
-  // const derivedShares = decimalToBigInt(
-  //   parseFloat(parsedAmountA.toSignificant() / parseFloat(token0All)) * parseFloat(totalSupply)
-  // )
-
-  return { data: shares.data, isError: shares.isError }
+  return {
+    token0,
+    token1,
+    shares: shares.data,
+  }
 }
 
 export const useUnderlyingVaultAssets = () => {

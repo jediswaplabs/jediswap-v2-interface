@@ -516,7 +516,7 @@ export function VaultElement({
   //   disableTokenInputs?: boolean
 }) {
   const [callData, setCallData] = useState<Call[]>([])
-  const [activeButton, setActiveButton] = useState<string>('Withdraw')
+  const [activeButton, setActiveButton] = useState<string>('Deposit')
   const connectionReady = useConnectionReady()
   const { address: account } = useAccountDetails()
 
@@ -582,9 +582,7 @@ export function VaultElement({
     if (parsedAmountA && parsedAmountA?.raw.toString() > 0) approvalA = approvalACallback()
     if (parsedAmountB && parsedAmountB?.raw.toString() > 0) approvalB = approvalBCallback()
 
-    const derivedShares = decimalToBigInt(
-      parseFloat(parsedAmountA.toSignificant() / parseFloat(token0All)) * parseFloat(totalSupply)
-    )
+    const derivedShares = (BigInt(parsedAmountA.raw.toString()) * totalSupply) / token0All
 
     const callParams = {
       shares: cairo.uint256(derivedShares),
