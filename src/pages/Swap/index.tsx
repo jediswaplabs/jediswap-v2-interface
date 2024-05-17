@@ -2,7 +2,7 @@
 
 import { Trans } from '@lingui/macro'
 import { ChainId, Currency, CurrencyAmount, Percent, Token } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import { ReactNode, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { ArrowDown } from 'react-feather'
@@ -65,7 +65,7 @@ import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
 import { SWAP_ROUTER_ADDRESS_V2, getSwapCurrencyId, DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS_V1 } from 'constants/tokens'
 import fetchAllPools from 'api/fetchAllPools'
-import { Call, CallData, cairo, num, validateAndParseAddress } from 'starknet'
+import { Call, CallData, InvokeFunctionResponse, cairo, num, validateAndParseAddress } from 'starknet'
 import { LoadingRows } from 'components/Loader/styled'
 import { useContractWrite } from '@starknet-react/core'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
@@ -164,7 +164,7 @@ function PositionsLoadingPlaceholder() {
 }
 
 export default function SwapPage({ className }: { className?: string }) {
-  const { chainId: connectedChainId } = useAccountDetails()
+  const { chainId } = useAccountDetails()
   const loadedUrlParams = useDefaultsFromURLSearch()
   const [allPools, setAllPools] = useState<any>([])
   const [allPairs, setAllPairs] = useState<any>([])
@@ -173,11 +173,11 @@ export default function SwapPage({ className }: { className?: string }) {
   //fetch Token Ids
   useEffect(() => {
     const getTokenIds = async () => {
-      if (connectedChainId) {
+      if (chainId) {
         try {
           setLoadingPositions(true)
-          const pools = await fetchAllPools(connectedChainId)
-          const pairs = await fetchAllPairs(connectedChainId)
+          const pools = await fetchAllPools(chainId)
+          const pairs = await fetchAllPairs(chainId)
           if (pools && pools.data) {
             const allPoolsArray: number[] = pools.data.map((item: any) =>
               validateAndParseAddress(item.contract_address)
@@ -201,7 +201,7 @@ export default function SwapPage({ className }: { className?: string }) {
     }
 
     getTokenIds()
-  }, [connectedChainId])
+  }, [chainId])
 
   return (
     <PageWrapper>
@@ -210,7 +210,6 @@ export default function SwapPage({ className }: { className?: string }) {
       ) : (
         <Swap
           className={className}
-          chainId={connectedChainId}
           initialInputCurrencyId={loadedUrlParams?.[Field.INPUT]?.currencyId}
           initialOutputCurrencyId={loadedUrlParams?.[Field.OUTPUT]?.currencyId}
           allPools={allPools}
@@ -235,7 +234,6 @@ export function Swap({
   initialOutputCurrencyId,
   allPools,
   allPairs,
-  chainId,
   onCurrencyChange,
   disableTokenInputs = false,
 }: {
@@ -244,14 +242,13 @@ export function Swap({
   initialOutputCurrencyId?: string | null
   allPools: [] | string[]
   allPairs: [] | string[]
-  chainId?: ChainId
   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
   disableTokenInputs?: boolean
 }) {
   const connectionReady = useConnectionReady()
-  const { address, account, chainId: connectedChainId } = useAccountDetails()
-  const swapRouterAddressV2 = SWAP_ROUTER_ADDRESS_V2[connectedChainId ?? DEFAULT_CHAIN_ID]
-  const swapRouterAddressV1 = SWAP_ROUTER_ADDRESS_V1[connectedChainId ?? DEFAULT_CHAIN_ID]
+  const { address, account, chainId } = useAccountDetails()
+  const swapRouterAddressV2 = SWAP_ROUTER_ADDRESS_V2[chainId ?? DEFAULT_CHAIN_ID]
+  const swapRouterAddressV1 = SWAP_ROUTER_ADDRESS_V1[chainId ?? DEFAULT_CHAIN_ID]
 
   // token warning stuff
   const prefilledInputCurrency = useCurrency(initialInputCurrencyId, chainId)
@@ -267,6 +264,15 @@ export function Swap({
 
   const [dismissTokenWarning, setDismissTokenWarning] = useState<boolean>(false)
   const [showPriceImpactModal, setShowPriceImpactModal] = useState<boolean>(false)
+  const [swapCallData, setSwapCallData] = useState<Call[]>([])
+
+  const {
+    writeAsync,
+    data: txData,
+    error,
+  } = useContractWrite({
+    calls: swapCallData,
+  })
 
   const urlLoadedTokens: Token[] = useMemo(
     () => [loadedInputCurrency, loadedOutputCurrency]?.filter((c): c is Token => c?.isToken ?? false) ?? [],
@@ -299,8 +305,10 @@ export function Swap({
 
   const theme = useTheme()
 
-  // toggle wallet when disconnected
-  const toggleWalletDrawer = useToggleAccountDrawer()
+  // // toggle wallet when disconnected
+  // const toggleWalletDrawer = useToggleAccountDrawer()
+
+  const toggleWalletModal = useWalletConnect()
 
   // swap state
   const prefilledState = useMemo(
@@ -312,37 +320,6 @@ export function Swap({
   )
   const [state, dispatch] = useReducer(swapReducer, { ...initialSwapState, ...prefilledState })
   const { typedValue, recipient, independentField } = state
-
-  const previousConnectedChainId = usePrevious(connectedChainId)
-  const previousPrefilledState = usePrevious(prefilledState)
-  useEffect(() => {
-    const combinedInitialState = { ...initialSwapState, ...prefilledState }
-    const chainChanged = previousConnectedChainId && previousConnectedChainId !== connectedChainId
-    const prefilledInputChanged =
-      previousPrefilledState &&
-      previousPrefilledState?.[Field.INPUT]?.currencyId !== prefilledState?.[Field.INPUT]?.currencyId
-    const prefilledOutputChanged =
-      previousPrefilledState &&
-      previousPrefilledState?.[Field.OUTPUT]?.currencyId !== prefilledState?.[Field.OUTPUT]?.currencyId
-    if (chainChanged || prefilledInputChanged || prefilledOutputChanged) {
-      dispatch(
-        replaceSwapState({
-          ...initialSwapState,
-          ...prefilledState,
-          field: combinedInitialState.independentField ?? Field.INPUT,
-          inputCurrencyId: combinedInitialState.INPUT.currencyId ?? undefined,
-          outputCurrencyId: combinedInitialState.OUTPUT.currencyId ?? undefined,
-        })
-      )
-      // reset local state
-      setSwapState({
-        tradeToConfirm: undefined,
-        swapError: undefined,
-        showConfirm: false,
-        swapResult: undefined,
-      })
-    }
-  }, [connectedChainId, prefilledState, previousConnectedChainId, previousPrefilledState])
 
   const swapInfo = useDerivedSwapInfo(state, chainId, allPools, allPairs)
   const {
@@ -513,20 +490,11 @@ export function Swap({
       swapResult: undefined,
     }))
   }, [])
-  const [swapCallData, setSwapCallData] = useState<Call[]>([])
-
-  const {
-    writeAsync,
-    data: txData,
-    error,
-  } = useContractWrite({
-    calls: swapCallData,
-  })
 
   const deadline = useTransactionDeadline() // custom from users settings
 
   useEffect(() => {
-    if (swapCallData) {
+    if (swapCallData && swapCallData.length) {
       writeAsync()
         .then((response) => {
           if (response?.transaction_hash) {
@@ -992,7 +960,7 @@ export function Swap({
               <Trans>Unsupported asset</Trans>
             </ButtonPrimary>
           ) : connectionReady && !account ? (
-            <ButtonPrimary onClick={toggleWalletDrawer} size={ButtonSize.large}>
+            <ButtonPrimary onClick={toggleWalletModal} size={ButtonSize.large}>
               <Trans>Connect wallet</Trans>
             </ButtonPrimary>
           ) : isFetchingOutput ? (

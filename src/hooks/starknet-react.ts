@@ -1,10 +1,11 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import {useMemo } from 'react'
 import { Connector, useAccount, useBalance, useConnect, useProvider } from '@starknet-react/core'
-import { AccountInterface, constants } from 'starknet'
-import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
-import { WETH } from '@jediswap/sdk'
-import { useDefaultActiveTokens } from './Tokens'
+import { AccountInterface } from 'starknet'
+import { ChainId, Currency, } from '@vnaysn/jediswap-sdk-core'
 import formatBalance from 'utils/formatBalance'
+import { useAvailableConnectors } from 'context/StarknetProvider'
+import { useStarknetkitConnectModal } from 'starknetkit'
+
 import { useQuery } from 'react-query'
 // Define the type for the balances object
 declare enum StarknetChainId {
@@ -51,6 +52,21 @@ export const useAccountDetails = (): {
   }, [connectedChainId, address])
 
   return { account, address, isConnected, chainId, connector }
+}
+
+export const useWalletConnect = () => {
+  const connectors = useAvailableConnectors()
+  const { connectAsync } = useConnect()
+  const { starknetkitConnectModal } = useStarknetkitConnectModal({
+    connectors,
+  })
+  return async () => {
+    const { connector } = await starknetkitConnectModal()
+    if (!connector) {
+      return
+    }
+    await connectAsync({ connector })
+  }
 }
 
 export const useConnectors = () => {

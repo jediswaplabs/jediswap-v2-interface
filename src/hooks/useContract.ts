@@ -72,6 +72,7 @@ export function useContract<T extends Contract = Contract>(
 
 function useMainnetContract<T extends Contract = Contract>(address: string | undefined, ABI: any): T | null {
   const { chainId } = useAccountDetails()
+  const { provider } = useProvider()
   const isMainnet = chainId === ChainId.MAINNET
   const contract = useContract(isMainnet ? address : undefined, ABI, false)
   const providers = publicProvider()
@@ -79,7 +80,6 @@ function useMainnetContract<T extends Contract = Contract>(address: string | und
   return useMemo(() => {
     if (isMainnet) return contract
     if (!address) return null
-    const { provider } = useProvider()
     // try {
     //   return getContract(address, ABI, provider)
     // } catch (error) {

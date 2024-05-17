@@ -1,24 +1,9 @@
-import { BigNumber } from '@ethersproject/bignumber'
-import type { TransactionResponse } from '@ethersproject/providers'
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, InterfaceEventName, LiquidityEventName } from '@uniswap/analytics-events'
-import { ChainId, Currency, CurrencyAmount, Percent, validateAndParseAddress } from '@vnaysn/jediswap-sdk-core'
-import { FeeAmount, NonfungiblePositionManager, Position, toHex } from '@vnaysn/jediswap-sdk-v3'
-import { useCallback, useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Text } from 'rebass'
-import styled, { useTheme } from 'styled-components'
 
-import { sendAnalyticsEvent, TraceEvent, useTrace } from 'analytics'
-import { useToggleAccountDrawer } from 'components/AccountDrawer'
-import OwnershipWarning from 'components/addLiquidity/OwnershipWarning'
 import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
-import { isSupportedChain } from 'constants/chains'
-import usePrevious from 'hooks/usePrevious'
-import { useSingleCallResult } from 'lib/hooks/multicall'
 import { BodyWrapper } from 'pages/AppBody'
-import { PositionPageUnsupportedContent } from 'pages/Pool/PositionPage'
 import {
   useRangeHopCallbacks,
   useV3DerivedMintInfo,
@@ -26,15 +11,12 @@ import {
   useV3MintState,
 } from 'state/mint/v3/hooks'
 import { ThemedText } from 'theme/components'
-import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
-import { WrongChainError } from 'utils/errors'
 import { ButtonError, ButtonLight, ButtonPrimary, ButtonText } from '../../components/Button'
-import { BlueCard, LightCard, OutlineCard, YellowCard } from '../../components/Card'
+import { BlueCard, LightCard, YellowCard } from '../../components/Card'
 import { AutoColumn } from '../../components/Column'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import FeeSelector from '../../components/FeeSelector'
 import HoverInlineText from '../../components/HoverInlineText'
-import LiquidityChartRangeInput from '../../components/LiquidityChartRangeInput'
 import { AddRemoveTabs } from '../../components/NavigationTabs'
 import { PositionPreview } from '../../components/PositionPreview'
 import RangeSelector from '../../components/RangeSelector'
@@ -46,8 +28,6 @@ import TransactionConfirmationModal, { ConfirmationModalContent } from '../../co
 import { ZERO_PERCENT } from '../../constants/misc'
 import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS, WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
 import { useCurrency } from '../../hooks/Tokens'
-import { ApprovalState, useApproveCallback } from '../../hooks/useApproveCallback'
-import { useArgentWalletContract } from '../../hooks/useArgentWalletContract'
 import { useV3NFTPositionManagerContract } from '../../hooks/useContractV2'
 import { useDerivedPositionInfo } from '../../hooks/useDerivedPositionInfo'
 import { useIsSwapUnsupported } from '../../hooks/useIsSwapUnsupported'
@@ -55,22 +35,12 @@ import { useStablecoinValue } from '../../hooks/useStablecoinPrice'
 import useTransactionDeadline from '../../hooks/useTransactionDeadline'
 import { useV3PosFromTokenId } from '../../hooks/useV3Positions'
 import { Bound, Field } from '../../state/mint/v3/actions'
-import { useTransactionAdder } from '../../state/transactions/hooks'
-import { TransactionInfo, TransactionType } from '../../state/transactions/types'
 import { useUserSlippageToleranceWithDefault } from '../../state/user/hooks'
-import approveAmountCalldata from '../../utils/approveAmountCalldata'
-import { calculateGasMargin } from '../../utils/calculateGasMargin'
 import { currencyId } from '../../utils/currencyId'
 import { maxAmountSpend } from '../../utils/maxAmountSpend'
-import { Dots } from '../Pool/styled'
 import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
-import { useAccountDetails } from 'hooks/starknet-react'
-import { useContractWrite, useProvider } from '@starknet-react/core'
-import { BigNumberish, cairo, Call, CallData, hash, num } from 'starknet'
-import JSBI from 'jsbi'
-import { toI32 } from 'utils/toI32'
-import { useApprovalCall } from 'hooks/useApproveCall'
+
 import { useQuery } from 'react-query'
 import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
@@ -563,9 +533,11 @@ function AddLiquidity() {
   }, [searchParams])
   // END: sync values with query string
 
+  const toggleWalletModal = useWalletConnect()
+
   const Buttons = () =>
     !account ? (
-      <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
+      <ButtonLight onClick={toggleWalletModal} $borderRadius="12px" padding="12px">
         <Trans>Connect wallet</Trans>
       </ButtonLight>
     ) : (

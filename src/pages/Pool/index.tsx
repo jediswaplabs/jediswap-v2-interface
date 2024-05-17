@@ -1,30 +1,24 @@
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfacePageName } from '@uniswap/analytics-events'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import { useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, BookOpen, ChevronDown, ChevronsRight, Inbox, Layers } from 'react-feather'
+import { AlertTriangle,Inbox } from 'react-feather'
 import { Link } from 'react-router-dom'
 import styled, { css, useTheme } from 'styled-components'
-import { Trace, TraceEvent } from 'analytics'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button'
 import { AutoColumn } from 'components/Column'
-import { FlyoutAlignment, Menu } from 'components/Menu'
 import PositionList from 'components/PositionList'
 import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { isSupportedChain } from 'constants/chains'
-// import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
-import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
 import { FlattenedPositions, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
 import { useUserHideClosedPositions } from 'state/user/hooks'
 import { ThemedText } from 'theme/components'
 import { LoadingRows } from './styled'
-import fetchTokenIds from 'api/fetchTokenId'
+
 import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import { providerInstance } from 'utils/getLibrary'
-import { cairo, hash, num, uint256 } from 'starknet'
-import JSBI from 'jsbi'
+import { uint256 } from 'starknet'
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -165,7 +159,7 @@ function WrongNetworkCard() {
 
 function PositionDetails(props: any) {
   const { address } = useAccountDetails()
-  const { tokenIds, showConnectAWallet, toggleWalletDrawer } = props
+  const { tokenIds, showConnectAWallet } = props
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
   const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds, address)
   const theme = useTheme()
@@ -181,6 +175,8 @@ function PositionDetails(props: any) {
     () => [...openPositions, ...(userHideClosedPositions ? [] : closedPositions)],
     [closedPositions, openPositions, userHideClosedPositions]
   )
+
+  const toggleWalletModal = useWalletConnect()
 
   return (
     <>
@@ -212,7 +208,7 @@ function PositionDetails(props: any) {
             {showConnectAWallet && (
               <ButtonPrimary
                 style={{ marginTop: '2em', marginBottom: '2em', padding: '8px 16px', width: 'fit-content' }}
-                onClick={toggleWalletDrawer}
+                onClick={toggleWalletModal}
               >
                 <Trans>Connect wallet</Trans>
               </ButtonPrimary>
