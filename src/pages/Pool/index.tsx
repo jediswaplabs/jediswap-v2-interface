@@ -22,6 +22,7 @@ import { getClient } from 'apollo/client'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { useDefaultActiveTokens } from 'hooks/Tokens'
 import { PositionDetails } from './PositionDetails'
+import { ApolloQueryResult } from '@apollo/client'
 
 export function PositionsLoadingPlaceholder() {
   return (
@@ -88,21 +89,32 @@ export default function Pool() {
   const allTokens = useDefaultActiveTokens(chainIdFinal)
   const whitelistedIds = Object.keys(allTokens)
   const graphqlClient = getClient(chainIdFinal)
-  //fetch pools data
+  //fetch pools data and rewards data
   useEffect(() => {
     let ignore = false;
     const getPoolsData = async () => {
       if (whitelistedIds.length === 0) {
         return
       }
-      const poolsDataRaw = await getAllPools(graphqlClient, [...whitelistedIds, ETH_ADDRESS]) //add ETH token
-      const rewardsResp = await graphqlClient.query({
-        query: STRK_REWARDS_DATA(),
-        fetchPolicy: 'cache-first'
-      })
-      const jediRewards = rewardsResp?.data?.strkGrantData
+      const requests = [
+        getAllPools(graphqlClient, [...whitelistedIds, ETH_ADDRESS]), //add ETH token
+        graphqlClient.query({
+          query: STRK_REWARDS_DATA(),
+          fetchPolicy: 'cache-first'
+        })
+      ];
+      const [poolsDataRawResult, rewardsRespResult] = await Promise.allSettled(requests);
+      let poolsDataRaw: any = null
+      if (poolsDataRawResult.status === "fulfilled") {
+        poolsDataRaw = poolsDataRawResult.value as ApolloQueryResult<any>;;
+      }
+      let jediRewards: any = null;
+      if (rewardsRespResult.status === "fulfilled") {
+        const rewardsResp = rewardsRespResult.value as ApolloQueryResult<any>;
+        jediRewards = rewardsResp.data?.strkGrantData;
+      }
       const poolsData: any = {}
-      poolsDataRaw?.forEach((data) => {
+      poolsDataRaw?.forEach((data: any) => {
         const rewardName = data?.token0?.symbol + '/' + data?.token1?.symbol
         const rewardsData = jediRewards?.[rewardName]
 
@@ -249,13 +261,13 @@ export default function Pool() {
       <AutoColumn gap="lg" justify="center" style={{ marginTop: 24 }}>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <ButtonRow justifyContent={'space-between'}>
-            <ResponsiveButtonTabs secondary={false} active={!showMyPositions} onClick={() => setShowMyPositions(false)} style={{fontSize: "0.875rem"}}>
+            <ResponsiveButtonTabs secondary={false} active={!showMyPositions} onClick={() => setShowMyPositions(false)} style={{ fontSize: "0.875rem" }}>
               <Trans>Top Pools</Trans>
             </ResponsiveButtonTabs>
-            <ResponsiveButtonTabs secondary={true} active={showMyPositions} onClick={() => setShowMyPositions(true)} style={{fontSize: "0.875rem"}}>
+            <ResponsiveButtonTabs secondary={true} active={showMyPositions} onClick={() => setShowMyPositions(true)} style={{ fontSize: "0.875rem" }}>
               <Trans>My Positions</Trans>
             </ResponsiveButtonTabs>
-            <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH" style={{fontSize: "1.125rem", fontWeight: 750 }}>
+            <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH" style={{ fontSize: "1.125rem", fontWeight: 750 }}>
               + <Trans>New position</Trans>
             </ResponsiveButtonPrimary>
           </ButtonRow>
