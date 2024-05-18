@@ -1,256 +1,170 @@
-import styled, { css, useTheme } from 'styled-components'
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
-import { validateAndParseAddress } from 'starknet'
+import { Trans } from '@lingui/macro'
+import { useReducer } from 'react'
+import { useParams } from 'react-router-dom'
+import { Text } from 'rebass'
+import styled from 'styled-components'
 
-import { AutoColumn } from "components/Column";
-import Row, { AutoRow, RowBetween, RowFixed } from "components/Row";
-import { formattedNum, formattedPercent } from "utils/formatNum";
-import { getAllPools } from 'api/PoolsData';
-import { useDefaultActiveTokens } from 'hooks/Tokens'
-import { useAccountDetails } from 'hooks/starknet-react'
-import { ETH_ADDRESS, WETH } from 'constants/tokens'
-import DoubleTokenLogo from '../../components/DoubleLogo'
-import FeeBadge from 'components/FeeBadge'
-import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button'
-import CurrencyLogo from 'components/Logo/CurrencyLogo'
-import { PositionDetails } from '../Pool/PositionDetails'
-import { useToggleAccountDrawer } from 'components/AccountDrawer'
-import { getClient } from 'apollo/client'
-import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { useTokenIds } from 'hooks/useV3Positions'
-import { PageWrapper, PanelWrapper, PanelTopLight, ResponsiveButtonPrimary } from 'pages/Pool/styled'
+import NotFound from 'pages/NotFound'
+import Column from 'components/Column'
+import Row from 'components/Row'
+import { LoadingBubble } from 'components/Tokens/loading'
+import { LoadingChart } from 'components/Tokens/TokenDetails/Skeleton'
+import { TokenDescription } from 'components/Tokens/TokenDetails/TokenDescription'
+import { getValidUrlChainName, supportedChainIdFromGQLChain } from 'graphql/data/util'
+import { usePoolData } from 'graphql/thegraph/PoolData'
+import { BREAKPOINTS } from 'theme'
+import { isAddressValidForStarknet } from 'utils/addresses'
+import { PoolDetailsHeader } from './PoolDetailsHeader'
+import { PoolDetailsStats } from './PoolDetailsStats'
+import { PoolDetailsStatsButtons } from './PoolDetailsStatsButtons'
+import { PoolDetailsTableSkeleton } from './PoolDetailsTableSkeleton'
+import { DetailBubble, SmallDetailBubble } from './shared'
 
-const ResponsiveButtonTabs = styled(ButtonPrimary) <{ secondary: boolean; active: boolean }>`
-  font-family: 'DM Sans';
-  border-radius: 4px;
-  font-size: 16px;
-  padding: 6px 12px;
-  background: ${({ theme, active }) => (!active ? 'transparent' : theme.jediWhite)};
-  box-shadow: 0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset,
-    0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset;
-  color: ${({ theme, active }) => (!active ? theme.jediWhite : theme.jediPink)};
-  // width: 121px;
-  margin-left: 0;
-  height: 26px;
-  &:hover {
-    background: ${({ theme, active }) => (!active ? 'transparent' : theme.jediWhite)};
-    color: ${({ theme, active }) => (!active ? theme.jediWhite : theme.jediPink)};
+const PageWrapper = styled(Row)`
+  padding: 48px;
+  width: 100%;
+  align-items: flex-start;
+  gap: 60px;
+
+  @media (max-width: ${BREAKPOINTS.lg - 1}px) {
+    flex-direction: column;
+    gap: unset;
   }
-  &:active {
-    background: ${({ theme, active }) => (!active ? 'transparent' : theme.jediWhite)};
-    color: ${({ theme, active }) => (!active ? theme.jediWhite : theme.jediPink)};
-  }
-  &:focus {
-    background: ${({ theme, active }) => (!active ? 'transparent' : theme.jediWhite)};
-    color: ${({ theme, active }) => (!active ? theme.jediWhite : theme.jediPink)};
-  }
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    width: 50%;
-    margin-bottom: 10px;
+
+  @media (max-width: ${BREAKPOINTS.sm - 1}px) {
+    padding: 48px 16px;
   }
 `
-const FixedPanel = styled.div`
-  width: fit-content;
-  padding: 12px 20px;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
-  cursor: pointer;
+
+const LeftColumn = styled(Column)`
+  gap: 24px;
+  width: 65vw;
+  overflow: hidden;
+  justify-content: flex-start;
+
+  @media (max-width: ${BREAKPOINTS.lg - 1}px) {
+    width: 100%;
+  }
 `
 
-export default function PoolDetails() {
-  const { poolId } = useParams<{ poolId?: string }>()
-  const [poolData, setpoolData] = useState<any | undefined>({})
-  const { address, chainId } = useAccountDetails()
+const HR = styled.hr`
+  border: 0.5px solid ${({ theme }) => theme.surface3};
+  margin: 16px 0px;
+  width: 100%;
+`
 
-  const { tokenIds, loading: loadingPositions } = useTokenIds(address, chainId);
+const ChartHeaderBubble = styled(LoadingBubble)`
+  width: 180px;
+  height: 32px;
+`
 
-  const toggleWalletDrawer = useToggleAccountDrawer()
-  const showConnectAWallet = Boolean(!address)
+const LinkColumn = styled(Column)`
+  gap: 16px;
+  padding: 20px;
+`
 
-  const chainIdFinal = chainId || ChainId.MAINNET
-  const allTokens = useDefaultActiveTokens(chainIdFinal)
-  const whitelistedIds = Object.keys(allTokens)
-  const graphqlClient = getClient(chainIdFinal)
+const RightColumn = styled(Column)`
+  gap: 24px;
+  margin: 0 48px 0 auto;
+  width: 22vw;
+  min-width: 360px;
 
-  //fetch pools data
-  useEffect(() => {
-    let ignore = false;
-    const getPoolsData = async () => {
-      if (whitelistedIds.length === 0) {
-        return
-      }
-      const poolsDataRaw: any = await getAllPools(graphqlClient, [...whitelistedIds, ETH_ADDRESS]) //add ETH token
-      if (poolId && poolsDataRaw) {
-        const poolData: any = poolsDataRaw.find((data: any) => data?.poolAddress === poolId)
-        if (!ignore) {
-          if (poolData) {
-            setpoolData(poolData)
-          }
-        }
-      }
-    }
-
-    getPoolsData()
-    return () => {
-      ignore = true
-    }
-  }, [Object.keys(allTokens).join(','), chainIdFinal])
-
-
-  const {
-    poolAddress,
-    token0,
-    token1,
-    fee,
-    totalValueLockedUSD,
-    liquidityChangeUSD,
-    oneDayVolumeUSD,
-    volumeChangeUSD,
-    oneDayFeesUSD,
-    feesChangeUSD,
-    totalValueLockedToken0,
-    totalValueLockedToken1,
-    token0Price,
-    token1Price,
-    loadingEnd,
-  } = poolData
-  let doubleCurrencyImageData = undefined
-  if (poolData && poolData.token0 && poolData.token1 && chainIdFinal) {
-    doubleCurrencyImageData = {
-      token0:
-        poolData.token0.symbol === 'ETH'
-          ? WETH[chainIdFinal]
-          : allTokens[validateAndParseAddress(poolData.token0.tokenAddress)],
-      token1:
-        poolData.token1.symbol === 'ETH'
-          ? WETH[chainIdFinal]
-          : allTokens[validateAndParseAddress(poolData.token1.tokenAddress)],
-    }
+  @media (max-width: ${BREAKPOINTS.lg - 1}px) {
+    margin: 44px 0px;
+    width: 100%;
+    min-width: unset;
   }
-  const feePercent = (fee ? parseFloat(fee) / 10000 : 0) + '%'
-  const [currentPriceDisplayMode, setCurrentPriceDisplayMode] = useState('token0')
-  const formattedSymbol0 = token0?.symbol.length > 6 ? token0?.symbol.slice(0, 5) + '...' : token0?.symbol
-  const formattedSymbol1 = token1?.symbol.length > 6 ? token1?.symbol.slice(0, 5) + '...' : token1?.symbol
+`
 
+const TokenDetailsWrapper = styled(Column)`
+  gap: 24px;
+  padding: 20px;
+
+  @media (max-width: ${BREAKPOINTS.lg - 1}px) and (min-width: ${BREAKPOINTS.sm}px) {
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: unset;
+  }
+
+  @media (max-width: ${BREAKPOINTS.sm - 1}px) {
+    padding: unset;
+  }
+`
+
+const TokenDetailsHeader = styled(Text)`
+  width: 100%;
+  font-size: 24px;
+  font-weight: 485;
+  line-height: 32px;
+`
+
+export default function PoolDetailsPage() {
+  const { poolAddress, chainName } = useParams<{
+    poolAddress: string
+    chainName: string
+  }>()
+  const chain = getValidUrlChainName(chainName)
+  const chainId = chain && supportedChainIdFromGQLChain(chain)
+  const { data: poolData, loading } = usePoolData(poolAddress ?? '', chainId)
+  const [isReversed, toggleReversed] = useReducer((x) => !x, false)
+  const token0 = isReversed ? poolData?.token1 : poolData?.token0
+  const token1 = isReversed ? poolData?.token0 : poolData?.token1
+  const isInvalidPool =
+    !chainName || !poolAddress || !getValidUrlChainName(chainName) || !isAddressValidForStarknet(poolAddress)
+  const poolNotFound = (!loading && !poolData) || isInvalidPool
+
+  if (poolNotFound) {
+    return <NotFound />
+  }
   return (
     <PageWrapper>
-      <Link
-        data-cy="visit-pool"
-        style={{ textDecoration: 'none', width: 'fit-content', marginBottom: '0.5rem', color: '#fff' }}
-        to="/pools"
-      >
-        ← <span style={{ color: '#50D5FF', fontWeight: 500 }}>Back to top pools</span>
-      </Link>
-      <Row align="center" style={{ gap: '8px', marginTop: '10px', fontSize: '1.25rem', fontWeight: 700  }}>
-        {doubleCurrencyImageData && (
-          <DoubleTokenLogo
-            // size={below600 ? 16 : 20}
-            size={20}
-            currency0={doubleCurrencyImageData.token0}
-            currency1={doubleCurrencyImageData.token1}
-            margin
+      <LeftColumn>
+        <Column gap="sm">
+          <PoolDetailsHeader
+            chainId={chainId}
+            poolAddress={poolAddress}
+            token0={token0}
+            token1={token1}
+            feeTier={poolData?.feeTier}
+            toggleReversed={toggleReversed}
+            loading={loading}
           />
-        )}
-        {poolData?.token0?.symbol} - {poolData?.token1?.symbol}
-        <FeeBadge>{feePercent}</FeeBadge>
-        <ResponsiveButtonPrimary as={Link} to={`/add/${poolData?.token0?.tokenAddress}/${poolData?.token1?.tokenAddress}/${poolData?.fee}`} style={{fontSize: "1.125rem", fontWeight: 750 }}>
-          + New position
-        </ResponsiveButtonPrimary>
-      </Row>
-      <AutoColumn gap="12px">
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', background: '#141451', padding: '15px', margin: '20px 0', gap: '30px', fontWeight: 700 }}>
-          {/* <TYPE.main fontSize="16px" fontWeight={500}> */}
-          Current Price:
-          {/* </TYPE.main> */}
-          <div style={{ display: 'flex', gap: '20px', fontSize: '1.125rem', fontWeight: 700 }}>
-            {currentPriceDisplayMode === 'token0' && (
-              <FixedPanel style={{ width: '100%', display: 'flex', gap: '10px' }}>
-                <CurrencyLogo currency={doubleCurrencyImageData?.token0} />
-                <RowFixed>{token0 && token1 ? `1 ${formattedSymbol0} = ${formattedNum(token1Price)} ${formattedSymbol1}` : '-'}</RowFixed>
-              </FixedPanel>
-            )}
-            {currentPriceDisplayMode === 'token1' && (
-              <FixedPanel style={{ width: '100%', display: 'flex', gap: '10px' }}>
-                <CurrencyLogo currency={doubleCurrencyImageData?.token1} />
-                <RowFixed>{token0 && token1 ? `1 ${formattedSymbol1} = ${formattedNum(token0Price)} ${formattedSymbol0}` : '-'}</RowFixed>
-              </FixedPanel>
-            )}
-          </div>
-          <div style={{ display: 'flex' }}>
-            <ResponsiveButtonTabs active={currentPriceDisplayMode === 'token0'} onClick={() => setCurrentPriceDisplayMode('token0')} style={{fontSize: '0.875rem', borderRadius: "4px 0px 0px 4px"}}>
-              {poolData?.token0?.symbol}
-            </ResponsiveButtonTabs>
-            <ResponsiveButtonTabs active={currentPriceDisplayMode === 'token1'} onClick={() => setCurrentPriceDisplayMode('token1')} style={{fontSize: '0.875rem', borderRadius: "0px 4px 4px 0px"}}>
-              {poolData?.token1?.symbol}
-            </ResponsiveButtonTabs>
-          </div>
-        </div>
-      </AutoColumn>
-
-      <AutoColumn style={{ gap: '12px', marginBottom: '15px' }}>
-        <PanelWrapper>
-          <PanelTopLight>
-            <AutoColumn gap="20px">
-              <RowBetween style={{ fontWeight: 700 }}>
-                Total Liquidity
-              </RowBetween>
-              <RowBetween align="baseline">
-                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
-                  {formattedNum(totalValueLockedUSD, true)}
-                </div>
-                <div>
-                  {formattedPercent(liquidityChangeUSD)}
-                </div>
-              </RowBetween>
-            </AutoColumn>
-          </PanelTopLight>
-          <PanelTopLight>
-            <AutoColumn gap="20px">
-              <RowBetween style={{ fontWeight: 700 }}>
-                Volume (24hr)
-                <div />
-              </RowBetween>
-              <RowBetween align="baseline">
-                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
-                  {formattedNum(oneDayVolumeUSD, true)}
-                </div>
-                <div>
-                  {formattedPercent(volumeChangeUSD)}
-                </div>
-              </RowBetween>
-            </AutoColumn>
-          </PanelTopLight>
-          <PanelTopLight>
-            <AutoColumn gap="20px">
-              <RowBetween style={{ fontWeight: 700 }}>
-                Total fees (24hr)
-              </RowBetween>
-              <RowBetween align="baseline">
-                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
-                  {formattedNum(oneDayFeesUSD, true)}
-                </div>
-                <div>
-                  {formattedPercent(feesChangeUSD)}
-                </div>
-              </RowBetween>
-            </AutoColumn>
-          </PanelTopLight>
-        </PanelWrapper>
-      </AutoColumn>
-      {loadingPositions ? (
-        <div></div>
-      ) : (
-        <PositionDetails
-          tokenIds={tokenIds}
-          token0={poolData?.token0?.tokenAddress}
-          token1={poolData?.token1?.tokenAddress}
-          fee={poolData?.fee}
-          showConnectAWallet={showConnectAWallet}
-          toggleWalletDrawer={toggleWalletDrawer}
+          <LoadingChart />
+        </Column>
+        <HR />
+        <ChartHeaderBubble />
+        <PoolDetailsTableSkeleton />
+      </LeftColumn>
+      <RightColumn>
+        <PoolDetailsStatsButtons
+          chainId={chainId}
+          token0={token0}
+          token1={token1}
+          feeTier={poolData?.feeTier}
+          loading={loading}
         />
-      )
-      }
-    </PageWrapper >
+        <PoolDetailsStats poolData={poolData} isReversed={isReversed} chainId={chainId} loading={loading} />
+        {(token0 || token1 || loading) &&
+          (loading ? (
+            <LinkColumn data-testid="pdp-links-loading-skeleton">
+              <DetailBubble $height={24} $width={116} />
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Row gap="8px" key={`loading-link-row-${i}`}>
+                  <SmallDetailBubble />
+                  <DetailBubble $width={117} />
+                </Row>
+              ))}
+            </LinkColumn>
+          ) : (
+            <TokenDetailsWrapper>
+              <TokenDetailsHeader>
+                <Trans>Info</Trans>
+              </TokenDetailsHeader>
+              {token0 && <TokenDescription tokenAddress={token0.id} chainId={chainId} />}
+              {token1 && <TokenDescription tokenAddress={token1.id} chainId={chainId} />}
+            </TokenDetailsWrapper>
+          ))}
+      </RightColumn>
+    </PageWrapper>
   )
 }

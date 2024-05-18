@@ -2,7 +2,6 @@ import { lazy, ReactNode, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { isBrowserRouterEnabled } from 'utils/env';
-import PoolDetails from './PoolDetails';
 import Swap from './Swap';
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects';
 
@@ -80,7 +79,6 @@ export const routes: RouteDefinition[] = [
     getElement: () => <AddLiquidity />,
   }),
   createRouteDefinition({ path: '/remove/:tokenId', getElement: () => <RemoveLiquidityV3 /> }),
-  createRouteDefinition({ path: '/explore/pools/:poolId', getElement: () =>  <PoolDetails />}),
   // @ts-ignore
   createRouteDefinition({ path: '*', getElement: () => <RedirectPathToSwapOnly /> }),
 ];
