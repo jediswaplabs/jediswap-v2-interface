@@ -25,6 +25,7 @@ import { useTotalSupply } from 'hooks/useTotalSupply'
 import { AppState } from 'state/reducer'
 import { DEFAULT_PERMISSIONLESS_API_RESPONSE } from '../../components/vault/constants'
 import { formatUsdPrice } from 'nft/utils'
+import { removeExtraDecimals } from 'utils/removeExtraDecimals'
 
 type Maybe<T> = T | null | undefined
 
@@ -250,7 +251,7 @@ export function useVaultDerivedInfo(
   if (data && !isLoading && !isError) {
     token0All = data[0]
     token1All = data[1]
-    priceRatio = token0All / token1All // get clarity if need to add token decimals here
+    priceRatio = Number(token1All) / Number(token0All) // get clarity if need to add token decimals here
   }
   let totalSupply = 0
   const { data: data2, isLoading: isLoading2, isError: isError2 } = useVaultTotalSupply(vaultAddressFromUrl)
@@ -281,14 +282,16 @@ export function useVaultDerivedInfo(
     typedValue,
     currencies[independentField]
   )
+
   const dependentAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
     if (independentAmount && priceRatio) {
       const dependentTokenAmount =
-        independentField === Field.CURRENCY_A ? typedValue / priceRatio : typedValue * priceRatio
-      return tryParseCurrencyAmount(dependentTokenAmount.toString(), currencies[dependentField])
+        independentField === Field.CURRENCY_A ? typedValue * priceRatio : typedValue / priceRatio
+      const formattedDependentAmount = removeExtraDecimals(dependentTokenAmount, currencies[dependentField])
+      return tryParseCurrencyAmount(formattedDependentAmount.toString(), currencies[dependentField])
     }
     return undefined
-  }, [currencies, dependentField, independentAmount])
+  }, [currencies, dependentField, independentAmount, independentField, priceRatio])
 
   const parsedAmounts: { [field in Field]: CurrencyAmount<Currency> | undefined } = useMemo(
     () => ({

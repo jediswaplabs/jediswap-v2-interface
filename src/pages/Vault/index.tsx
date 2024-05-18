@@ -4,14 +4,12 @@ import { AlertTriangle, ArrowLeft } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled, { css } from 'styled-components'
 import { Flex } from 'rebass'
-import { ChainId, Percent, Token } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Fraction, ONE, Percent, Token } from '@vnaysn/jediswap-sdk-core'
 import { isEmpty } from 'lodash'
 import { Link, useParams } from 'react-router-dom'
 import { useBalance, useContractWrite } from '@starknet-react/core'
 import { useSelector } from 'react-redux'
-import { cairo, Call, CallData } from 'starknet'
 import JSBI from 'jsbi'
-
 import { useAccountDetails } from 'hooks/starknet-react'
 import { AutoColumn } from 'components/Column'
 import { StyledRouterLink, ThemedText } from 'theme/components'
@@ -31,8 +29,12 @@ import { useConnectionReady } from 'connection/eagerlyConnect'
 import { Z_INDEX } from 'theme/zIndex'
 import { useCurrency } from 'hooks/Tokens'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
+import { cairo, Call, CallData, num } from 'starknet'
 import { Field } from 'state/vaults/actions'
 import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
+import { useApprovalCall } from 'hooks/useApproveCall'
+import { calculateMaximumAmountWithSlippage } from 'utils/calculateSlippage'
+import { decimalToBigInt } from 'utils/decimalToBigint'
 import VaultWithdraw from 'components/vault/VaultWithdraw'
 
 export const DEFAULT_VAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
@@ -538,8 +540,6 @@ export function VaultElement({
   const vaultInfo = useVaultDerivedInfo(vaultState, baseCurrency ?? undefined, currencyB ?? undefined)
   const { inputError: vaultInputError, insufficientBalance, parsedAmounts, token0All, totalSupply } = vaultInfo
   const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
-  const currencyAAmount = parsedAmountA?.toSignificant() // check - apply proper decimal value
-  const currencyBAmount = parsedAmountB?.toSignificant(6) // check - same
 
   const {
     writeAsync,
@@ -562,19 +562,41 @@ export function VaultElement({
     }
   }, [callData])
 
-  const allowedSlippage = useUserSlippageToleranceWithDefault(DEFAULT_VAULT_SLIPPAGE_TOLERANCE)
-  const defaultDpositSlippage = 1.01 // for deposit
+  const vaultAddress = '0x033bb35548c9cfcfdafe1c18cf8040644a52881f8fd2f4be56770767c12e3a41' // check - replace vault address
+  const defaultDepositSlippage = new Percent(101, 10000)
+  const amountAToApprove = useMemo(
+    () => (parsedAmountA ? calculateMaximumAmountWithSlippage(parsedAmountA, defaultDepositSlippage) : undefined),
+    [parsedAmountA, defaultDepositSlippage]
+  )
+  const amountBToApprove = useMemo(
+    () => (parsedAmountB ? calculateMaximumAmountWithSlippage(parsedAmountB, defaultDepositSlippage) : undefined),
+    [parsedAmountB, defaultDepositSlippage]
+  )
+
+  // check whether the user has approved the router on the tokens
+  const approvalACallback = useApprovalCall(amountAToApprove, vaultAddress)
+  const approvalBCallback = useApprovalCall(amountBToApprove, vaultAddress)
+
   const onDeposit = () => {
+    if (!chainId || !account || !parsedAmountA || !parsedAmountB) {
+      return
+    }
     const callData = []
-    const vaultAddress = vaultAddressFromUrl
-    const amount0_with_slippage = JSBI.multiply(parsedAmountA, 1.01)
-    const amount1_with_slippage = JSBI.multiply(parsedAmountB, 1.01)
-    const derivedShares = JSBI.BigInt((parsedAmountA / token0All) * totalSupply)
+    const adjustedAmountAWithSlippage = calculateMaximumAmountWithSlippage(parsedAmountA, defaultDepositSlippage)
+    const adjustedAmountBWithSlippage = calculateMaximumAmountWithSlippage(parsedAmountB, defaultDepositSlippage)
+
+    let approvalA = undefined
+    let approvalB = undefined
+
+    if (parsedAmountA && parsedAmountA?.raw.toString() > 0) approvalA = approvalACallback()
+    if (parsedAmountB && parsedAmountB?.raw.toString() > 0) approvalB = approvalBCallback()
+
+    const derivedShares = (BigInt(parsedAmountA.raw.toString()) * totalSupply) / token0All
 
     const callParams = {
       shares: cairo.uint256(derivedShares),
-      amount0_max: cairo.uint256(amount0_with_slippage),
-      amount1_max: cairo.uint256(amount1_with_slippage),
+      amount0_max: cairo.uint256(adjustedAmountAWithSlippage?.raw.toString()),
+      amount1_max: cairo.uint256(adjustedAmountBWithSlippage?.raw.toString()),
     }
 
     const compiledDepositCalls = CallData.compile(callParams)
@@ -583,8 +605,17 @@ export function VaultElement({
       entrypoint: 'deposit',
       calldata: compiledDepositCalls,
     }
-    callData.push(calls)
-    // setCallData(callData)
+
+    if (approvalA && approvalB) {
+      callData.push(approvalA, approvalB, calls)
+    } else {
+      if (approvalA) {
+        callData.push(approvalA, calls)
+      } else if (approvalB) {
+        callData.push(approvalB, calls)
+      }
+    }
+    setCallData(callData)
   }
   const getActionContent = () => {
     switch (true) {
@@ -619,6 +650,7 @@ export function VaultElement({
         {activeButton === 'Deposit' && <VaultDeposit currentVault={currentVault} />}
         {activeButton === 'Withdraw' && <VaultWithdraw currentVault={currentVault} />}
       </VaultInputWrapper>
+
       {getActionContent()}
     </VaultWrapper>
   )
