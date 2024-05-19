@@ -424,7 +424,7 @@ export default function Rewards() {
   const { address, chainId } = useAccountDetails()
   const [poolsLoading, setPoolsLoading] = useState(false)
   const STRK_REWARDS_ADDRESS = getStarkRewardAddress(chainId ?? DEFAULT_CHAIN_ID)
-  const allTokens = useDefaultActiveTokens(chainId)
+  const allTokens = useDefaultActiveTokens(DEFAULT_CHAIN_ID)
 
   useEffect(() => {
     async function getPairsData() {
