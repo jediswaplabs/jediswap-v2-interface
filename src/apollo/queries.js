@@ -43,7 +43,6 @@ const PoolFields = `
     fee
   }
 `
-
 export const TOKENS_DATA = ({ tokenIds = [] }) => {
   const tokenString = `[${tokenIds.map((token) => `"${token}"`).join(',')}]`
 

@@ -172,7 +172,7 @@ const NFTImage = styled.img`
 import { useQuery } from 'react-query'
 import { getClient, jediSwapClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
-import findClosestPrice from 'utils/getClosestPrice'
+import { findClosestPrice } from 'utils/getClosest'
 
 function CurrentPriceCard({
   inverted,
@@ -862,7 +862,7 @@ function PositionPageContent() {
                       padding="6px 8px"
                       width="fit-content"
                       $borderRadius="12px"
-                      style={{color: theme.jediWhite}}
+                      style={{ color: theme.jediWhite }}
                     >
                       <Trans>Remove liquidity</Trans>
                     </ButtonGray>
