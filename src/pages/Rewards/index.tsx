@@ -13,7 +13,7 @@ import { Call, CallData, validateAndParseAddress } from 'starknet'
 import { DEFAULT_CHAIN_ID, STARKNET_REWARDS_API_URL, STRK_PRICE_API_URL, getStarkRewardAddress } from 'constants/tokens'
 import REWARDS_ABI from 'abis/strk-rewards.json'
 import { jediSwapClient } from 'apollo/client'
-import { HISTORICAL_POOLS_DATA } from 'apollo/queries'
+import { HISTORICAL_POOLS_DATA, STRK_REWARDS_DATA } from 'apollo/queries'
 import { isEmpty } from 'lodash'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { useDefaultActiveTokens } from 'hooks/Tokens'
@@ -24,6 +24,8 @@ import TransactionConfirmationModal, { TransactionErrorContent } from 'component
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { findClosestAPRPeriod } from 'utils/getClosest'
 import { formattedPercent } from 'utils/formattedPercent'
+import { apiTimeframeOptions } from 'constants/apiTimeframeOptions'
+import { ApolloQueryResult } from '@apollo/client'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 996px;
@@ -39,7 +41,7 @@ const LiquidityWrapperCard = styled(DataCard)`
   background: rgba(255, 255, 255, 0.05);
 `
 
-export const BaseButton = styled(RebassButton)<
+export const BaseButton = styled(RebassButton) <
   {
     padding?: string
     width?: string
@@ -417,13 +419,6 @@ const MobileWrapper = styled.div`
   }
 `
 
-const apiTimeframeOptions = {
-  oneDay: 'one_day',
-  twoDays: 'two_days',
-  oneWeek: 'one_week',
-  oneMonth: 'one_month',
-}
-
 export default function Rewards() {
   const [allPools, setAllPools] = useState<any[]>([])
   const { address, chainId } = useAccountDetails()
@@ -434,24 +429,36 @@ export default function Rewards() {
   useEffect(() => {
     async function getPairsData() {
       setPoolsLoading(true)
-      const pools = await jediSwapClient.query({
-        query: HISTORICAL_POOLS_DATA({
-          tokenIds: [],
-          periods: [apiTimeframeOptions.oneDay, apiTimeframeOptions.twoDays, apiTimeframeOptions.oneWeek],
+      const requests = [
+        jediSwapClient.query({
+          query: HISTORICAL_POOLS_DATA({
+            tokenIds: [],
+            periods: [apiTimeframeOptions.oneDay, apiTimeframeOptions.twoDays, apiTimeframeOptions.oneWeek],
+          }),
+          fetchPolicy: 'cache-first',
         }),
-        fetchPolicy: 'cache-first',
-      })
-      const rewardsResp = await fetch(STARKNET_REWARDS_API_URL)
-      const rewardsRespStr = await rewardsResp.text()
-      const rewardsRespStrClean = rewardsRespStr.replace(/\bNaN\b/g, 'null')
-      const rewardsRespJson = JSON.parse(rewardsRespStrClean)
-      const jediRewards = rewardsRespJson.Jediswap_v1
+        jediSwapClient.query({
+          query: STRK_REWARDS_DATA(),
+          fetchPolicy: 'cache-first'
+        })
+      ]
+      const [poolsDataRawResult, rewardsRespResult] = await Promise.allSettled(requests);
+      let pools: any = null
+      if (poolsDataRawResult.status === "fulfilled") {
+        pools = poolsDataRawResult.value as ApolloQueryResult<any>;;
+      }
+      let jediRewards: any = null;
+      if (rewardsRespResult.status === "fulfilled") {
+        const rewardsResp = rewardsRespResult.value as ApolloQueryResult<any>;
+        jediRewards = rewardsResp.data?.strkGrantData;
+      }
+
       const eligiblePools = []
       try {
         for (const pool of pools?.data?.poolsData) {
           const pair = `${pool?.pool?.token0.symbol}/${pool?.pool?.token1.symbol}`
           if (jediRewards[pair]) {
-            const rewardsData = jediRewards[pair][jediRewards[pair].length - 1]
+            const rewardsData = jediRewards[pair]
             const aprStarknet = rewardsData.apr * 100
             const closestAPRPeriod = findClosestAPRPeriod(pool?.period)
             const feeRatio24H =
@@ -510,7 +517,7 @@ export default function Rewards() {
     if (!allPools.length) {
       getPairsData()
     }
-  }, [allPools, address])
+  }, [])
 
   const [allocations, setAllocations] = useState<CurrencyAmount>()
   const [allocationsLoading, setAllocationsLoading] = useState(false)
