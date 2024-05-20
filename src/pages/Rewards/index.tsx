@@ -743,7 +743,7 @@ export default function Rewards() {
                         STRK ALLOCATED
                       </>
                     </HeaderText>
-                    <AmountText>{address && allocations ? allocations?.toSignificant() : 0}</AmountText>
+                    <AmountText>{allocations?.toSignificant() ?? 0}</AmountText>
                   </Column>
                   <Column>
                     <HeaderText>
@@ -752,9 +752,7 @@ export default function Rewards() {
                         STRK CLAIMED
                       </>
                     </HeaderText>
-                    <AmountText>
-                      {address && formattedClaimRewards ? formattedClaimRewards?.toSignificant() : 0}
-                    </AmountText>
+                    <AmountText>{formattedClaimRewards?.toSignificant() ?? 0}</AmountText>
                   </Column>
                   <Column>
                     <HeaderText>
@@ -764,7 +762,7 @@ export default function Rewards() {
                       </>
                     </HeaderText>
                     <ClaimWrapper>
-                      <AmountText>{address && unclaimed_rewards ? unclaimed_rewards.toSignificant(5) : 0}</AmountText>
+                      <AmountText>{unclaimed_rewards.toSignificant(5) ?? 0}</AmountText>
 
                       {!address ? (
                         <ClaimButtonGradient
