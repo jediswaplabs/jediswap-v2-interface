@@ -422,13 +422,13 @@ const MobileWrapper = styled.div`
 export default function Rewards() {
   const [allPools, setAllPools] = useState<any[]>([])
   const { address, chainId } = useAccountDetails()
-  const [poolsLoading, setPoolsLoading] = useState(false)
+  const [poolsLoading, setPoolsLoading] = useState(true)
   const STRK_REWARDS_ADDRESS = getStarkRewardAddress(chainId ?? DEFAULT_CHAIN_ID)
   const allTokens = useDefaultActiveTokens(DEFAULT_CHAIN_ID)
 
   useEffect(() => {
     async function getPairsData() {
-      setPoolsLoading(true)
+      // setPoolsLoading(true)
       const requests = [
         jediSwapClient.query({
           query: HISTORICAL_POOLS_DATA({
