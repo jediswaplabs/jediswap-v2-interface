@@ -625,12 +625,14 @@ export default function Rewards() {
   )
   const buttonText =
     (totalRewardsClaimed && 'Claimed') || (unclaimed_rewards && 'Claim STRK') || (attemptingTxn && 'Claiming...')
-
+  console.log(Object.keys(allTokens).length, Boolean(Object.keys(allTokens).length), 'dfkndkfd')
   const PairListItem = ({ pool }: { pool: any }) => {
-    const token0 =
-      pool.token0.symbol === 'ETH' ? pool.token0 : allTokens[validateAndParseAddress(pool.token0.tokenAddress)]
-    const token1 =
-      pool.token1.symbol === 'ETH' ? pool.token1 : allTokens[validateAndParseAddress(pool.token1.tokenAddress)]
+    const token0 = Object.keys(allTokens).length
+      ? allTokens[validateAndParseAddress(pool.token0.tokenAddress)]
+      : pool.token0
+    const token1 = Object.keys(allTokens).length
+      ? allTokens[validateAndParseAddress(pool.token1.tokenAddress)]
+      : pool.token1
 
     return (
       <Column style={{ padding: 10, flexBasis: '32%', flexGrow: 0 }}>
@@ -724,7 +726,7 @@ export default function Rewards() {
                           STRK ALLOCATED
                         </>
                       </HeaderText>
-                      <AmountText>{allocations?.toSignificant() ?? 0}</AmountText>
+                      <AmountText>{address && allocations ? allocations?.toSignificant() : 0}</AmountText>
                     </Column>
                     <Column>
                       <HeaderText>
@@ -733,7 +735,7 @@ export default function Rewards() {
                           STRK CLAIMED
                         </>
                       </HeaderText>
-                      <AmountText>{formattedClaimRewards?.toSignificant() ?? 0}</AmountText>
+                      {address && formattedClaimRewards ? formattedClaimRewards?.toSignificant() : 0}
                     </Column>
                     <Column>
                       <HeaderText>
@@ -743,8 +745,7 @@ export default function Rewards() {
                         </>
                       </HeaderText>
                       <ClaimWrapper>
-                        <AmountText>{unclaimed_rewards.toSignificant(5) ?? 0}</AmountText>
-
+                        <AmountText>{address && unclaimed_rewards ? unclaimed_rewards.toSignificant(5) : 0}</AmountText>
                         {!address ? (
                           <ClaimButtonGradient
                             onClick={toggleWalletDrawer}
