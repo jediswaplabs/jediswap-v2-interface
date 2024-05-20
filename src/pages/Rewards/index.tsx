@@ -535,28 +535,31 @@ export default function Rewards() {
 
   const toggleWalletDrawer = useToggleAccountDrawer()
 
-  //fetch Token Ids
+  //fetch allocation data
   useEffect(() => {
     const getAllocation = async () => {
       if (address) {
         try {
           setAllocationsLoading(true)
-          const allocation = await fetch(`https://allocations.jediswap.xyz/get_allocation_amount?address=${address}`, {
-            headers: {
-              accept: 'application/json',
-            },
-            method: 'GET',
-          }).then((res) => res.json())
+          const requests = [
+            fetch(`https://allocations.jediswap.xyz/get_allocation_amount?address=${address}`, {
+              headers: {
+                accept: 'application/json',
+              },
+              method: 'GET',
+            }).then((res) => res.json()),
+            fetch(`https://allocations.jediswap.xyz/get_calldata?address=${address}`, {
+              headers: {
+                accept: 'application/json',
+              },
+              method: 'GET',
+            }).then((res) => res.json())
+          ]
+          const [allocation, call_data] = await Promise.all(requests);
           const totalAllocation = CurrencyAmount.ether(allocation)
           setAllocations(totalAllocation)
           const isAllocatedMoreThanZero = !totalAllocation.equalTo('0')
           setAllocated(isAllocatedMoreThanZero)
-          const call_data = await fetch(`https://allocations.jediswap.xyz/get_calldata?address=${address}`, {
-            headers: {
-              accept: 'application/json',
-            },
-            method: 'GET',
-          }).then((res) => res.json())
           setClaimData(call_data)
           setAllocationsLoading(false)
         } catch (e) {
@@ -766,7 +769,7 @@ export default function Rewards() {
                       {!address ? (
                         <ClaimButtonGradient
                           onClick={toggleWalletDrawer}
-                          // disabled={attemptingTxn || totalRewardsClaimed}
+                        // disabled={attemptingTxn || totalRewardsClaimed}
                         >
                           <ClaimText>Connect Wallet</ClaimText>
                         </ClaimButtonGradient>
