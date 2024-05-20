@@ -766,7 +766,7 @@ export default function Rewards() {
                       {!address ? (
                         <ClaimButtonGradient
                           onClick={toggleWalletDrawer}
-                          disabled={attemptingTxn || totalRewardsClaimed}
+                          // disabled={attemptingTxn || totalRewardsClaimed}
                         >
                           <ClaimText>Connect Wallet</ClaimText>
                         </ClaimButtonGradient>
