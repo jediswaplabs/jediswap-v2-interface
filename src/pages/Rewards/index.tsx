@@ -666,116 +666,124 @@ export default function Rewards() {
 
   return (
     <PageWrapper>
-      {allocationsLoading || poolsLoading ? (
+      {!allocationsLoading &&
+        <TransactionConfirmationModal
+          isOpen={txPending}
+          onDismiss={handleConfirmDismiss}
+          attemptingTxn={attemptingTxn}
+          hash={txHash}
+          reviewContent={confirmationContent}
+          pendingText={''}
+        />
+      }
+      {poolsLoading ? (
         <LoadingRows>
           <div style={{ height: 450 }} />
         </LoadingRows>
       ) : (
-        <>
-          <TransactionConfirmationModal
-            isOpen={txPending}
-            onDismiss={handleConfirmDismiss}
-            attemptingTxn={attemptingTxn}
-            hash={txHash}
-            reviewContent={confirmationContent}
-            pendingText={''}
-          />
-          <LiquidityWrapperCard style={{ marginBottom: 14 }}>
-            <RowContainer>
-              <FirstColumn>
+        <LiquidityWrapperCard style={{ marginBottom: 14 }}>
+          <RowContainer>
+            <FirstColumn>
+              <DefiSpringWrapper>
+                <DefiSpringTitle>StarkNet DeFi Spring</DefiSpringTitle>
+                <DefiSpringSubTitle>
+                  40M <img src={StarkIcon} alt="starknet_logo" /> STRK
+                </DefiSpringSubTitle>
+                <IncentivesText>
+                  JediSwap users will receive STRK incentives as part of the StarkNet DeFi Spring Program.
+                </IncentivesText>
+              </DefiSpringWrapper>
+            </FirstColumn>
+            <SecondColumn>
+              <MobileWrapper>
                 <DefiSpringWrapper>
-                  <DefiSpringTitle>StarkNet DeFi Spring</DefiSpringTitle>
-                  <DefiSpringSubTitle>
-                    40M <img src={StarkIcon} alt="starknet_logo" /> STRK
-                  </DefiSpringSubTitle>
-                  <IncentivesText>
-                    JediSwap users will receive STRK incentives as part of the StarkNet DeFi Spring Program.
-                  </IncentivesText>
+                  <DefiSpringTitleEarn>
+                    Earn STRK incentives by providing liquidity to these pools:
+                  </DefiSpringTitleEarn>
                 </DefiSpringWrapper>
-              </FirstColumn>
-              <SecondColumn>
-                <MobileWrapper>
-                  <DefiSpringWrapper>
-                    <DefiSpringTitleEarn>
-                      Earn STRK incentives by providing liquidity to these pools:
-                    </DefiSpringTitleEarn>
-                  </DefiSpringWrapper>
-                  <Container>
-                    <RowWrapper>
-                      {allPools.map((pool) => (
-                        <PairListItem key={pool} pool={pool} />
-                      ))}
-                    </RowWrapper>
-                  </Container>
-                </MobileWrapper>
-              </SecondColumn>
-            </RowContainer>
-          </LiquidityWrapperCard>
-          <LiquidityWrapperCard>
-            <RowBetween>
-              <ClaimHeader>
-                <ClaimHeaderText>Next claim available on May 17</ClaimHeaderText>
-              </ClaimHeader>
-            </RowBetween>
-            <CardSection>
-              <AutoColumn>
-                <RowBetween>
-                  <StarkRewardsText>Your STRK Rewards</StarkRewardsText>
-                </RowBetween>
-
                 <Container>
-                  <Row>
-                    <Column>
-                      <HeaderText>
-                        <>
-                          <img src={StarkIcon} style={{ marginRight: 5 }} />
-                          STRK ALLOCATED
-                        </>
-                      </HeaderText>
-                      <AmountText>{address && allocations ? allocations?.toSignificant() : 0}</AmountText>
-                    </Column>
-                    <Column>
-                      <HeaderText>
-                        <>
-                          <img src={StarkIcon} style={{ marginRight: 5 }} />
-                          STRK CLAIMED
-                        </>
-                      </HeaderText>
-                      <AmountText>
-                        {address && formattedClaimRewards ? formattedClaimRewards?.toSignificant() : 0}
-                      </AmountText>
-                    </Column>
-                    <Column>
-                      <HeaderText>
-                        <>
-                          <img src={StarkIcon} style={{ marginRight: 5 }} />
-                          STRK UNCLAIMED
-                        </>
-                      </HeaderText>
-                      <ClaimWrapper>
-                        <AmountText>{address && unclaimed_rewards ? unclaimed_rewards.toSignificant(5) : 0}</AmountText>
-
-                        {!address ? (
-                          <ClaimButtonGradient
-                            onClick={toggleWalletDrawer}
-                            disabled={attemptingTxn || totalRewardsClaimed}
-                          >
-                            <ClaimText>Connect Wallet</ClaimText>
-                          </ClaimButtonGradient>
-                        ) : allocated && allocations && (totalRewardsClaimed || unclaimed_rewards || attemptingTxn) ? (
-                          <ClaimButtonGradient onClick={onClaim} disabled={attemptingTxn || totalRewardsClaimed}>
-                            <ClaimText>{buttonText}</ClaimText>
-                          </ClaimButtonGradient>
-                        ) : null}
-                      </ClaimWrapper>
-                    </Column>
-                  </Row>
+                  <RowWrapper>
+                    {allPools.map((pool) => (
+                      <PairListItem key={pool} pool={pool} />
+                    ))}
+                  </RowWrapper>
                 </Container>
-              </AutoColumn>
-            </CardSection>
-          </LiquidityWrapperCard>
-        </>
-      )}
+              </MobileWrapper>
+            </SecondColumn>
+          </RowContainer>
+        </LiquidityWrapperCard>
+      )
+      }
+      {allocationsLoading ? (
+        <LoadingRows>
+          <div style={{ height: 450 }} />
+        </LoadingRows>
+      ) : (
+        <LiquidityWrapperCard>
+          <RowBetween>
+            <ClaimHeader>
+              <ClaimHeaderText>Next claim available on May 17</ClaimHeaderText>
+            </ClaimHeader>
+          </RowBetween>
+          <CardSection>
+            <AutoColumn>
+              <RowBetween>
+                <StarkRewardsText>Your STRK Rewards</StarkRewardsText>
+              </RowBetween>
+
+              <Container>
+                <Row>
+                  <Column>
+                    <HeaderText>
+                      <>
+                        <img src={StarkIcon} style={{ marginRight: 5 }} />
+                        STRK ALLOCATED
+                      </>
+                    </HeaderText>
+                    <AmountText>{address && allocations ? allocations?.toSignificant() : 0}</AmountText>
+                  </Column>
+                  <Column>
+                    <HeaderText>
+                      <>
+                        <img src={StarkIcon} style={{ marginRight: 5 }} />
+                        STRK CLAIMED
+                      </>
+                    </HeaderText>
+                    <AmountText>
+                      {address && formattedClaimRewards ? formattedClaimRewards?.toSignificant() : 0}
+                    </AmountText>
+                  </Column>
+                  <Column>
+                    <HeaderText>
+                      <>
+                        <img src={StarkIcon} style={{ marginRight: 5 }} />
+                        STRK UNCLAIMED
+                      </>
+                    </HeaderText>
+                    <ClaimWrapper>
+                      <AmountText>{address && unclaimed_rewards ? unclaimed_rewards.toSignificant(5) : 0}</AmountText>
+
+                      {!address ? (
+                        <ClaimButtonGradient
+                          onClick={toggleWalletDrawer}
+                          disabled={attemptingTxn || totalRewardsClaimed}
+                        >
+                          <ClaimText>Connect Wallet</ClaimText>
+                        </ClaimButtonGradient>
+                      ) : allocated && allocations && (totalRewardsClaimed || unclaimed_rewards || attemptingTxn) ? (
+                        <ClaimButtonGradient onClick={onClaim} disabled={attemptingTxn || totalRewardsClaimed}>
+                          <ClaimText>{buttonText}</ClaimText>
+                        </ClaimButtonGradient>
+                      ) : null}
+                    </ClaimWrapper>
+                  </Column>
+                </Row>
+              </Container>
+            </AutoColumn>
+          </CardSection>
+        </LiquidityWrapperCard>
+      )
+      }
     </PageWrapper>
   )
 }
