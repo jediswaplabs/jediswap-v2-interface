@@ -1,14 +1,16 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { CallStateResult, useSingleCallResult, useSingleContractMultipleData } from 'lib/hooks/multicall'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { PositionDetails } from 'types/position'
 import { useContractRead } from '@starknet-react/core'
 import NFTPositionManagerABI from 'contracts/nonfungiblepositionmanager/abi.json'
 import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
-import { BlockTag, cairo } from 'starknet'
+import { BlockTag, cairo, uint256 } from 'starknet'
 import { useV3NFTPositionManagerContract } from './useContract'
 import { toInt } from 'utils/toInt'
 import { useAccountDetails } from './starknet-react'
+import { providerInstance } from 'utils/getLibrary'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 export interface TickType {
   mag: BigNumber
@@ -59,7 +61,6 @@ const flattenedPositionsV3 = (positionsV3: FlattenedPositions): FlattenedPositio
 
 const usePositionResults = (tokenId: number): UseV3Positions => {
   const { chainId } = useAccountDetails()
-
   const { data, isLoading, error } = useContractRead({
     functionName: 'get_position',
     args: [cairo.uint256(tokenId)],
@@ -255,3 +256,40 @@ export function useV3Positions(account: string | null | undefined): UseV3Positio
     positions,
   }
 }
+
+export function useTokenIds(address: string | undefined, chainId: ChainId | undefined) {
+  const [tokenIds, setTokenIds] = useState<number[]>([])
+  const [loading, setLoading] = useState<boolean>(false)
+  useEffect(() => {
+    const getTokenIds = async () => {
+      if (address && chainId) {
+        setLoading(true)
+        const provider = providerInstance(chainId ?? DEFAULT_CHAIN_ID)
+        const contract_address = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+        const tokenIdsResults = await provider.callContract({
+          entrypoint: 'get_all_tokens_for_owner',
+          contractAddress: contract_address,
+          calldata: [address],
+        })
+        if (tokenIdsResults && tokenIdsResults.result) {
+          // Slice the first index
+          const tokenIdsResultsArr = tokenIdsResults.result
+
+          //converting array of uint256 tokenids into bn
+          const tokenIdsResultsArrWithoutLength = tokenIdsResultsArr.slice(1)
+          const returnDataIterator = tokenIdsResultsArrWithoutLength.flat()[Symbol.iterator]()
+          const tokenIdsArray = [...Array(tokenIdsResultsArrWithoutLength.length / 2)].map(() => {
+            return Number(
+              uint256.uint256ToBN({ low: returnDataIterator.next().value, high: returnDataIterator.next().value })
+            )
+          })
+          setTokenIds(tokenIdsArray)
+        }
+        setLoading(false)
+      }
+    }
+
+    getTokenIds()
+  }, [chainId, address])
+  return { tokenIds, loading }
+} 
