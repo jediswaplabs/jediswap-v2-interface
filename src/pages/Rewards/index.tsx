@@ -460,7 +460,8 @@ export default function Rewards() {
           if (jediRewards[pair]) {
             const rewardsData = jediRewards[pair]
             const aprStarknet = rewardsData.apr * 100
-            const closestAPRPeriod = findClosestAPRPeriod(pool?.period)
+            // const closestAPRPeriod = findClosestAPRPeriod(pool?.period)
+            const closestAPRPeriod = pool?.period?.[apiTimeframeOptions.oneDay]
             const feeRatio24H =
               closestAPRPeriod?.feesUSD && closestAPRPeriod?.totalValueLockedUSD
                 ? parseFloat(closestAPRPeriod.feesUSD) / parseFloat(closestAPRPeriod?.totalValueLockedUSD)
