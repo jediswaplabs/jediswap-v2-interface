@@ -65,7 +65,6 @@ const StyledEthereumLogo = styled.img<{ size: number }>`
 
 const CurrencyLogo = ({ currency, symbol, size }: { currency: any; symbol: any; size: any }) => {
   const currencyLogo: any = currency
-  console.log(currencyLogo, 'currencyLogo')
   if (currencyLogo && (currencyLogo.name === 'ETHER' || currencyLogo.name === 'ETH' || symbol === 'ETH')) {
     return <StyledEthereumLogo src={EthereumLogo} alt={`${symbol ?? 'token'} logo`} size={size} loading="lazy" />
   } else if (currencyLogo && currencyLogo.logoURI) {

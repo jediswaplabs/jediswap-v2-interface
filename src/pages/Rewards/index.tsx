@@ -625,7 +625,6 @@ export default function Rewards() {
   )
   const buttonText =
     (totalRewardsClaimed && 'Claimed') || (unclaimed_rewards && 'Claim STRK') || (attemptingTxn && 'Claiming...')
-  console.log(Object.keys(allTokens).length, Boolean(Object.keys(allTokens).length), 'dfkndkfd')
   const PairListItem = ({ pool }: { pool: any }) => {
     const token0 = Object.keys(allTokens).length
       ? allTokens[validateAndParseAddress(pool.token0.tokenAddress)]
