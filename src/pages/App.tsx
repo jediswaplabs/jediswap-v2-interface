@@ -29,6 +29,7 @@ import { parseReferralCodeURLParameter } from 'state/swap/hooks'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import { ApolloProvider } from '@apollo/client'
 import { getClient } from 'apollo/client'
+import { validateChecksumAddress } from 'starknet'
 // import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
@@ -115,16 +116,18 @@ export default function App() {
   const referralCodeFromUrl = parseReferralCodeURLParameter(parsedQs.referralCode)
 
   useEffect(() => {
-    if (referralCodeFromUrl) {
+    if (chainId && referralCodeFromUrl) {
       //set referral code in local storage if the current stored is not this one
       if (
-        referralCodeFromUrl !== localStorage.getItem('referralCode') &&
-        isAddressValidForStarknet(referralCodeFromUrl) !== false
+        !isAddressValidForStarknet(referralCodeFromUrl) &&
+        validateChecksumAddress(referralCodeFromUrl) !== false &&
+        referralCodeFromUrl !== localStorage.getItem('referralCode')?.[chainId as any]
       ) {
-        localStorage.setItem('referralCode', referralCodeFromUrl)
+        const referralCodeObject = { [chainId]: referralCodeFromUrl }
+        localStorage.setItem('referralCode', JSON.stringify(referralCodeObject))
       }
     }
-  }, [referralCodeFromUrl])
+  }, [referralCodeFromUrl, chainId])
 
   const isHeaderTransparent = !scrolledState
 

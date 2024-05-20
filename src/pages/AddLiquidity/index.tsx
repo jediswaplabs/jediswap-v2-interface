@@ -315,7 +315,7 @@ function AddLiquidity() {
       const amount1Min = minimumAmounts.amount1
       const router_address: string = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
       const callData = []
-      const urlReferralCode = localStorage.getItem('referralCode')
+      const urlReferralCode = localStorage.getItem('referralCode')?.[(chainId ?? DEFAULT_CHAIN_ID) as any]
       if (urlReferralCode && registeredReferralCode === undefined) {
         const referralCode = {
           _code: cairo.felt(urlReferralCode),

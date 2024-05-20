@@ -203,7 +203,7 @@ export default function SwapPage({ className }: { className?: string }) {
           allPools={allPools}
           allPairs={allPairs}
           registeredReferralCode={traderReferralCode}
-          urlReferralCode={localStorage.getItem('referralCode')}
+          urlReferralCode={localStorage.getItem('referralCode')?.[(connectedChainId ?? DEFAULT_CHAIN_ID) as any]}
           // disableTokenInputs={supportedChainId === undefined}
         />
       )}
@@ -239,7 +239,7 @@ export function Swap({
   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
   disableTokenInputs?: boolean
   registeredReferralCode?: string
-  urlReferralCode: string | null
+  urlReferralCode: string | undefined
 }) {
   const connectionReady = useConnectionReady()
   const referralContract = useReferralContract()

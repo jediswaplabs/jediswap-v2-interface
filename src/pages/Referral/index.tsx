@@ -6,6 +6,9 @@ import { PanelTopLight } from './Panel'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { ButtonPrimary, ButtonSize } from 'components/Button'
+import { ReferralWarning } from './Warning'
+import { useEffect, useState } from 'react'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const ReferralWrapper = styled.div`
   .page-head {
@@ -103,9 +106,20 @@ const AccountNamesWrapper = styled.div`
 `
 
 export function Referral() {
-  const { account } = useAccountDetails()
+  const { account, chainId } = useAccountDetails()
+  const [showWarning, setShowWarning] = useState(false)
+
+  useEffect(() => {
+    if (chainId) {
+      if (chainId === ChainId.GOERLI) setShowWarning(true)
+      else setShowWarning(false)
+    }
+  }, [chainId])
+
+  console.log('showWarning', chainId, ChainId.GOERLI, showWarning)
   return (
     <PageWrapper>
+      {showWarning && <ReferralWarning />}
       <ReferralWrapper>
         <div className="page-head">Referral</div>
         <div className="page-desc">
