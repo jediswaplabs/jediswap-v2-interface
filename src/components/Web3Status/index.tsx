@@ -79,6 +79,10 @@ const NetworkSelected = styled(Web3StatusGeneric)<{}>`
   color: ${({ theme }) => theme.white};
   margin-right: 16px;
   padding: 10px 24px;
+  cursor: auto;
+  &:hover, &:active, &:focus {
+    border-color: transparent;
+  }
 `
 
 const AddressAndChevronContainer = styled.div<{ loading?: boolean }>`
@@ -121,7 +125,7 @@ function Web3StatusInner() {
   if (address) {
     return (
       <NetworkContainer>
-        <NetworkSelected data-testid="web3-status-connected" onClick={handleWalletDropdownClick}>
+        <NetworkSelected data-testid="web3-status-connected">
           <IconWrapper size={20}>
             <img src={StarknetIcon} alt="Starknet" />
           </IconWrapper>
