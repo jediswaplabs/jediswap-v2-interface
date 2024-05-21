@@ -115,10 +115,11 @@ export default function Pool() {
       }
       const poolsData: any = {}
       poolsDataRaw?.forEach((data: any) => {
-        const rewardName = data?.token0?.symbol + '/' + data?.token1?.symbol
-        const rewardsData = jediRewards?.[rewardName]
-
-        if (rewardsData) {
+        const rewardName = (data?.token0?.symbol + '/' + data?.token1?.symbol).toLowerCase()
+        const pairKey = jediRewards ? Object.keys(jediRewards).find(key => key.toLowerCase() === rewardName) : null
+        
+        if (pairKey) {
+          const rewardsData = jediRewards?.[pairKey]
           data.aprStarknet = rewardsData.apr
         }
 
