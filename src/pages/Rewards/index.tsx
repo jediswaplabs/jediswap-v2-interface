@@ -707,7 +707,7 @@ export default function Rewards() {
                 <Container>
                   <RowWrapper>
                     {allPools.map((pool) => (
-                      <PairListItem key={pool} pool={pool} />
+                      <PairListItem key={pool.poolAddress} pool={pool} />
                     ))}
                   </RowWrapper>
                 </Container>
