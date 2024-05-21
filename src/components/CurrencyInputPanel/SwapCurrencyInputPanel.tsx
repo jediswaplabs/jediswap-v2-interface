@@ -393,7 +393,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
                 {account ? (
                   <RowFixed style={{ height: '16px' }}>
                     <ThemedText.LabelSmall color={'neutral1'}>
-                      {currency && formatted && <>Bal: {formatted}</>}
+                      {currency && Boolean(formatted) && <>Bal: {formatted}</>} {/*formatted can be NaN*/}
                     </ThemedText.LabelSmall>
                   </RowFixed>
                 ) : (
