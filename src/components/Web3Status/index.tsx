@@ -74,7 +74,7 @@ const NetworkContainer = styled.div`
 
 const NetworkSelected = styled(Web3StatusGeneric)<{}>`
   font-family: 'Avenir LT Std';
-  background-color: ${({ theme }) => theme.jediNavyBlue};
+  background-color: ${({ theme }) => theme.surface5};
   border: 1px solid transparent;
   color: ${({ theme }) => theme.white};
   margin-right: 16px;
