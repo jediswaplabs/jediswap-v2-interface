@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import React from 'react'
+import React, { Fragment } from 'react'
 import styled from 'styled-components'
 import { PositionDetails } from 'types/position'
 
@@ -93,10 +93,10 @@ export default function PositionList({
       </Header>
 
       {positions.map((p, index) => (
-        <>
-          <PositionListItem key={p.tokenId.toString()} {...p} />
+        <Fragment key={p.tokenId.toString()}>
+          <PositionListItem {...p} />
           {positions.length !== index + 1 ? <Divider /> : null}
-        </>
+        </Fragment>
       ))}
     </>
   )
