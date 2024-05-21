@@ -456,9 +456,10 @@ export default function Rewards() {
       const eligiblePools = []
       try {
         for (const pool of pools?.data?.poolsData) {
-          const pair = `${pool?.pool?.token0.symbol}/${pool?.pool?.token1.symbol}`
-          if (jediRewards[pair]) {
-            const rewardsData = jediRewards[pair]
+          const pair = (`${pool?.pool?.token0.symbol}/${pool?.pool?.token1.symbol}`).toLowerCase()
+          const pairKey = jediRewards ? Object.keys(jediRewards).find(key => key.toLowerCase() === pair) : null
+          if (pairKey && jediRewards[pairKey]) {
+            const rewardsData = jediRewards[pairKey]
             const aprStarknet = rewardsData.apr * 100
             // const closestAPRPeriod = findClosestAPRPeriod(pool?.period)
             const closestAPRPeriod = pool?.period?.[apiTimeframeOptions.oneDay]
