@@ -1,4 +1,5 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { MouseEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { BodyWrapper } from '../AppBody'
 import styled, { ThemeContext, css, keyframes } from 'styled-components'
 import { AutoColumn } from 'components/Column'
@@ -26,6 +27,7 @@ import { findClosestAPRPeriod } from 'utils/getClosest'
 import { formattedPercent } from 'utils/formattedPercent'
 import { apiTimeframeOptions } from 'constants/apiTimeframeOptions'
 import { ApolloQueryResult } from '@apollo/client'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 996px;
@@ -425,6 +427,7 @@ export default function Rewards() {
   const [poolsLoading, setPoolsLoading] = useState(true)
   const STRK_REWARDS_ADDRESS = getStarkRewardAddress(chainId ?? DEFAULT_CHAIN_ID)
   const allTokens = useDefaultActiveTokens(DEFAULT_CHAIN_ID)
+  const isSepoliaSelected = chainId === ChainId.GOERLI
 
   useEffect(() => {
     async function getPairsData() {
@@ -638,32 +641,45 @@ export default function Rewards() {
   const buttonText =
     (totalRewardsClaimed && 'Claimed') || (unclaimed_rewards && 'Claim STRK') || (attemptingTxn && 'Claiming...')
 
+  const onLinkClick = (e: MouseEvent) => {
+    if (isSepoliaSelected) {
+      e.preventDefault()
+    }
+  }
   const PairListItem = ({ pool }: { pool: any }) => {
     const token0 =
       pool.token0.symbol === 'ETH' ? pool.token0 : allTokens[validateAndParseAddress(pool.token0.tokenAddress)]
     const token1 =
       pool.token1.symbol === 'ETH' ? pool.token1 : allTokens[validateAndParseAddress(pool.token1.tokenAddress)]
-
+    const token0ForLink = pool.token0.symbol === 'ETH' ? 'ETH' : pool.token0.tokenAddress
+    const token1ForLink = pool.token1.symbol === 'ETH' ? 'ETH' : pool.token1.tokenAddress
+    const link = `/add/${token0ForLink}/${token1ForLink}/${pool.fee}`
     return (
       <Column style={{ padding: 10, flexBasis: '32%', flexGrow: 0 }}>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <DoubleCurrencyLogo size={24} currency0={token0} currency1={token1} />
-        </div>
-        <PairName>
-          {pool?.token0?.symbol}-{pool?.token1?.symbol}
-        </PairName>
-        <TotalAPR>
-          <div>Total APR:</div>
-          <div>{pool.displayAprCommon}</div>
-        </TotalAPR>
-        <TokenAPR>
-          <div>Fee APR:</div>
-          <div>{pool.displayAprFee}</div>
-        </TokenAPR>
-        <TokenAPR>
-          <div>STRK APR:</div>
-          <div>{pool.displayAprStarknet}</div>
-        </TokenAPR>
+        <Link 
+          to={link}
+          onClick={onLinkClick}
+          style={{ textDecoration: 'none', pointerEvents: isSepoliaSelected ? 'none' : 'auto' }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <DoubleCurrencyLogo size={24} currency0={token0} currency1={token1} />
+          </div>
+          <PairName>
+            {pool?.token0?.symbol}-{pool?.token1?.symbol}
+          </PairName>
+          <TotalAPR>
+            <div>Total APR:</div>
+            <div>{pool.displayAprCommon}</div>
+          </TotalAPR>
+          <TokenAPR>
+            <div>Fee APR:</div>
+            <div>{pool.displayAprFee}</div>
+          </TokenAPR>
+          <TokenAPR>
+            <div>STRK APR:</div>
+            <div>{pool.displayAprStarknet}</div>
+          </TokenAPR>
+        </Link>
       </Column>
     )
   }
