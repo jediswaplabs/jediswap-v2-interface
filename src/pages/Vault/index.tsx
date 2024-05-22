@@ -36,6 +36,8 @@ import { useApprovalCall } from 'hooks/useApproveCall'
 import { calculateMaximumAmountWithSlippage } from 'utils/calculateSlippage'
 import { decimalToBigInt } from 'utils/decimalToBigint'
 import VaultWithdraw from 'components/vault/VaultWithdraw'
+import { useUserShares } from 'components/vault/hooks'
+import formatBalance from 'utils/formatBalance'
 
 export const DEFAULT_VAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -341,7 +343,8 @@ export default function Vault({ className }: { className?: string }) {
   const { formatPercent } = useFormatter()
   const [generalError, setGeneralError] = useState(null)
   const [generalLoading, setGeneralLoading] = useState(true)
-
+  const { shares } = useUserShares()
+  const formatted = formatBalance(Number(shares?.toString()) / 10 ** 18)
   const { data: allVaults, error: allVaultsError, isLoading: isAllVaultsLoading } = useAllVaults()
 
   const getCurrentVault = () => {
@@ -486,7 +489,7 @@ export default function Vault({ className }: { className?: string }) {
                 <MyDepositWrapperOuter>
                   <MyDepositWrapperInner>
                     <span>My Deposits</span>
-                    <span>{balance}</span>
+                    <span>{formatted}</span>
                   </MyDepositWrapperInner>
                 </MyDepositWrapperOuter>
               </VaultTransactionPanel>

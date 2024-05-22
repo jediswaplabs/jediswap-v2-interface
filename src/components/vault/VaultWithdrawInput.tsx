@@ -17,6 +17,8 @@ import DoubleCurrencyLogo from '../DoubleLogo'
 import CurrencyLogo from '../Logo/CurrencyLogo'
 import { Input as NumericalInput } from '../NumericalInput'
 import { RowBetween, RowFixed } from '../Row'
+import { useUserShares } from './hooks'
+import formatBalance from 'utils/formatBalance'
 
 const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${flexColumnNoWrap};
@@ -208,19 +210,22 @@ export default function VaultWithdrawInput({
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { address: account, chainId } = useAccountDetails()
-  const { formatted, balance } = useAccountBalance(currency as Currency)
+  //   const { formatted, balance } = useAccountBalance(currency as Currency)
+  const { shares } = useUserShares()
+  const sharesInDecimals = Number(shares?.toString()) / 10 ** 18
+  const formattedShares = formatBalance(sharesInDecimals)
   const theme = useTheme()
 
   const chainAllowed = isSupportedChain(chainId)
 
   const handleMaxAmount = () => {
-    if (balance) {
-      onUserInput(balance)
+    if (sharesInDecimals) {
+      onUserInput(sharesInDecimals.toString())
     }
   }
 
   const containerStyles = hideShadow ? { boxShadow: 'none' } : {}
-  const showMax = balance !== null && Number(value) !== Number(balance)
+  const showMax = sharesInDecimals !== null && Number(value) !== Number(sharesInDecimals)
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>
       {!locked && (
@@ -269,7 +274,7 @@ export default function VaultWithdrawInput({
               <RowBetween>
                 {account && (
                   <RowFixed style={{ height: '17px' }}>
-                    {showMax && formatted && (
+                    {showMax && formattedShares && (
                       <StyledBalanceMax onClick={handleMaxAmount}>
                         <Trans>MAX</Trans>
                       </StyledBalanceMax>
@@ -281,7 +286,7 @@ export default function VaultWithdrawInput({
                       fontSize={14}
                       style={{ display: 'inline', cursor: 'pointer' }}
                     >
-                      {formatted && <>Bal: {formatted}</>}
+                      {formattedShares && <>Bal: {formattedShares}</>}
                     </ThemedText.DeprecatedBody>
                   </RowFixed>
                 )}
