@@ -1,14 +1,11 @@
-import { validateAndParseAddress } from 'starknet'
 import { useDispatch, useSelector } from 'react-redux'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isEmpty, uniq } from 'lodash'
 import { ChainId, Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
 import { useBalance } from '@starknet-react/core'
 import { Trans } from '@lingui/macro'
-import JSBI from 'jsbi'
 import { useParams } from 'react-router-dom'
-
-import { updateAllVaults, updateUserVaults, updateInput } from './reducer'
+import { updateAllVaults, updateUserVaults, updateInput, updateWithdrawInput } from './reducer'
 import { useAppDispatch, useAppSelector } from '../hooks'
 import teahouseLogo from '../../assets/vaults/teahouse.svg'
 import { useAccountBalance, useAccountDetails } from '../../hooks/starknet-react'
@@ -17,11 +14,7 @@ import { Field } from './actions'
 import { AppDispatch } from 'state'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { useUnderlyingVaultAssets, useVaultTotalSupply } from 'components/vault/hooks'
-import { useDefaultActiveTokens } from 'hooks/Tokens'
-import { useCurrencyFromMap } from 'lib/hooks/useCurrency'
 import { useConnectionReady } from 'connection/eagerlyConnect'
-import { useCurrencyBalances } from '../connection/hooks'
-import { useTotalSupply } from 'hooks/useTotalSupply'
 import { AppState } from 'state/reducer'
 import { DEFAULT_PERMISSIONLESS_API_RESPONSE } from '../../components/vault/constants'
 import { formatUsdPrice } from 'nft/utils'
@@ -208,6 +201,7 @@ export function useAllVaults() {
 export function useVaultActionHandlers(): {
   onFieldAInput: (typedValue: string) => void
   onFieldBInput: (typedValue: string) => void
+  onWithdrawInput: (typedValue: string) => void
 } {
   const dispatch = useDispatch<AppDispatch>()
 
@@ -223,10 +217,17 @@ export function useVaultActionHandlers(): {
     },
     [dispatch]
   )
+  const onWithdrawInput = useCallback(
+    (typedValue: string) => {
+      dispatch(updateWithdrawInput({ field: Field.CURRENCY_B, typedValue }))
+    },
+    [dispatch]
+  )
 
   return {
     onFieldAInput,
     onFieldBInput,
+    onWithdrawInput,
   }
 }
 
@@ -238,6 +239,10 @@ export function useVaultDerivedInfo(
   dependentField: Field
   currencies: { [field in Field]?: Currency }
   parsedAmounts: { [field in Field]?: CurrencyAmount<Currency> }
+  inputError: any
+  insufficientBalance: any
+  token0All: any
+  totalSupply: any
 } {
   const { address: account } = useAccountDetails()
   const { independentField, typedValue } = useVaultState()
@@ -336,22 +341,22 @@ export function useVaultDerivedInfo(
 
 export function useVaultTokens(vault: any): { token0: Token; token1: Token } {
   const token0 = new Token(
-    vault.token0.chainId,
-    vault.token0.address,
-    vault.token0.decimals,
-    vault.token0.symbol,
-    vault.token0.name
+    vault?.token0?.chainId,
+    vault?.token0?.address,
+    vault?.token0?.decimals,
+    vault?.token0?.symbol,
+    vault?.token0?.name
   )
-  token0.logoURI = vault.token0.logoURI
+  token0.logoURI = vault?.token0?.logoURI
 
   const token1 = new Token(
-    vault.token1.chainId,
-    vault.token1.address,
-    vault.token1.decimals,
-    vault.token1.symbol,
-    vault.token1.name
+    vault?.token1?.chainId,
+    vault?.token1?.address,
+    vault?.token1?.decimals,
+    vault?.token1?.symbol,
+    vault?.token1?.name
   )
-  token1.logoURI = vault.token1.logoURI
+  token1.logoURI = vault?.token1?.logoURI
 
   return { token0, token1 }
 }
@@ -359,7 +364,7 @@ export function useVaultTokens(vault: any): { token0: Token; token1: Token } {
 export function useVaultTableContent(
   vault: any,
   vaultAddress: string
-): { token0: Token; token1: Token; tvl: number; apr: number } {
+): { token0: Token; token1: Token; tvl: number; apr: number; feeApr: number; totalApr: number; balance: number } {
   const { address, isConnected } = useAccountDetails()
   const { token0, token1 } = useVaultTokens(vault)
   const shareTokenAddress = vault?.share?.address

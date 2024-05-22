@@ -9,12 +9,14 @@ export interface VaultState {
   readonly users: any
   readonly independentField: Field
   readonly typedValue: string
+  readonly withdrawTypedValue: string
 }
 export const initialState: VaultState = {
   allVaults: null,
   users: {},
   independentField: Field.CURRENCY_A,
   typedValue: '',
+  withdrawTypedValue: '',
 }
 
 const vaultsSlice = createSlice({
@@ -34,9 +36,12 @@ const vaultsSlice = createSlice({
       state.typedValue = typedValue
       state.independentField = field
     },
+    updateWithdrawInput(state, { payload: { typedValue } }) {
+      state.withdrawTypedValue = typedValue
+    },
   },
 })
 
-export const { updateAllVaults, updateUserVaults, updateInput } = vaultsSlice.actions
+export const { updateAllVaults, updateUserVaults, updateInput, updateWithdrawInput } = vaultsSlice.actions
 
 export default vaultsSlice.reducer

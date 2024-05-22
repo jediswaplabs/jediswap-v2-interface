@@ -238,11 +238,16 @@ export default function VaultWithdrawInput({
                 <Aligner>
                   <RowFixed>
                     <span style={{ marginRight: '0.5rem' }}>
-                      <DoubleCurrencyLogo currency0={vaultPair.token0} currency1={vaultPair.token1} size={24} margin />
+                      <DoubleCurrencyLogo
+                        currency0={vaultPair?.token0Currency}
+                        currency1={vaultPair?.token1Currency}
+                        size={24}
+                        margin
+                      />
                     </span>
 
                     <StyledTokenName className="pair-name-container">
-                      {vaultPair?.token0.symbol}-{vaultPair?.token1.symbol}
+                      {vaultPair?.token0Currency?.symbol}-{vaultPair?.token1Currency?.symbol}
                     </StyledTokenName>
                   </RowFixed>
                 </Aligner>

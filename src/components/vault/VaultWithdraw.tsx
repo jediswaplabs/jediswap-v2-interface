@@ -5,11 +5,11 @@ import { cairo, Call, CallData } from 'starknet'
 import { useParams } from 'react-router-dom'
 import { useUserShares } from './hooks'
 import { Percent } from '@vnaysn/jediswap-sdk-core'
-
 import { AutoColumn } from 'components/Column'
 import VaultWithdrawInput from './VaultWithdrawInput'
-import { useCurrency } from 'hooks/Tokens'
 import VaultWithdrawSummary from './VaultWithdrawSummary'
+import { useVaultActionHandlers, useVaultState, useVaultTokens } from 'state/vaults/hooks'
+import { useSelector } from 'react-redux'
 
 const WithdrawWrapper = styled(AutoColumn)`
   width: 100%;
@@ -19,16 +19,16 @@ const WithdrawWrapper = styled(AutoColumn)`
 `
 
 function VaultWithdraw({ currentVault }: { currentVault: any }) {
+  const { withdrawTypedValue } = useVaultState()
+  const { onWithdrawInput } = useVaultActionHandlers()
   const [callData, setCallData] = useState<Call[]>([])
   const { vaultId: vaultAddressFromUrl } = useParams()
-  // Vault Input state
-  const baseCurrency = useCurrency(currentVault.token0.address)
-  const currencyB = useCurrency(currentVault.token1.address)
 
   const { token1, token0, shares } = useUserShares()
+  const { token0: token0Currency, token1: token1Currency } = useVaultTokens(currentVault)
   const pair = {
-    token0,
-    token1,
+    token0Currency,
+    token1Currency,
   }
   const {
     writeAsync,
@@ -81,8 +81,8 @@ function VaultWithdraw({ currentVault }: { currentVault: any }) {
   return (
     <WithdrawWrapper>
       <VaultWithdrawInput
-        value={'123123123s123'}
-        onUserInput={() => {}}
+        value={withdrawTypedValue}
+        onUserInput={onWithdrawInput}
         // onMax={() => {
         //   onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
         // }}
@@ -95,7 +95,7 @@ function VaultWithdraw({ currentVault }: { currentVault: any }) {
         // locked={depositADisabled}
         vaultPair={pair}
       />
-      <VaultWithdrawSummary id="add-liquidity-input-tokena" vaultPair={pair} />
+      <VaultWithdrawSummary id="add-liquidity-input-tokena" vaultPair={pair} currentVault={currentVault} />
     </WithdrawWrapper>
   )
 }
