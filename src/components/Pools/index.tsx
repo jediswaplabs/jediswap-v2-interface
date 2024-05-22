@@ -607,11 +607,11 @@ function PairList({
       </PageButtons>
       <ReactTooltip
         anchorSelect=".apr-wrapper"
+        border="1px solid rgba(255, 255, 255, 0.20)"
         style={{
           background: '#141451',
           color: '#ffffff',
           borderRadius: '8px',
-          border: '1px solid rgba(255, 255, 255, 0.20)'
         }}
         // arrowColor="#763daf"
         noArrow={true}

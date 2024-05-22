@@ -6,7 +6,6 @@ import '@reach/dialog/styles.css'
 import { ApolloProvider } from '@apollo/client'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Helmet } from 'react-helmet'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Provider } from 'react-redux'
 import { HashRouter, useLocation } from 'react-router-dom'
@@ -34,9 +33,6 @@ function Updaters() {
   const baseUrl = `${window.location.origin}${location.pathname}`
   return (
     <>
-      <Helmet>
-        <link rel="canonical" href={baseUrl} />
-      </Helmet>
       <RadialGradientByChainUpdater />
       <ListsUpdater />
       <ApplicationUpdater />
