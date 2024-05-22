@@ -1,11 +1,11 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { isEmpty, uniq } from 'lodash'
 import { ChainId, Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
 import { useBalance } from '@starknet-react/core'
 import { Trans } from '@lingui/macro'
 import { useParams } from 'react-router-dom'
-import { updateAllVaults, updateUserVaults, updateInput, updateWithdrawInput } from './reducer'
+import { updateAllVaults, updateUserVaults, updateInput, updateWithdrawInput, VaultState } from './reducer'
 import { useAppDispatch, useAppSelector } from '../hooks'
 import teahouseLogo from '../../assets/vaults/teahouse.svg'
 import { useAccountBalance, useAccountDetails } from '../../hooks/starknet-react'
@@ -13,7 +13,7 @@ import formatBalance from '../../utils/formatBalance'
 import { Field } from './actions'
 import { AppDispatch } from 'state'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
-import { useUnderlyingVaultAssets, useVaultTotalSupply } from 'components/vault/hooks'
+import { useUnderlyingVaultAssets, useUserShares, useVaultTotalSupply } from 'components/vault/hooks'
 import { useConnectionReady } from 'connection/eagerlyConnect'
 import { AppState } from 'state/reducer'
 import { DEFAULT_PERMISSIONLESS_API_RESPONSE } from '../../components/vault/constants'
@@ -336,6 +336,90 @@ export function useVaultDerivedInfo(
     insufficientBalance,
     token0All,
     totalSupply,
+  }
+}
+
+export function useVaultWithdrawDerivedInfo(
+  state: VaultState,
+  currencyA: Currency | undefined,
+  currencyB: Currency | undefined
+): {
+  parsedReceivedTokens: any
+  withdrawError: any
+  insufficientBalance: boolean
+} {
+  const withdrawTypedValue = state.withdrawTypedValue
+  const { vaultId: vaultAddressFromUrl } = useParams()
+  const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currencyA)
+
+  const { data, isError } = useUnderlyingVaultAssets(vaultAddressFromUrl ? vaultAddressFromUrl : '')
+
+  const { token0All, token1All } = useMemo(() => {
+    const result: any = data
+    if (!result || isError) return { token0All: undefined, token1All: undefined }
+    return {
+      token0All: result[0],
+      token1All: result[1],
+    }
+  }, [data, isError])
+
+  const {
+    data: data2,
+    isLoading: isLoading2,
+    isError: isError2,
+  } = useVaultTotalSupply(vaultAddressFromUrl ? vaultAddressFromUrl : '')
+
+  const totalSupply = useMemo(() => {
+    if (!data2 || isError2 || isLoading2) return null
+    return data2
+  }, [data2, isError2, isLoading2])
+
+  const receivedToken0: CurrencyAmount<Currency> | undefined = useMemo(() => {
+    if (!typedValue || !totalSupply || !token0All) {
+      return undefined
+    }
+    const token0Amount = withdrawTypedValue * (Number(token0All) / Number(totalSupply))
+
+    const formattedToken0 = removeExtraDecimals(Number(token0Amount), currencyA)
+    return tryParseCurrencyAmount(formattedToken0.toString(), currencyA)
+  }, [typedValue, totalSupply, token0All])
+
+  const receivedToken1: CurrencyAmount<Currency> | undefined = useMemo(() => {
+    if (!typedValue || !totalSupply || !token1All) {
+      return undefined
+    }
+    const token1Amount = withdrawTypedValue * (Number(token1All) / Number(totalSupply))
+    const formattedToken1 = removeExtraDecimals(Number(token1Amount), currencyB)
+    return tryParseCurrencyAmount(formattedToken1.toString(), currencyB)
+  }, [typedValue, totalSupply, token1All])
+
+  const parsedReceivedTokens: { [field in Field]: CurrencyAmount<Currency> | undefined } = useMemo(
+    () => ({
+      token0: receivedToken0,
+      token1: receivedToken1,
+    }),
+    [receivedToken0, receivedToken1]
+  )
+  const { shares } = useUserShares()
+  const sharesInDecimals = Number(shares?.toString()) / 10 ** 18
+
+  let insufficientBalance = false
+  const withdrawError = useMemo(() => {
+    let error: ReactNode | undefined
+
+    if (!typedValue) {
+      error = error ?? <Trans>Enter an amount</Trans>
+    }
+    if (typedValue && sharesInDecimals < Number(withdrawTypedValue)) {
+      insufficientBalance = true
+      error = error ?? <Trans>Insufficient balance</Trans>
+    }
+    return error
+  }, [typedValue, sharesInDecimals])
+  return {
+    parsedReceivedTokens,
+    withdrawError,
+    insufficientBalance,
   }
 }
 

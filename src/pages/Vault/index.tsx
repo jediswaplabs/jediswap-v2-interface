@@ -22,7 +22,12 @@ import { isAddressValidForStarknet } from '../../utils/addresses'
 import Row, { AutoRow } from 'components/Row'
 import { FullDivider, VaultWrapper } from 'components/vault/styled'
 import VaultHeader from 'components/vault/VaultHeader'
-import { useAllVaults, useVaultDerivedInfo, useVaultTableContent } from 'state/vaults/hooks'
+import {
+  useAllVaults,
+  useVaultDerivedInfo,
+  useVaultTableContent,
+  useVaultWithdrawDerivedInfo,
+} from 'state/vaults/hooks'
 import VaultDeposit from 'components/vault/VaultDeposit'
 import { ButtonError, ButtonPrimary, ButtonSize } from 'components/Button'
 import { useConnectionReady } from 'connection/eagerlyConnect'
@@ -541,9 +546,14 @@ export function VaultElement({
   const toggleWalletDrawer = useToggleAccountDrawer()
 
   const vaultInfo = useVaultDerivedInfo(vaultState, baseCurrency ?? undefined, currencyB ?? undefined)
-  const { inputError: vaultInputError, insufficientBalance, parsedAmounts, token0All, totalSupply } = vaultInfo
-  const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
 
+  const { inputError: depositError, insufficientBalance, parsedAmounts, token0All, totalSupply } = vaultInfo
+  const { withdrawError, insufficientBalance: insufficientWithdrawalBalance } = useVaultWithdrawDerivedInfo(
+    vaultState,
+    baseCurrency ?? undefined,
+    currencyB ?? undefined
+  )
+  const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
   const {
     writeAsync,
     data: txData,
@@ -630,16 +640,27 @@ export function VaultElement({
         )
 
       default:
-        return (
+        return activeButton === 'Deposit' ? (
           <ButtonError
-            disabled={vaultInputError}
+            disabled={depositError}
             size={ButtonSize.large}
             error={insufficientBalance}
             id="deposit-button"
             data-testid="deposit-button"
-            onClick={activeButton === 'Deposit' ? onDeposit : () => {}}
+            onClick={onDeposit}
           >
-            {vaultInputError || <Trans>{activeButton === 'Deposit' ? 'Deposit' : 'Withdraw'}</Trans>}
+            {depositError || <Trans>Deposit</Trans>}
+          </ButtonError>
+        ) : (
+          <ButtonError
+            disabled={withdrawError}
+            size={ButtonSize.large}
+            error={insufficientWithdrawalBalance}
+            id="withdraw-button"
+            data-testid="withdraw-button"
+            onClick={() => {}}
+          >
+            {withdrawError || <Trans>Withdraw</Trans>}
           </ButtonError>
         )
     }
