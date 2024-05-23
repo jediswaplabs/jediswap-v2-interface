@@ -24,8 +24,11 @@ import { FullDivider, VaultWrapper } from 'components/vault/styled'
 import VaultHeader from 'components/vault/VaultHeader'
 import {
   useAllVaults,
+  useVaultActionHandlers,
   useVaultDerivedInfo,
+  useVaultState,
   useVaultTableContent,
+  useVaultTokens,
   useVaultWithdrawDerivedInfo,
 } from 'state/vaults/hooks'
 import VaultDeposit from 'components/vault/VaultDeposit'
@@ -539,6 +542,7 @@ export function VaultElement({
   const { address: account } = useAccountDetails()
   const { vaultId: vaultAddressFromUrl } = useParams()
 
+  const { token1, token0, shares } = useUserShares()
   const vaultState = useSelector((state) => state.vaults)
   // Vault Input state
   const baseCurrency = useCurrency(currentVault.token0.address)
@@ -643,6 +647,31 @@ export function VaultElement({
     setShowConfirm(true)
     setAttemptingTxn(true)
   }
+
+  const onWithdraw = () => {
+    if (!token0 || !token1 || !shares) return
+    const defaultWithdrawSlippage = new Percent(99, 10000)
+    const amount0_min = BigInt(Math.round(Number(token0.toString()) * Number(defaultWithdrawSlippage.toSignificant())))
+    const amount1_min = BigInt(Math.round(Number(token1.toString()) * Number(defaultWithdrawSlippage.toSignificant())))
+    const callData = []
+    const vaultAddress = vaultAddressFromUrl
+    const callParams = {
+      shares: cairo.uint256(shares),
+      amount0_min: cairo.uint256(amount0_min.toString()),
+      amount1_min: cairo.uint256(amount1_min.toString()),
+    }
+
+    const compiledSwapCalls = CallData.compile(callParams)
+    const calls = {
+      contractAddress: vaultAddress,
+      entrypoint: 'withdraw',
+      calldata: compiledSwapCalls,
+    }
+    callData.push(calls)
+    setCallData(callData)
+    setShowConfirm(true)
+    setAttemptingTxn(true)
+  }
   const getActionContent = () => {
     switch (true) {
       case connectionReady && !account:
@@ -671,7 +700,7 @@ export function VaultElement({
             error={insufficientWithdrawalBalance}
             id="withdraw-button"
             data-testid="withdraw-button"
-            onClick={() => {}}
+            onClick={onWithdraw}
           >
             {withdrawError || <Trans>Withdraw</Trans>}
           </ButtonError>
@@ -682,6 +711,7 @@ export function VaultElement({
   const handleDismissConfirmation = useCallback(() => {
     setShowConfirm(false)
     if (txHash) {
+      setCallData([])
       navigate('/vaults')
     }
   }, [txHash, navigate])
@@ -696,7 +726,7 @@ export function VaultElement({
         attemptingTxn={attemptingTxn}
         hash={txHash}
         reviewContent={() => <></>}
-        pendingText={pendingText}
+        pendingText={activeButton === 'Deposit' ? pendingText : ''}
       />
       <VaultHeader activeButton={activeButton} setActiveButton={setActiveButton} chainId={chainId} />
       <FullDivider />

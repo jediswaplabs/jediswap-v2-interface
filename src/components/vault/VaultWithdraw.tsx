@@ -21,61 +21,10 @@ const WithdrawWrapper = styled(AutoColumn)`
 function VaultWithdraw({ currentVault }: { currentVault: any }) {
   const { withdrawTypedValue } = useVaultState()
   const { onWithdrawInput } = useVaultActionHandlers()
-  const [callData, setCallData] = useState<Call[]>([])
-  const { vaultId: vaultAddressFromUrl } = useParams()
-
-  const { token1, token0, shares } = useUserShares()
   const { token0: token0Currency, token1: token1Currency } = useVaultTokens(currentVault)
   const pair = {
     token0Currency,
     token1Currency,
-  }
-  const {
-    writeAsync,
-    data: txData,
-    error,
-  } = useContractWrite({
-    calls: callData,
-  })
-
-  useEffect(() => {
-    if (callData) {
-      writeAsync()
-        .then((response) => {
-          if (response?.transaction_hash) {
-          }
-        })
-        .catch((err) => {
-          console.log(err?.message)
-        })
-    }
-  }, [callData])
-
-  useEffect(() => {
-    // if (token0 && token1 && shares) onWithdraw()
-  }, [token1, token0, shares])
-
-  const onWithdraw = () => {
-    if (!token0 || !token1 || !shares) return
-    const defaultDepositSlippage = new Percent(99, 10000)
-    const amount0_min = BigInt(Math.round(Number(token0.toString()) * Number(defaultDepositSlippage.toSignificant())))
-    const amount1_min = BigInt(Math.round(Number(token1.toString()) * Number(defaultDepositSlippage.toSignificant())))
-    const callData = []
-    const vaultAddress = vaultAddressFromUrl
-    const callParams = {
-      shares: cairo.uint256(shares),
-      amount0_min: cairo.uint256(amount0_min.toString()),
-      amount1_min: cairo.uint256(amount1_min.toString()),
-    }
-
-    const compiledSwapCalls = CallData.compile(callParams)
-    const calls = {
-      contractAddress: vaultAddress,
-      entrypoint: 'withdraw',
-      calldata: compiledSwapCalls,
-    }
-    callData.push(calls)
-    setCallData(callData)
   }
 
   return (
