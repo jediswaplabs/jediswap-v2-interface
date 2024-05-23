@@ -469,6 +469,7 @@ export default function Rewards() {
   const STRK_REWARDS_ADDRESS = getStarkRewardAddress(chainId ?? DEFAULT_CHAIN_ID)
   const allTokens = useDefaultActiveTokens(DEFAULT_CHAIN_ID)
   const isSepoliaSelected = chainId === ChainId.GOERLI
+  const isMainnetSelected = chainId === ChainId.MAINNET
 
   useEffect(() => {
     async function getPairsData() {
@@ -582,7 +583,7 @@ export default function Rewards() {
   //fetch allocation data
   useEffect(() => {
     const getAllocation = async () => {
-      if (address) {
+      if (address && isMainnetSelected) {
         try {
           setAllocationsLoading(true)
           const requests = [
@@ -614,7 +615,7 @@ export default function Rewards() {
     }
 
     getAllocation()
-  }, [address])
+  }, [address, chainId])
 
   useEffect(() => {
     if (callData.length && address) {
@@ -776,7 +777,7 @@ export default function Rewards() {
         </LiquidityWrapperCard>
       )
       }
-      {allocationsLoading && !isSepoliaSelected ? (
+      {allocationsLoading ? (
         <LoadingRows>
           <div style={{ height: 450 }} />
         </LoadingRows>
@@ -789,7 +790,7 @@ export default function Rewards() {
           </RowBetween>
           <CardSection>
             {
-              !address ? <WalletNotConnected /> : isSepoliaSelected ? <ConnectedToSepolia /> :
+              !chainId ? <WalletNotConnected /> : isSepoliaSelected ? <ConnectedToSepolia /> :
                 <AutoColumn>
                   <RowBetween>
                     <StarkRewardsText>Your STRK Rewards</StarkRewardsText>
