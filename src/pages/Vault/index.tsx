@@ -6,7 +6,7 @@ import styled, { css } from 'styled-components'
 import { Flex } from 'rebass'
 import { ChainId, Currency, CurrencyAmount, Fraction, ONE, Percent, Token } from '@vnaysn/jediswap-sdk-core'
 import { isEmpty } from 'lodash'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBalance, useContractWrite } from '@starknet-react/core'
 import { useSelector } from 'react-redux'
 import JSBI from 'jsbi'
@@ -43,6 +43,7 @@ import { decimalToBigInt } from 'utils/decimalToBigint'
 import VaultWithdraw from 'components/vault/VaultWithdraw'
 import { useUserShares } from 'components/vault/hooks'
 import formatBalance from 'utils/formatBalance'
+import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 
 export const DEFAULT_VAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -531,6 +532,7 @@ export function VaultElement({
   //   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
   //   disableTokenInputs?: boolean
 }) {
+  const navigate = useNavigate()
   const [callData, setCallData] = useState<Call[]>([])
   const [activeButton, setActiveButton] = useState<string>('Deposit')
   const connectionReady = useConnectionReady()
@@ -544,6 +546,11 @@ export function VaultElement({
 
   // toggle wallet when disconnected
   const toggleWalletDrawer = useToggleAccountDrawer()
+
+  const [txHash, setTxHash] = useState<string>('')
+  // modal and loading
+  const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
+  const [showConfirm, setShowConfirm] = useState<boolean>(false)
 
   const vaultInfo = useVaultDerivedInfo(vaultState, baseCurrency ?? undefined, currencyB ?? undefined)
 
@@ -566,11 +573,15 @@ export function VaultElement({
     if (callData) {
       writeAsync()
         .then((response) => {
+          setAttemptingTxn(false)
           if (response?.transaction_hash) {
+            setTxHash(response.transaction_hash)
           }
         })
         .catch((err) => {
           console.log(err?.message)
+          setAttemptingTxn(false)
+          setShowConfirm(false)
         })
     }
   }, [callData])
@@ -629,6 +640,8 @@ export function VaultElement({
       }
     }
     setCallData(callData)
+    setShowConfirm(true)
+    setAttemptingTxn(true)
   }
   const getActionContent = () => {
     switch (true) {
@@ -666,8 +679,25 @@ export function VaultElement({
     }
   }
 
+  const handleDismissConfirmation = useCallback(() => {
+    setShowConfirm(false)
+    if (txHash) {
+      navigate('/vaults')
+    }
+  }, [txHash, navigate])
+
+  const pendingText = `Supplying ${parsedAmountA?.toSignificant(6) ?? ''} and ${parsedAmountB?.toSignificant(6) ?? ''}`
+
   const vaultElement = (
     <VaultWrapper>
+      <TransactionConfirmationModal
+        isOpen={showConfirm}
+        onDismiss={handleDismissConfirmation}
+        attemptingTxn={attemptingTxn}
+        hash={txHash}
+        reviewContent={() => <></>}
+        pendingText={pendingText}
+      />
       <VaultHeader activeButton={activeButton} setActiveButton={setActiveButton} chainId={chainId} />
       <FullDivider />
       <VaultInputWrapper>
