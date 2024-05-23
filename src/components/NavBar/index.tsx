@@ -20,6 +20,7 @@ import {
 } from './styled'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import StarkIcon from 'assets/svg/starknet.svg'
 
 const MenuItemLink = ({ to, dataTestId, id, isActive, children }) => {
   const Component = isActive ? ActiveMenuItem : MenuItem
@@ -56,6 +57,7 @@ export const PageTabs = () => {
         <Trans>V1</Trans>
       </ExternalMenuItemLink>
       <MenuItemLink to="/rewards" isActive={pathname.startsWith('/rewards')}>
+        <img src={StarkIcon} style={{marginRight: '2px'}} alt="starknet_logo" />
         <Trans>Rewards</Trans>
       </MenuItemLink>
     </>
