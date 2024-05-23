@@ -4,6 +4,7 @@ import { BodyWrapper } from '../AppBody'
 import styled, { ThemeContext, css, keyframes } from 'styled-components'
 import { AutoColumn } from 'components/Column'
 import StarkIcon from 'assets/svg/starknet.svg'
+import { MouseoverTooltip, TooltipSize } from 'components/Tooltip'
 import './style.css'
 import { CurrencyAmount, Token } from '@jediswap/sdk'
 import { ButtonPrimary, ButtonSecondary } from 'components/Button'
@@ -659,8 +660,9 @@ export default function Rewards() {
         <Link 
           to={link}
           onClick={onLinkClick}
-          style={{ textDecoration: 'none', pointerEvents: isSepoliaSelected ? 'none' : 'auto' }}
+          style={{ textDecoration: 'none', cursor: isSepoliaSelected ? 'auto' : 'pointer' }}
         >
+        <MouseoverTooltip disabled={!isSepoliaSelected} text="Switch to Mainnet to add liquidity" style={{display:'block'}} placement='bottom' hideArrow offsetY={-20} size={TooltipSize.UltraSmall} borderRadius="8px">
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
             <DoubleCurrencyLogo size={24} currency0={token0} currency1={token1} />
           </div>
@@ -679,6 +681,7 @@ export default function Rewards() {
             <div>STRK APR:</div>
             <div>{pool.displayAprStarknet}</div>
           </TokenAPR>
+      </MouseoverTooltip>
         </Link>
       </Column>
     )
