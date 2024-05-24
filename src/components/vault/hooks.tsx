@@ -60,7 +60,10 @@ export const useUserShares = () => {
   }
 }
 
-export const useUnderlyingVaultAssets = (vaultAddress: string) => {
+export const useUnderlyingVaultAssets = (vaultAddress: string | undefined) => {
+  if (!vaultAddress) {
+    return { data: null, isLoading: false, isError: false }
+  }
   const { data, isLoading, isError } = useContractRead({
     functionName: 'vault_all_underlying_assets',
     args: [],
@@ -71,7 +74,10 @@ export const useUnderlyingVaultAssets = (vaultAddress: string) => {
   return { data, isLoading, isError }
 }
 
-export const useVaultTotalSupply = (vaultAddress: string) => {
+export const useVaultTotalSupply = (vaultAddress: string | undefined) => {
+  if (!vaultAddress) {
+    return { data: null, isLoading: false, isError: false }
+  }
   const { data, isLoading, isError } = useContractRead({
     functionName: 'total_supply',
     args: [],

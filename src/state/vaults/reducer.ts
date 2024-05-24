@@ -2,10 +2,64 @@
 // @ts-ignore
 
 import { createSlice } from '@reduxjs/toolkit'
+import { Token } from '@vnaysn/jediswap-sdk-core'
 import { Field } from './actions'
 
+interface URLs {
+  asset0Icon: string
+  asset1Icon: string
+  shareIcon: string
+}
+interface Links {
+  details: string
+  fee: string
+}
+
+interface Share {
+  address: string
+  decimals: number
+  icon: string
+  symbol: string
+}
+
+interface PromotionInfo {
+  // Define properties if known, otherwise use an empty object type
+  [key: string]: any
+}
+
+interface Provider {
+  name: string
+  logo: string
+}
+
+export type Vault = {
+  token0: Token
+  token1: Token
+  chain: string
+  chainId: string
+  decimals: number | null
+  defaultSlippage: string
+  details: string
+  feeTier: string
+  forceGasPrice: boolean
+  isActive: boolean
+  isAsset0Main: boolean
+  isDeFi: boolean
+  links: Links
+  lpStrategyGraph: string
+  mainAssetKey: string
+  name: string
+  poolAddress: string
+  positionGraph: string
+  protocol: string
+  provider: Provider
+  riskLevel: string
+  share: Share
+  strategyType: string
+  type: string
+}
 export interface VaultState {
-  readonly allVaults: any
+  readonly allVaults: Vault[]
   readonly users: any
   readonly independentField: Field
   readonly typedValue: string

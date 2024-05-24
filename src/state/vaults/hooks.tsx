@@ -19,6 +19,7 @@ import { AppState } from 'state/reducer'
 import { DEFAULT_PERMISSIONLESS_API_RESPONSE } from '../../components/vault/constants'
 import { formatUsdPrice } from 'nft/utils'
 import { removeExtraDecimals } from 'utils/removeExtraDecimals'
+import { Vault } from './reducer'
 
 type Maybe<T> = T | null | undefined
 
@@ -36,20 +37,22 @@ export function useVaultState(): AppState['vaults'] {
 }
 
 const getTeaHouseLogoUriPath = (iconName = '') => (iconName ? `${TEAHOUSE_LOGO_URI}/${iconName}` : null)
-const getVaultListWithContents = async () => {
+const getVaultListWithContents = async (): Promise<{ [key: string]: Vault } | undefined> => {
   //   const endpoint = `${TEAHOUSE_CONTENT_ENDPOINT}/vaults`
   const endpoint = TEAHOUSE_TESTNET_CONTENT_ENDPOINT
-  const result = {}
+  const result: { [key: string]: Vault } = {}
   const response = await fetch(endpoint)
   const { vaults } = (await response.json()) ?? {}
   if (!vaults) {
     return
   }
-  const filteredVaults = vaults.filter((vault) => vault.isActive).filter((vault) => vault.protocol === 'jediswap')
+  const filteredVaults = vaults
+    .filter((vault: Vault) => vault.isActive)
+    .filter((vault: Vault) => vault.protocol === 'jediswap')
   // .filter((vault) => vault.chain === 'arbitrum')
   for (const vault of filteredVaults) {
     const shareAddress = vault.share?.address
-    const data = {}
+    const data: Partial<Vault> = {}
     const token0 = vault.assets?.[0] ?? null
     const token1 = vault.assets?.[1] ?? null
     if (!shareAddress) {
@@ -89,7 +92,7 @@ const getVaultListWithContents = async () => {
       name: 'Teahouse',
       logo: teahouseLogo,
     }
-    result[shareAddress] = data
+    result[shareAddress] = data as Vault
   }
   return result
 }
@@ -97,7 +100,7 @@ const getVaultListWithContents = async () => {
 const getPermissionlessVaultDataList = async () => {
   //   const endpoint = `${TEAHOUSE_VAULT_ENDPOINT}/vaults/type/permissionless`
   const endpoint = TEAHOUSE_TESTNET_VAULT_ENDPOINT
-  const result = {}
+  const result: { [key: string]: Vault } = {}
   //   const { vaults } = DEFAULT_PERMISSIONLESS_API_RESPONSE // check --> api was failing
   const response = await fetch(endpoint)
   const { vaults } = (await response.json()) ?? {}
@@ -106,7 +109,7 @@ const getPermissionlessVaultDataList = async () => {
   }
   for (const vault of vaults) {
     const { address } = vault
-    const data = {}
+    const data: Partial<Vault> = {}
     const token0 = vault.latestInfo?.token0 ?? null
     const token1 = vault.latestInfo?.token1 ?? null
     if (!address) {
@@ -119,7 +122,7 @@ const getPermissionlessVaultDataList = async () => {
     data.token0 = token0
     data.token1 = token1
 
-    result[address] = data
+    result[address] = data as Vault
   }
   return result
 }
@@ -131,9 +134,9 @@ const getTokenPrices = async (contracts) => {
 }
 
 export function useAllVaults() {
-  const allVaults = useSelector((state) => state.vaults.allVaults)
+  const allVaults = useSelector((state: AppState) => state.vaults.allVaults)
   const dispatch = useAppDispatch()
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const isFetchingRef = useRef(false)
 
@@ -291,7 +294,7 @@ export function useVaultDerivedInfo(
   const dependentAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
     if (independentAmount && priceRatio) {
       const dependentTokenAmount =
-        independentField === Field.CURRENCY_A ? typedValue * priceRatio : typedValue / priceRatio
+        independentField === Field.CURRENCY_A ? Number(typedValue) * priceRatio : Number(typedValue) / priceRatio
       const formattedDependentAmount = removeExtraDecimals(dependentTokenAmount, currencies[dependentField])
       return tryParseCurrencyAmount(formattedDependentAmount.toString(), currencies[dependentField])
     }
@@ -378,7 +381,7 @@ export function useVaultWithdrawDerivedInfo(
     if (!typedValue || !totalSupply || !token0All) {
       return undefined
     }
-    const token0Amount = withdrawTypedValue * (Number(token0All) / Number(totalSupply))
+    const token0Amount = Number(withdrawTypedValue) * (Number(token0All) / Number(totalSupply))
 
     const formattedToken0 = removeExtraDecimals(Number(token0Amount), currencyA)
     return tryParseCurrencyAmount(formattedToken0.toString(), currencyA)
@@ -388,7 +391,7 @@ export function useVaultWithdrawDerivedInfo(
     if (!typedValue || !totalSupply || !token1All) {
       return undefined
     }
-    const token1Amount = withdrawTypedValue * (Number(token1All) / Number(totalSupply))
+    const token1Amount = Number(withdrawTypedValue) * (Number(token1All) / Number(totalSupply))
     const formattedToken1 = removeExtraDecimals(Number(token1Amount), currencyB)
     return tryParseCurrencyAmount(formattedToken1.toString(), currencyB)
   }, [typedValue, totalSupply, token1All])
@@ -423,7 +426,7 @@ export function useVaultWithdrawDerivedInfo(
   }
 }
 
-export function useVaultTokens(vault: any): { token0: Token; token1: Token } {
+export function useVaultTokens(vault: any): { token0: any; token1: any } {
   const token0 = new Token(
     vault?.token0?.chainId,
     vault?.token0?.address,
@@ -448,20 +451,20 @@ export function useVaultTokens(vault: any): { token0: Token; token1: Token } {
 export function useVaultTableContent(
   vault: any,
   vaultAddress: string
-): { token0: Token; token1: Token; tvl: number; apr: number; feeApr: number; totalApr: number; balance: number } {
-  const { address, isConnected } = useAccountDetails()
+): { token0: Token; token1: Token; tvl: number; apr: number; feeApr: number; totalApr: number } | null {
+  //   const { address, isConnected } = useAccountDetails()
   const { token0, token1 } = useVaultTokens(vault)
   const shareTokenAddress = vault?.share?.address
-  const {
-    data: userBalanceData,
-    isLoading: isUserBalanceLoading,
-    isError: isUserBalanceError,
-    isSuccess: isUserBalanceSuccess,
-  } = useBalance({
-    token: shareTokenAddress,
-    address,
-    watch: true,
-  })
+  //   const {
+  //     data: userBalanceData,
+  //     isLoading: isUserBalanceLoading,
+  //     isError: isUserBalanceError,
+  //     isSuccess: isUserBalanceSuccess,
+  //   } = useBalance({
+  //     token: shareTokenAddress,
+  //     address,
+  //     watch: true,
+  //   })
 
   if (!(vault?.token0 && vault?.token1 && shareTokenAddress)) {
     return null
@@ -469,11 +472,11 @@ export function useVaultTableContent(
 
   const performanceData = vault?.performance[vault?.mainAssetKey]
 
-  let tvl
-  let apr
-  let feeApr
-  let totalApr
-  let shareTokenPriceUsd
+  let tvl = 0
+  let apr = 0
+  let feeApr = 0
+  let totalApr = 0
+  let shareTokenPriceUsd = 0
 
   if (!isEmpty(performanceData)) {
     const mainTokenDecimals = vault[vault.mainAssetKey].decimals
@@ -482,41 +485,41 @@ export function useVaultTableContent(
     const shareTokenDecimals = vault?.share?.decimals
     const shareTokenPriceInUnits = performanceData.shareTokenPrice / 10 ** (18 + shareTokenDecimals)
     tvl = tvlInMainToken * tokenPrice
-    apr = Number(performanceData.shareTokenApr / 10 ** 4)?.toFixed(2)
-    feeApr = Number(performanceData.feeApr / 10 ** 4)?.toFixed(2)
-    totalApr = Number((performanceData?.shareTokenApr + performanceData?.feeApr) / 10 ** 4)?.toFixed(2)
+    apr = Number(Number(performanceData.shareTokenApr / 10 ** 4)?.toFixed(2))
+    feeApr = Number(Number(performanceData.feeApr / 10 ** 4)?.toFixed(2))
+    totalApr = Number(Number((performanceData?.shareTokenApr + performanceData?.feeApr) / 10 ** 4)?.toFixed(2))
     shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
   }
 
-  const balanceInUsd = Number(userBalanceData?.formatted ?? 0) * (shareTokenPriceUsd ?? 0)
+  //   const balanceInUsd = Number(userBalanceData?.formatted ?? 0) * (shareTokenPriceUsd ?? 0)
 
-  let balance
-  switch (true) {
-    case !isConnected:
-    case isUserBalanceError: {
-      balance = formatUsdPrice(0)
-      break
-    }
-    case isUserBalanceLoading: {
-      balance = '...'
-      break
-    }
-    case isUserBalanceSuccess: {
-      balance = formatUsdPrice(balanceInUsd)
-      break
-    }
-    default: {
-      balance = formatUsdPrice(0)
-    }
-  }
+  //   let balance
+  //   switch (true) {
+  //     case !isConnected:
+  //     case isUserBalanceError: {
+  //       balance = formatUsdPrice(0)
+  //       break
+  //     }
+  //     case isUserBalanceLoading: {
+  //       balance = '...'
+  //       break
+  //     }
+  //     case isUserBalanceSuccess: {
+  //       balance = formatUsdPrice(balanceInUsd)
+  //       break
+  //     }
+  //     default: {
+  //       balance = formatUsdPrice(0)
+  //     }
+  //   }
 
   return {
     token0,
     token1,
-    tvl,
-    apr,
-    feeApr,
-    totalApr,
-    balance,
+    tvl: tvl ?? 0,
+    apr: apr ? Number(apr) : 0,
+    feeApr: feeApr ? Number(feeApr) : 0,
+    totalApr: totalApr ? Number(totalApr) : 0,
+    // balance: typeof balance === 'string' ? 0 : balance,
   }
 }

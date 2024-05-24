@@ -1,5 +1,3 @@
-// @ts-nocheck
-
 import { Trans } from '@lingui/macro'
 import Switch from 'react-switch'
 import { useEffect, useState } from 'react'
