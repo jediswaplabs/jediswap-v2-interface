@@ -217,7 +217,7 @@ const StyledTokenName = styled.span<{ active?: boolean }>`
 `
 
 const Arrow = styled.div`
-  color: ${({ theme, faded }) => (faded ? theme.jediGrey : theme.paginationTest)};
+  color: ${({ theme, faded }) => (faded ? theme.jediGrey : theme.jediBlue)};
   padding: 0 20px;
   user-select: none;
   font-size: 30px;

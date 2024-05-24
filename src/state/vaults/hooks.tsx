@@ -447,7 +447,7 @@ export function useVaultTokens(vault: any): { token0: Token; token1: Token } {
 
 export function useVaultTableContent(
   vault: any,
-  vaultAddress: string
+  vaultAddress?: string
 ): { token0: Token; token1: Token; tvl: number; apr: number; feeApr: number; totalApr: number; balance: number } {
   const { address, isConnected } = useAccountDetails()
   const { token0, token1 } = useVaultTokens(vault)

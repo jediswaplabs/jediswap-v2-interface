@@ -16,7 +16,7 @@ import { StyledRouterLink, ThemedText } from 'theme/components'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import JediSwapLoader from '../../components/Loader/JediSwapLoader'
 import noPositionsBg from '../../assets/svg/no-positions-bg.svg'
-import { useFormatter } from '../../utils/formatNumbers.ts'
+import { useFormatter } from '../../utils/formatNumbers'
 import { formatUsdPrice } from '../../nft/utils'
 import { isAddressValidForStarknet } from '../../utils/addresses'
 import Row, { AutoRow } from 'components/Row'
@@ -134,8 +134,8 @@ const StyledTokenName = styled.span<{ active?: boolean }>`
   font-family: 'DM Sans';
 `
 
-const Arrow = styled.div`
-  color: ${({ theme, faded }) => (faded ? theme.jediGrey : theme.paginationTest)};
+const Arrow = styled.div<{ faded?: boolean }>`
+  color: ${({ theme, faded }) => (faded ? theme.jediGrey : theme.jediBlue)};
   padding: 0 20px;
   user-select: none;
   font-size: 30px;
@@ -243,7 +243,7 @@ const VaultDetailsImage = styled.img`
   height: auto;
 `
 
-function ErrorPanel({ text }) {
+function ErrorPanel({ text }: {text?: string}) {
   return (
     <ErrorContainer>
       <ThemedText.BodyPrimary textAlign="center">
@@ -267,7 +267,12 @@ function NoVaultsPanel() {
 }
 
 const noop = () => {}
-const UserBalance = ({ tokenAddress, vaultAddress, tokenPrice, getResult = noop }) => {
+const UserBalance = ({ tokenAddress, vaultAddress, tokenPrice, getResult = noop }:
+  { tokenAddress?: string,
+    vaultAddress: string
+    tokenPrice?: number,
+    getResult?: (arg: { vaultAddress: string, balance: number }) => any
+  }) => {
   const { address, isConnected } = useAccountDetails()
 
   const {
@@ -327,7 +332,7 @@ const PageContentWrapper = styled(Flex)`
   flex-direction: row;
 `
 
-const PageTitle = ({ token0, token1 }) => {
+const PageTitle = ({ token0, token1 }: {token0?: Token, token1?: Token}) => {
   const below600 = useMedia('(max-width: 600px)')
   if (!(token0 && token1)) {
     return null
@@ -356,7 +361,7 @@ export default function Vault({ className }: { className?: string }) {
     if (!allVaults) {
       return
     }
-    const result = allVaults[vaultIdFromUrl]
+    const result = vaultIdFromUrl ? allVaults[vaultIdFromUrl] : null
     return result
   }
   const currentVault = getCurrentVault()
@@ -479,7 +484,7 @@ export default function Vault({ className }: { className?: string }) {
                   {/* update later - img takes time to load issue */}
                   <VaultStrategyType>{currentVault.strategyType}</VaultStrategyType>
                   <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: currentVault.details }} />
-                  <VaultStrategyLinks gap="24px">
+                  <VaultStrategyLinks>
                     <a href={currentVault.links.details} target={'_blank'} rel="noreferrer">
                       View Contract
                     </a>
@@ -537,7 +542,7 @@ export function VaultElement({
   const { address: account } = useAccountDetails()
   const { vaultId: vaultAddressFromUrl } = useParams()
 
-  const vaultState = useSelector((state) => state.vaults)
+  const vaultState = useSelector((state: any) => state.vaults)
   // Vault Input state
   const baseCurrency = useCurrency(currentVault.token0.address)
   const currencyB = useCurrency(currentVault.token1.address)
@@ -601,8 +606,8 @@ export function VaultElement({
     let approvalA = undefined
     let approvalB = undefined
 
-    if (parsedAmountA && parsedAmountA?.raw.toString() > 0) approvalA = approvalACallback()
-    if (parsedAmountB && parsedAmountB?.raw.toString() > 0) approvalB = approvalBCallback()
+    if (parsedAmountA && parsedAmountA?.greaterThan(0)) approvalA = approvalACallback()
+    if (parsedAmountB && parsedAmountB?.greaterThan(0)) approvalB = approvalBCallback()
 
     const derivedShares = (BigInt(parsedAmountA.raw.toString()) * totalSupply) / token0All
 

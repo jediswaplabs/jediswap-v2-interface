@@ -56,12 +56,12 @@ function VaultWithdraw({ currentVault }: { currentVault: any }) {
   }, [token1, token0, shares])
 
   const onWithdraw = () => {
-    if (!token0 || !token1 || !shares) return
+    const vaultAddress = vaultAddressFromUrl
+    if (!token0 || !token1 || !shares || !vaultAddress) return
     const defaultDepositSlippage = new Percent(99, 10000)
     const amount0_min = BigInt(Math.round(Number(token0.toString()) * Number(defaultDepositSlippage.toSignificant())))
     const amount1_min = BigInt(Math.round(Number(token1.toString()) * Number(defaultDepositSlippage.toSignificant())))
     const callData = []
-    const vaultAddress = vaultAddressFromUrl
     const callParams = {
       shares: cairo.uint256(shares),
       amount0_min: cairo.uint256(amount0_min.toString()),

@@ -35,7 +35,7 @@ const AnimatedImg = styled.div`
   }
 `
 
-const JediSwapLoader = ({ fill, ...attr }) => {
+const JediSwapLoader = ({ fill = false, ...attr }) => {
     return (
         <Wrapper fill={fill} {...attr}>
             <AnimatedImg>
