@@ -68,6 +68,7 @@ export default function VaultWithdrawSummary({
   const currency1 = useCurrency(currentVault.token1.address)
   const vaultState = useVaultState()
   const { token0, token1 } = useUserShares(vaultState, currency0 ?? undefined, currency1 ?? undefined)
+  console.log(token0, token1)
 
   return (
     <SummaryWrapper id={id} hideInput={hideInput} {...rest}>

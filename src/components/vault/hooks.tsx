@@ -44,13 +44,15 @@ export function useUserShares(
       return num.toBigInt(results?.result?.[0])
     },
   })
+  // 15.9835
+  //0.00315941
 
   const totalShares = shares.data
 
   const withdrawTypedValue = state.withdrawTypedValue
   const { vaultId: vaultAddressFromUrl } = useParams
   const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currencyA)
-  const { data, isError } = useUnderlyingVaultAssets(vaultAddressFromUrl ? vaultAddressFromUrl : '')
+  const { data, isError } = useUnderlyingVaultAssets(vaultAddress)
 
   const { token0All, token1All, priceRatio } = useMemo(() => {
     const result: any = data
@@ -70,10 +72,11 @@ export function useUserShares(
       totalSupply: supply,
     }
   }, [supply, supplyError])
+
   {
     /*   const token0 =
     withdrawTypedValue && token0All && totalSupply
-      ? (Number(withdrawTypedValue) * token0All) / (totalSupply as bigint)
+    //   ? (Number(withdrawTypedValue) * token0All) / (totalSupply as bigint)
       : 0
     */
   }

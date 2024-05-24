@@ -656,8 +656,8 @@ export function VaultElement({
   const onWithdraw = () => {
     if (!token0 || !token1 || !withdrawTypedValue) return
     const defaultWithdrawSlippage = new Percent(99, 10000)
-    const amount0_min = BigInt(Math.round(Number(token0.toString()) * Number(defaultWithdrawSlippage.toSignificant())))
-    const amount1_min = BigInt(Math.round(Number(token1.toString()) * Number(defaultWithdrawSlippage.toSignificant())))
+    const amount0_min = BigInt(Math.round(Number(token0.raw) * Number(defaultWithdrawSlippage.toSignificant())))
+    const amount1_min = BigInt(Math.round(Number(token1.raw) * Number(defaultWithdrawSlippage.toSignificant())))
     const callData = []
     const vaultAddress = vaultAddressFromUrl
     const callParams = {
