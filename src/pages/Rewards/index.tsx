@@ -1,8 +1,11 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import React, { MouseEvent, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { BodyWrapper } from '../AppBody'
 import styled, { ThemeContext, css, keyframes } from 'styled-components'
 import { AutoColumn } from 'components/Column'
 import StarkIcon from 'assets/svg/starknet.svg'
+import WalletIcon from 'assets/wallets/Wallet.png'
+import { MouseoverTooltip, TooltipSize } from 'components/Tooltip'
 import './style.css'
 import { CurrencyAmount, Token } from '@jediswap/sdk'
 import { ButtonPrimary, ButtonSecondary } from 'components/Button'
@@ -26,6 +29,7 @@ import { findClosestAPRPeriod } from 'utils/getClosest'
 import { formattedPercent } from 'utils/formattedPercent'
 import { apiTimeframeOptions } from 'constants/apiTimeframeOptions'
 import { ApolloQueryResult } from '@apollo/client'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 996px;
@@ -418,6 +422,45 @@ const MobileWrapper = styled.div`
     padding: 0px;
   }
 `
+const ConnectWalletText = styled.div`
+  font-size: 20px;
+  font-weight: 600;
+  font-family: "Avenir LT Std", sans-serif;
+  max-width: 410px;
+  text-align: center;
+`
+const ConnectWalletWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`
+
+const WalletNotConnected = () => {
+  const toggleWalletDrawer = useToggleAccountDrawer()
+  return (
+    <ConnectWalletWrapper>
+      <img src={WalletIcon} />
+      <ConnectWalletText>Connect wallet to see your STRK rewards</ConnectWalletText>
+      <ClaimButtonGradient
+        onClick={toggleWalletDrawer}
+        style={{ marginTop: '20px' }}
+      >
+        <ClaimText>Connect Wallet</ClaimText>
+      </ClaimButtonGradient>
+    </ConnectWalletWrapper>
+  )
+}
+
+const ConnectedToSepolia = () => {
+  return (
+    <ConnectWalletWrapper>
+      <img src={WalletIcon} />
+      <ConnectWalletText>
+        Switch your network from Sepolia to Mainnet to see rewards
+      </ConnectWalletText>
+    </ConnectWalletWrapper>
+  )
+}
 
 export default function Rewards() {
   const [allPools, setAllPools] = useState<any[]>([])
@@ -425,6 +468,8 @@ export default function Rewards() {
   const [poolsLoading, setPoolsLoading] = useState(true)
   const STRK_REWARDS_ADDRESS = getStarkRewardAddress(chainId ?? DEFAULT_CHAIN_ID)
   const allTokens = useDefaultActiveTokens(DEFAULT_CHAIN_ID)
+  const isSepoliaSelected = chainId === ChainId.GOERLI
+  const isMainnetSelected = chainId === ChainId.MAINNET
 
   useEffect(() => {
     async function getPairsData() {
@@ -534,12 +579,11 @@ export default function Rewards() {
   const [txPending, setTxPending] = useState(false)
   const [attemptingTxn, setAttemptingTxn] = useState(false)
 
-  const toggleWalletDrawer = useToggleAccountDrawer()
 
   //fetch allocation data
   useEffect(() => {
     const getAllocation = async () => {
-      if (address) {
+      if (address && isMainnetSelected) {
         try {
           setAllocationsLoading(true)
           const requests = [
@@ -571,7 +615,7 @@ export default function Rewards() {
     }
 
     getAllocation()
-  }, [address])
+  }, [address, chainId])
 
   useEffect(() => {
     if (callData.length && address) {
@@ -638,32 +682,47 @@ export default function Rewards() {
   const buttonText =
     (totalRewardsClaimed && 'Claimed') || (unclaimed_rewards && 'Claim STRK') || (attemptingTxn && 'Claiming...')
 
+  const onLinkClick = (e: MouseEvent) => {
+    if (isSepoliaSelected) {
+      e.preventDefault()
+    }
+  }
   const PairListItem = ({ pool }: { pool: any }) => {
     const token0 =
       pool.token0.symbol === 'ETH' ? pool.token0 : allTokens[validateAndParseAddress(pool.token0.tokenAddress)]
     const token1 =
       pool.token1.symbol === 'ETH' ? pool.token1 : allTokens[validateAndParseAddress(pool.token1.tokenAddress)]
-
+    const token0ForLink = pool.token0.symbol === 'ETH' ? 'ETH' : pool.token0.tokenAddress
+    const token1ForLink = pool.token1.symbol === 'ETH' ? 'ETH' : pool.token1.tokenAddress
+    const link = `/add/${token0ForLink}/${token1ForLink}/${pool.fee}`
     return (
       <Column style={{ padding: 10, flexBasis: '32%', flexGrow: 0 }}>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-          <DoubleCurrencyLogo size={24} currency0={token0} currency1={token1} />
-        </div>
-        <PairName>
-          {pool?.token0?.symbol}-{pool?.token1?.symbol}
-        </PairName>
-        <TotalAPR>
-          <div>Total APR:</div>
-          <div>{pool.displayAprCommon}</div>
-        </TotalAPR>
-        <TokenAPR>
-          <div>Fee APR:</div>
-          <div>{pool.displayAprFee}</div>
-        </TokenAPR>
-        <TokenAPR>
-          <div>STRK APR:</div>
-          <div>{pool.displayAprStarknet}</div>
-        </TokenAPR>
+        <Link
+          to={link}
+          onClick={onLinkClick}
+          style={{ textDecoration: 'none', cursor: isSepoliaSelected ? 'auto' : 'pointer' }}
+        >
+          <MouseoverTooltip disabled={!isSepoliaSelected} text="Switch to Mainnet to add liquidity" style={{ display: 'block' }} placement='bottom' hideArrow offsetY={-20} size={TooltipSize.UltraSmall} borderRadius="8px">
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <DoubleCurrencyLogo size={24} currency0={token0} currency1={token1} />
+            </div>
+            <PairName>
+              {pool?.token0?.symbol}-{pool?.token1?.symbol}
+            </PairName>
+            <TotalAPR>
+              <div>Total APR:</div>
+              <div>{pool.displayAprCommon}</div>
+            </TotalAPR>
+            <TokenAPR>
+              <div>Fee APR:</div>
+              <div>{pool.displayAprFee}</div>
+            </TokenAPR>
+            <TokenAPR>
+              <div>STRK APR:</div>
+              <div>{pool.displayAprStarknet}</div>
+            </TokenAPR>
+          </MouseoverTooltip>
+        </Link>
       </Column>
     )
   }
@@ -730,58 +789,54 @@ export default function Rewards() {
             </ClaimHeader>
           </RowBetween>
           <CardSection>
-            <AutoColumn>
-              <RowBetween>
-                <StarkRewardsText>Your STRK Rewards</StarkRewardsText>
-              </RowBetween>
+            {
+              !chainId ? <WalletNotConnected /> : isSepoliaSelected ? <ConnectedToSepolia /> :
+                <AutoColumn>
+                  <RowBetween>
+                    <StarkRewardsText>Your STRK Rewards</StarkRewardsText>
+                  </RowBetween>
 
-              <Container>
-                <Row>
-                  <Column>
-                    <HeaderText>
-                      <>
-                        <img src={StarkIcon} style={{ marginRight: 5 }} />
-                        STRK ALLOCATED
-                      </>
-                    </HeaderText>
-                    <AmountText>{allocations?.toSignificant() ?? 0}</AmountText>
-                  </Column>
-                  <Column>
-                    <HeaderText>
-                      <>
-                        <img src={StarkIcon} style={{ marginRight: 5 }} />
-                        STRK CLAIMED
-                      </>
-                    </HeaderText>
-                    <AmountText>{formattedClaimRewards?.toSignificant() ?? 0}</AmountText>
-                  </Column>
-                  <Column>
-                    <HeaderText>
-                      <>
-                        <img src={StarkIcon} style={{ marginRight: 5 }} />
-                        STRK UNCLAIMED
-                      </>
-                    </HeaderText>
-                    <ClaimWrapper>
-                      <AmountText>{unclaimed_rewards.toSignificant(5) ?? 0}</AmountText>
+                  <Container>
+                    <Row>
+                      <Column>
+                        <HeaderText>
+                          <>
+                            <img src={StarkIcon} style={{ marginRight: 5 }} />
+                            STRK ALLOCATED
+                          </>
+                        </HeaderText>
+                        <AmountText>{allocations?.toSignificant() ?? 0}</AmountText>
+                      </Column>
+                      <Column>
+                        <HeaderText>
+                          <>
+                            <img src={StarkIcon} style={{ marginRight: 5 }} />
+                            STRK CLAIMED
+                          </>
+                        </HeaderText>
+                        <AmountText>{formattedClaimRewards?.toSignificant() ?? 0}</AmountText>
+                      </Column>
+                      <Column>
+                        <HeaderText>
+                          <>
+                            <img src={StarkIcon} style={{ marginRight: 5 }} />
+                            STRK UNCLAIMED
+                          </>
+                        </HeaderText>
+                        <ClaimWrapper>
+                          <AmountText>{unclaimed_rewards.toSignificant(5) ?? 0}</AmountText>
 
-                      {!address ? (
-                        <ClaimButtonGradient
-                          onClick={toggleWalletDrawer}
-                        // disabled={attemptingTxn || totalRewardsClaimed}
-                        >
-                          <ClaimText>Connect Wallet</ClaimText>
-                        </ClaimButtonGradient>
-                      ) : allocated && allocations && (totalRewardsClaimed || unclaimed_rewards || attemptingTxn) ? (
-                        <ClaimButtonGradient onClick={onClaim} disabled={attemptingTxn || totalRewardsClaimed}>
-                          <ClaimText>{buttonText}</ClaimText>
-                        </ClaimButtonGradient>
-                      ) : null}
-                    </ClaimWrapper>
-                  </Column>
-                </Row>
-              </Container>
-            </AutoColumn>
+                          {allocated && allocations && (totalRewardsClaimed || unclaimed_rewards || attemptingTxn) ? (
+                            <ClaimButtonGradient onClick={onClaim} disabled={attemptingTxn || totalRewardsClaimed}>
+                              <ClaimText>{buttonText}</ClaimText>
+                            </ClaimButtonGradient>
+                          ) : null}
+                        </ClaimWrapper>
+                      </Column>
+                    </Row>
+                  </Container>
+                </AutoColumn>
+            }
           </CardSection>
         </LiquidityWrapperCard>
       )
