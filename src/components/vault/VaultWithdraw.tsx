@@ -1,15 +1,8 @@
 import styled, { css } from 'styled-components'
-import React, { useEffect, useState } from 'react'
-import { useContractWrite } from '@starknet-react/core'
-import { cairo, Call, CallData } from 'starknet'
-import { useParams } from 'react-router-dom'
-import { useUserShares } from './hooks'
-import { Percent } from '@vnaysn/jediswap-sdk-core'
 import { AutoColumn } from 'components/Column'
 import VaultWithdrawInput from './VaultWithdrawInput'
 import VaultWithdrawSummary from './VaultWithdrawSummary'
 import { useVaultActionHandlers, useVaultState, useVaultTokens } from 'state/vaults/hooks'
-import { useSelector } from 'react-redux'
 
 const WithdrawWrapper = styled(AutoColumn)`
   width: 100%;
@@ -43,6 +36,7 @@ function VaultWithdraw({ currentVault }: { currentVault: any }) {
         // showCommonBases
         // locked={depositADisabled}
         vaultPair={pair}
+        currentVault={currentVault}
       />
       <VaultWithdrawSummary id="add-liquidity-input-tokena" vaultPair={pair} currentVault={currentVault} />
     </WithdrawWrapper>

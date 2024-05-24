@@ -29,7 +29,6 @@ import {
   useVaultState,
   useVaultTableContent,
   useVaultTokens,
-  useVaultWithdrawDerivedInfo,
 } from 'state/vaults/hooks'
 import VaultDeposit from 'components/vault/VaultDeposit'
 import { ButtonError, ButtonPrimary, ButtonSize } from 'components/Button'
@@ -352,8 +351,7 @@ export default function Vault({ className }: { className?: string }) {
   const { formatPercent } = useFormatter()
   const [generalError, setGeneralError] = useState(null)
   const [generalLoading, setGeneralLoading] = useState(true)
-  const { shares } = useUserShares()
-  const formatted = formatBalance(Number(shares?.toString()) / 10 ** 18)
+
   const { data: allVaults, error: allVaultsError, isLoading: isAllVaultsLoading } = useAllVaults()
 
   const getCurrentVault = () => {
@@ -364,6 +362,11 @@ export default function Vault({ className }: { className?: string }) {
     return result
   }
   const currentVault = getCurrentVault()
+  const currency0 = useCurrency(currentVault.token0.address)
+  const currency1 = useCurrency(currentVault.token1.address)
+  const vaultState = useVaultState()
+  const { totalShares } = useUserShares(vaultState, currency0 ?? undefined, currency1 ?? undefined)
+  const formatted = formatBalance(Number(totalShares?.toString()) / 10 ** 18)
   const vaultsAddresses = Object.keys(allVaults ?? {})
   const { token0, token1, tvl, apr, feeApr, totalApr, balance } = useVaultTableContent(currentVault, vaultIdFromUrl)
 
@@ -541,9 +544,11 @@ export function VaultElement({
   const connectionReady = useConnectionReady()
   const { address: account } = useAccountDetails()
   const { vaultId: vaultAddressFromUrl } = useParams()
-
-  const { token1, token0, shares } = useUserShares()
-  const vaultState = useSelector((state) => state.vaults)
+  const currency0 = useCurrency(currentVault.token0.address)
+  const currency1 = useCurrency(currentVault.token1.address)
+  const vaultState = useVaultState()
+  const { withdrawTypedValue } = vaultState
+  const { token1, token0 } = useUserShares(vaultState, currency0 ?? undefined, currency1 ?? undefined)
   // Vault Input state
   const baseCurrency = useCurrency(currentVault.token0.address)
   const currencyB = useCurrency(currentVault.token1.address)
@@ -559,7 +564,7 @@ export function VaultElement({
   const vaultInfo = useVaultDerivedInfo(vaultState, baseCurrency ?? undefined, currencyB ?? undefined)
 
   const { inputError: depositError, insufficientBalance, parsedAmounts, token0All, totalSupply } = vaultInfo
-  const { withdrawError, insufficientBalance: insufficientWithdrawalBalance } = useVaultWithdrawDerivedInfo(
+  const { withdrawError, insufficientBalance: insufficientWithdrawalBalance } = useUserShares(
     vaultState,
     baseCurrency ?? undefined,
     currencyB ?? undefined
@@ -649,14 +654,14 @@ export function VaultElement({
   }
 
   const onWithdraw = () => {
-    if (!token0 || !token1 || !shares) return
+    if (!token0 || !token1 || !withdrawTypedValue) return
     const defaultWithdrawSlippage = new Percent(99, 10000)
     const amount0_min = BigInt(Math.round(Number(token0.toString()) * Number(defaultWithdrawSlippage.toSignificant())))
     const amount1_min = BigInt(Math.round(Number(token1.toString()) * Number(defaultWithdrawSlippage.toSignificant())))
     const callData = []
     const vaultAddress = vaultAddressFromUrl
     const callParams = {
-      shares: cairo.uint256(shares),
+      shares: cairo.uint256(withdrawTypedValue),
       amount0_min: cairo.uint256(amount0_min.toString()),
       amount1_min: cairo.uint256(amount1_min.toString()),
     }

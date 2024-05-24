@@ -16,6 +16,8 @@ import { Input as NumericalInput } from '../NumericalInput'
 import { RowBetween, RowFixed } from '../Row'
 import { useUserShares } from './hooks'
 import formatBalance from 'utils/formatBalance'
+import { useCurrency } from 'hooks/Tokens'
+import { useVaultState } from 'state/vaults/hooks'
 
 const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${flexColumnNoWrap};
@@ -182,6 +184,7 @@ interface CurrencyInputPanelProps {
   locked?: boolean
   loading?: boolean
   hideShadow?: boolean
+  currentVault: any
 }
 
 export default function VaultWithdrawInput({
@@ -203,13 +206,17 @@ export default function VaultWithdrawInput({
   locked = false,
   loading = false,
   hideShadow = false,
+  currentVault,
   ...rest
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
   const { address: account, chainId } = useAccountDetails()
+  const currency0 = useCurrency(currentVault.token0.address)
+  const currency1 = useCurrency(currentVault.token1.address)
+  const vaultState = useVaultState()
   //   const { formatted, balance } = useAccountBalance(currency as Currency)
-  const { shares } = useUserShares()
-  const sharesInDecimals = Number(shares?.toString()) / 10 ** 18
+  const { totalShares } = useUserShares(vaultState, currency0 ?? undefined, currency1 ?? undefined)
+  const sharesInDecimals = Number(totalShares?.toString()) / 10 ** 18
   const formattedShares = formatBalance(sharesInDecimals)
   const theme = useTheme()
 

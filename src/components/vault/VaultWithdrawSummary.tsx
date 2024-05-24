@@ -6,8 +6,9 @@
 import styled from 'styled-components'
 import CurrencyLogo from 'components/Logo/CurrencyLogo'
 import { ThemedText } from 'theme/components'
-import { useVaultState, useVaultWithdrawDerivedInfo } from 'state/vaults/hooks'
+import { useVaultState } from 'state/vaults/hooks'
 import { useCurrency } from 'hooks/Tokens'
+import { useUserShares } from './hooks'
 
 const SummaryWrapper = styled.div<{ hideInput?: boolean }>`
   position: relative;
@@ -66,19 +67,15 @@ export default function VaultWithdrawSummary({
   const currency0 = useCurrency(currentVault.token0.address)
   const currency1 = useCurrency(currentVault.token1.address)
   const vaultState = useVaultState()
-  const { parsedReceivedTokens } = useVaultWithdrawDerivedInfo(
-    vaultState,
-    currency0 ?? undefined,
-    currency1 ?? undefined
-  )
+  const { token0, token1 } = useUserShares(vaultState, currency0 ?? undefined, currency1 ?? undefined)
 
   return (
     <SummaryWrapper id={id} hideInput={hideInput} {...rest}>
       <VaultRow>
         <ThemedText.BodyPrimary fontWeight={500}>Received tokens:</ThemedText.BodyPrimary>
         <VaultColumnFull>
-          <TokenCountRow currency={vaultPair?.token0Currency} value={parsedReceivedTokens.token0?.toSignificant(6)} />
-          <TokenCountRow currency={vaultPair?.token1Currency} value={parsedReceivedTokens?.token1?.toSignificant(6)} />
+          <TokenCountRow currency={vaultPair?.token0Currency} value={token0?.toSignificant(6)} />
+          <TokenCountRow currency={vaultPair?.token1Currency} value={token1?.toSignificant(6)} />
         </VaultColumnFull>
       </VaultRow>
     </SummaryWrapper>
