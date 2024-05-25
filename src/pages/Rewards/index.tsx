@@ -4,6 +4,8 @@ import { BodyWrapper } from '../AppBody'
 import styled, { ThemeContext, css, keyframes } from 'styled-components'
 import { AutoColumn } from 'components/Column'
 import StarkIcon from 'assets/svg/starknet.svg'
+import CoinsIcon from 'assets/svg/coins.svg'
+import StarsIcon from 'assets/svg/stars.svg'
 import WalletIcon from 'assets/wallets/Wallet.png'
 import { MouseoverTooltip, TooltipSize } from 'components/Tooltip'
 import './style.css'
@@ -40,7 +42,7 @@ const LiquidityWrapperCard = styled(DataCard)`
   overflow: hidden;
   border: none;
   border-radius: 8px;
-  padding: 18px;
+  // padding: 18px;
   border: 1px solid rgba(160, 160, 160, 0.4);
   background: rgba(255, 255, 255, 0.05);
 `
@@ -88,12 +90,12 @@ export const BaseButton = styled(RebassButton) <
 `
 
 const ClaimHeader = styled.div`
-  width: 386px;
+  // width: 386px;
   height: 52px;
   flex-shrink: 0;
   margin-top: 18px;
   padding: 0 32px;
-  background: linear-gradient(93deg, #38164b 1.17%, rgba(235, 0, 255, 0) 86.07%);
+  background: linear-gradient(93deg, rgba(252, 142, 81, 0.3) 1.17%, rgba(235, 0, 255, 0) 86.07%);
   color: white; /* White text color */
   display: flex;
   align-items: center; /* Vertically centers the content */
@@ -434,6 +436,14 @@ const ConnectWalletWrapper = styled.div`
   flex-direction: column;
   align-items: center;
 `
+const Coins = styled.div`
+  position: absolute;
+  top: 32px;
+  right: 32px;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    display: none;
+  }
+`
 
 const WalletNotConnected = () => {
   const toggleWalletDrawer = useToggleAccountDrawer()
@@ -744,7 +754,7 @@ export default function Rewards() {
           <div style={{ height: 450 }} />
         </LoadingRows>
       ) : (
-        <LiquidityWrapperCard style={{ marginBottom: 14 }}>
+        <LiquidityWrapperCard style={{ marginBottom: '14px', padding: '18px' }}>
           <RowContainer>
             <FirstColumn>
               <DefiSpringWrapper>
@@ -782,16 +792,23 @@ export default function Rewards() {
           <div style={{ height: 450 }} />
         </LoadingRows>
       ) : (
-        <LiquidityWrapperCard>
+        <LiquidityWrapperCard style={{ position: 'relative' }}>
+          {/* <Coins>
+            <img src={CoinsIcon}/>
+          </Coins> */}
           <RowBetween>
             <ClaimHeader>
               <ClaimHeaderText>Next claim available on May 31</ClaimHeaderText>
+              <img src={StarsIcon} style={{ marginLeft: '20px', marginBottom: '15px' }} />
             </ClaimHeader>
           </RowBetween>
-          <CardSection>
+          <CardSection style={{ padding: '32px' }}>
             {
               !chainId ? <WalletNotConnected /> : isSepoliaSelected ? <ConnectedToSepolia /> :
                 <AutoColumn>
+                  <Coins>
+                    <img src={CoinsIcon} />
+                  </Coins>
                   <RowBetween>
                     <StarkRewardsText>Your STRK Rewards</StarkRewardsText>
                   </RowBetween>
