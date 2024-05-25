@@ -275,7 +275,7 @@ const PairName = styled.div`
   font-style: normal;
   font-weight: 700;
   line-height: 100%; /* 16px */
-  margin-bottom: 10px;
+  margin: 10px 0;
 `
 const APRWrapper = styled.div`
   display: flex;
