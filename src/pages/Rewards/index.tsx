@@ -802,7 +802,7 @@ export default function Rewards() {
               <img src={StarsIcon} style={{ marginLeft: '20px', marginBottom: '15px' }} />
             </ClaimHeader>
           </RowBetween>
-          <CardSection style={{ padding: '32px' }}>
+          <CardSection style={{ padding: isMainnetSelected ? '32px': '0 32px 32px 32px'}}>
             {
               !chainId ? <WalletNotConnected /> : isSepoliaSelected ? <ConnectedToSepolia /> :
                 <AutoColumn>
