@@ -453,7 +453,7 @@ const WalletNotConnected = () => {
       <ConnectWalletText>Connect wallet to see your STRK rewards</ConnectWalletText>
       <ClaimButtonGradient
         onClick={toggleWalletDrawer}
-        style={{ marginTop: '20px' }}
+        style={{ marginTop: '20px', padding: '10px 36px' }}
       >
         <ClaimText>Connect Wallet</ClaimText>
       </ClaimButtonGradient>
