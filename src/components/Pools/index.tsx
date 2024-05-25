@@ -74,6 +74,10 @@ const DashGrid = styled.div<{ fade?: boolean; disbaleLinks?: boolean; focus?: bo
 
   opacity: ${({ fade }) => (fade ? '0.6' : '1')};
 
+  :hover {
+    background: rgba(255, 255, 255, 0.10);
+  }
+  
   > * {
     justify-content: flex-end;
 
