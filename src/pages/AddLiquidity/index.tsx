@@ -565,9 +565,9 @@ function AddLiquidity() {
 
   const Buttons = () =>
     !account ? (
-      <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
+      <ButtonPrimary onClick={toggleWalletDrawer} $borderRadius="12px" style={{padding: '12px', fontSize: '18px'}}>
         <Trans>Connect wallet</Trans>
-      </ButtonLight>
+      </ButtonPrimary>
     ) : (
       <AutoColumn gap="md">
         <ButtonError
