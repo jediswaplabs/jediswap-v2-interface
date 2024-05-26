@@ -257,7 +257,7 @@ export default function VaultWithdrawInput({
       {!locked && (
         <Container hideInput={hideInput} disabled={!chainAllowed} style={containerStyles}>
           <InputRow style={hideInput ? { padding: '0', borderRadius: '8px' } : {}} selected>
-            <StyledPrefetchBalancesWrapper shouldFetchOnAccountUpdate={modalOpen} $fullWidth={hideInput}>
+            <StyledPrefetchBalancesWrapper shouldFetchOnAccountUpdate={modalOpen}>
               <CurrencySelect
                 disabled={!chainAllowed}
                 visible

@@ -450,9 +450,9 @@ export function useVaultTokens(vault: any): { token0: any; token1: any } {
 
 export function useVaultTableContent(
   vault: any,
-  vaultAddress: string
-): { token0: Token; token1: Token; tvl: number; apr: number; feeApr: number; totalApr: number } | null {
-  //   const { address, isConnected } = useAccountDetails()
+  vaultAddress?: string
+): { token0: Token; token1: Token; tvl: number; apr: number; feeApr: number; totalApr: number; balance: number } {
+  const { address, isConnected } = useAccountDetails()
   const { token0, token1 } = useVaultTokens(vault)
   const shareTokenAddress = vault?.share?.address
   //   const {
