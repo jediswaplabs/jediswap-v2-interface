@@ -29,13 +29,11 @@ interface PanelButtonProps {
 }
 
 export default function VaultHeader({
-  autoSlippage,
   chainId,
   trade,
   activeButton,
   setActiveButton,
 }: {
-  autoSlippage: Percent
   chainId?: string
   trade?: InterfaceTrade
   activeButton: string

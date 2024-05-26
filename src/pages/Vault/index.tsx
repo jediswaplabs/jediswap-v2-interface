@@ -360,7 +360,7 @@ export default function Vault({ className }: { className?: string }) {
   const { vaultId: vaultIdFromUrl } = useParams()
   const { address, isConnected, chainId } = useAccountDetails()
   const { formatPercent } = useFormatter()
-  const [generalError, setGeneralError] = useState(null)
+  const [generalError, setGeneralError] = useState<boolean | null>(null)
   const [generalLoading, setGeneralLoading] = useState(true)
 
   const { data: allVaults, error: allVaultsError, isLoading: isAllVaultsLoading } = useAllVaults()
@@ -382,7 +382,7 @@ export default function Vault({ className }: { className?: string }) {
   const { token0, token1, tvl, apr, feeApr, totalApr, balance } = useVaultTableContent(currentVault, vaultIdFromUrl)
 
   useEffect(() => {
-    setGeneralError(allVaultsError)
+    setGeneralError(Boolean(allVaultsError))
     setGeneralLoading(isAllVaultsLoading)
   }, [allVaultsError, isAllVaultsLoading])
 
@@ -673,7 +673,7 @@ export function VaultElement({
     const vaultAddress = vaultAddressFromUrl
     const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currency0)
     const callParams = {
-      shares: cairo.uint256(typedValue?.raw),
+      shares: cairo.uint256(Number(typedValue?.raw)),
       amount0_min: cairo.uint256(amount0_min.toString()),
       amount1_min: cairo.uint256(amount1_min.toString()),
     }

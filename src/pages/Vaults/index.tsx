@@ -17,9 +17,25 @@ import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import JediSwapLoader from '../../components/Loader/JediSwapLoader'
 import vaultImage from '../../assets/images/vault.png'
 import noPositionsBg from '../../assets/svg/no-positions-bg.svg'
-import { useFormatter } from '../../utils/formatNumbers.ts'
+import { useFormatter } from '../../utils/formatNumbers.js'
 import { formatUsdPrice } from '../../nft/utils'
 import { useAllVaults } from 'state/vaults/hooks'
+
+interface UserBalanceResultParams {
+  vaultAddress: string
+  balance: number
+}
+
+// Define the interface for custom props
+interface ThemedTextProps {
+  area?: string
+  fontWeight?: number
+}
+
+// Extend the styled component with custom props
+const ThemedTextBodySmall = styled(ThemedText.BodySmall)<ThemedTextProps>`
+  // Your styles here
+`
 
 const PageWrapper = styled(AutoColumn)`
   padding: 0px 8px 0px;
@@ -91,8 +107,10 @@ const IconStyle = css`
 const NetworkIcon = styled(AlertTriangle)`
   ${IconStyle}
 `
-
-const PromotionBannerContainer = styled.div`
+interface PromotionBannerContainerProps {
+  noDecorations?: boolean
+}
+const PromotionBannerContainer = styled.div<PromotionBannerContainerProps>`
   display: flex;
   border-radius: 8px;
   background: linear-gradient(90deg, #141451 0%, #2c045c 52%, #64099c 100%);
@@ -214,7 +232,10 @@ const StyledTokenName = styled.span<{ active?: boolean }>`
   font-family: 'DM Sans';
 `
 
-const Arrow = styled.div`
+interface ArrowProps {
+  faded?: boolean
+}
+const Arrow = styled.div<ArrowProps>`
   color: ${({ theme, faded }) => (faded ? theme.jediGrey : theme.jediBlue)};
   padding: 0 20px;
   user-select: none;
@@ -225,7 +246,12 @@ const Arrow = styled.div`
   }
 `
 
-const DataText = styled(Flex)`
+interface DataTextProps {
+  area?: string
+  fontWeight?: string
+}
+
+const DataText = styled(Flex)<DataTextProps>`
   align-items: center;
   text-align: center;
   color: ${({ theme }) => theme.text1};
@@ -239,7 +265,7 @@ const DataText = styled(Flex)`
   }
 `
 
-function ErrorPanel({ text }) {
+function ErrorPanel({ text }: { text?: string }) {
   return (
     <ErrorContainer>
       <ThemedText.BodyPrimary textAlign="center">
@@ -282,7 +308,18 @@ function PromotionalBanner({ noDecorations = false }) {
 }
 
 const noop = () => {}
-const UserBalance = ({ tokenAddress, vaultAddress, tokenPrice, getResult = noop }) => {
+interface UserBalanceProps {
+  tokenAddress: string
+  vaultAddress: string
+  tokenPrice: number | undefined
+  getResult?: ({ vaultAddress, balance }: UserBalanceResultParams) => void
+}
+const UserBalance: React.FC<UserBalanceProps> = ({
+  tokenAddress,
+  vaultAddress,
+  tokenPrice,
+  getResult = () => {},
+}: UserBalanceProps) => {
   const { address, isConnected } = useAccountDetails()
   const {
     data: userBalanceData,
@@ -320,10 +357,17 @@ const UserBalance = ({ tokenAddress, vaultAddress, tokenPrice, getResult = noop 
       result = formatUsdPrice(0)
     }
   }
-  return result
+  return <span>{result}</span>
 }
 
-const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }) => {
+interface ListItemProps {
+  index: number
+  vaultAddress: string
+  vaultData: any
+  getUserBalance?: ({ vaultAddress, balance }: UserBalanceResultParams) => void
+}
+
+const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: ListItemProps) => {
   const { formatPercent } = useFormatter()
   const below600 = useMedia('(max-width: 600px)')
   const below768 = useMedia('(max-width: 768px)')
@@ -335,7 +379,7 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }) => 
     return null
   }
 
-  const token0 = new Token(
+  const token0: Token = new Token(
     vaultData.token0.chainId,
     vaultData.token0.address,
     vaultData.token0.decimals,
@@ -344,7 +388,7 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }) => 
   )
   token0.logoURI = vaultData.token0.logoURI
 
-  const token1 = new Token(
+  const token1: Token = new Token(
     vaultData.token1.chainId,
     vaultData.token1.address,
     vaultData.token1.decimals,
@@ -409,9 +453,13 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }) => 
 export default function Vaults({ maxItems = 10 }) {
   const { address, isConnected, chainId } = useAccountDetails()
   const [isMyVaultsFilterEnabled, setIsMyVaultsFilterEnabled] = useState(false)
-  const [generalError, setGeneralError] = useState(null)
+  const [generalError, setGeneralError] = useState<boolean>(false)
   const [generalLoading, setGeneralLoading] = useState(true)
-  const [userPools, setUserPools] = useState({})
+  interface UserPools {
+    [key: string]: number
+  }
+
+  const [userPools, setUserPools] = useState<UserPools>({})
 
   const { data: allVaults, error: allVaultsError, isLoading: isAllVaultsLoading } = useAllVaults()
 
@@ -447,7 +495,7 @@ export default function Vaults({ maxItems = 10 }) {
     setUserPools({})
   }, [isConnected])
   useEffect(() => {
-    setGeneralError(allVaultsError)
+    setGeneralError(Boolean(allVaultsError))
     setGeneralLoading(isAllVaultsLoading)
   }, [allVaultsError, isAllVaultsLoading])
 
@@ -463,7 +511,7 @@ export default function Vaults({ maxItems = 10 }) {
     setMaxPage(Math.floor(vaultsAddresses.length / ITEMS_PER_PAGE) + extraPages)
   }, [ITEMS_PER_PAGE, vaultsAddresses])
 
-  const getUserBalanceResult = ({ vaultAddress, balance }) => {
+  const getUserBalanceResult = ({ vaultAddress, balance }: UserBalanceResultParams): void => {
     setUserPools((pools) => ({
       ...pools,
       [vaultAddress]: balance,
@@ -507,7 +555,7 @@ export default function Vaults({ maxItems = 10 }) {
         return (
           <TableWrapper>
             <DashGrid
-              isMyVaultsFilterEnabled={isMyVaultsFilterEnabled}
+              //   isMyVaultsFilterEnabled={isMyVaultsFilterEnabled}
               style={{
                 height: 'fit-content',
                 padding: '1rem 1.125rem 1rem 1.125rem',
@@ -515,35 +563,35 @@ export default function Vaults({ maxItems = 10 }) {
               }}
             >
               <Flex alignItems="center" justifyContent="flexStart">
-                <ThemedText.BodySmall area="name" fontWeight={700}>
+                <ThemedTextBodySmall area="name" fontWeight={700}>
                   Pool Name
-                </ThemedText.BodySmall>
+                </ThemedTextBodySmall>
               </Flex>
               {!below768 && (
                 <Flex alignItems="center" justifyContent="flexStart">
-                  <ThemedText.BodySmall area="provider" fontWeight={700}>
+                  <ThemedTextBodySmall area="provider" fontWeight={700}>
                     Provider
-                  </ThemedText.BodySmall>
+                  </ThemedTextBodySmall>
                 </Flex>
               )}
               <Flex alignItems="center" justifyContent="flexStart">
-                <ThemedText.BodySmall area="tvl" fontWeight={700}>
+                <ThemedTextBodySmall area="tvl" fontWeight={700}>
                   TVL
-                </ThemedText.BodySmall>
+                </ThemedTextBodySmall>
               </Flex>
               <Flex alignItems="center" justifyContent="flexStart">
-                <ThemedText.BodySmall area="apr" fontWeight={700}>
+                <ThemedTextBodySmall area="apr" fontWeight={700}>
                   APR
-                </ThemedText.BodySmall>
+                </ThemedTextBodySmall>
               </Flex>
               <Flex alignItems="center" justifyContent="flexStart">
-                <ThemedText.BodySmall area="deposite" textAlign={'center'} fontWeight={700}>
+                <ThemedTextBodySmall area="deposite" textAlign={'center'} fontWeight={700}>
                   My deposit
-                </ThemedText.BodySmall>
+                </ThemedTextBodySmall>
               </Flex>
             </DashGrid>
 
-            <List p={0}>
+            <List>
               {vaultsList.map(
                 (vaultAddress, index) =>
                   vaultAddress && (
