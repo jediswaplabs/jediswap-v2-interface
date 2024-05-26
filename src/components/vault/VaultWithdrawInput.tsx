@@ -18,6 +18,9 @@ import { useUserShares } from './hooks'
 import formatBalance from 'utils/formatBalance'
 import { useCurrency } from 'hooks/Tokens'
 import { useVaultState } from 'state/vaults/hooks'
+import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
+import JSBI from 'jsbi'
+import { BigNumber } from 'ethers'
 
 const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${flexColumnNoWrap};
@@ -214,22 +217,41 @@ export default function VaultWithdrawInput({
   const currency0 = useCurrency(currentVault.token0.address)
   const currency1 = useCurrency(currentVault.token1.address)
   const vaultState = useVaultState()
-  //   const { formatted, balance } = useAccountBalance(currency as Currency)
   const { totalShares } = useUserShares(vaultState, currency0 ?? undefined, currency1 ?? undefined)
-  const sharesInDecimals = Number(totalShares?.toString()) / 10 ** 18
-  const formattedShares = formatBalance(sharesInDecimals)
+  let sharesInDecimals
+  if (totalShares) {
+    const bigNumber = BigNumber.from(totalShares.toString())
+    const divisor = BigNumber.from('1000000000000000000')
+
+    // Scale the numerator
+    const scaleFactor = BigNumber.from('1000000000000000000')
+    const scaledNumerator = bigNumber.mul(scaleFactor)
+
+    // Perform the division
+    const result = scaledNumerator.div(divisor)
+
+    // Adjust the result to get the correct decimal places
+    const resultString = result.toString()
+    const integerPart = resultString.slice(0, -18) || '0'
+    const fractionalPart = resultString.slice(-18).padStart(18, '0')
+
+    sharesInDecimals = `${integerPart}.${fractionalPart}`
+  }
+
+  const formattedShares = formatBalance(sharesInDecimals ?? 0)
+
   const theme = useTheme()
 
   const chainAllowed = isSupportedChain(chainId)
 
   const handleMaxAmount = () => {
-    if (sharesInDecimals) {
-      onUserInput(sharesInDecimals.toString())
+    if (totalShares && sharesInDecimals) {
+      onUserInput(sharesInDecimals)
     }
   }
 
   const containerStyles = hideShadow ? { boxShadow: 'none' } : {}
-  const showMax = sharesInDecimals !== null && Number(value) !== Number(sharesInDecimals)
+  //   const showMax = sharesInDecimals !== null && Number(value) !== Number(sharesInDecimals)
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>
       {!locked && (
@@ -278,7 +300,7 @@ export default function VaultWithdrawInput({
               <RowBetween>
                 {account && (
                   <RowFixed style={{ height: '17px' }}>
-                    {showMax && formattedShares && (
+                    {true && formattedShares && (
                       <StyledBalanceMax onClick={handleMaxAmount}>
                         <Trans>MAX</Trans>
                       </StyledBalanceMax>

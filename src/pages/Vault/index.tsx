@@ -46,6 +46,7 @@ import VaultWithdraw from 'components/vault/VaultWithdraw'
 import { useUserShares } from 'components/vault/hooks'
 import formatBalance from 'utils/formatBalance'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
+import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 
 export const DEFAULT_VAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -660,8 +661,9 @@ export function VaultElement({
     const amount1_min = BigInt(Math.round(Number(token1.raw) * Number(defaultWithdrawSlippage.toSignificant())))
     const callData = []
     const vaultAddress = vaultAddressFromUrl
+    const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currency0)
     const callParams = {
-      shares: cairo.uint256(withdrawTypedValue),
+      shares: cairo.uint256(typedValue?.raw),
       amount0_min: cairo.uint256(amount0_min.toString()),
       amount1_min: cairo.uint256(amount1_min.toString()),
     }

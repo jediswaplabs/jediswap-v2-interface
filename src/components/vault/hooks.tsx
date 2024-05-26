@@ -44,13 +44,11 @@ export function useUserShares(
       return num.toBigInt(results?.result?.[0])
     },
   })
-  // 15.9835
-  //0.00315941
 
   const totalShares = shares.data
 
   const withdrawTypedValue = state.withdrawTypedValue
-  const { vaultId: vaultAddressFromUrl } = useParams
+  const { vaultId: vaultAddressFromUrl } = useParams()
   const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currencyA)
   const { data, isError } = useUnderlyingVaultAssets(vaultAddress)
 
