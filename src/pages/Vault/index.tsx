@@ -673,7 +673,7 @@ export function VaultElement({
     const vaultAddress = vaultAddressFromUrl
     const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currency0)
     const callParams = {
-      shares: cairo.uint256(Number(typedValue?.raw)),
+      shares: cairo.uint256(typedValue?.raw),
       amount0_min: cairo.uint256(amount0_min.toString()),
       amount1_min: cairo.uint256(amount1_min.toString()),
     }

@@ -17,7 +17,7 @@ import DoubleCurrencyLogo from '../../components/DoubleLogo'
 import JediSwapLoader from '../../components/Loader/JediSwapLoader'
 import vaultImage from '../../assets/images/vault.png'
 import noPositionsBg from '../../assets/svg/no-positions-bg.svg'
-import { useFormatter } from '../../utils/formatNumbers.ts'
+import { useFormatter } from '../../utils/formatNumbers'
 import { formatUsdPrice } from '../../nft/utils'
 import { useAllVaults } from 'state/vaults/hooks'
 
