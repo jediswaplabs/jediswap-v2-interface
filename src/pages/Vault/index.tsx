@@ -498,7 +498,13 @@ export default function Vault({ className }: { className?: string }) {
                   <VaultStrategyType>{currentVault.strategyType}</VaultStrategyType>
                   <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: currentVault.details }} />
                   <VaultStrategyLinks>
-                    <a href={currentVault.links.details} target={'_blank'} rel="noreferrer">
+                    <a
+                      href={`https://${chainId === ChainId.GOERLI ? 'sepolia.' : ''}starkscan.co/contract/${
+                        currentVault.share.address
+                      }`}
+                      target={'_blank'}
+                      rel="noreferrer"
+                    >
                       View Contract
                     </a>
                     <a href={currentVault.links.details} target={'_blank'} rel="noreferrer">

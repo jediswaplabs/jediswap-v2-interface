@@ -299,7 +299,7 @@ function PromotionalBanner({ noDecorations = false }) {
           managed by our strategy partners. Importantly, users have the flexibility to enter and exit at any point in
           time.
         </PromotionBannerDescription>
-        <PromotionBannerLink href="https://www.jediswap.xyz/" target="_blank" rel="noopener">
+        <PromotionBannerLink href="https://teahouse.finance/" target="_blank" rel="noopener">
           Learn more
         </PromotionBannerLink>
       </PromotionBannerContent>
@@ -333,9 +333,11 @@ const UserBalance: React.FC<UserBalanceProps> = ({
   })
   let result
   const balanceInUsd = Number(userBalanceData?.formatted ?? 0) * (tokenPrice ?? 0)
+  const balance =
+    userBalanceData && Number(userBalanceData?.formatted) > 0 ? Number(userBalanceData?.formatted).toFixed(6) : 0
   useEffect(() => {
     if (isConnected && isUserBalanceSuccess) {
-      getResult({ vaultAddress, balance: balanceInUsd })
+      getResult({ vaultAddress, balance })
     }
   }, [userBalanceData, isUserBalanceSuccess, isConnected])
 
@@ -357,7 +359,7 @@ const UserBalance: React.FC<UserBalanceProps> = ({
       result = formatUsdPrice(0)
     }
   }
-  return <span>{result}</span>
+  return <span>{balance}</span>
 }
 
 interface ListItemProps {
@@ -480,6 +482,10 @@ export default function Vaults({ maxItems = 10 }) {
     return result
   }
 
+  useEffect(() => {
+    getFilteredVaults()
+  }, [isMyVaultsFilterEnabled])
+
   const vaults = getFilteredVaults()
   const vaultsAddresses = Object.keys(vaults ?? {})
 
@@ -539,7 +545,6 @@ export default function Vaults({ maxItems = 10 }) {
       }
       return 0
     })
-
   const getContent = () => {
     switch (true) {
       case generalError: {
