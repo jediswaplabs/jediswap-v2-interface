@@ -269,15 +269,14 @@ export function useVaultDerivedInfo(
   let priceRatio = 1
 
   if (data && !isLoading && !isError) {
-    const vaultData = data as [number, number]
-    token0All = vaultData[0]
-    token1All = vaultData[1]
+    token0All = data[0]
+    token1All = data[1]
     priceRatio = Number(token1All) / Number(token0All) // get clarity if need to add token decimals here
   }
   let totalSupply = 0
   const { data: data2, isLoading: isLoading2, isError: isError2 } = useVaultTotalSupply(vaultAddressFromUrl)
   if (data2 && !isLoading2 && !isError2) {
-    totalSupply = (data2 as VaultTotalSupply).totalSupply
+    totalSupply = data2
   }
 
   const dependentField = independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
@@ -294,8 +293,8 @@ export function useVaultDerivedInfo(
   const { balance: balance1 } = useAccountBalance(currencies[Field.CURRENCY_A])
   const { balance: balance2 } = useAccountBalance(currencies[Field.CURRENCY_B])
   const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {
-    [Field.CURRENCY_A]: tryParseCurrencyAmount(balance1, currencyA),
-    [Field.CURRENCY_B]: tryParseCurrencyAmount(balance2, currencyB),
+    [Field.CURRENCY_A]: balance1,
+    [Field.CURRENCY_B]: balance2,
   }
   let insufficientBalance = false
   // amounts
@@ -334,11 +333,11 @@ export function useVaultDerivedInfo(
       error = error ?? <Trans>Enter an amount</Trans>
     }
 
-    if (currencyAAmount && currencyBalances?.[Field.CURRENCY_A]?.lessThan(currencyAAmount)) {
+    if (currencyAAmount && currencyBalances?.[Field.CURRENCY_A] < currencyAAmount) {
       insufficientBalance = true
       error = error ?? <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
     }
-    if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B]?.lessThan(currencyBAmount)) {
+    if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B] < currencyBAmount) {
       insufficientBalance = true
       error = error ?? <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
     }
