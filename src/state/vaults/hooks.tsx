@@ -264,8 +264,8 @@ export function useVaultDerivedInfo(
   const { vaultId: vaultAddressFromUrl } = useParams()
 
   const { data, isLoading, isError } = useUnderlyingVaultAssets(vaultAddressFromUrl)
-  let token0All = 0
-  let token1All = 0
+  let token0All = BigInt(0)
+  let token1All = BigInt(0)
   let priceRatio = 1
 
   if (data && !isLoading && !isError) {
@@ -307,7 +307,9 @@ export function useVaultDerivedInfo(
     if (independentAmount && priceRatio) {
       const dependentTokenAmount =
         independentAmount.toExact() && token1All && token0All
-          ? (BigInt(independentAmount.raw.toString()) * token1All) / token0All
+          ? dependentField === Field.CURRENCY_B
+            ? (BigInt(independentAmount.raw.toString()) * token1All) / token0All
+            : (BigInt(independentAmount.raw.toString()) * token0All) / token1All
           : 0
       return CurrencyAmount.fromRawAmount(currencies[dependentField], dependentTokenAmount.toString())
     }
