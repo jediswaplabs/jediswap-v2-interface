@@ -110,9 +110,9 @@ const getPermissionlessVaultDataList = async () => {
   //   const endpoint = `${TEAHOUSE_VAULT_ENDPOINT}/vaults/type/permissionless`
   const endpoint = TEAHOUSE_TESTNET_VAULT_ENDPOINT
   const result: { [key: string]: Vault } = {}
-  const { vaults } = DEFAULT_PERMISSIONLESS_API_RESPONSE // check --> api was failing
-  //   const response = await fetch(endpoint)
-  //   const { vaults } = (await response.json()) ?? {}
+  // const { vaults } = DEFAULT_PERMISSIONLESS_API_RESPONSE // check --> api was failing
+  const response = await fetch(endpoint)
+  const { vaults } = (await response.json()) ?? {}
   if (!vaults) {
     return
   }
