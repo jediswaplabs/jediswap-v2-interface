@@ -307,9 +307,10 @@ export function useVaultDerivedInfo(
   const dependentAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
     if (independentAmount && priceRatio) {
       const dependentTokenAmount =
-        independentField === Field.CURRENCY_A ? Number(typedValue) * priceRatio : Number(typedValue) / priceRatio
-      const formattedDependentAmount = removeExtraDecimals(dependentTokenAmount, currencies[dependentField])
-      return tryParseCurrencyAmount(formattedDependentAmount.toString(), currencies[dependentField])
+        independentAmount.toExact() && token1All && token0All
+          ? (BigInt(independentAmount.raw.toString()) * token1All) / token0All
+          : 0
+      return CurrencyAmount.fromRawAmount(currencies[dependentField], dependentTokenAmount.toString())
     }
     return undefined
   }, [currencies, dependentField, independentAmount, independentField, priceRatio])
