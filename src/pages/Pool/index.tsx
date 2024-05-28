@@ -111,7 +111,7 @@ export default function Pool() {
       let jediRewards: any = null;
       if (rewardsRespResult.status === "fulfilled") {
         const rewardsResp = rewardsRespResult.value as ApolloQueryResult<any>;
-        jediRewards = rewardsResp.data?.strkGrantData;
+        jediRewards = rewardsResp.data?.strkGrantDataV2;
       }
       const poolsData: any = {}
       poolsDataRaw?.forEach((data: any) => {
