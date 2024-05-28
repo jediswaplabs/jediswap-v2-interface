@@ -338,7 +338,7 @@ function PairList({
       const displayAprStarknet = formattedPercent(cleanedAprStarknet, true)
   
       const cleanedAprCommon = cleanedAprFee + cleanedAprStarknet
-      const displayAprCommon = formattedPercent(cleanedAprCommon, true, darkTheme.jediBlue, 700)
+      const displayAprCommon = formattedPercent(cleanedAprCommon, true, darkTheme.signalGreen, 700)
 
       // const apy = ((1 + feeRatio24H) ** 365 - 1) * 100
       // const cleanedApy = isNaN(apy) || !isFinite(apy) ? 0 : apy
