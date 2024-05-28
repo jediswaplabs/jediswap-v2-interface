@@ -394,7 +394,7 @@ export default function Vault({ className }: { className?: string }) {
       case vaultsAddresses?.length && !currentVault: {
         return <ErrorPanel />
       }
-      case !(currentVault.token0 && currentVault.token1): {
+      case !(currentVault?.token0 && currentVault?.token1): {
         return <ErrorPanel />
       }
       default: {
@@ -443,13 +443,13 @@ export default function Vault({ className }: { className?: string }) {
                   <AutoRow>
                     <AutoColumn gap="15px" grow>
                       <VaultDataHeaders>PROVIDER</VaultDataHeaders>
-                      <ThemedText.BodySmall>{currentVault.provider.name}</ThemedText.BodySmall>
+                      <ThemedText.BodySmall>{currentVault?.provider.name}</ThemedText.BodySmall>
                     </AutoColumn>
                     <AutoColumn gap="15px" grow>
                       <VaultDataHeaders>TVL</VaultDataHeaders>
                       <ThemedText.BodySmall fontWeight={500}>{tvl ? formatUsdPrice(tvl) : '-'}</ThemedText.BodySmall>
                     </AutoColumn>
-                    <ProviderLogo src={currentVault.provider.logo} />
+                    <ProviderLogo src={currentVault?.provider.logo} />
                   </AutoRow>
                   <AutoRow>
                     <AutoColumn gap="15px" grow>
@@ -481,22 +481,22 @@ export default function Vault({ className }: { className?: string }) {
                 </AutoColumn>
                 <Divider />
                 <VaultDetailsBottom>
-                  <VaultName>{currentVault.provider.name}</VaultName>
-                  <VaultDetailsImage src={currentVault.lpStrategyGraph} />
+                  <VaultName>{currentVault?.provider.name}</VaultName>
+                  <VaultDetailsImage src={currentVault?.lpStrategyGraph} />
                   {/* update later - img takes time to load issue */}
-                  <VaultStrategyType>{currentVault.strategyType}</VaultStrategyType>
-                  <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: currentVault.details }} />
+                  <VaultStrategyType>{currentVault?.strategyType}</VaultStrategyType>
+                  <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: currentVault?.details || '' }} />
                   <VaultStrategyLinks>
                     <a
                       href={`https://${chainId === ChainId.GOERLI ? 'sepolia.' : ''}starkscan.co/contract/${
-                        currentVault.share.address
+                        currentVault?.share.address
                       }`}
                       target={'_blank'}
                       rel="noreferrer"
                     >
                       View Contract
                     </a>
-                    <a href={currentVault.links.details} target={'_blank'} rel="noreferrer">
+                    <a href={currentVault?.links.details} target={'_blank'} rel="noreferrer">
                       View Details
                     </a>
                   </VaultStrategyLinks>
@@ -661,18 +661,18 @@ export function VaultElement({
   }
 
   const onWithdraw = () => {
-    if (!token0 || !token1 || !withdrawTypedValue) return
+    const vaultAddress = vaultAddressFromUrl
+    if (!token0 || !token1 || !withdrawTypedValue || !vaultAddress) return
     const defaultWithdrawSlippage = new Percent(99, 10000)
     const amount0_min = calculateMinimumAmountWithSlippage(token0, defaultWithdrawSlippage)
     const amount1_min = calculateMinimumAmountWithSlippage(token1, defaultWithdrawSlippage)
 
     const callData = []
-    const vaultAddress = vaultAddressFromUrl
     const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currency0)
     const callParams = {
-      shares: cairo.uint256(typedValue?.raw),
-      amount0_min: cairo.uint256(amount0_min.raw.toString()),
-      amount1_min: cairo.uint256(amount1_min.raw.toString()),
+      shares: cairo.uint256(typedValue?.raw.toString() || 0),
+      amount0_min: cairo.uint256(amount0_min.toString()),
+      amount1_min: cairo.uint256(amount1_min.toString()),
     }
 
     const compiledSwapCalls = CallData.compile(callParams)

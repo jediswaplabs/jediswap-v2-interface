@@ -212,7 +212,7 @@ export default function VaultWithdrawInput({
   ...rest
 }: CurrencyInputPanelProps) {
   const { address: account, chainId } = useAccountDetails()
-  let sharesInDecimals
+  let sharesInDecimals = ''
   if (totalShares) {
     const bigNumber = BigNumber.from(totalShares.toString())
     const divisor = BigNumber.from('1000000000000000000')

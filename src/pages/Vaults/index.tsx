@@ -254,7 +254,7 @@ interface DataTextProps {
 const DataText = styled(Flex)<DataTextProps>`
   align-items: center;
   text-align: center;
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.neutral1};
 
   & > * {
     font-size: 14px;
@@ -334,7 +334,7 @@ const UserBalance: React.FC<UserBalanceProps> = ({
   let result
   const balanceInUsd = Number(userBalanceData?.formatted ?? 0) * (tokenPrice ?? 0)
   const balance =
-    userBalanceData && Number(userBalanceData?.formatted) > 0 ? Number(userBalanceData?.formatted).toFixed(6) : 0
+    userBalanceData && Number(userBalanceData?.formatted) > 0 ? Number(userBalanceData?.formatted) : 0
   useEffect(() => {
     if (isConnected && isUserBalanceSuccess) {
       getResult({ vaultAddress, balance })
