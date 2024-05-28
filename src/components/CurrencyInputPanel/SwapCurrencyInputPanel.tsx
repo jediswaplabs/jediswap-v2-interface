@@ -272,7 +272,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
   ) => {
     const [modalOpen, setModalOpen] = useState(false)
     const { address: account, chainId } = useAccountDetails()
-    const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+    // const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
     const theme = useTheme()
     const { formatCurrencyAmount } = useFormatter()
 
@@ -314,7 +314,8 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
             <ThemedText.SubHeaderSmall style={{ userSelect: 'none', textTransform: 'uppercase' }}>
               {label}
             </ThemedText.SubHeaderSmall>
-            {showMaxButton && selectedCurrencyBalance ? (
+            {/* {showMaxButton && selectedCurrencyBalance ? ( */}
+            {showMaxButton ? (
               <StyledBalanceMax onClick={onMax}>
                 <Trans>Max</Trans>
               </StyledBalanceMax>
