@@ -6,6 +6,6 @@ export function calculateMaximumAmountWithSlippage(amount: CurrencyAmount<Curren
 }
 
 export function calculateMinimumAmountWithSlippage(amount: CurrencyAmount<Currency>, slippageTolerance: Percent) {
-  const slippageAdjustedAmount = new Fraction(ONE).add(slippageTolerance).invert().multiply(amount.quotient).quotient
+  const slippageAdjustedAmount = new Fraction(ONE).subtract(slippageTolerance).multiply(amount.quotient).quotient
   return CurrencyAmount.fromRawAmount(amount.currency, slippageAdjustedAmount)
 }
