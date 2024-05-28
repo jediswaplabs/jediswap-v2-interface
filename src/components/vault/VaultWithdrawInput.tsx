@@ -14,7 +14,6 @@ import { ButtonGray } from '../Button'
 import DoubleCurrencyLogo from '../DoubleLogo'
 import { Input as NumericalInput } from '../NumericalInput'
 import { RowBetween, RowFixed } from '../Row'
-import { useUserShares } from './hooks'
 import formatBalance from 'utils/formatBalance'
 import { useCurrency } from 'hooks/Tokens'
 import { useVaultState } from 'state/vaults/hooks'
@@ -187,7 +186,7 @@ interface CurrencyInputPanelProps {
   locked?: boolean
   loading?: boolean
   hideShadow?: boolean
-  currentVault: any
+  totalShares: any
 }
 
 export default function VaultWithdrawInput({
@@ -209,15 +208,10 @@ export default function VaultWithdrawInput({
   locked = false,
   loading = false,
   hideShadow = false,
-  currentVault,
+  totalShares,
   ...rest
 }: CurrencyInputPanelProps) {
-  const [modalOpen, setModalOpen] = useState(false)
   const { address: account, chainId } = useAccountDetails()
-  const currency0 = useCurrency(currentVault.token0.address)
-  const currency1 = useCurrency(currentVault.token1.address)
-  const vaultState = useVaultState()
-  const { totalShares } = useUserShares(vaultState, currency0 ?? undefined, currency1 ?? undefined)
   let sharesInDecimals
   if (totalShares) {
     const bigNumber = BigNumber.from(totalShares.toString())
@@ -257,33 +251,31 @@ export default function VaultWithdrawInput({
       {!locked && (
         <Container hideInput={hideInput} disabled={!chainAllowed} style={containerStyles}>
           <InputRow style={hideInput ? { padding: '0', borderRadius: '8px' } : {}} selected>
-            <StyledPrefetchBalancesWrapper shouldFetchOnAccountUpdate={modalOpen}>
-              <CurrencySelect
-                disabled={!chainAllowed}
-                visible
-                selected={!!currency}
-                hideInput={hideInput}
-                className="open-currency-select-button"
-                pointerEvents={'none'}
-              >
-                <Aligner>
-                  <RowFixed>
-                    <span style={{ marginRight: '0.5rem' }}>
-                      <DoubleCurrencyLogo
-                        currency0={vaultPair?.token0Currency}
-                        currency1={vaultPair?.token1Currency}
-                        size={24}
-                        margin
-                      />
-                    </span>
+            <CurrencySelect
+              disabled={!chainAllowed}
+              visible
+              selected={!!currency}
+              hideInput={hideInput}
+              className="open-currency-select-button"
+              pointerEvents={'none'}
+            >
+              <Aligner>
+                <RowFixed>
+                  <span style={{ marginRight: '0.5rem' }}>
+                    <DoubleCurrencyLogo
+                      currency0={vaultPair?.token0Currency}
+                      currency1={vaultPair?.token1Currency}
+                      size={24}
+                      margin
+                    />
+                  </span>
 
-                    <StyledTokenName className="pair-name-container">
-                      {vaultPair?.token0Currency?.symbol}-{vaultPair?.token1Currency?.symbol}
-                    </StyledTokenName>
-                  </RowFixed>
-                </Aligner>
-              </CurrencySelect>
-            </StyledPrefetchBalancesWrapper>
+                  <StyledTokenName className="pair-name-container">
+                    {vaultPair?.token0Currency?.symbol}-{vaultPair?.token1Currency?.symbol}
+                  </StyledTokenName>
+                </RowFixed>
+              </Aligner>
+            </CurrencySelect>
             {!hideInput && (
               <StyledNumericalInput
                 className="token-amount-input"

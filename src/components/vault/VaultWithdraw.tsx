@@ -4,6 +4,7 @@ import VaultWithdrawInput from './VaultWithdrawInput'
 import VaultWithdrawSummary from './VaultWithdrawSummary'
 import { useVaultActionHandlers, useVaultState, useVaultTokens } from 'state/vaults/hooks'
 import { ThemedText } from 'theme/components'
+import { BigNumberish } from 'starknet'
 
 const WithdrawWrapper = styled(AutoColumn)`
   width: 100%;
@@ -14,12 +15,23 @@ const WithdrawWrapper = styled(AutoColumn)`
 
 const DisclaimerText = styled.div`
   background: #4f2376;
+  color: #fc4d4d;
   padding: 8px 16px;
   font-size: 16px;
   border-radius: 10px;
 `
 
-function VaultWithdraw({ currentVault }: { currentVault: any }) {
+function VaultWithdraw({
+  currentVault,
+  totalShares,
+  token0Amount,
+  token1Amount,
+}: {
+  currentVault: any
+  totalShares: BigNumberish
+  token0Amount: BigNumberish
+  token1Amount: BigNumberish
+}) {
   const { withdrawTypedValue } = useVaultState()
   const { onWithdrawInput } = useVaultActionHandlers()
   const { token0: token0Currency, token1: token1Currency } = useVaultTokens(currentVault)
@@ -37,8 +49,15 @@ function VaultWithdraw({ currentVault }: { currentVault: any }) {
         id="add-liquidity-input-tokena"
         vaultPair={pair}
         currentVault={currentVault}
+        totalShares={totalShares}
       />
-      <VaultWithdrawSummary id="add-liquidity-input-tokena" vaultPair={pair} currentVault={currentVault} />
+      <VaultWithdrawSummary
+        id="add-liquidity-input-tokena"
+        vaultPair={pair}
+        currentVault={currentVault}
+        token0Amount={token0Amount}
+        token1Amount={token1Amount}
+      />
       <DisclaimerText>Withdrawal might incur small slippage (&lt;1%)</DisclaimerText>
     </WithdrawWrapper>
   )

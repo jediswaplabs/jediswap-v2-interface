@@ -12,12 +12,12 @@ import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { removeExtraDecimals } from 'utils/removeExtraDecimals'
 import { Trans } from '@lingui/macro'
-const vaultAddress = '0x033bb35548c9cfcfdafe1c18cf8040644a52881f8fd2f4be56770767c12e3a41' //replace vault address
 interface TokenData {
   [key: string]: any
 }
 
 export function useUserShares(
+  vaultAddress: string | undefined,
   state: VaultState,
   currencyA: Currency | undefined,
   currencyB: Currency | undefined
@@ -32,7 +32,7 @@ export function useUserShares(
   const shares = useQuery({
     queryKey: [`balance_of/${address}/${vaultAddress}/${chainId}`],
     queryFn: async () => {
-      if (!address || !chainId) return
+      if (!address || !chainId || !vaultAddress) return
       const provider = providerInstance(chainId ?? DEFAULT_CHAIN_ID)
       const results = await provider.callContract({
         entrypoint: 'balance_of',
