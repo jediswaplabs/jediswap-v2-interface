@@ -551,14 +551,15 @@ export default function Rewards() {
         console.log(e)
       }
 
-      // Function to filter unique pairs with highest cleanedAprCommon value
+      // Function to filter unique pairs with highest totalValueLockedUSD value
       const filterUniquePairs = (data: any) => {
         const pairsMap = new Map()
         data.forEach((obj: any) => {
           const pair = obj.pair
-          const cleanedAprCommon = obj.cleanedAprCommon
+          // const cleanedAprCommon = obj.cleanedAprCommon
+          const totalValueLockedUSD = parseFloat(obj.totalValueLockedUSD)
 
-          if (!pairsMap.has(pair) || pairsMap.get(pair).cleanedAprCommon < cleanedAprCommon) {
+          if (!pairsMap.has(pair) || parseFloat(pairsMap.get(pair).totalValueLockedUSD) < totalValueLockedUSD) {
             pairsMap.set(pair, obj)
           }
         })
