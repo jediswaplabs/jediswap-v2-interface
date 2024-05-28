@@ -5,6 +5,7 @@ import VaultWithdrawSummary from './VaultWithdrawSummary'
 import { useVaultActionHandlers, useVaultState, useVaultTokens } from 'state/vaults/hooks'
 import { ThemedText } from 'theme/components'
 import { BigNumberish } from 'starknet'
+import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 
 const WithdrawWrapper = styled(AutoColumn)`
   width: 100%;
@@ -29,8 +30,8 @@ function VaultWithdraw({
 }: {
   currentVault: any
   totalShares: BigNumberish
-  token0Amount: BigNumberish
-  token1Amount: BigNumberish
+  token0Amount: CurrencyAmount<Currency>
+  token1Amount: CurrencyAmount<Currency>
 }) {
   const { withdrawTypedValue } = useVaultState()
   const { onWithdrawInput } = useVaultActionHandlers()
@@ -48,7 +49,6 @@ function VaultWithdraw({
         showMaxButton
         id="add-liquidity-input-tokena"
         vaultPair={pair}
-        currentVault={currentVault}
         totalShares={totalShares}
       />
       <VaultWithdrawSummary

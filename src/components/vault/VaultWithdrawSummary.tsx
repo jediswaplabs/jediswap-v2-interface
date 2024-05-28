@@ -7,6 +7,7 @@ import styled from 'styled-components'
 import CurrencyLogo from 'components/Logo/CurrencyLogo'
 import { ThemedText } from 'theme/components'
 import { BigNumberish } from 'starknet'
+import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 
 const SummaryWrapper = styled.div<{ hideInput?: boolean }>`
   position: relative;
@@ -63,8 +64,8 @@ export default function VaultWithdrawSummary({
   id: string
   vaultPair?: any
   currentVault: any
-  token0Amount: BigNumberish
-  token1Amount: BigNumberish
+  token0Amount: CurrencyAmount<Currency>
+  token1Amount: CurrencyAmount<Currency>
 }) {
   return (
     <SummaryWrapper id={id} hideInput={hideInput} {...rest}>
