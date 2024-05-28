@@ -364,22 +364,13 @@ export default function Vault({ className }: { className?: string }) {
   const [generalLoading, setGeneralLoading] = useState(true)
 
   const { data: allVaults, error: allVaultsError, isLoading: isAllVaultsLoading } = useAllVaults()
-
-  const getCurrentVault = () => {
-    if (!allVaults) {
-      return
-    }
-    const result = vaultIdFromUrl ? allVaults[vaultIdFromUrl] : null
-    return result
-  }
-  const currentVault = getCurrentVault()
-  const currency0 = useCurrency(currentVault.token0.address)
-  const currency1 = useCurrency(currentVault.token1.address)
+  const currentVault = allVaults && vaultIdFromUrl ? allVaults[vaultIdFromUrl] : {}
+  const currency0 = useCurrency(currentVault?.token0?.address)
+  const currency1 = useCurrency(currentVault?.token1?.address)
   const vaultState = useVaultState()
   const { totalShares } = useUserShares(vaultState, currency0 ?? undefined, currency1 ?? undefined)
   const formatted = formatBalance(Number(totalShares?.toString()) / 10 ** 18)
   const vaultsAddresses = Object.keys(allVaults ?? {})
-  const { token0, token1, tvl, apr, feeApr, totalApr, balance } = useVaultTableContent(currentVault, vaultIdFromUrl)
 
   useEffect(() => {
     setGeneralError(Boolean(allVaultsError))
@@ -407,47 +398,45 @@ export default function Vault({ className }: { className?: string }) {
         return <ErrorPanel />
       }
       default: {
-        // const shareTokenAddress = currentVault?.share?.address
-        // const performanceData = currentVault.performance[currentVault.mainAssetKey]
-        // const token0 = new Token(
-        //   currentVault.token0.chainId,
-        //   currentVault.token0.address,
-        //   currentVault.token0.decimals,
-        //   currentVault.token0.symbol,
-        //   currentVault.token0.name
-        // )
-        // token0.logoURI = currentVault.token0.logoURI
+        const performanceData = currentVault.performance[currentVault.mainAssetKey]
+        const token0 = new Token(
+          currentVault.token0.chainId,
+          currentVault.token0.address,
+          currentVault.token0.decimals,
+          currentVault.token0.symbol,
+          currentVault.token0.name
+        )
+        token0.logoURI = currentVault.token0.logoURI
 
-        // const token1 = new Token(
-        //   currentVault.token1.chainId,
-        //   currentVault.token1.address,
-        //   currentVault.token1.decimals,
-        //   currentVault.token1.symbol,
-        //   currentVault.token1.name
-        // )
-        // token1.logoURI = currentVault.token1.logoURI
+        const token1 = new Token(
+          currentVault.token1.chainId,
+          currentVault.token1.address,
+          currentVault.token1.decimals,
+          currentVault.token1.symbol,
+          currentVault.token1.name
+        )
+        token1.logoURI = currentVault.token1.logoURI
 
-        // let tvl
-        // let apr
-        // let feeApr
-        // let totalApr
-        // let shareTokenPriceUsd
+        let tvl
+        let apr
+        let feeApr
+        let totalApr
+        let shareTokenPriceUsd
 
-        // if (!isEmpty(performanceData)) {
-        //   const mainTokenDecimals = currentVault[currentVault.mainAssetKey].decimals
-        //   const tvlInMainToken = performanceData.tvl / 10 ** mainTokenDecimals
-        //   const tokenPrice = currentVault.prices[currentVault.mainAssetKey]
-        //   const shareTokenDecimals = currentVault?.share?.decimals
-        //   const shareTokenPriceInUnits = performanceData.shareTokenPrice / 10 ** (18 + shareTokenDecimals)
-        //   tvl = tvlInMainToken * tokenPrice
-        //   apr = Number(performanceData.shareTokenApr / 10 ** 4)?.toFixed(2)
-        //   feeApr = Number(performanceData.feeApr / 10 ** 4)?.toFixed(2)
-        //   totalApr = Number((performanceData?.shareTokenApr + performanceData?.feeApr) / 10 ** 4)?.toFixed(2)
-        //   shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
-        // }
+        if (!isEmpty(performanceData)) {
+          const mainTokenDecimals = currentVault[currentVault.mainAssetKey].decimals
+          const tvlInMainToken = performanceData.tvl / 10 ** mainTokenDecimals
+          const tokenPrice = currentVault.prices[currentVault.mainAssetKey]
+          const shareTokenDecimals = currentVault?.share?.decimals
+          const shareTokenPriceInUnits = performanceData.shareTokenPrice / 10 ** (18 + shareTokenDecimals)
+          tvl = tvlInMainToken * tokenPrice
+          apr = Number(performanceData.shareTokenApr / 10 ** 4)?.toFixed(2)
+          feeApr = Number(performanceData.feeApr / 10 ** 4)?.toFixed(2)
+          totalApr = Number((performanceData?.shareTokenApr + performanceData?.feeApr) / 10 ** 4)?.toFixed(2)
+          shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
+        }
         return (
           <AutoColumn gap={'18px'}>
-            <PageTitle token0={token0} token1={token1} />
             <PageContentWrapper>
               <VaultDetailsContainer>
                 <AutoColumn gap="37px">
