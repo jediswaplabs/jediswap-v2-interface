@@ -218,7 +218,7 @@ export default function VaultWithdrawInput({
   const currency1 = useCurrency(currentVault.token1.address)
   const vaultState = useVaultState()
   const { totalShares } = useUserShares(vaultState, currency0 ?? undefined, currency1 ?? undefined)
-  let sharesInDecimals
+  let sharesInDecimals = ''
   if (totalShares) {
     const bigNumber = BigNumber.from(totalShares.toString())
     const divisor = BigNumber.from('1000000000000000000')

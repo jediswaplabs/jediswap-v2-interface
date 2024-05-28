@@ -178,7 +178,7 @@ export function useAllVaults() {
           .filter(Boolean)
       )
       const prices = await getTokenPrices(tokensAddresses)
-      const combinedData = addresses.reduce((acc, address) => {
+      const combinedData = addresses.reduce((acc: any, address) => {
         if (!permissionlessVaultDataList[address]) {
           return acc
         }
@@ -293,8 +293,8 @@ export function useVaultDerivedInfo(
   const { balance: balance1 } = useAccountBalance(currencies[Field.CURRENCY_A])
   const { balance: balance2 } = useAccountBalance(currencies[Field.CURRENCY_B])
   const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {
-    [Field.CURRENCY_A]: balance1,
-    [Field.CURRENCY_B]: balance2,
+    ...(Field.CURRENCY_A && { [Field.CURRENCY_A]: balance1 }),
+    ...(Field.CURRENCY_B && { [Field.CURRENCY_B]: balance2 }),
   }
   let insufficientBalance = false
   // amounts
@@ -311,7 +311,11 @@ export function useVaultDerivedInfo(
             ? (BigInt(independentAmount.raw.toString()) * token1All) / token0All
             : (BigInt(independentAmount.raw.toString()) * token0All) / token1All
           : 0
-      return CurrencyAmount.fromRawAmount(currencies[dependentField], dependentTokenAmount.toString())
+      const dependentCurrency = currencies[dependentField];
+      if (!dependentCurrency) {
+        return undefined;
+      }
+      return CurrencyAmount.fromRawAmount(dependentCurrency, dependentTokenAmount.toString())
     }
     return undefined
   }, [currencies, dependentField, independentAmount, independentField, priceRatio])

@@ -373,13 +373,14 @@ export default function Vault({ className }: { className?: string }) {
     return result
   }
   const currentVault = getCurrentVault()
-  const currency0 = useCurrency(currentVault.token0.address)
-  const currency1 = useCurrency(currentVault.token1.address)
+  const currency0 = useCurrency(currentVault?.token0.address)
+  const currency1 = useCurrency(currentVault?.token1.address)
   const vaultState = useVaultState()
   const { totalShares } = useUserShares(vaultState, currency0 ?? undefined, currency1 ?? undefined)
   const formatted = formatBalance(Number(totalShares?.toString()) / 10 ** 18)
   const vaultsAddresses = Object.keys(allVaults ?? {})
-  const { token0, token1, tvl, apr, feeApr, totalApr, balance } = useVaultTableContent(currentVault, vaultIdFromUrl)
+  const { token0, token1, tvl, apr, feeApr, totalApr } = useVaultTableContent(currentVault, vaultIdFromUrl) || {}
+  
 
   useEffect(() => {
     setGeneralError(Boolean(allVaultsError))
@@ -403,7 +404,7 @@ export default function Vault({ className }: { className?: string }) {
       case vaultsAddresses?.length && !currentVault: {
         return <ErrorPanel />
       }
-      case !(currentVault.token0 && currentVault.token1): {
+      case !(currentVault?.token0 && currentVault?.token1): {
         return <ErrorPanel />
       }
       default: {
@@ -454,13 +455,13 @@ export default function Vault({ className }: { className?: string }) {
                   <AutoRow>
                     <AutoColumn gap="15px" grow>
                       <VaultDataHeaders>PROVIDER</VaultDataHeaders>
-                      <ThemedText.BodySmall>{currentVault.provider.name}</ThemedText.BodySmall>
+                      <ThemedText.BodySmall>{currentVault?.provider.name}</ThemedText.BodySmall>
                     </AutoColumn>
                     <AutoColumn gap="15px" grow>
                       <VaultDataHeaders>TVL</VaultDataHeaders>
                       <ThemedText.BodySmall fontWeight={500}>{tvl ? formatUsdPrice(tvl) : '-'}</ThemedText.BodySmall>
                     </AutoColumn>
-                    <ProviderLogo src={currentVault.provider.logo} />
+                    <ProviderLogo src={currentVault?.provider.logo} />
                   </AutoRow>
                   <AutoRow>
                     <AutoColumn gap="15px" grow>
@@ -492,22 +493,22 @@ export default function Vault({ className }: { className?: string }) {
                 </AutoColumn>
                 <Divider />
                 <VaultDetailsBottom>
-                  <VaultName>{currentVault.provider.name}</VaultName>
-                  <VaultDetailsImage src={currentVault.lpStrategyGraph} />
+                  <VaultName>{currentVault?.provider.name}</VaultName>
+                  <VaultDetailsImage src={currentVault?.lpStrategyGraph} />
                   {/* update later - img takes time to load issue */}
-                  <VaultStrategyType>{currentVault.strategyType}</VaultStrategyType>
-                  <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: currentVault.details }} />
+                  <VaultStrategyType>{currentVault?.strategyType}</VaultStrategyType>
+                  <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: currentVault?.details || ''}} />
                   <VaultStrategyLinks>
                     <a
                       href={`https://${chainId === ChainId.GOERLI ? 'sepolia.' : ''}starkscan.co/contract/${
-                        currentVault.share.address
+                        currentVault?.share.address
                       }`}
                       target={'_blank'}
                       rel="noreferrer"
                     >
                       View Contract
                     </a>
-                    <a href={currentVault.links.details} target={'_blank'} rel="noreferrer">
+                    <a href={currentVault?.links.details} target={'_blank'} rel="noreferrer">
                       View Details
                     </a>
                   </VaultStrategyLinks>
@@ -671,15 +672,15 @@ export function VaultElement({
   }
 
   const onWithdraw = () => {
-    if (!token0 || !token1 || !withdrawTypedValue) return
+    const vaultAddress = vaultAddressFromUrl
+    if (!token0 || !token1 || !withdrawTypedValue || !vaultAddress) return
     const defaultWithdrawSlippage = new Percent(99, 10000)
     const amount0_min = BigInt(Math.round(Number(token0.raw) * Number(defaultWithdrawSlippage.toSignificant())))
     const amount1_min = BigInt(Math.round(Number(token1.raw) * Number(defaultWithdrawSlippage.toSignificant())))
     const callData = []
-    const vaultAddress = vaultAddressFromUrl
     const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currency0)
     const callParams = {
-      shares: cairo.uint256(typedValue?.raw),
+      shares: cairo.uint256(typedValue?.raw.toString() || 0),
       amount0_min: cairo.uint256(amount0_min.toString()),
       amount1_min: cairo.uint256(amount1_min.toString()),
     }

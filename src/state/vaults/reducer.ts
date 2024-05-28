@@ -56,10 +56,16 @@ export type Vault = {
   riskLevel: string
   share: Share
   strategyType: string
-  type: string
+  type: string,
+  performance: any
+}
+
+type Vaults = {
+  [key: string]: Vault
 }
 export interface VaultState {
-  readonly allVaults: Vault[]
+  // readonly allVaults: Vault[]
+  readonly allVaults: Vaults
   readonly users: any
   readonly independentField: Field
   readonly typedValue: string
