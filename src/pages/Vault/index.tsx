@@ -663,9 +663,7 @@ export function VaultElement({
     if (!token0 || !token1 || !withdrawTypedValue) return
     const defaultWithdrawSlippage = new Percent(99, 10000)
     const amount0_min = calculateMinimumAmountWithSlippage(token0, defaultWithdrawSlippage)
-    console.log(amount0_min.raw.toString(), 'amount0_min')
     const amount1_min = calculateMinimumAmountWithSlippage(token1, defaultWithdrawSlippage)
-    console.log(amount1_min.raw.toString(), 'amount1_min')
 
     const callData = []
     const vaultAddress = vaultAddressFromUrl
