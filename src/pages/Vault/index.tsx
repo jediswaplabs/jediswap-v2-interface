@@ -40,7 +40,7 @@ import { cairo, Call, CallData, num } from 'starknet'
 import { Field } from 'state/vaults/actions'
 import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
 import { useApprovalCall } from 'hooks/useApproveCall'
-import { calculateMaximumAmountWithSlippage } from 'utils/calculateSlippage'
+import { calculateMaximumAmountWithSlippage, calculateMinimumAmountWithSlippage } from 'utils/calculateSlippage'
 import { decimalToBigInt } from 'utils/decimalToBigint'
 import VaultWithdraw from 'components/vault/VaultWithdraw'
 import { useUserShares } from 'components/vault/hooks'
@@ -662,15 +662,18 @@ export function VaultElement({
   const onWithdraw = () => {
     if (!token0 || !token1 || !withdrawTypedValue) return
     const defaultWithdrawSlippage = new Percent(99, 10000)
-    const amount0_min = BigInt(Math.round(Number(token0.raw) * Number(defaultWithdrawSlippage.toSignificant())))
-    const amount1_min = BigInt(Math.round(Number(token1.raw) * Number(defaultWithdrawSlippage.toSignificant())))
+    const amount0_min = calculateMinimumAmountWithSlippage(token0, defaultWithdrawSlippage)
+    console.log(amount0_min.raw.toString(), 'amount0_min')
+    const amount1_min = calculateMinimumAmountWithSlippage(token1, defaultWithdrawSlippage)
+    console.log(amount1_min.raw.toString(), 'amount1_min')
+
     const callData = []
     const vaultAddress = vaultAddressFromUrl
     const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currency0)
     const callParams = {
       shares: cairo.uint256(typedValue?.raw),
-      amount0_min: cairo.uint256(amount0_min.toString()),
-      amount1_min: cairo.uint256(amount1_min.toString()),
+      amount0_min: cairo.uint256(amount0_min.raw.toString()),
+      amount1_min: cairo.uint256(amount1_min.raw.toString()),
     }
 
     const compiledSwapCalls = CallData.compile(callParams)
