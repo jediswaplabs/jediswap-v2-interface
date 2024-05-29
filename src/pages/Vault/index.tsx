@@ -364,7 +364,7 @@ export default function Vault({ className }: { className?: string }) {
   const [generalLoading, setGeneralLoading] = useState(true)
 
   const { data: allVaults, error: allVaultsError, isLoading: isAllVaultsLoading } = useAllVaults()
-  const currentVault = allVaults && vaultIdFromUrl ? allVaults[vaultIdFromUrl] : {}
+  const currentVault: any = allVaults && vaultIdFromUrl ? allVaults[vaultIdFromUrl] : {}
   const currency0 = useCurrency(currentVault?.token0?.address)
   const currency1 = useCurrency(currentVault?.token1?.address)
   const vaultState = useVaultState()
@@ -406,7 +406,7 @@ export default function Vault({ className }: { className?: string }) {
           currentVault.token0.symbol,
           currentVault.token0.name
         )
-        token0.logoURI = currentVault.token0.logoURI
+        // token0.logoURI = currentVault.token0.logoURI
 
         const token1 = new Token(
           currentVault.token1.chainId,
@@ -415,7 +415,7 @@ export default function Vault({ className }: { className?: string }) {
           currentVault.token1.symbol,
           currentVault.token1.name
         )
-        token1.logoURI = currentVault.token1.logoURI
+        // token1.logoURI = currentVault.token1.logoURI
 
         let tvl
         let apr
@@ -455,7 +455,7 @@ export default function Vault({ className }: { className?: string }) {
                     <AutoColumn gap="15px" grow>
                       <VaultDataHeaders>APR RANGE</VaultDataHeaders>
                       <ThemedText.BodySmall color={'accent1'} fontWeight={700}>
-                        {totalApr ? formatPercent(Number(totalApr)) : '-'}
+                        {totalApr ? totalApr : '-'}
                       </ThemedText.BodySmall>
                     </AutoColumn>
                     <VerticalDivider />
@@ -465,7 +465,7 @@ export default function Vault({ className }: { className?: string }) {
                           Fee APR:
                         </ThemedText.BodySmall>
                         <ThemedText.BodySmall color={'accent1'} fontWeight={700}>
-                          {feeApr !== undefined ? formatPercent(Number(feeApr)) : '-'}
+                          {feeApr !== undefined ? feeApr : '-'}
                         </ThemedText.BodySmall>
                       </AutoRow>
                       <AutoRow justify="space-between">
@@ -473,7 +473,7 @@ export default function Vault({ className }: { className?: string }) {
                           STRK APR:
                         </ThemedText.BodySmall>
                         <ThemedText.BodySmall color={'accent1'} fontWeight={700}>
-                          {apr ? formatPercent(Number(apr)) : '-'}
+                          {apr ? apr : '-'}
                         </ThemedText.BodySmall>
                       </AutoRow>
                     </AutoColumn>
@@ -619,7 +619,7 @@ export function VaultElement({
   const approvalBCallback = useApprovalCall(amountBToApprove, vaultAddress)
 
   const onDeposit = () => {
-    if (!chainId || !account || !parsedAmountA || !parsedAmountB) {
+    if (!chainId || !account || !parsedAmountA || !parsedAmountB || !vaultAddress) {
       return
     }
     const callData = []

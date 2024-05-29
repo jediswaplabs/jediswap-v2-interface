@@ -337,7 +337,7 @@ const UserBalance: React.FC<UserBalanceProps> = ({
     userBalanceData && Number(userBalanceData?.formatted) > 0 ? Number(userBalanceData?.formatted).toFixed(6) : 0
   useEffect(() => {
     if (isConnected && isUserBalanceSuccess) {
-      getResult({ vaultAddress, balance })
+      getResult({ vaultAddress, balance: Number(balance) })
     }
   }, [userBalanceData, isUserBalanceSuccess, isConnected])
 
@@ -381,7 +381,7 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
     return null
   }
 
-  const token0: Token = new Token(
+  const token0: any = new Token(
     vaultData.token0.chainId,
     vaultData.token0.address,
     vaultData.token0.decimals,
@@ -390,7 +390,7 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
   )
   token0.logoURI = vaultData.token0.logoURI
 
-  const token1: Token = new Token(
+  const token1: any = new Token(
     vaultData.token1.chainId,
     vaultData.token1.address,
     vaultData.token1.decimals,
@@ -436,7 +436,7 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
         <ThemedText.BodySmall>{tvl ? formatUsdPrice(tvl) : '-'}</ThemedText.BodySmall>
       </DataText>
       <DataText area="apr">
-        <ThemedText.BodySmall color={'accent1'}>{apr ? formatPercent(Number(apr)) : '-'}</ThemedText.BodySmall>
+        <ThemedText.BodySmall color={'accent1'}>{apr ? apr : '-'}</ThemedText.BodySmall>
       </DataText>
       <DataText area="deposite">
         <ThemedText.BodySmall>

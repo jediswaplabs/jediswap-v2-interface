@@ -27,6 +27,8 @@ interface VaultTotalSupply {
   totalSupply: number
 }
 
+type VaultAssetsData = [bigint, bigint]
+
 interface VaultAssets {
   token0All: number
   token1All: number
@@ -269,16 +271,12 @@ export function useVaultDerivedInfo(
   let priceRatio = 1
 
   if (data && !isLoading && !isError) {
-    token0All = data[0]
-    token1All = data[1]
+    const vaultData = data as VaultAssetsData // Type assertion
+    token0All = vaultData[0]
+    token1All = vaultData[1]
     priceRatio = Number(token1All) / Number(token0All) // get clarity if need to add token decimals here
   }
-  let totalSupply = 0
-  const { data: data2, isLoading: isLoading2, isError: isError2 } = useVaultTotalSupply(vaultAddressFromUrl)
-  if (data2 && !isLoading2 && !isError2) {
-    totalSupply = data2
-  }
-
+  const { data: totalSupply, isLoading: isLoading2, isError: isError2 } = useVaultTotalSupply(vaultAddressFromUrl)
   const dependentField = independentField === Field.CURRENCY_A ? Field.CURRENCY_B : Field.CURRENCY_A
 
   // tokens
@@ -292,7 +290,7 @@ export function useVaultDerivedInfo(
 
   const { balance: balance1 } = useAccountBalance(currencies[Field.CURRENCY_A])
   const { balance: balance2 } = useAccountBalance(currencies[Field.CURRENCY_B])
-  const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {
+  const currencyBalances: any = {
     ...(Field.CURRENCY_A && { [Field.CURRENCY_A]: balance1 }),
     ...(Field.CURRENCY_B && { [Field.CURRENCY_B]: balance2 }),
   }
@@ -311,9 +309,9 @@ export function useVaultDerivedInfo(
             ? (BigInt(independentAmount.raw.toString()) * token1All) / token0All
             : (BigInt(independentAmount.raw.toString()) * token0All) / token1All
           : 0
-      const dependentCurrency = currencies[dependentField];
+      const dependentCurrency = currencies[dependentField]
       if (!dependentCurrency) {
-        return undefined;
+        return undefined
       }
       return CurrencyAmount.fromRawAmount(dependentCurrency, dependentTokenAmount.toString())
     }
@@ -446,7 +444,7 @@ export function useVaultDerivedInfo(
 // }
 
 export function useVaultTokens(vault: any): { token0: any; token1: any } {
-  const token0 = new Token(
+  const token0: any = new Token(
     vault?.token0?.chainId,
     vault?.token0?.address,
     vault?.token0?.decimals,
@@ -455,7 +453,7 @@ export function useVaultTokens(vault: any): { token0: any; token1: any } {
   )
   token0.logoURI = vault?.token0?.logoURI
 
-  const token1 = new Token(
+  const token1: any = new Token(
     vault?.token1?.chainId,
     vault?.token1?.address,
     vault?.token1?.decimals,
@@ -471,20 +469,8 @@ export function useVaultTableContent(
   vault: any,
   vaultAddress?: string
 ): { token0: Token; token1: Token; tvl: number; apr: number; feeApr: number; totalApr: number } | null {
-  const { address, isConnected } = useAccountDetails()
   const { token0, token1 } = useVaultTokens(vault)
   const shareTokenAddress = vault?.share?.address
-  //   const {
-  //     data: userBalanceData,
-  //     isLoading: isUserBalanceLoading,
-  //     isError: isUserBalanceError,
-  //     isSuccess: isUserBalanceSuccess,
-  //   } = useBalance({
-  //     token: shareTokenAddress,
-  //     address,
-  //     watch: true,
-  //   })
-
   if (!(vault?.token0 && vault?.token1 && shareTokenAddress)) {
     return null
   }
