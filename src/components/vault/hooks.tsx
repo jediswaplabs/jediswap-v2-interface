@@ -16,6 +16,25 @@ interface TokenData {
   [key: string]: any
 }
 
+export function useFeeConfig(vaultAddress: string | undefined) {
+  const { chainId } = useAccountDetails()
+
+  const fee = useQuery({
+    queryKey: [`fee_config/${vaultAddress}/${chainId}`],
+    queryFn: async () => {
+      if (!vaultAddress) return
+      const provider = providerInstance(chainId ?? DEFAULT_CHAIN_ID)
+      const results = await provider.callContract({
+        entrypoint: 'fee_config',
+        contractAddress: vaultAddress,
+      })
+      return Number(num.getDecimalString(results?.result?.[results?.result?.length - 3]))
+    },
+  })
+
+  return fee.data ? fee.data : 0
+}
+
 export function useUserShares(
   vaultAddress: string | undefined,
   state: VaultState,
@@ -70,14 +89,6 @@ export function useUserShares(
       totalSupply: supply,
     }
   }, [supply, supplyError])
-
-  {
-    /*   const token0 =
-    withdrawTypedValue && token0All && totalSupply
-    //   ? (Number(withdrawTypedValue) * token0All) / (totalSupply as bigint)
-      : 0
-    */
-  }
 
   const token0: CurrencyAmount<Currency> | undefined = useMemo(() => {
     if (!typedValue || !totalSupply || !token0All) {

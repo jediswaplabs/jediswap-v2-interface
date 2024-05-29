@@ -43,7 +43,7 @@ import { useApprovalCall } from 'hooks/useApproveCall'
 import { calculateMaximumAmountWithSlippage, calculateMinimumAmountWithSlippage } from 'utils/calculateSlippage'
 import { decimalToBigInt } from 'utils/decimalToBigint'
 import VaultWithdraw from 'components/vault/VaultWithdraw'
-import { useUserShares } from 'components/vault/hooks'
+import { useFeeConfig, useUserShares } from 'components/vault/hooks'
 import formatBalance from 'utils/formatBalance'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
@@ -576,6 +576,7 @@ export function VaultElement({
     withdrawError,
     insufficientBalance: insufficientWithdrawalBalance,
   } = useUserShares(vaultAddressFromUrl, vaultState, baseCurrency ?? undefined, currencyB ?? undefined)
+  const fee_config = useFeeConfig(vaultAddressFromUrl)
   const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
   const {
     writeAsync,
@@ -663,16 +664,25 @@ export function VaultElement({
   const onWithdraw = () => {
     const vaultAddress = vaultAddressFromUrl
     if (!token0 || !token1 || !withdrawTypedValue || !vaultAddress) return
-    const defaultWithdrawSlippage = new Percent(99, 10000)
-    const amount0_min = calculateMinimumAmountWithSlippage(token0, defaultWithdrawSlippage)
-    const amount1_min = calculateMinimumAmountWithSlippage(token1, defaultWithdrawSlippage)
 
     const callData = []
     const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currency0)
+    const defaultWithdrawSlippage = new Percent(99, 10000)
+
+    const vaultFee = new Percent(
+      Number(new Percent(100, 100).subtract(new Percent(fee_config, 1000000)).toSignificant()) * 100,
+      1000000
+    )
+
+    const amount0_min = calculateMinimumAmountWithSlippage(token0, defaultWithdrawSlippage)
+    const amount1_min = calculateMinimumAmountWithSlippage(token1, defaultWithdrawSlippage)
+    const feeAdjustedAmount0 = fee_config ? calculateMinimumAmountWithSlippage(amount0_min, vaultFee) : amount0_min
+    const feeAdjustedAmount1 = fee_config ? calculateMinimumAmountWithSlippage(amount1_min, vaultFee) : amount1_min
+
     const callParams = {
       shares: cairo.uint256(typedValue?.raw.toString() || 0),
-      amount0_min: cairo.uint256(amount0_min.toString()),
-      amount1_min: cairo.uint256(amount1_min.toString()),
+      amount0_min: cairo.uint256(feeAdjustedAmount0.raw.toString()),
+      amount1_min: cairo.uint256(feeAdjustedAmount1.raw.toString()),
     }
 
     const compiledSwapCalls = CallData.compile(callParams)
@@ -682,7 +692,7 @@ export function VaultElement({
       calldata: compiledSwapCalls,
     }
     callData.push(calls)
-    setCallData(callData)
+    // setCallData(callData)
     setShowConfirm(true)
     setAttemptingTxn(true)
   }
