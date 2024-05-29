@@ -211,6 +211,7 @@ export default function VaultWithdrawInput({
   totalShares,
   ...rest
 }: CurrencyInputPanelProps) {
+  const [modalOpen, setModalOpen] = useState(false)
   const { address: account, chainId } = useAccountDetails()
   let sharesInDecimals = ''
   if (totalShares) {
@@ -251,31 +252,33 @@ export default function VaultWithdrawInput({
       {!locked && (
         <Container hideInput={hideInput} disabled={!chainAllowed} style={containerStyles}>
           <InputRow style={hideInput ? { padding: '0', borderRadius: '8px' } : {}} selected>
-            <CurrencySelect
-              disabled={!chainAllowed}
-              visible
-              selected={!!currency}
-              hideInput={hideInput}
-              className="open-currency-select-button"
-              pointerEvents={'none'}
-            >
-              <Aligner>
-                <RowFixed>
-                  <span style={{ marginRight: '0.5rem' }}>
-                    <DoubleCurrencyLogo
-                      currency0={vaultPair?.token0Currency}
-                      currency1={vaultPair?.token1Currency}
-                      size={24}
-                      margin
-                    />
-                  </span>
+            <StyledPrefetchBalancesWrapper shouldFetchOnAccountUpdate={modalOpen}>
+              <CurrencySelect
+                disabled={!chainAllowed}
+                visible
+                selected={!!currency}
+                hideInput={hideInput}
+                className="open-currency-select-button"
+                pointerEvents={'none'}
+              >
+                <Aligner>
+                  <RowFixed>
+                    <span style={{ marginRight: '0.5rem' }}>
+                      <DoubleCurrencyLogo
+                        currency0={vaultPair?.token0Currency}
+                        currency1={vaultPair?.token1Currency}
+                        size={24}
+                        margin
+                      />
+                    </span>
 
-                  <StyledTokenName className="pair-name-container">
-                    {vaultPair?.token0Currency?.symbol}-{vaultPair?.token1Currency?.symbol}
-                  </StyledTokenName>
-                </RowFixed>
-              </Aligner>
-            </CurrencySelect>
+                    <StyledTokenName className="pair-name-container">
+                      {vaultPair?.token0Currency?.symbol}-{vaultPair?.token1Currency?.symbol}
+                    </StyledTokenName>
+                  </RowFixed>
+                </Aligner>
+              </CurrencySelect>
+            </StyledPrefetchBalancesWrapper>
             {!hideInput && (
               <StyledNumericalInput
                 className="token-amount-input"
