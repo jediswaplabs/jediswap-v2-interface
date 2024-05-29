@@ -27,6 +27,7 @@ import ThemeProvider, { ThemedGlobalStyle } from './theme'
 import TransactionUpdater from './state/transactions/updater'
 import RadialGradientByChainUpdater from './theme/components/RadialGradientByChainUpdater'
 import { StarknetProvider } from 'context/StarknetProvider'
+import './App.css'
 
 function Updaters() {
   const location = useLocation()

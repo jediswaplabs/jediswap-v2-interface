@@ -1,0 +1,36 @@
+/* @font-face {
+  font-family: avenir lt std;
+  font-style: normal;
+  font-weight: 400;
+  src: local('Avenir LT Std'), url(https://fonts.cdnfonts.com/s/13298/AvenirLTStd-Roman.woff) format('woff');
+}*/
+@font-face {
+  font-family: avenir lt std;
+  font-style: normal;
+  font-weight: 300;
+  src: local('Avenir LT Std'), url('/public/fonts/AvenirLTStd-Light.woff') format('woff');
+}
+/* @font-face {
+  font-family: avenir lt std;
+  font-style: normal;
+  font-weight: 350;
+  src: local('Avenir LT Std'), url(https://fonts.cdnfonts.com/s/13298/AvenirLTStd-Book.woff) format('woff');
+}
+@font-face {
+  font-family: avenir lt std;
+  font-style: normal;
+  font-weight: 600;
+  src: local('Avenir LT Std'), url(https://fonts.cdnfonts.com/s/13298/AvenirLTStd-Medium.woff) format('woff');
+}
+@font-face {
+  font-family: avenir lt std;
+  font-style: normal;
+  font-weight: 700;
+  src: local('Avenir LT Std'), url(https://fonts.cdnfonts.com/s/13298/AvenirLTStd-Heavy.woff) format('woff');
+}  */
+@font-face {
+  font-family: avenir lt std;
+  font-style: normal;
+  font-weight: 750;
+  src: local('Avenir LT Std'), url('/public/fonts/AvenirLTStd-Black.woff') format('woff');
+}
