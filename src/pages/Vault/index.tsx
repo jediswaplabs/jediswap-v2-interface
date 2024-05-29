@@ -692,7 +692,7 @@ export function VaultElement({
       calldata: compiledSwapCalls,
     }
     callData.push(calls)
-    // setCallData(callData)
+    setCallData(callData)
     setShowConfirm(true)
     setAttemptingTxn(true)
   }
