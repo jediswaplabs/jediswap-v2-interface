@@ -135,8 +135,18 @@ export const useStaticFeeResults = (
     },
   })
 
+  const contract_version = useQuery({
+    queryKey: [`contract_version/${address}/${chainId}`],
+    queryFn: async () => {
+      if (!account || !address || !chainId) return
+      const provider = providerInstance(chainId)
+      const results: any = await provider.getClassAt(address)
+      return results?.sierra_program
+    },
+  })
+
   const fee_results = useQuery({
-    queryKey: [`fee/${address}/${nonce_results.data}/${parsedTokenId}`],
+    queryKey: [`fee/${address}/${nonce_results.data}/${parsedTokenId}/${contract_version.data}`],
     queryFn: async () => {
       if (!account || !address || !nonce_results || !parsedTokenId || !connector || !collectSelector || !chainId) return
       const nonce_data = nonce_results.data
@@ -152,7 +162,8 @@ export const useStaticFeeResults = (
         amount0_max: MAX_UINT128,
         amount1_max: MAX_UINT128,
       }
-      const payload = isConnectorBraavos
+      const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
+      const payload = isWalletCairoVersionGreaterThanZero
         ? {
             contractAddress: address,
             calldata: CallData.compile({
