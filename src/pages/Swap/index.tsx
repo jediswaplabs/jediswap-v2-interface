@@ -355,7 +355,7 @@ export function Swap({
     inputTax,
     outputTax,
   } = swapInfo
-  let { inputError: swapInputError }  = swapInfo
+  let { inputError: swapInputError } = swapInfo
 
   const [inputTokenHasTax, outputTokenHasTax] = useMemo(
     () => [!inputTax.equalTo(0), !outputTax.equalTo(0)],
@@ -492,9 +492,11 @@ export function Swap({
   )
 
   const { balanceCurrencyAmount } = useAccountBalance(currencies[Field.INPUT])
-  const maxInputAmount = balanceCurrencyAmount //in future we could substract the amount for gas here (utils/maxAmountSpend) 
-  
-  const showMaxButton = Boolean(currencies[Field.INPUT] && maxInputAmount?.greaterThan(0) && !parsedAmounts[Field.INPUT]?.equalTo(maxInputAmount))
+  const maxInputAmount = balanceCurrencyAmount //in future we could substract the amount for gas here (utils/maxAmountSpend)
+
+  const showMaxButton = Boolean(
+    currencies[Field.INPUT] && maxInputAmount?.greaterThan(0) && !parsedAmounts[Field.INPUT]?.equalTo(maxInputAmount)
+  )
   //we need this check because useDerivedSwapInfo does not give an error if the input value is slightly higher than the actual wallet balance
   if (parsedAmounts[Field.INPUT] && maxInputAmount && maxInputAmount.lessThan(parsedAmounts[Field.INPUT])) {
     swapInputError = <Trans>Insufficient {currencies[Field.INPUT]?.symbol} balance</Trans>
@@ -594,10 +596,7 @@ export function Swap({
 
   const usdPriceDifference = useMemo(() => {
     if (!token0usdPrice || !token1usdPrice) return undefined
-    else
-      return parseFloat(
-        ((token1usdPrice - token0usdPrice) / token0usdPrice * 100).toFixed(2)
-      )
+    else return parseFloat((((token1usdPrice - token0usdPrice) / token0usdPrice) * 100).toFixed(2))
   }, [token0usdPrice, token1usdPrice])
 
   const amountToApprove = useMemo(
@@ -825,15 +824,19 @@ export function Swap({
 
   const handleInputSelect = useCallback(
     (inputCurrency: Currency) => {
-      onCurrencySelection(Field.INPUT, inputCurrency)
-      onCurrencyChange?.({
-        [Field.INPUT]: {
-          currencyId: getSwapCurrencyId(inputCurrency),
-        },
-        [Field.OUTPUT]: state[Field.OUTPUT],
-      })
+      if (currencies[Field.OUTPUT] === inputCurrency) {
+        onSwitchTokens(inputTokenHasTax, formattedAmounts[dependentField])
+      } else {
+        onCurrencySelection(Field.INPUT, inputCurrency)
+        onCurrencyChange?.({
+          [Field.INPUT]: {
+            currencyId: getSwapCurrencyId(inputCurrency),
+          },
+          [Field.OUTPUT]: state[Field.OUTPUT],
+        })
+      }
     },
-    [onCurrencyChange, onCurrencySelection, state]
+    [onCurrencyChange, onCurrencySelection, state, onSwitchTokens]
   )
   const inputCurrencyNumericalInputRef = useRef<HTMLInputElement>(null)
 
@@ -846,15 +849,19 @@ export function Swap({
 
   const handleOutputSelect = useCallback(
     (outputCurrency: Currency) => {
-      onCurrencySelection(Field.OUTPUT, outputCurrency)
-      onCurrencyChange?.({
-        [Field.INPUT]: state[Field.INPUT],
-        [Field.OUTPUT]: {
-          currencyId: getSwapCurrencyId(outputCurrency),
-        },
-      })
+      if (currencies[Field.INPUT] === outputCurrency) {
+        onSwitchTokens(inputTokenHasTax, formattedAmounts[dependentField])
+      } else {
+        onCurrencySelection(Field.OUTPUT, outputCurrency)
+        onCurrencyChange?.({
+          [Field.INPUT]: state[Field.INPUT],
+          [Field.OUTPUT]: {
+            currencyId: getSwapCurrencyId(outputCurrency),
+          },
+        })
+      }
     },
-    [onCurrencyChange, onCurrencySelection, state]
+    [onCurrencyChange, onCurrencySelection, state, onSwitchTokens]
   )
 
   const showPriceImpactWarning = isClassicTrade(trade) && largerPriceImpact && priceImpactSeverity > 3
