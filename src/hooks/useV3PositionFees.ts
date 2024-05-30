@@ -142,7 +142,8 @@ export const useStaticFeeResults = (
       const nonce_data = nonce_results.data
       if (!nonce_data) return undefined
       const nonce = Number(nonce_data)
-      const isConnectorBraavos = connector.id === 'braavos'
+      // const isConnectorBraavos = connector.id === 'braavos'
+      const isConnectorBraavos = false
       const provider = providerInstance(chainId)
       if (!provider) return
       const collect_call_data = {
