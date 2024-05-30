@@ -472,6 +472,18 @@ const ConnectedToSepolia = () => {
   )
 }
 
+function getRewardsData(jediRewards: any, pool: any) {
+  if (!jediRewards) {
+    return
+  }
+  const pair1 = (`${pool?.pool?.token0.symbol}/${pool?.pool?.token1.symbol}`).toLowerCase()
+  const pair2 = (`${pool?.pool?.token1.symbol}/${pool?.pool?.token0.symbol}`).toLowerCase()
+  const pairKey = Object.keys(jediRewards).find(key => key.toLowerCase() === pair1 || key.toLowerCase() === pair2)
+  if (pairKey && jediRewards[pairKey]) {
+    return jediRewards[pairKey]
+  }
+}
+
 export default function Rewards() {
   const [allPools, setAllPools] = useState<any[]>([])
   const { address, chainId } = useAccountDetails()
@@ -511,10 +523,10 @@ export default function Rewards() {
       const eligiblePools = []
       try {
         for (const pool of pools?.data?.poolsData) {
-          const pair = (`${pool?.pool?.token0.symbol}/${pool?.pool?.token1.symbol}`).toLowerCase()
-          const pairKey = jediRewards ? Object.keys(jediRewards).find(key => key.toLowerCase() === pair) : null
-          if (pairKey && jediRewards[pairKey]) {
-            const rewardsData = jediRewards[pairKey]
+          const tokenSymbols = [pool?.pool?.token0.symbol, pool?.pool?.token1.symbol].sort() 
+          const pair = tokenSymbols.join('/')
+          const rewardsData = getRewardsData(jediRewards, pool)
+          if (rewardsData) {
             const aprStarknet = rewardsData.apr * 100
             // const closestAPRPeriod = findClosestAPRPeriod(pool?.period)
             const closestAPRPeriod = pool?.period?.[apiTimeframeOptions.oneDay]

@@ -75,6 +75,18 @@ function WrongNetworkCard() {
   )
 }
 
+function getRewardsData(jediRewards: any, pool: any) {
+  if (!jediRewards) {
+    return
+  }
+  const pair1 = (`${pool?.token0.symbol}/${pool?.token1.symbol}`).toLowerCase()
+  const pair2 = (`${pool?.token1.symbol}/${pool?.token0.symbol}`).toLowerCase()
+  const pairKey = Object.keys(jediRewards).find(key => key.toLowerCase() === pair1 || key.toLowerCase() === pair2)
+  if (pairKey && jediRewards[pairKey]) {
+    return jediRewards[pairKey]
+  }
+}
+
 export default function Pool() {
   const [poolsData, setpoolsData] = useState<any[] | undefined>([])
   const { address, chainId } = useAccountDetails()
@@ -115,11 +127,8 @@ export default function Pool() {
       }
       const poolsData: any = {}
       poolsDataRaw?.forEach((data: any) => {
-        const rewardName = (data?.token0?.symbol + '/' + data?.token1?.symbol).toLowerCase()
-        const pairKey = jediRewards ? Object.keys(jediRewards).find(key => key.toLowerCase() === rewardName) : null
-        
-        if (pairKey) {
-          const rewardsData = jediRewards?.[pairKey]
+        const rewardsData = getRewardsData(jediRewards, data)
+        if (rewardsData) {
           data.aprStarknet = rewardsData.apr
         }
 
