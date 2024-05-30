@@ -163,7 +163,7 @@ export const useStaticFeeResults = (
         amount1_max: MAX_UINT128,
       }
       const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
-      const payload = isWalletCairoVersionGreaterThanZero
+      const payload = !isWalletCairoVersionGreaterThanZero
         ? {
             contractAddress: address,
             calldata: CallData.compile({
