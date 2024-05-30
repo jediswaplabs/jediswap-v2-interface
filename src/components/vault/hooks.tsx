@@ -12,6 +12,7 @@ import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { removeExtraDecimals } from 'utils/removeExtraDecimals'
 import { Trans } from '@lingui/macro'
+import { formatUnits } from 'ethers/lib/utils'
 interface TokenData {
   [key: string]: any
 }
@@ -67,7 +68,6 @@ export function useUserShares(
   const totalShares = shares.data
 
   const withdrawTypedValue = state.withdrawTypedValue
-  const { vaultId: vaultAddressFromUrl } = useParams()
   const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currencyA)
   const { data, isError } = useUnderlyingVaultAssets(vaultAddress)
 
@@ -91,27 +91,27 @@ export function useUserShares(
   }, [supply, supplyError])
 
   const token0: CurrencyAmount<Currency> | undefined = useMemo(() => {
-    if (!typedValue || !totalSupply || !token0All) {
+    if (!typedValue || !totalSupply || !token0All || !currencyA) {
       return undefined
     }
-    const token0Amount = Number(withdrawTypedValue) * (Number(token0All) / Number(totalSupply))
+    const token0Amount =
+      typedValue && token0All && totalSupply
+        ? (BigInt(typedValue.raw.toString()) * token0All) / (totalSupply as bigint)
+        : 0
 
-    const formattedToken0 = removeExtraDecimals(Number(token0Amount), currencyA)
-    return tryParseCurrencyAmount(formattedToken0.toString(), currencyA)
-  }, [typedValue, totalSupply, token0All])
+    return CurrencyAmount.fromRawAmount(currencyA, token0Amount.toString())
+  }, [typedValue, totalSupply, token0All, currencyA])
 
   const token1: CurrencyAmount<Currency> | undefined = useMemo(() => {
-    if (!typedValue || !totalSupply || !token1All) {
+    if (!typedValue || !totalSupply || !token1All || !currencyB) {
       return undefined
     }
-    const token1Amount = Number(withdrawTypedValue) * (Number(token1All) / Number(totalSupply))
-    const formattedToken1 = removeExtraDecimals(Number(token1Amount), currencyB)
-    return tryParseCurrencyAmount(formattedToken1.toString(), currencyB)
-  }, [typedValue, totalSupply, token1All])
+    const token1Amount = token0 && priceRatio ? BigInt(token0.raw.toString()) / BigInt(priceRatio) : 0
+    return CurrencyAmount.fromRawAmount(currencyB, token1Amount.toString())
+  }, [typedValue, totalSupply, token1All, token0, currencyB])
   //   const token1 = token0 && priceRatio ? token0 / BigInt(priceRatio) : 0
 
-  const sharesInDecimals = Number(totalShares?.toString()) / 10 ** 18
-
+  const formattedShares = formatUnits(totalShares ?? 0)
   let insufficientBalance = false
   const withdrawError = useMemo(() => {
     let error: ReactNode | undefined
@@ -119,12 +119,12 @@ export function useUserShares(
     if (!typedValue) {
       error = error ?? <Trans>Enter an amount</Trans>
     }
-    if (typedValue && sharesInDecimals < Number(withdrawTypedValue)) {
+    if (typedValue && Number(formattedShares) < Number(withdrawTypedValue)) {
       insufficientBalance = true
       error = error ?? <Trans>Insufficient balance</Trans>
     }
     return error
-  }, [typedValue, sharesInDecimals])
+  }, [typedValue, formattedShares])
   return {
     token0,
     token1,

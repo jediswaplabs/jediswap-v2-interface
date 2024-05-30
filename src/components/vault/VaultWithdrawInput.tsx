@@ -20,6 +20,7 @@ import { useVaultState } from 'state/vaults/hooks'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import JSBI from 'jsbi'
 import { BigNumber } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
 
 const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${flexColumnNoWrap};
@@ -211,48 +212,29 @@ export default function VaultWithdrawInput({
   totalShares,
   ...rest
 }: CurrencyInputPanelProps) {
-  const [modalOpen, setModalOpen] = useState(false)
   const { address: account, chainId } = useAccountDetails()
-  let sharesInDecimals = ''
-  if (totalShares) {
-    const bigNumber = BigNumber.from(totalShares.toString())
-    const divisor = BigNumber.from('1000000000000000000')
+  const shares = formatUnits(totalShares)
 
-    // Scale the numerator
-    const scaleFactor = BigNumber.from('1000000000000000000')
-    const scaledNumerator = bigNumber.mul(scaleFactor)
-
-    // Perform the division
-    const result = scaledNumerator.div(divisor)
-
-    // Adjust the result to get the correct decimal places
-    const resultString = result.toString()
-    const integerPart = resultString.slice(0, -18) || '0'
-    const fractionalPart = resultString.slice(-18).padStart(18, '0')
-
-    sharesInDecimals = `${integerPart}.${fractionalPart}`
-  }
-
-  const formattedShares = formatBalance(sharesInDecimals ?? 0)
+  const formattedShares = formatBalance(shares ?? 0)
 
   const theme = useTheme()
 
   const chainAllowed = isSupportedChain(chainId)
 
   const handleMaxAmount = () => {
-    if (totalShares && sharesInDecimals) {
-      onUserInput(sharesInDecimals)
+    if (totalShares && shares) {
+      onUserInput(shares)
     }
   }
 
   const containerStyles = hideShadow ? { boxShadow: 'none' } : {}
-  //   const showMax = sharesInDecimals !== null && Number(value) !== Number(sharesInDecimals)
+  //   const showMax = shares !== null && Number(value) !== Number(shares)
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>
       {!locked && (
         <Container hideInput={hideInput} disabled={!chainAllowed} style={containerStyles}>
           <InputRow style={hideInput ? { padding: '0', borderRadius: '8px' } : {}} selected>
-            <StyledPrefetchBalancesWrapper shouldFetchOnAccountUpdate={modalOpen}>
+            <StyledPrefetchBalancesWrapper shouldFetchOnAccountUpdate={false}>
               <CurrencySelect
                 disabled={!chainAllowed}
                 visible
