@@ -49,8 +49,7 @@ const Container = styled.div<{ hideInput: boolean; disabled: boolean }>`
   ${({ theme, hideInput, disabled }) =>
     !disabled &&
     `
-    :focus,
-    :hover {
+    :focus {
       border: 1px solid ${hideInput ? ' transparent' : theme.surface2};
     }
   `}

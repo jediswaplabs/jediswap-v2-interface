@@ -39,30 +39,16 @@ function VaultDeposit({ currentVault }: { currentVault: any }) {
       <CurrencyInputPanel
         value={formattedAmounts[Field.CURRENCY_A]}
         onUserInput={onFieldAInput}
-        // onMax={() => {
-        //   onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
-        // }}
-        // showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
         showMaxButton
         currency={currencies[Field.CURRENCY_A] ?? null}
         id="add-liquidity-input-tokena"
-        // fiatValue={currencyAFiat}
-        // showCommonBases
-        // locked={depositADisabled}
       />
       <CurrencyInputPanel
         value={formattedAmounts[Field.CURRENCY_B]}
         onUserInput={onFieldBInput}
-        // onMax={() => {
-        //   onFieldAInput(maxAmounts[Field.CURRENCY_A]?.toExact() ?? '')
-        // }}
         showMaxButton
-        // showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
         currency={currencies[Field.CURRENCY_B] ?? null}
         id="add-liquidity-input-tokena"
-        // fiatValue={currencyAFiat}
-        // showCommonBases
-        // locked={depositADisabled}
       />
     </DepositWrapper>
   )
