@@ -836,7 +836,7 @@ export function Swap({
         })
       }
     },
-    [onCurrencyChange, onCurrencySelection, state, onSwitchTokens]
+    [onCurrencyChange, onCurrencySelection, state, onSwitchTokens, currencies]
   )
   const inputCurrencyNumericalInputRef = useRef<HTMLInputElement>(null)
 
@@ -861,7 +861,7 @@ export function Swap({
         })
       }
     },
-    [onCurrencyChange, onCurrencySelection, state, onSwitchTokens]
+    [onCurrencyChange, onCurrencySelection, state, onSwitchTokens, currencies]
   )
 
   const showPriceImpactWarning = isClassicTrade(trade) && largerPriceImpact && priceImpactSeverity > 3
