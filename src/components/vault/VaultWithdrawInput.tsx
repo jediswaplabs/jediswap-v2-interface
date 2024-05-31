@@ -212,9 +212,9 @@ export default function VaultWithdrawInput({
   ...rest
 }: CurrencyInputPanelProps) {
   const { address: account, chainId } = useAccountDetails()
-  const shares = formatUnits(totalShares)
+  const shares = totalShares ? formatUnits(totalShares) : 0
 
-  const formattedShares = formatBalance(shares ?? 0)
+  const formattedShares = formatBalance(shares)
 
   const theme = useTheme()
 
