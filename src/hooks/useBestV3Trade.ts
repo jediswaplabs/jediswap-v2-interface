@@ -246,8 +246,7 @@ export function useBestV3TradeExactIn(
             ...call.calldata,
           }),
         }
-        const payload = !isWalletCairoVersionGreaterThanZero ? payloadForContractType0 : payloadForContractType1
-        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero ? payloadForContractType1 : payload
+        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero ? payloadForContractType1 : payloadForContractType0
         const response = provider.simulateTransaction(
           [{ type: TransactionType.INVOKE, ...payloadBasedOnCairoVersion, signature, nonce }],
           {
@@ -568,8 +567,7 @@ export function useBestV3TradeExactOut(
             ...call.calldata,
           }),
         }
-        const payload = isWalletCairoVersionGreaterThanZero ? payloadForContractType0 : payloadForContractType1
-        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero ? payloadForContractType1 : payload
+        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero ? payloadForContractType1 : payloadForContractType0
 
         const response = provider.simulateTransaction(
           [{ type: TransactionType.INVOKE, ...payloadBasedOnCairoVersion, signature, nonce }],
