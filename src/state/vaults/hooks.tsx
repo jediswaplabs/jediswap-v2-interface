@@ -20,6 +20,7 @@ import { DEFAULT_PERMISSIONLESS_API_RESPONSE } from '../../components/vault/cons
 import { formatUsdPrice } from 'nft/utils'
 import { removeExtraDecimals } from 'utils/removeExtraDecimals'
 import { Vault } from './reducer'
+import { DEFAULT_CHAIN_ID, TEAHOUSE_LOGO_URI, vaultURL } from 'constants/tokens'
 
 type Maybe<T> = T | null | undefined
 
@@ -34,23 +35,15 @@ interface VaultAssets {
   token1All: number
 }
 
-const TEAHOUSE_CONTENT_ENDPOINT = 'https://vault-content-api.teahouse.finance'
-const TEAHOUSE_TESTNET_CONTENT_ENDPOINT = 'https://test-vault-content-api.teahouse.finance/vaults'
-const TEAHOUSE_VAULT_ENDPOINT = ' https://vault-api.teahouse.finance'
-const TEAHOUSE_TESTNET_VAULT_ENDPOINT = 'https://test20-vault-api.teahouse.finance/vaults/type/permissionless'
-
-// const TEAHOUSE_CONTENT_ENDPOINT = 'https://test-vault-content-api.teahouse.finance';
-// const TEAHOUSE_VAULT_ENDPOINT = ' https://test-vault-api.teahouse.finance';
-const TEAHOUSE_LOGO_URI = 'https://vault.teahouse.finance/icon-token'
-
 export function useVaultState(): AppState['vaults'] {
   return useAppSelector((state) => state.vaults)
 }
 
 const getTeaHouseLogoUriPath = (iconName = '') => (iconName ? `${TEAHOUSE_LOGO_URI}/${iconName}` : null)
-const getVaultListWithContents = async (): Promise<{ [key: string]: Vault } | undefined> => {
-  //   const endpoint = `${TEAHOUSE_CONTENT_ENDPOINT}/vaults`
-  const endpoint = TEAHOUSE_TESTNET_CONTENT_ENDPOINT
+const getVaultListWithContents = async (
+  chainId: ChainId | undefined
+): Promise<{ [key: string]: Vault } | undefined> => {
+  const endpoint = vaultURL('content', chainId ?? DEFAULT_CHAIN_ID)
   const result: { [key: string]: Vault } = {}
   const response = await fetch(endpoint)
   const { vaults } = (await response.json()) ?? {}
@@ -108,11 +101,9 @@ const getVaultListWithContents = async (): Promise<{ [key: string]: Vault } | un
   return result
 }
 
-const getPermissionlessVaultDataList = async () => {
-  //   const endpoint = `${TEAHOUSE_VAULT_ENDPOINT}/vaults/type/permissionless`
-  const endpoint = TEAHOUSE_TESTNET_VAULT_ENDPOINT
+const getPermissionlessVaultDataList = async (chainId: ChainId | undefined) => {
+  const endpoint = vaultURL('permissionless', chainId ?? DEFAULT_CHAIN_ID)
   const result: { [key: string]: Vault } = {}
-  // const { vaults } = DEFAULT_PERMISSIONLESS_API_RESPONSE // check --> api was failing
   const response = await fetch(endpoint)
   const { vaults } = (await response.json()) ?? {}
   if (!vaults) {
@@ -147,12 +138,13 @@ const getTokenPrices = async (contracts: string[]) => {
 export function useAllVaults() {
   const allVaults = useSelector((state: AppState) => state.vaults.allVaults)
   const dispatch = useAppDispatch()
+  const { chainId } = useAccountDetails()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const isFetchingRef = useRef(false)
 
   const loadData = async () => {
-    if (isFetchingRef.current) {
+    if (isFetchingRef.current || !chainId) {
       return
     }
     if (!isEmpty(allVaults)) {
@@ -164,8 +156,8 @@ export function useAllVaults() {
     isFetchingRef.current = true
     try {
       const [vaultListWithContents, permissionlessVaultDataList] = await Promise.all([
-        getVaultListWithContents(),
-        getPermissionlessVaultDataList(),
+        getVaultListWithContents(chainId),
+        getPermissionlessVaultDataList(chainId),
       ])
       if (!vaultListWithContents || !permissionlessVaultDataList) {
         throw new Error('Failed to fetch data')
@@ -210,7 +202,7 @@ export function useAllVaults() {
 
   useEffect(() => {
     loadData()
-  }, [])
+  }, [chainId])
 
   return { data: allVaults, error, isLoading }
 }
