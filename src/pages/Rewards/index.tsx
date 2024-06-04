@@ -821,54 +821,59 @@ export default function Rewards() {
             ) : isSepoliaSelected ? (
               <ConnectedToSepolia />
             ) : (
-              <AutoColumn>
-                <Coins>
-                  <img src={CoinsIcon} />
-                </Coins>
-                <RowBetween>
-                  <StarkRewardsText>Your STRK Rewards</StarkRewardsText>
-                </RowBetween>
+              <>
+                <AutoColumn>
+                  <Coins>
+                    <img src={CoinsIcon} />
+                  </Coins>
+                  <RowBetween>
+                    <StarkRewardsText>Your STRK Rewards</StarkRewardsText>
+                  </RowBetween>
 
-                <Container>
-                  <Row>
-                    <Column>
-                      <HeaderText>
-                        <>
-                          <img src={StarkIcon} style={{ marginRight: 5 }} />
-                          STRK ALLOCATED
-                        </>
-                      </HeaderText>
-                      <AmountText>{allocations?.toSignificant() ?? 0}</AmountText>
-                    </Column>
-                    <Column>
-                      <HeaderText>
-                        <>
-                          <img src={StarkIcon} style={{ marginRight: 5 }} />
-                          STRK CLAIMED
-                        </>
-                      </HeaderText>
-                      <AmountText>{formattedClaimRewards?.toSignificant() ?? 0}</AmountText>
-                    </Column>
-                    <Column>
-                      <HeaderText>
-                        <>
-                          <img src={StarkIcon} style={{ marginRight: 5 }} />
-                          STRK UNCLAIMED
-                        </>
-                      </HeaderText>
-                      <ClaimWrapper>
-                        <AmountText>{unclaimed_rewards.toSignificant(5) ?? 0}</AmountText>
+                  <Container>
+                    <Row>
+                      <Column>
+                        <HeaderText>
+                          <>
+                            <img src={StarkIcon} style={{ marginRight: 5 }} />
+                            STRK ALLOCATED
+                          </>
+                        </HeaderText>
+                        <AmountText>{allocations?.toSignificant() ?? 0}</AmountText>
+                      </Column>
+                      <Column>
+                        <HeaderText>
+                          <>
+                            <img src={StarkIcon} style={{ marginRight: 5 }} />
+                            STRK CLAIMED
+                          </>
+                        </HeaderText>
+                        <AmountText>{formattedClaimRewards?.toSignificant() ?? 0}</AmountText>
+                      </Column>
+                      <Column>
+                        <HeaderText>
+                          <>
+                            <img src={StarkIcon} style={{ marginRight: 5 }} />
+                            STRK UNCLAIMED
+                          </>
+                        </HeaderText>
+                        <ClaimWrapper>
+                          <AmountText>{unclaimed_rewards.toSignificant(5) ?? 0}</AmountText>
 
-                        {allocated && allocations && (totalRewardsClaimed || unclaimed_rewards || attemptingTxn) ? (
-                          <ClaimButtonGradient onClick={onClaim} disabled={attemptingTxn || totalRewardsClaimed}>
-                            <ClaimText>{buttonText}</ClaimText>
-                          </ClaimButtonGradient>
-                        ) : null}
-                      </ClaimWrapper>
-                    </Column>
-                  </Row>
-                </Container>
-              </AutoColumn>
+                          {allocated && allocations && (totalRewardsClaimed || unclaimed_rewards || attemptingTxn) ? (
+                            <ClaimButtonGradient onClick={onClaim} disabled={attemptingTxn || totalRewardsClaimed}>
+                              <ClaimText>{buttonText}</ClaimText>
+                            </ClaimButtonGradient>
+                          ) : null}
+                        </ClaimWrapper>
+                      </Column>
+                    </Row>
+                  </Container>
+                </AutoColumn>
+                <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '20px' }}>
+                  NOTE: Claiming rewards for adding liquidity to the v2 pools will be available in the near future.
+                </div>
+              </>
             )}
           </CardSection>
         </LiquidityWrapperCard>
