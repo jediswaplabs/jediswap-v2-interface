@@ -870,8 +870,8 @@ export default function Rewards() {
                     </Row>
                   </Container>
                 </AutoColumn>
-                <div style={{ marginTop: '20px', textAlign: 'center', fontSize: '20px' }}>
-                  NOTE: Claiming rewards for adding liquidity to the v2 pools will be available in the near future.
+                <div style={{ marginTop: '20px', fontSize: '20px' }}>
+                  NOTE: Jediswap v2 LPs are accumulating STRK rewards already. Claim for v2 rewards will go live soon.
                 </div>
               </>
             )}
