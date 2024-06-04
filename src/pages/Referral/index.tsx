@@ -6,7 +6,7 @@ import { PanelTopLight } from './Panel'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { ButtonPrimary, ButtonSize } from 'components/Button'
-import { ReferralWarning } from './Warning'
+import { WarningBanner } from './Warning'
 import { useEffect, useState } from 'react'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
@@ -116,10 +116,11 @@ export function Referral() {
     }
   }, [chainId])
 
-  console.log('showWarning', chainId, ChainId.GOERLI, showWarning)
   return (
     <PageWrapper>
-      {showWarning && <ReferralWarning />}
+      {showWarning && (
+        <WarningBanner content={<>Warning: Please switch to Starknet Mainnet to use Referral</>} type="error" />
+      )}
       <ReferralWrapper>
         <div className="page-head">Referral</div>
         <div className="page-desc">

@@ -6,10 +6,12 @@ export const UK_BANNER_HEIGHT = 65
 export const UK_BANNER_HEIGHT_MD = 113
 export const UK_BANNER_HEIGHT_SM = 137
 
-const BannerWrapper = styled.div`
+export type bannerType = 'warning' | 'error' | 'success'
+
+const BannerWrapper = styled.div<{ type: bannerType }>`
   position: fixed;
   display: flex;
-  background-color: #ff3257;
+  background-color: ${({ type }) => (type === 'error' ? '#ff3257' : type === 'warning' ? '#FFC700' : '#34A229')};
   padding: 16px;
   border-bottom: 1px solid ${({ theme }) => theme.surface3};
   z-index: ${Z_INDEX.fixed};
@@ -26,11 +28,11 @@ const BannerWrapper = styled.div`
   }
 `
 
-const BannerTextWrapper = styled(ThemedText.BodySecondary)`
+const BannerTextWrapper = styled(ThemedText.BodySecondary)<{ type: bannerType }>`
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  color: white;
+  color: ${({ type }) => (type === 'warning' ? '#000000' : '#ffffff')};
   width: 100%;
   text-align: center;
   line-height: 16px;
@@ -54,12 +56,13 @@ const BannerTextWrapper = styled(ThemedText.BodySecondary)`
   }
 `
 
-export const bannerText = 'Warning: Please switch to Starknet Mainnet to use Referral'
 
-export function ReferralWarning() {
+export function WarningBanner({ type, content }: { type: bannerType; content: JSX.Element }) {
   return (
-    <BannerWrapper>
-      <BannerTextWrapper lineHeight="24px">{bannerText}</BannerTextWrapper>
+    <BannerWrapper type={type}>
+      <BannerTextWrapper lineHeight="24px" type={type}>
+        {content}
+      </BannerTextWrapper>
     </BannerWrapper>
   )
 }

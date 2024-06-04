@@ -17,19 +17,16 @@ import { useRouterPreference, useUserOptedOutOfUniswapX } from 'state/user/hooks
 import { flexRowNoWrap } from 'theme/styles'
 import { Z_INDEX } from 'theme/zIndex'
 import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions'
-import {
-  UK_BANNER_HEIGHT,
-  UK_BANNER_HEIGHT_MD,
-  UK_BANNER_HEIGHT_SM,
-  WarningBanner,
-} from 'components/NavBar/WarningBanner'
+import { UK_BANNER_HEIGHT, UK_BANNER_HEIGHT_MD, UK_BANNER_HEIGHT_SM } from 'components/NavBar/WarningBanner'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import { parseReferralCodeURLParameter } from 'state/swap/hooks'
-import { isAddressValidForStarknet } from 'utils/addresses'
+import { isAddressValidForStarknet, shortenAddress } from 'utils/addresses'
 import { ApolloProvider } from '@apollo/client'
 import { getClient } from 'apollo/client'
 import { validateChecksumAddress } from 'starknet'
+import { bannerType, WarningBanner } from './Referral/Warning'
+import { useTraderReferralCode } from 'hooks/useReferral'
 // import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
@@ -107,27 +104,39 @@ export default function App() {
   const { pathname } = location
 
   const [scrollY, setScrollY] = useState(0)
-  const [showWarning, setShowWarning] = useState(false)
+  const [warningType, setWarningType] = useState<bannerType | undefined>(undefined)
   const scrolledState = scrollY > 0
   const routerConfig = useRouterConfig()
-  const { chainId } = useAccountDetails()
+  const { chainId, address } = useAccountDetails()
 
   const parsedQs = useParsedQueryString()
   const referralCodeFromUrl = parseReferralCodeURLParameter(parsedQs.referralCode)
+  const { data: traderReferralCode, isLoading: isTraderReferralCodeFetching } = useTraderReferralCode()
 
   useEffect(() => {
-    if (chainId && referralCodeFromUrl) {
-      //set referral code in local storage if the current stored is not this one
-      if (
-        !isAddressValidForStarknet(referralCodeFromUrl) &&
-        validateChecksumAddress(referralCodeFromUrl) !== false &&
-        referralCodeFromUrl !== localStorage.getItem('referralCode')?.[chainId as any]
-      ) {
-        const referralCodeObject = { [chainId]: referralCodeFromUrl }
-        localStorage.setItem('referralCode', JSON.stringify(referralCodeObject))
+    if (traderReferralCode && !isTraderReferralCodeFetching) {
+      if (chainId && referralCodeFromUrl) {
+        if (
+          address?.toUpperCase() != referralCodeFromUrl.toUpperCase() &&
+          validateChecksumAddress(referralCodeFromUrl) !== false &&
+          referralCodeFromUrl !== localStorage.getItem('referralCode')?.[chainId as any]
+        ) {
+          setWarningType('success')
+        } else {
+          setWarningType('warning')
+        }
+        //set referral code in local storage if the current stored is not this one
+        if (
+          !isAddressValidForStarknet(referralCodeFromUrl) &&
+          validateChecksumAddress(referralCodeFromUrl) !== false &&
+          referralCodeFromUrl !== localStorage.getItem('referralCode')?.[chainId as any]
+        ) {
+          const referralCodeObject = { [chainId]: referralCodeFromUrl }
+          localStorage.setItem('referralCode', JSON.stringify(referralCodeObject))
+        }
       }
     }
-  }, [referralCodeFromUrl, chainId])
+  }, [referralCodeFromUrl, chainId, traderReferralCode, isTraderReferralCodeFetching, address])
 
   const isHeaderTransparent = !scrolledState
 
@@ -136,11 +145,11 @@ export default function App() {
     setScrollY(0)
   }, [pathname])
 
-  useEffect(() => {
-    if (chainId) {
-      if (chainId === ChainId.GOERLI) setShowWarning(false)
-    }
-  }, [chainId])
+  // useEffect(() => {
+  //   if (chainId) {
+  //     if (chainId === ChainId.MAINNET) setWarningType('error')
+  //   }
+  // }, [chainId])
 
   useEffect(() => {
     const scrollListener = () => {
@@ -150,11 +159,25 @@ export default function App() {
     return () => window.removeEventListener('scroll', scrollListener)
   }, [])
 
+  let content = (
+    <>
+      Warning: Deposit liquidity is currently paused in v2. No swap will route through v2 pools. We recommend you remove
+      the liquidity from Jediswap v2.
+    </>
+  )
+  if (warningType === 'success') {
+    content = <>Referred by {shortenAddress(referralCodeFromUrl ?? '', 4, 4)}</>
+  } else if (warningType === 'warning') {
+    content = (
+      <>Caution: The referral link doesn’t seem to be correct. Please use the correct link to get referral points.</>
+    )
+  }
+
   return (
     <ApolloProvider client={getClient(chainId)}>
+      {warningType !== undefined && <WarningBanner type={warningType} content={content} />}
       <ErrorBoundary>
-        {showWarning && <WarningBanner />}
-        <HeaderWrapper scrollY={scrollY} transparent={isHeaderTransparent} bannerIsVisible={showWarning}>
+        <HeaderWrapper scrollY={scrollY} transparent={isHeaderTransparent} bannerIsVisible={false}>
           <NavBar />
         </HeaderWrapper>
         <BodyWrapper>
