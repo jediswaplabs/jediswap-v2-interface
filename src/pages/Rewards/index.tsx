@@ -47,7 +47,7 @@ const LiquidityWrapperCard = styled(DataCard)`
   background: rgba(255, 255, 255, 0.05);
 `
 
-export const BaseButton = styled(RebassButton) <
+export const BaseButton = styled(RebassButton)<
   {
     padding?: string
     width?: string
@@ -427,7 +427,7 @@ const MobileWrapper = styled.div`
 const ConnectWalletText = styled.div`
   font-size: 20px;
   font-weight: 600;
-  font-family: "Avenir LT Std", sans-serif;
+  font-family: 'Avenir LT Std', sans-serif;
   max-width: 410px;
   text-align: center;
 `
@@ -451,10 +451,7 @@ const WalletNotConnected = () => {
     <ConnectWalletWrapper>
       <img src={WalletIcon} />
       <ConnectWalletText>Connect wallet to see your STRK rewards</ConnectWalletText>
-      <ClaimButtonGradient
-        onClick={toggleWalletDrawer}
-        style={{ marginTop: '20px', padding: '10px 36px' }}
-      >
+      <ClaimButtonGradient onClick={toggleWalletDrawer} style={{ marginTop: '20px', padding: '10px 36px' }}>
         <ClaimText>Connect Wallet</ClaimText>
       </ClaimButtonGradient>
     </ConnectWalletWrapper>
@@ -465,9 +462,7 @@ const ConnectedToSepolia = () => {
   return (
     <ConnectWalletWrapper>
       <img src={WalletIcon} />
-      <ConnectWalletText>
-        Switch your network from Sepolia to Mainnet to see rewards
-      </ConnectWalletText>
+      <ConnectWalletText>Switch your network from Sepolia to Mainnet to see rewards</ConnectWalletText>
     </ConnectWalletWrapper>
   )
 }
@@ -476,9 +471,9 @@ function getRewardsData(jediRewards: any, pool: any) {
   if (!jediRewards) {
     return
   }
-  const pair1 = (`${pool?.pool?.token0.symbol}/${pool?.pool?.token1.symbol}`).toLowerCase()
-  const pair2 = (`${pool?.pool?.token1.symbol}/${pool?.pool?.token0.symbol}`).toLowerCase()
-  const pairKey = Object.keys(jediRewards).find(key => key.toLowerCase() === pair1 || key.toLowerCase() === pair2)
+  const pair1 = `${pool?.pool?.token0.symbol}/${pool?.pool?.token1.symbol}`.toLowerCase()
+  const pair2 = `${pool?.pool?.token1.symbol}/${pool?.pool?.token0.symbol}`.toLowerCase()
+  const pairKey = Object.keys(jediRewards).find((key) => key.toLowerCase() === pair1 || key.toLowerCase() === pair2)
   if (pairKey && jediRewards[pairKey]) {
     return jediRewards[pairKey]
   }
@@ -506,24 +501,24 @@ export default function Rewards() {
         }),
         jediSwapClient.query({
           query: STRK_REWARDS_DATA(),
-          fetchPolicy: 'cache-first'
-        })
+          fetchPolicy: 'cache-first',
+        }),
       ]
-      const [poolsDataRawResult, rewardsRespResult] = await Promise.allSettled(requests);
+      const [poolsDataRawResult, rewardsRespResult] = await Promise.allSettled(requests)
       let pools: any = null
-      if (poolsDataRawResult.status === "fulfilled") {
-        pools = poolsDataRawResult.value as ApolloQueryResult<any>;;
+      if (poolsDataRawResult.status === 'fulfilled') {
+        pools = poolsDataRawResult.value as ApolloQueryResult<any>
       }
-      let jediRewards: any = null;
-      if (rewardsRespResult.status === "fulfilled") {
-        const rewardsResp = rewardsRespResult.value as ApolloQueryResult<any>;
-        jediRewards = rewardsResp.data?.strkGrantDataV2;
+      let jediRewards: any = null
+      if (rewardsRespResult.status === 'fulfilled') {
+        const rewardsResp = rewardsRespResult.value as ApolloQueryResult<any>
+        jediRewards = rewardsResp.data?.strkGrantDataV2
       }
 
       const eligiblePools = []
       try {
         for (const pool of pools?.data?.poolsData) {
-          const tokenSymbols = [pool?.pool?.token0.symbol, pool?.pool?.token1.symbol].sort() 
+          const tokenSymbols = [pool?.pool?.token0.symbol, pool?.pool?.token1.symbol].sort()
           const pair = tokenSymbols.join('/')
           const rewardsData = getRewardsData(jediRewards, pool)
           if (rewardsData) {
@@ -602,7 +597,6 @@ export default function Rewards() {
   const [txPending, setTxPending] = useState(false)
   const [attemptingTxn, setAttemptingTxn] = useState(false)
 
-
   //fetch allocation data
   useEffect(() => {
     const getAllocation = async () => {
@@ -621,9 +615,9 @@ export default function Rewards() {
                 accept: 'application/json',
               },
               method: 'GET',
-            }).then((res) => res.json())
+            }).then((res) => res.json()),
           ]
-          const [allocation, call_data] = await Promise.all(requests);
+          const [allocation, call_data] = await Promise.all(requests)
           const totalAllocation = CurrencyAmount.ether(allocation)
           setAllocations(totalAllocation)
           const isAllocatedMoreThanZero = !totalAllocation.equalTo('0')
@@ -725,7 +719,16 @@ export default function Rewards() {
           onClick={onLinkClick}
           style={{ textDecoration: 'none', cursor: isSepoliaSelected ? 'auto' : 'pointer' }}
         >
-          <MouseoverTooltip disabled={!isSepoliaSelected} text="Switch to Mainnet to add liquidity" style={{ display: 'block' }} placement='bottom' hideArrow offsetY={-20} size={TooltipSize.UltraSmall} borderRadius="8px">
+          <MouseoverTooltip
+            disabled={!isSepoliaSelected}
+            text="Switch to Mainnet to add liquidity"
+            style={{ display: 'block' }}
+            placement="bottom"
+            hideArrow
+            offsetY={-20}
+            size={TooltipSize.UltraSmall}
+            borderRadius="8px"
+          >
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <DoubleCurrencyLogo size={24} currency0={token0} currency1={token1} />
             </div>
@@ -752,7 +755,7 @@ export default function Rewards() {
 
   return (
     <PageWrapper>
-      {!allocationsLoading &&
+      {!allocationsLoading && (
         <TransactionConfirmationModal
           isOpen={txPending}
           onDismiss={handleConfirmDismiss}
@@ -761,7 +764,7 @@ export default function Rewards() {
           reviewContent={confirmationContent}
           pendingText={''}
         />
-      }
+      )}
       {poolsLoading ? (
         <LoadingRows>
           <div style={{ height: 450 }} />
@@ -783,9 +786,7 @@ export default function Rewards() {
             <SecondColumn>
               <MobileWrapper>
                 <DefiSpringWrapper>
-                  <DefiSpringTitleEarn>
-                    Earn STRK incentives by providing liquidity to these pools:
-                  </DefiSpringTitleEarn>
+                  <DefiSpringTitleEarn>Earn STRK incentives by providing liquidity to these pools:</DefiSpringTitleEarn>
                 </DefiSpringWrapper>
                 <Container>
                   <RowWrapper>
@@ -798,8 +799,7 @@ export default function Rewards() {
             </SecondColumn>
           </RowContainer>
         </LiquidityWrapperCard>
-      )
-      }
+      )}
       {allocationsLoading ? (
         <LoadingRows>
           <div style={{ height: 450 }} />
@@ -815,9 +815,13 @@ export default function Rewards() {
               <img src={StarsIcon} style={{ marginLeft: '20px', marginBottom: '15px' }} />
             </ClaimHeader>
           </RowBetween>
-          <CardSection style={{ padding: isMainnetSelected ? '32px': '0 32px 32px 32px'}}>
-            {
-              !chainId ? <WalletNotConnected /> : isSepoliaSelected ? <ConnectedToSepolia /> :
+          <CardSection style={{ padding: isMainnetSelected ? '32px' : '0 32px 32px 32px' }}>
+            {!chainId ? (
+              <WalletNotConnected />
+            ) : isSepoliaSelected ? (
+              <ConnectedToSepolia />
+            ) : (
+              <>
                 <AutoColumn>
                   <Coins>
                     <img src={CoinsIcon} />
@@ -866,11 +870,14 @@ export default function Rewards() {
                     </Row>
                   </Container>
                 </AutoColumn>
-            }
+                <div style={{ marginTop: '20px', fontSize: '20px' }}>
+                  NOTE: Jediswap v2 LPs are accumulating STRK rewards already. Claim for v2 rewards will go live soon.
+                </div>
+              </>
+            )}
           </CardSection>
         </LiquidityWrapperCard>
-      )
-      }
+      )}
     </PageWrapper>
   )
 }
