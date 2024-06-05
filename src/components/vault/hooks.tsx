@@ -38,7 +38,7 @@ export function useFeeConfig(vaultAddress: string | undefined) {
 
 export function useUserShares(
   vaultAddress: string | undefined,
-  state: VaultState,
+  state: VaultState | null,
   currencyA: Currency | undefined,
   currencyB: Currency | undefined
 ): {
@@ -69,13 +69,14 @@ export function useUserShares(
 
   const totalShares = shares.data
 
-  const withdrawTypedValue = state.withdrawTypedValue
+  const withdrawTypedValue = state ? state.withdrawTypedValue : '0'
   const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currencyA)
   const { data, isError } = useUnderlyingVaultAssets(vaultAddress)
 
   const { token0All, token1All, priceRatio } = useMemo(() => {
     const result: any = data
-    if (!result || isError) return { token0All: undefined, token1All: undefined, priceRatio: undefined }
+    if (!result || isError || !result[0] || !result[1])
+      return { token0All: undefined, token1All: undefined, priceRatio: undefined }
     return {
       token0All: result[0],
       token1All: result[1],

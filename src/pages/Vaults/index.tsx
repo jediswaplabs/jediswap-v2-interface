@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import Switch from 'react-switch'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { AlertTriangle } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled, { css } from 'styled-components'
@@ -20,6 +20,12 @@ import noPositionsBg from '../../assets/svg/no-positions-bg.svg'
 import { useFormatter } from '../../utils/formatNumbers'
 import { formatUsdPrice } from '../../nft/utils'
 import { useAllVaults } from 'state/vaults/hooks'
+import { useUserShares } from 'components/vault/hooks'
+import { useQuery } from 'react-query'
+import { getClient } from 'apollo/client'
+import { TOKENS_DATA } from 'apollo/queries'
+import { validateAndParseAddress } from 'starknet'
+import { findClosestPrice } from 'utils/getClosest'
 
 interface UserBalanceResultParams {
   vaultAddress: string
@@ -371,6 +377,7 @@ interface ListItemProps {
 
 const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: ListItemProps) => {
   const { formatPercent } = useFormatter()
+  const { chainId } = useAccountDetails()
   const below600 = useMedia('(max-width: 600px)')
   const below768 = useMedia('(max-width: 768px)')
 
@@ -381,23 +388,83 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
     return null
   }
 
-  const token0: any = new Token(
+  const currency0: any = new Token(
     vaultData.token0.chainId,
     vaultData.token0.address,
     vaultData.token0.decimals,
     vaultData.token0.symbol,
     vaultData.token0.name
   )
-  token0.logoURI = vaultData.token0.logoURI
+  currency0.logoURI = vaultData.token0.logoURI
 
-  const token1: any = new Token(
+  const currency1: any = new Token(
     vaultData.token1.chainId,
     vaultData.token1.address,
     vaultData.token1.decimals,
     vaultData.token1.symbol,
     vaultData.token1.name
   )
-  token1.logoURI = vaultData.token1.logoURI
+  currency1.logoURI = vaultData.token1.logoURI
+
+  //calculating total shares usd value
+  const { totalToken0Amount, totalToken1Amount } = useUserShares(
+    vaultAddress,
+    null,
+    currency0 ?? undefined,
+    currency1 ?? undefined
+  )
+
+  const separatedFiatValueofLiquidity = useQuery({
+    queryKey: ['fiat_value', totalToken0Amount, totalToken1Amount],
+    queryFn: async () => {
+      if ((!totalToken0Amount && !totalToken1Amount) || !chainId || !currency0 || !currency1) return
+      const ids = []
+      ids.push(currency0?.address, currency1?.address)
+      const graphqlClient = getClient(chainId)
+      let result = await graphqlClient.query({
+        query: TOKENS_DATA({ tokenIds: ids }),
+        // fetchPolicy: 'cache-first',
+      })
+
+      try {
+        if (result.data) {
+          const tokensData = result.data.tokensData
+          if (tokensData) {
+            const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
+            const isToken0InputAmount =
+              validateAndParseAddress(currency0?.address) === validateAndParseAddress(price0Obj.token.tokenAddress)
+            const price0 = findClosestPrice(price0Obj?.period)
+            const price1 = findClosestPrice(price1Obj?.period)
+
+            return {
+              token0usdPrice: isToken0InputAmount ? price0 : price1,
+              token1usdPrice: isToken0InputAmount ? price1 : price0,
+            }
+          }
+        }
+
+        return { token0usdPrice: undefined, token1usdPrice: undefined }
+      } catch (e) {
+        console.log(e)
+        return { token0usdPrice: null, token1usdPrice: null }
+      }
+    },
+  })
+
+  const { token0usdPrice, token1usdPrice } = useMemo(() => {
+    if (!separatedFiatValueofLiquidity.data || !totalToken0Amount || !totalToken1Amount)
+      return { token0usdPrice: undefined, token1usdPrice: undefined }
+    return {
+      token0usdPrice: separatedFiatValueofLiquidity.data.token0usdPrice
+        ? Number(separatedFiatValueofLiquidity.data.token0usdPrice) * Number(totalToken0Amount?.toSignificant())
+        : undefined,
+      token1usdPrice: separatedFiatValueofLiquidity.data.token1usdPrice
+        ? Number(separatedFiatValueofLiquidity.data.token1usdPrice) * Number(totalToken1Amount?.toSignificant())
+        : undefined,
+    }
+  }, [separatedFiatValueofLiquidity, totalToken0Amount, totalToken1Amount])
+
+  const sharesUSDPrice = token0usdPrice && token1usdPrice ? token0usdPrice + token1usdPrice : 0
 
   let tvl
   let apr
@@ -419,10 +486,10 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
       <DataText area="name" fontWeight="500">
         {!below600 && <div style={{ marginRight: '20px', width: '10px' }}>{index}</div>}
         <Flex alignItems={'center'} style={{ gap: '8px' }}>
-          <DoubleCurrencyLogo size={below600 ? 16 : 24} currency0={token0} currency1={token1} margin />
+          <DoubleCurrencyLogo size={below600 ? 16 : 24} currency0={currency0} currency1={currency1} margin />
           <VaultLink to={`/vaults/${vaultAddress}`}>
             <StyledTokenName className="pair-name-container">
-              {token0?.symbol}-{token1?.symbol}
+              {currency0?.symbol}-{currency1?.symbol}
             </StyledTokenName>
           </VaultLink>
         </Flex>
@@ -440,12 +507,7 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
       </DataText>
       <DataText area="deposite">
         <ThemedText.BodySmall>
-          <UserBalance
-            vaultAddress={vaultAddress}
-            tokenAddress={shareTokenAddress}
-            tokenPrice={shareTokenPriceUsd}
-            getResult={getUserBalance}
-          />
+          <span>{sharesUSDPrice ? `$${sharesUSDPrice.toFixed(2)}` : 'NA'}</span>
         </ThemedText.BodySmall>
       </DataText>
     </DashGrid>
