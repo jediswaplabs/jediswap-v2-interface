@@ -314,59 +314,6 @@ function PromotionalBanner({ noDecorations = false }) {
 }
 
 const noop = () => {}
-interface UserBalanceProps {
-  tokenAddress: string
-  vaultAddress: string
-  tokenPrice: number | undefined
-  getResult?: ({ vaultAddress, balance }: UserBalanceResultParams) => void
-}
-const UserBalance: React.FC<UserBalanceProps> = ({
-  tokenAddress,
-  vaultAddress,
-  tokenPrice,
-  getResult = () => {},
-}: UserBalanceProps) => {
-  const { address, isConnected } = useAccountDetails()
-  const {
-    data: userBalanceData,
-    isLoading: isUserBalanceLoading,
-    isError: isUserBalanceError,
-    isSuccess: isUserBalanceSuccess,
-  } = useBalance({
-    token: tokenAddress,
-    address,
-    watch: true,
-  })
-  let result
-  const balanceInUsd = Number(userBalanceData?.formatted ?? 0) * (tokenPrice ?? 0)
-  const balance =
-    userBalanceData && Number(userBalanceData?.formatted) > 0 ? Number(userBalanceData?.formatted).toFixed(6) : 0
-  useEffect(() => {
-    if (isConnected && isUserBalanceSuccess) {
-      getResult({ vaultAddress, balance: Number(balance) })
-    }
-  }, [userBalanceData, isUserBalanceSuccess, isConnected])
-
-  switch (true) {
-    case !isConnected:
-    case isUserBalanceError: {
-      result = formatUsdPrice(0)
-      break
-    }
-    case isUserBalanceLoading: {
-      result = '...'
-      break
-    }
-    case isUserBalanceSuccess: {
-      result = formatUsdPrice(balanceInUsd)
-      break
-    }
-    default: {
-      result = formatUsdPrice(0)
-    }
-  }
-  return <span>{balance}</span>
-}
 
 interface ListItemProps {
   index: number
@@ -407,12 +354,16 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
   currency1.logoURI = vaultData.token1.logoURI
 
   //calculating total shares usd value
-  const { totalToken0Amount, totalToken1Amount } = useUserShares(
+  const { totalShares, totalToken0Amount, totalToken1Amount } = useUserShares(
     vaultAddress,
     null,
     currency0 ?? undefined,
     currency1 ?? undefined
   )
+
+  useEffect(() => {
+    getUserBalance({ vaultAddress, balance: totalShares })
+  }, [vaultAddress, totalShares])
 
   const separatedFiatValueofLiquidity = useQuery({
     queryKey: ['fiat_value', totalToken0Amount, totalToken1Amount],
