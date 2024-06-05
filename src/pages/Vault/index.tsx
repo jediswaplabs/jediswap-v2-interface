@@ -36,7 +36,7 @@ import { useConnectionReady } from 'connection/eagerlyConnect'
 import { Z_INDEX } from 'theme/zIndex'
 import { useCurrency } from 'hooks/Tokens'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
-import { cairo, Call, CallData, num } from 'starknet'
+import { cairo, Call, CallData, num, validateAndParseAddress } from 'starknet'
 import { Field } from 'state/vaults/actions'
 import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
 import { useApprovalCall } from 'hooks/useApproveCall'
@@ -47,6 +47,10 @@ import { useFeeConfig, useUserShares } from 'components/vault/hooks'
 import formatBalance from 'utils/formatBalance'
 import TransactionConfirmationModal from 'components/TransactionConfirmationModal'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
+import { useQuery } from 'react-query'
+import { TOKENS_DATA } from 'apollo/queries'
+import { getClient } from 'apollo/client'
+import { findClosestPrice } from 'utils/getClosest'
 
 export const DEFAULT_VAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -317,8 +321,8 @@ export default function Vault({ className }: { className?: string }) {
 
   const { data: allVaults, error: allVaultsError, isLoading: isAllVaultsLoading } = useAllVaults()
   const currentVault: any = allVaults && vaultIdFromUrl ? allVaults[vaultIdFromUrl] : {}
-  const currency0 = useCurrency(currentVault?.token0?.address)
-  const currency1 = useCurrency(currentVault?.token1?.address)
+  const currency0: any = useCurrency(currentVault?.token0?.address)
+  const currency1: any = useCurrency(currentVault?.token1?.address)
   const vaultState = useVaultState()
   const { totalShares, totalToken0Amount, totalToken1Amount } = useUserShares(
     vaultIdFromUrl,
@@ -333,6 +337,58 @@ export default function Vault({ className }: { className?: string }) {
     setGeneralError(Boolean(allVaultsError))
     setGeneralLoading(isAllVaultsLoading)
   }, [allVaultsError, isAllVaultsLoading])
+
+  const separatedFiatValueofLiquidity = useQuery({
+    queryKey: ['fiat_value', totalToken0Amount, totalToken1Amount],
+    queryFn: async () => {
+      if ((!totalToken0Amount && !totalToken1Amount) || !chainId || !currency0 || !currency1) return
+      const ids = []
+      ids.push(currency0?.address, currency1?.address)
+      const graphqlClient = getClient(chainId)
+      let result = await graphqlClient.query({
+        query: TOKENS_DATA({ tokenIds: ids }),
+        // fetchPolicy: 'cache-first',
+      })
+
+      try {
+        if (result.data) {
+          const tokensData = result.data.tokensData
+          if (tokensData) {
+            const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
+            const isToken0InputAmount =
+              validateAndParseAddress(currency0?.address) === validateAndParseAddress(price0Obj.token.tokenAddress)
+            const price0 = findClosestPrice(price0Obj?.period)
+            const price1 = findClosestPrice(price1Obj?.period)
+
+            return {
+              token0usdPrice: isToken0InputAmount ? price0 : price1,
+              token1usdPrice: isToken0InputAmount ? price1 : price0,
+            }
+          }
+        }
+
+        return { token0usdPrice: undefined, token1usdPrice: undefined }
+      } catch (e) {
+        console.log(e)
+        return { token0usdPrice: null, token1usdPrice: null }
+      }
+    },
+  })
+
+  const { token0usdPrice, token1usdPrice } = useMemo(() => {
+    if (!separatedFiatValueofLiquidity.data || !totalToken0Amount || !totalToken1Amount)
+      return { token0usdPrice: undefined, token1usdPrice: undefined }
+    return {
+      token0usdPrice: separatedFiatValueofLiquidity.data.token0usdPrice
+        ? Number(separatedFiatValueofLiquidity.data.token0usdPrice) * Number(totalToken0Amount?.toSignificant())
+        : undefined,
+      token1usdPrice: separatedFiatValueofLiquidity.data.token1usdPrice
+        ? Number(separatedFiatValueofLiquidity.data.token1usdPrice) * Number(totalToken1Amount?.toSignificant())
+        : undefined,
+    }
+  }, [separatedFiatValueofLiquidity, totalToken0Amount, totalToken1Amount])
+
+  const sharesUSDPrice = token0usdPrice && token1usdPrice ? token0usdPrice + token1usdPrice : 0
 
   const getContent = () => {
     switch (true) {
@@ -465,7 +521,7 @@ export default function Vault({ className }: { className?: string }) {
                   <MyDepositWrapperInner>
                     <MyDeposits>
                       <span>My Deposits</span>
-                      <span>{formatted}</span>
+                      <span>{sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA'}</span>
                     </MyDeposits>
                     <MyDepositWrapperInner style={{ padding: 20 }}>
                       <MyDeposits>

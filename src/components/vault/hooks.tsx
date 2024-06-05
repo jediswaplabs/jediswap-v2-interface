@@ -44,8 +44,8 @@ export function useUserShares(
 ): {
   token0: any
   token1: any
-  totalToken0Amount: any
-  totalToken1Amount: any
+  totalToken0Amount: CurrencyAmount<Currency> | undefined
+  totalToken1Amount: CurrencyAmount<Currency> | undefined
   totalShares: any
   withdrawError: any
   insufficientBalance: boolean
