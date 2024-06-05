@@ -629,7 +629,7 @@ export function VaultElement({
   }, [callData])
 
   const vaultAddress = vaultAddressFromUrl // check - replace vault address
-  const defaultDepositSlippage = new Percent(101, 10000)
+  const defaultDepositSlippage = new Percent(1, 100)
   const amountAToApprove = useMemo(
     () => (parsedAmountA ? calculateMaximumAmountWithSlippage(parsedAmountA, defaultDepositSlippage) : undefined),
     [parsedAmountA, defaultDepositSlippage]
