@@ -523,7 +523,13 @@ export default function Vault({ className }: { className?: string }) {
                   <MyDepositWrapperInner>
                     <MyDeposits>
                       <span>My Deposits</span>
-                      <span>{sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA'}</span>
+                      <span>
+                        {token0usdPrice && token0usdPrice
+                          ? sharesUSDPrice
+                            ? `~$${sharesUSDPrice.toFixed(2)}`
+                            : 'NA'
+                          : 0}
+                      </span>
                     </MyDeposits>
                     <MyDepositWrapperInner style={{ padding: 20 }}>
                       <MyDeposits>

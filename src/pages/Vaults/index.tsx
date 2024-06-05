@@ -459,7 +459,9 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
       </DataText>
       <DataText area="deposite">
         <ThemedText.BodySmall>
-          <span>{sharesUSDPrice ? `$${sharesUSDPrice.toFixed(2)}` : 'NA'}</span>
+          <span>
+            {token0usdPrice && token0usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0}
+          </span>
         </ThemedText.BodySmall>
       </DataText>
     </DashGrid>
