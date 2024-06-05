@@ -49,7 +49,7 @@ export const PageTabs = () => {
       <MenuItemLink to="/pool" dataTestId="pool-nav-link" isActive={isPoolActive}>
         <Trans>Pool</Trans>
       </MenuItemLink>
-      <ExternalMenuItemLink to={"https://info.v2.jediswap.xyz/"}>
+      <ExternalMenuItemLink to={'https://info.v2.jediswap.xyz/'}>
         <Trans>Dashboard</Trans>
       </ExternalMenuItemLink>
       <ExternalMenuItemLink to="https://app.v1.jediswap.xyz/">
@@ -57,6 +57,10 @@ export const PageTabs = () => {
       </ExternalMenuItemLink>
       <MenuItemLink to="/referral" isActive={pathname.startsWith('/referral')}>
         <Trans>Referral</Trans>
+      </MenuItemLink>
+      <MenuItemLink to="/rewards" isActive={pathname.startsWith('/rewards')}>
+        <img src={StarkIcon} style={{ marginRight: '2px' }} alt="starknet_logo" />
+        <Trans>Rewards</Trans>
       </MenuItemLink>
     </>
   )
