@@ -437,13 +437,20 @@ export default function Vault({ className }: { className?: string }) {
         let shareTokenPriceUsd
 
         if (!isEmpty(currentVault)) {
-          const tvlInMainToken =
-            currentVault?.performance?.token0?.tvl / 10 ** currentVault['token0']?.decimals +
-            currentVault?.performance?.token1?.tvl / 10 ** currentVault['token1']?.decimals
+          if (separatedFiatValueofLiquidity.data) {
+            const { token0usdPrice, token1usdPrice } = separatedFiatValueofLiquidity.data
+            tvl =
+              token0usdPrice && token1usdPrice
+                ? (currentVault?.performance?.token0?.tvl / 10 ** currentVault['token0']?.decimals) *
+                    Number(token0usdPrice) +
+                  (currentVault?.performance?.token1?.tvl / 10 ** currentVault['token1']?.decimals) *
+                    Number(token1usdPrice)
+                : 0
+          }
+
           const tokenPrice = currentVault.prices[currentVault.mainAssetKey]
           const shareTokenDecimals = currentVault?.share?.decimals
           const shareTokenPriceInUnits = performanceData.shareTokenPrice / 10 ** (18 + shareTokenDecimals)
-          tvl = tvlInMainToken * tokenPrice
           apr = Number(performanceData.shareTokenApr / 10 ** 4)?.toFixed(2)
           feeApr = Number(performanceData.feeApr / 10 ** 4)?.toFixed(2)
           totalApr = Number((performanceData?.shareTokenApr + performanceData?.feeApr) / 10 ** 4)?.toFixed(2)
