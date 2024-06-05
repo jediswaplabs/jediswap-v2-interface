@@ -276,6 +276,7 @@ export default function TokenDetails({
               disableTokenInputs={pageChainId !== connectedChainId}
               allPools={[]}
               allPairs={[]}
+              urlReferralCode={undefined}
             />
           </div>
           {tokenWarning && <TokenSafetyMessage tokenAddress={address} warning={tokenWarning} />}
