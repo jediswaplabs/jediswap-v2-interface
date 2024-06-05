@@ -249,7 +249,6 @@ export default function VaultWithdrawInput({
                         currency0={vaultPair?.token0Currency}
                         currency1={vaultPair?.token1Currency}
                         size={24}
-                        margin
                       />
                     </span>
 
