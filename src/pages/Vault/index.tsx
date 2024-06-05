@@ -436,9 +436,10 @@ export default function Vault({ className }: { className?: string }) {
         let totalApr
         let shareTokenPriceUsd
 
-        if (!isEmpty(performanceData)) {
-          const mainTokenDecimals = currentVault[currentVault.mainAssetKey].decimals
-          const tvlInMainToken = performanceData.tvl / 10 ** mainTokenDecimals
+        if (!isEmpty(currentVault)) {
+          const tvlInMainToken =
+            currentVault?.performance?.token0?.tvl / 10 ** currentVault['token0']?.decimals +
+            currentVault?.performance?.token1?.tvl / 10 ** currentVault['token1']?.decimals
           const tokenPrice = currentVault.prices[currentVault.mainAssetKey]
           const shareTokenDecimals = currentVault?.share?.decimals
           const shareTokenPriceInUnits = performanceData.shareTokenPrice / 10 ** (18 + shareTokenDecimals)
@@ -448,6 +449,7 @@ export default function Vault({ className }: { className?: string }) {
           totalApr = Number((performanceData?.shareTokenApr + performanceData?.feeApr) / 10 ** 4)?.toFixed(2)
           shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
         }
+
         return (
           <AutoColumn gap={'18px'}>
             <PageContentWrapper>

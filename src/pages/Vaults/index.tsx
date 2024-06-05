@@ -421,9 +421,10 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
   let apr
   let shareTokenPriceUsd
 
-  if (!isEmpty(performanceData)) {
-    const mainTokenDecimals = vaultData[vaultData.mainAssetKey].decimals
-    const tvlInMainToken = performanceData.tvl / 10 ** mainTokenDecimals
+  if (!isEmpty(vaultData)) {
+    const tvlInMainToken =
+      vaultData.performance.token0.tvl / 10 ** vaultData['token0'].decimals +
+      vaultData.performance.token1.tvl / 10 ** vaultData['token1'].decimals
     const tokenPrice = vaultData.prices[vaultData.mainAssetKey]
     const shareTokenDecimals = vaultData?.share?.decimals
     const shareTokenPriceInUnits = performanceData.shareTokenPrice / 10 ** (18 + shareTokenDecimals)
