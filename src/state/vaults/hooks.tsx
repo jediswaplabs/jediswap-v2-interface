@@ -147,10 +147,6 @@ export function useAllVaults() {
     if (isFetchingRef.current || !chainId) {
       return
     }
-    if (!isEmpty(allVaults)) {
-      setIsLoading(false)
-      return
-    }
     setError(null)
     setIsLoading(true)
     isFetchingRef.current = true
