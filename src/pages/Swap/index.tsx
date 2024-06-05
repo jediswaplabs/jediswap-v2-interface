@@ -626,7 +626,7 @@ export function Swap({
       const compiledReferralCode = CallData.compile(referralCode)
       const referralCall = {
         contractAddress: referralContract.address,
-        entrypoint: 'set_trader_referral_code',
+        entrypoint: 'set_referrer',
         calldata: compiledReferralCode,
       }
       callData.push(referralCall)

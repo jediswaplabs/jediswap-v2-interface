@@ -13,7 +13,7 @@ export function useTraderReferralCode(): {
   const referralContract = useReferralContract()
 
   const { data, error, isLoading } = useContractRead({
-    functionName: 'get_trader_referral_code',
+    functionName: 'get_referrer',
     address: referralContract?.address,
     abi: referralContract?.abi,
     args: account ? [account] : undefined,

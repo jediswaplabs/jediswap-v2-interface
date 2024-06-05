@@ -2,14 +2,14 @@
   {
     "name": "ReferralStorage",
     "type": "impl",
-    "interface_name": "gmx_referral_cairo::referral_storage::IReferralStorage"
+    "interface_name": "jediswap_referral::referral_storage::IReferralStorage"
   },
   {
-    "name": "gmx_referral_cairo::referral_storage::IReferralStorage",
+    "name": "jediswap_referral::referral_storage::IReferralStorage",
     "type": "interface",
     "items": [
       {
-        "name": "get_trader_referral_code",
+        "name": "get_referrer",
         "type": "function",
         "inputs": [
           {
@@ -25,11 +25,11 @@
         "state_mutability": "view"
       },
       {
-        "name": "set_trader_referral_code",
+        "name": "set_referrer",
         "type": "function",
         "inputs": [
           {
-            "name": "_code",
+            "name": "_address",
             "type": "core::starknet::contract_address::ContractAddress"
           }
         ],
@@ -103,7 +103,7 @@
   },
   {
     "kind": "struct",
-    "name": "gmx_referral_cairo::referral_storage::ReferralStorage::SetTraderReferralCode",
+    "name": "jediswap_referral::referral_storage::ReferralStorage::SetReferrer",
     "type": "event",
     "members": [
       {
@@ -113,7 +113,7 @@
       },
       {
         "kind": "data",
-        "name": "code",
+        "name": "referrer",
         "type": "core::starknet::contract_address::ContractAddress"
       }
     ]
@@ -195,13 +195,13 @@
   },
   {
     "kind": "enum",
-    "name": "gmx_referral_cairo::referral_storage::ReferralStorage::Event",
+    "name": "jediswap_referral::referral_storage::ReferralStorage::Event",
     "type": "event",
     "variants": [
       {
         "kind": "nested",
-        "name": "SetTraderReferralCode",
-        "type": "gmx_referral_cairo::referral_storage::ReferralStorage::SetTraderReferralCode"
+        "name": "SetReferrer",
+        "type": "jediswap_referral::referral_storage::ReferralStorage::SetReferrer"
       },
       {
         "kind": "flat",
