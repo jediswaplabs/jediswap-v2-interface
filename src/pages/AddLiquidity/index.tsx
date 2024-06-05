@@ -243,13 +243,13 @@ function AddLiquidity() {
     const token1usdPrice = separatedFiatValueofLiquidity.data.token1usdPrice
       ? Number(separatedFiatValueofLiquidity.data.token1usdPrice) * Number(position?.amount1.toSignificant())
       : undefined
-    
+
     const parsedAddressA = (parsedAmounts.CURRENCY_A?.currency as any)?.address
     const parsedAddressB = (parsedAmounts.CURRENCY_B?.currency as any)?.address
-    const isLiquidityToken0PositionToken0 = parsedAddressA ?
-      position?.amount0.currency.address === parsedAddressA :
-      position?.amount1.currency.address === parsedAddressB;
-    
+    const isLiquidityToken0PositionToken0 = parsedAddressA
+      ? position?.amount0.currency.address === parsedAddressA
+      : position?.amount1.currency.address === parsedAddressB
+
     return {
       token0usdPrice: isLiquidityToken0PositionToken0 ? token0usdPrice : token1usdPrice,
       token1usdPrice: isLiquidityToken0PositionToken0 ? token1usdPrice : token0usdPrice,
@@ -319,7 +319,13 @@ function AddLiquidity() {
       const amount1Min = minimumAmounts.amount1
       const router_address: string = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
       const callData = []
-      const urlReferralCode = localStorage.getItem('referralCode')?.[(chainId ?? DEFAULT_CHAIN_ID) as any]
+
+      let urlReferralCode = undefined
+      if (localStorage.getItem('referralCode')) {
+        urlReferralCode = JSON.parse(localStorage.getItem('referralCode') as string)?.[
+          (chainId ?? DEFAULT_CHAIN_ID) as any
+        ]
+      }
       if (urlReferralCode && registeredReferralCode === undefined && urlReferralCode != account) {
         const referralCode = {
           _code: cairo.felt(urlReferralCode),
@@ -570,7 +576,7 @@ function AddLiquidity() {
 
   const Buttons = () =>
     !account ? (
-      <ButtonPrimary onClick={toggleWalletDrawer} $borderRadius="12px" style={{padding: '12px', fontSize: '18px'}}>
+      <ButtonPrimary onClick={toggleWalletDrawer} $borderRadius="12px" style={{ padding: '12px', fontSize: '18px' }}>
         <Trans>Connect wallet</Trans>
       </ButtonPrimary>
     ) : (

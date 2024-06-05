@@ -190,6 +190,12 @@ export default function SwapPage({ className }: { className?: string }) {
     getTokenIds()
   }, [connectedChainId, isTraderReferralCodeFetching])
 
+  let urlReferralCode = undefined
+  if (localStorage.getItem('referralCode')) {
+    urlReferralCode = JSON.parse(localStorage.getItem('referralCode') as string)?.[
+      (connectedChainId ?? DEFAULT_CHAIN_ID) as any
+    ]
+  }
   return (
     <PageWrapper>
       {loadingPositions ? (
@@ -203,7 +209,7 @@ export default function SwapPage({ className }: { className?: string }) {
           allPools={allPools}
           allPairs={allPairs}
           registeredReferralCode={traderReferralCode}
-          urlReferralCode={localStorage.getItem('referralCode')?.[(connectedChainId ?? DEFAULT_CHAIN_ID) as any]}
+          urlReferralCode={urlReferralCode}
           // disableTokenInputs={supportedChainId === undefined}
         />
       )}
@@ -350,7 +356,7 @@ export function Swap({
     inputTax,
     outputTax,
   } = swapInfo
-  let { inputError: swapInputError }  = swapInfo
+  let { inputError: swapInputError } = swapInfo
 
   const [inputTokenHasTax, outputTokenHasTax] = useMemo(
     () => [!inputTax.equalTo(0), !outputTax.equalTo(0)],
@@ -487,9 +493,11 @@ export function Swap({
   )
 
   const { balanceCurrencyAmount } = useAccountBalance(currencies[Field.INPUT])
-  const maxInputAmount = balanceCurrencyAmount //in future we could substract the amount for gas here (utils/maxAmountSpend) 
-  
-  const showMaxButton = Boolean(currencies[Field.INPUT] && maxInputAmount?.greaterThan(0) && !parsedAmounts[Field.INPUT]?.equalTo(maxInputAmount))
+  const maxInputAmount = balanceCurrencyAmount //in future we could substract the amount for gas here (utils/maxAmountSpend)
+
+  const showMaxButton = Boolean(
+    currencies[Field.INPUT] && maxInputAmount?.greaterThan(0) && !parsedAmounts[Field.INPUT]?.equalTo(maxInputAmount)
+  )
   //we need this check because useDerivedSwapInfo does not give an error if the input value is slightly higher than the actual wallet balance
   if (parsedAmounts[Field.INPUT] && maxInputAmount && maxInputAmount.lessThan(parsedAmounts[Field.INPUT])) {
     swapInputError = <Trans>Insufficient {currencies[Field.INPUT]?.symbol} balance</Trans>
@@ -589,10 +597,7 @@ export function Swap({
 
   const usdPriceDifference = useMemo(() => {
     if (!token0usdPrice || !token1usdPrice) return undefined
-    else
-      return parseFloat(
-        ((token1usdPrice - token0usdPrice) / token0usdPrice * 100).toFixed(2)
-      )
+    else return parseFloat((((token1usdPrice - token0usdPrice) / token0usdPrice) * 100).toFixed(2))
   }, [token0usdPrice, token1usdPrice])
 
   const amountToApprove = useMemo(
@@ -622,6 +627,7 @@ export function Swap({
     const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
 
+    console.log(urlReferralCode, registeredReferralCode, address, 'test')
     if (urlReferralCode && registeredReferralCode === undefined && urlReferralCode != address) {
       const referralCode = {
         _code: cairo.felt(urlReferralCode),
