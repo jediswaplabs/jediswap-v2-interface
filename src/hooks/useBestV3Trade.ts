@@ -4,7 +4,6 @@ import { BigNumber } from 'ethers'
 import { useEffect, useMemo, useState } from 'react'
 import { useSingleContractMultipleData } from '../state/multicall/hooks'
 import { useAllV3Routes } from './useAllV3Routes'
-import { useBlockNumber, useContractRead } from '@starknet-react/core'
 import SWAP_QUOTER_ABI from 'contracts/swapquoter/abi.json'
 import { DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS_V2 } from 'constants/tokens'
 import {
@@ -247,8 +246,7 @@ export function useBestV3TradeExactIn(
             ...call.calldata,
           }),
         }
-        const payload = !isWalletCairoVersionGreaterThanZero ? payloadForContractType0 : payloadForContractType1
-        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero ? payloadForContractType1 : payload
+        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero ? payloadForContractType1 : payloadForContractType0
         const response = provider.simulateTransaction(
           [{ type: TransactionType.INVOKE, ...payloadBasedOnCairoVersion, signature, nonce }],
           {
@@ -569,8 +567,7 @@ export function useBestV3TradeExactOut(
             ...call.calldata,
           }),
         }
-        const payload = isWalletCairoVersionGreaterThanZero ? payloadForContractType0 : payloadForContractType1
-        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero ? payloadForContractType1 : payload
+        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero ? payloadForContractType1 : payloadForContractType0
 
         const response = provider.simulateTransaction(
           [{ type: TransactionType.INVOKE, ...payloadBasedOnCairoVersion, signature, nonce }],

@@ -15,6 +15,9 @@ export const Wrapper = styled.div`
 
 export const SmallMaxButton = styled(MaxButton)`
   font-size: 12px;
+  color: ${({ theme }) => theme.jediWhite};
+  background: none;
+  border-color: ${({ theme }) => theme.jediWhite};
 `;
 
 export const ResponsiveHeaderText = styled(Text)`

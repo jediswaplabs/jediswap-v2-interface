@@ -6,6 +6,7 @@ import noop from 'utils/noop';
 import Popover, { PopoverProps } from '../Popover';
 
 export enum TooltipSize {
+  UltraSmall = '135px',
   ExtraSmall = '200px',
   Small = '256px',
   Large = '400px',
@@ -13,6 +14,8 @@ export enum TooltipSize {
 
 const getPaddingForSize = (size: TooltipSize) => {
   switch (size) {
+    case TooltipSize.UltraSmall:
+      return '8px';
     case TooltipSize.ExtraSmall:
       return '8px';
     case TooltipSize.Small:
@@ -22,7 +25,7 @@ const getPaddingForSize = (size: TooltipSize) => {
   }
 };
 
-const TooltipContainer = styled.div<{ size: TooltipSize }>`
+const TooltipContainer = styled.div<{ size: TooltipSize, borderRadius?: string }>`
   max-width: ${({ size }) => size};
   width: calc(100vw - 16px);
   cursor: default;
@@ -36,7 +39,7 @@ const TooltipContainer = styled.div<{ size: TooltipSize }>`
   word-break: break-word;
 
   background: ${({ theme }) => theme.surface1};
-  border-radius: 4px;
+  border-radius: ${({ borderRadius }) => borderRadius || '4px'};
   border: 1px solid ${({ theme }) => theme.surface3};
   box-shadow: 0 4px 8px 0 ${({ theme }) => transparentize(0.9, theme.shadow1)};
 `;
@@ -48,16 +51,17 @@ type TooltipProps = Omit<PopoverProps, 'content'> & {
   size?: TooltipSize
   disabled?: boolean
   timeout?: number
+  borderRadius?: string 
 }
 
 // TODO(WEB-2024)
 // Migrate to MouseoverTooltip and move this component inline to MouseoverTooltip
-export default function Tooltip({ text, open, close, disabled, size = TooltipSize.Small, ...rest }: TooltipProps) {
+export default function Tooltip({ text, open, close, disabled, size = TooltipSize.Small, borderRadius, ...rest }: TooltipProps) {
   return (
     <Popover
       content={
         text && (
-          <TooltipContainer size={size} onMouseEnter={disabled ? noop : open} onMouseLeave={disabled ? noop : close}>
+          <TooltipContainer size={size} borderRadius={borderRadius} onMouseEnter={disabled ? noop : open} onMouseLeave={disabled ? noop : close}>
             {text}
           </TooltipContainer>
         )
@@ -73,6 +77,7 @@ type MouseoverTooltipProps = Omit<PopoverProps, 'content' | 'show'> &
   PropsWithChildren<{
     text: ReactNode
     size?: TooltipSize
+    borderRadius?: string
     disabled?: boolean
     timeout?: number
     placement?: PopoverProps['placement']

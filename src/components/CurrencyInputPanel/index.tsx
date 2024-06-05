@@ -47,7 +47,7 @@ const Container = styled.div<{ hideInput: boolean; disabled: boolean }>`
   ${({ theme, hideInput, disabled }) =>
     !disabled &&
     `
-    :focus {
+    :focus{
       border: 1px solid ${hideInput ? ' transparent' : theme.surface2};
     }
   `}
@@ -178,7 +178,7 @@ interface CurrencyInputPanelProps {
   pair?: Pair | null
   hideInput?: boolean
   otherCurrency?: Currency | null
-  fiatValue?: { data?: number; isLoading: boolean }
+  fiatValue?: number | undefined
   id: string
   showCommonBases?: boolean
   showCurrencyAmount?: boolean
@@ -295,7 +295,9 @@ export default function CurrencyInputPanel({
               <RowBetween>
                 {account && (
                   <RowFixed style={{ height: '17px' }}>
-                    {showMax && formatted && (
+                    {' '}
+                    {/*formatted can be NaN*/}
+                    {showMax && Boolean(formatted) && (
                       <StyledBalanceMax onClick={handleMaxAmount}>
                         <Trans>MAX</Trans>
                       </StyledBalanceMax>
@@ -307,13 +309,15 @@ export default function CurrencyInputPanel({
                       fontSize={14}
                       style={{ display: 'inline', cursor: 'pointer' }}
                     >
-                      {formatted && <>Bal: {formatted}</>}
+                      {Boolean(formatted) && <>Bal: {formatted}</>} {/*formatted can be NaN*/}
                     </ThemedText.DeprecatedBody>
                   </RowFixed>
                 )}
-                {/* <LoadingOpacityContainer $loading={loading}>
-                  {fiatValue && <FiatValue fiatValue={fiatValue} />}
-                </LoadingOpacityContainer> */}
+                <LoadingOpacityContainer $loading={loading}>
+                  {fiatValue === 0 || (parseFloat(value) && fiatValue === undefined)
+                    ? 'N/A'
+                    : fiatValue && <FiatValue fiatValue={fiatValue} />}
+                </LoadingOpacityContainer>
               </RowBetween>
             </FiatRow>
           )}

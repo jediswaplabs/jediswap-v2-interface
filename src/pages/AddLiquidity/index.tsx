@@ -71,6 +71,11 @@ import { BigNumberish, cairo, Call, CallData, hash, num } from 'starknet'
 import JSBI from 'jsbi'
 import { toI32 } from 'utils/toI32'
 import { useApprovalCall } from 'hooks/useApproveCall'
+import { useQuery } from 'react-query'
+import { getClient } from 'apollo/client'
+import { TOKENS_DATA } from 'apollo/queries'
+import { isAddressValidForStarknet } from 'utils/addresses'
+import { findClosestPrice } from 'utils/getClosest'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -208,6 +213,66 @@ function AddLiquidity() {
   const allowedSlippage = useUserSlippageToleranceWithDefault(
     outOfRange ? ZERO_PERCENT : DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE
   )
+
+  const separatedFiatValueofLiquidity = useQuery({
+    queryKey: ['fiat_value', position?.amount0, position?.amount1],
+    queryFn: async () => {
+      const ids = []
+      if (!position?.amount0 && !position?.amount1) return
+      if (position?.amount0) ids.push(position?.amount0.currency.address)
+      if (position?.amount1) ids.push(position?.amount1.currency.address)
+      const graphqlClient = getClient(chainId)
+      let result = await graphqlClient.query({
+        query: TOKENS_DATA({ tokenIds: ids }),
+        // fetchPolicy: 'cache-first',
+      })
+
+      try {
+        if (result.data) {
+          const tokensData = result.data.tokensData
+          if (tokensData) {
+            const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
+            const isToken0InputAmount =
+              isAddressValidForStarknet(position?.amount0.currency.address) ===
+              isAddressValidForStarknet(price0Obj.token.tokenAddress)
+            const price0 = findClosestPrice(price0Obj?.period)
+            const price1 = findClosestPrice(price1Obj?.period)
+            return {
+              token0usdPrice: isToken0InputAmount ? price0 : price1,
+              token1usdPrice: isToken0InputAmount ? price1 : price0,
+            }
+          }
+        }
+
+        return { token0usdPrice: undefined, token1usdPrice: undefined }
+      } catch (e) {
+        console.log(e)
+        return { token0usdPrice: null, token1usdPrice: null }
+      }
+    },
+  })
+
+  const { token0usdPrice, token1usdPrice } = useMemo(() => {
+    if (!separatedFiatValueofLiquidity.data) return { token0usdPrice: undefined, token1usdPrice: undefined }
+
+    const token0usdPrice = separatedFiatValueofLiquidity.data.token0usdPrice
+      ? Number(separatedFiatValueofLiquidity.data.token0usdPrice) * Number(position?.amount0.toSignificant())
+      : undefined
+    const token1usdPrice = separatedFiatValueofLiquidity.data.token1usdPrice
+      ? Number(separatedFiatValueofLiquidity.data.token1usdPrice) * Number(position?.amount1.toSignificant())
+      : undefined
+    
+    const parsedAddressA = (parsedAmounts.CURRENCY_A?.currency as any)?.address
+    const parsedAddressB = (parsedAmounts.CURRENCY_B?.currency as any)?.address
+    const isLiquidityToken0PositionToken0 = parsedAddressA ?
+      position?.amount0.currency.address === parsedAddressA :
+      position?.amount1.currency.address === parsedAddressB;
+    
+    return {
+      token0usdPrice: isLiquidityToken0PositionToken0 ? token0usdPrice : token1usdPrice,
+      token1usdPrice: isLiquidityToken0PositionToken0 ? token1usdPrice : token0usdPrice,
+    }
+  }, [separatedFiatValueofLiquidity])
 
   useEffect(() => {
     if (txData) console.log(txData, 'txData')
@@ -500,9 +565,9 @@ function AddLiquidity() {
 
   const Buttons = () =>
     !account ? (
-      <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
+      <ButtonPrimary onClick={toggleWalletDrawer} $borderRadius="12px" style={{padding: '12px', fontSize: '18px'}}>
         <Trans>Connect wallet</Trans>
-      </ButtonLight>
+      </ButtonPrimary>
     ) : (
       <AutoColumn gap="md">
         <ButtonError
@@ -518,23 +583,6 @@ function AddLiquidity() {
         </ButtonError>
       </AutoColumn>
     )
-
-  const usdcValueCurrencyA = usdcValues[Field.CURRENCY_A]
-  const usdcValueCurrencyB = usdcValues[Field.CURRENCY_B]
-  const currencyAFiat = useMemo(
-    () => ({
-      data: usdcValueCurrencyA ? parseFloat(usdcValueCurrencyA.toSignificant()) : undefined,
-      isLoading: false,
-    }),
-    [usdcValueCurrencyA]
-  )
-  const currencyBFiat = useMemo(
-    () => ({
-      data: usdcValueCurrencyB ? parseFloat(usdcValueCurrencyB.toSignificant()) : undefined,
-      isLoading: false,
-    }),
-    [usdcValueCurrencyB]
-  )
 
   // const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
   // const ownsNFT =
@@ -716,24 +764,24 @@ function AddLiquidity() {
                     {outOfRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
                         <RowBetween>
-                          <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
-                          <ThemedText.DeprecatedYellow ml="12px" fontSize="12px">
+                          <AlertTriangle stroke={theme.jediPink} size="16px" />
+                          <ThemedText.UtilityBadge ml="12px" fontSize="12px" fontWeight={600}>
                             <Trans>
                               Your position will not earn fees or be used in trades until the market price moves into
                               your range.
                             </Trans>
-                          </ThemedText.DeprecatedYellow>
+                          </ThemedText.UtilityBadge>
                         </RowBetween>
                       </YellowCard>
                     )}
                     {invalidRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
-                        <RowBetween>
-                          <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
-                          <ThemedText.DeprecatedYellow ml="12px" fontSize="12px">
+                        <Row>
+                          <AlertTriangle stroke={theme.jediPink} size="16px" />
+                          <ThemedText.UtilityBadge ml="12px" fontSize="12px" fontWeight={600}>
                             <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
-                          </ThemedText.DeprecatedYellow>
-                        </RowBetween>
+                          </ThemedText.UtilityBadge>
+                        </Row>
                       </YellowCard>
                     )}
                   </DynamicSection>
@@ -839,7 +887,7 @@ function AddLiquidity() {
                       showMaxButton={!atMaxAmounts[Field.CURRENCY_A]}
                       currency={currencies[Field.CURRENCY_A] ?? null}
                       id="add-liquidity-input-tokena"
-                      fiatValue={currencyAFiat}
+                      fiatValue={token0usdPrice}
                       showCommonBases
                       locked={depositADisabled}
                     />
@@ -851,7 +899,7 @@ function AddLiquidity() {
                         onFieldBInput(maxAmounts[Field.CURRENCY_B]?.toExact() ?? '')
                       }}
                       showMaxButton={!atMaxAmounts[Field.CURRENCY_B]}
-                      fiatValue={currencyBFiat}
+                      fiatValue={token1usdPrice}
                       currency={currencies[Field.CURRENCY_B] ?? null}
                       id="add-liquidity-input-tokenb"
                       showCommonBases

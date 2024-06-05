@@ -11,15 +11,19 @@ import { DEFAULT_CHAIN_ID } from 'constants/tokens'
 import { FACTORY_ADDRESS } from 'contracts/factoryAddress'
 import { useQuery } from 'react-query'
 import { validateAndParseAddress } from 'starknet'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
 
 export default function useFetchAllPairsCallback() {
   const { chainId } = useAccountDetails()
-  const contract_address = FACTORY_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+  const contract_address = useMemo(() => {
+    if (!chainId) return undefined
+    return FACTORY_ADDRESS[chainId]
+  }, [chainId])
 
   const allPairs = useQuery({
     queryKey: [`get_all_pairs/${contract_address}/${chainId}`],
     queryFn: async () => {
-      if (!chainId) return
+      if (!chainId || chainId !== ChainId.MAINNET) return
       const provider = providerInstance(chainId ?? DEFAULT_CHAIN_ID)
       const contract_address = FACTORY_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
       const results = await provider.callContract({ entrypoint: 'get_all_pairs', contractAddress: contract_address })

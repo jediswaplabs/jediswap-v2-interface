@@ -17,7 +17,7 @@ import { Portal } from 'nft/components/common/Portal'
 import { useAppSelector } from 'state/hooks'
 import { flexRowNoWrap } from 'theme/styles'
 import { shortenAddress } from 'utils'
-import { BaseButton, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
+import { BaseButton, ButtonPrimary, ButtonSecondary, ButtonSize, ThemeButton } from '../Button'
 import { RowBetween } from '../Row'
 import { useStarkName } from '@starknet-react/core'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
@@ -42,7 +42,6 @@ const Web3StatusConnectWrapper = styled.div`
   background-color: ${({ theme }) => theme.surface5};
   border: none;
   color: ${({ theme }) => theme.white};
-  padding: 10px 24px;
 `
 
 const Web3StatusConnected = styled(Web3StatusGeneric)<{
@@ -75,11 +74,15 @@ const NetworkContainer = styled.div`
 
 const NetworkSelected = styled(Web3StatusGeneric)<{}>`
   font-family: 'Avenir LT Std';
-  background-color: ${({ theme }) => theme.jediNavyBlue};
+  background-color: ${({ theme }) => theme.surface5};
   border: 1px solid transparent;
   color: ${({ theme }) => theme.white};
   margin-right: 16px;
   padding: 10px 24px;
+  cursor: auto;
+  &:hover, &:active, &:focus {
+    border-color: transparent;
+  }
 `
 
 const AddressAndChevronContainer = styled.div<{ loading?: boolean }>`
@@ -122,7 +125,7 @@ function Web3StatusInner() {
   if (address) {
     return (
       <NetworkContainer>
-        <NetworkSelected data-testid="web3-status-connected" onClick={handleWalletDropdownClick}>
+        <NetworkSelected data-testid="web3-status-connected">
           <IconWrapper size={20}>
             <img src={StarknetIcon} alt="Starknet" />
           </IconWrapper>
@@ -139,9 +142,9 @@ function Web3StatusInner() {
   } else {
     return (
       <Web3StatusConnectWrapper tabIndex={0} onClick={handleWalletDropdownClick}>
-        <StyledConnectButton tabIndex={-1} data-testid="navbar-connect-wallet">
-          <Trans>Connect</Trans>
-        </StyledConnectButton>
+        <ButtonPrimary tabIndex={-1} data-testid="navbar-connect-wallet" style={{padding: "10px 25px"}}>
+          <Trans>Connect wallet</Trans>
+        </ButtonPrimary>
       </Web3StatusConnectWrapper>
     )
   }

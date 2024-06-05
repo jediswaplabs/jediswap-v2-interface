@@ -11,7 +11,7 @@ import { useMemo } from 'react'
 import { IUniswapV3PoolStateInterface } from '../types/v3/IUniswapV3PoolState'
 import { V3_CORE_FACTORY_ADDRESSES } from 'constants/addresses'
 import { useAllPairs } from 'state/pairs/hooks'
-import { BigNumberish, CallData, Contract, ec, hash, num } from 'starknet'
+import { BigNumberish, BlockTag, CallData, Contract, ec, hash, num } from 'starknet'
 import { useContractRead } from '@starknet-react/core'
 import POOL_ABI from 'contracts/pool/abi.json'
 import FACTORY_ABI from 'contracts/factoryAddress/abi.json'
@@ -160,6 +160,7 @@ export function usePools(
     abi: POOL_ABI,
     address: poolAddress?.[0],
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   const tickCurrent = useMemo(() => {
@@ -172,6 +173,7 @@ export function usePools(
     abi: POOL_ABI,
     address: poolAddress?.[0],
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   const { data: sqrtPriceX96 } = useContractRead({
@@ -180,6 +182,7 @@ export function usePools(
     abi: POOL_ABI,
     address: poolAddress?.[0],
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(num.toHex(sqrtPriceX96 as BigNumberish))
@@ -210,7 +213,7 @@ export function usePoolsForSwap(results: any): [PoolState, Pool | null][] {
       const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(num.toHex(sqrtPriceX96 as BigNumberish))
       const liquidityHex = Boolean(liquidity) ? JSBI.BigInt(num.toHex(liquidity as BigNumberish)) : JSBI.BigInt('0x0')
 
-      if (!liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
+      if (!liquidityHex || !sqrtPriceHex || !token0) return [PoolState.NOT_EXISTS, null]
       try {
         const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, tickCurrent)
         return [PoolState.EXISTS, pool]

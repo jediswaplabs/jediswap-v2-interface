@@ -222,7 +222,8 @@ interface SwapCurrencyInputPanelProps {
   pair?: Pair | null
   hideInput?: boolean
   otherCurrency?: Currency | null
-  fiatValue?: { data?: number; isLoading: boolean }
+  usdPriceDifference?: number | undefined
+  fiatValue?: number
   priceImpact?: Percent
   id: string
   showCommonBases?: boolean
@@ -249,6 +250,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
       onCurrencySelect,
       currency,
       otherCurrency,
+      usdPriceDifference,
       id,
       showCommonBases,
       showCurrencyAmount,
@@ -270,7 +272,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
   ) => {
     const [modalOpen, setModalOpen] = useState(false)
     const { address: account, chainId } = useAccountDetails()
-    const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
+    // const selectedCurrencyBalance = useCurrencyBalance(account ?? undefined, currency ?? undefined)
     const theme = useTheme()
     const { formatCurrencyAmount } = useFormatter()
 
@@ -289,7 +291,7 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
 
     const chainAllowed = isSupportedChain(chainId)
 
-    const { formatted, balance } = useAccountBalance(currency as Currency)
+    const { formatted } = useAccountBalance(currency as Currency)
 
     // reset tooltip state when currency changes
     useEffect(() => setTooltipVisible(false), [currency])
@@ -312,7 +314,8 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
             <ThemedText.SubHeaderSmall style={{ userSelect: 'none', textTransform: 'uppercase' }}>
               {label}
             </ThemedText.SubHeaderSmall>
-            {showMaxButton && selectedCurrencyBalance ? (
+            {/* {showMaxButton && selectedCurrencyBalance ? ( */}
+            {showMaxButton ? (
               <StyledBalanceMax onClick={onMax}>
                 <Trans>Max</Trans>
               </StyledBalanceMax>
@@ -391,14 +394,16 @@ const SwapCurrencyInputPanel = forwardRef<HTMLInputElement, SwapCurrencyInputPan
                 {account ? (
                   <RowFixed style={{ height: '16px' }}>
                     <ThemedText.LabelSmall color={'neutral1'}>
-                      {currency && formatted && <>Bal: {formatted}</>}
+                      {currency && Boolean(formatted) && <>Bal: {formatted}</>} {/*formatted can be NaN*/}
                     </ThemedText.LabelSmall>
                   </RowFixed>
                 ) : (
                   <span />
                 )}
                 <LoadingOpacityContainer $loading={loading}>
-                  {fiatValue && <FiatValue fiatValue={fiatValue} priceImpact={priceImpact} />}
+                  {fiatValue === 0 || (parseFloat(value) && fiatValue === undefined)
+                    ? 'N/A'
+                    : fiatValue && <FiatValue fiatValue={fiatValue} usdPriceDifference={usdPriceDifference} />}
                 </LoadingOpacityContainer>
               </RowBetween>
             </FiatRow>

@@ -33,9 +33,9 @@ export const OutlineCard = styled(Card)`
 `
 
 export const YellowCard = styled(Card)`
-  background-color: rgba(243, 132, 30, 0.05);
-  color: ${({ theme }) => theme.deprecated_yellow3};
-  font-weight: 535;
+  background-color: rgba(255, 255, 255, 0.9);
+  color: ${({ theme }) => theme.jediPink};
+  font-weight: 700;
 `
 
 export const BlueCard = styled(Card)`
