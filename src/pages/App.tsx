@@ -108,8 +108,9 @@ export default function App() {
   const { data: traderReferralCode, isLoading: isTraderReferralCodeFetching } = useTraderReferralCode()
 
   useEffect(() => {
-    if (traderReferralCode && !isTraderReferralCodeFetching) {
-      if (chainId && referralCodeFromUrl) {
+    if (chainId && referralCodeFromUrl) {
+      //set the banner
+      if (traderReferralCode === undefined && !isTraderReferralCodeFetching) {
         if (
           address?.toUpperCase() != referralCodeFromUrl.toUpperCase() &&
           validateChecksumAddress(referralCodeFromUrl) !== false &&
@@ -119,15 +120,18 @@ export default function App() {
         } else {
           setWarningType('warning')
         }
-        //set referral code in local storage if the current stored is not this one
-        if (
-          !isAddressValidForStarknet(referralCodeFromUrl) &&
-          validateChecksumAddress(referralCodeFromUrl) !== false &&
-          referralCodeFromUrl !== localStorage.getItem('referralCode')?.[chainId as any]
-        ) {
-          const referralCodeObject = { [chainId]: referralCodeFromUrl }
-          localStorage.setItem('referralCode', JSON.stringify(referralCodeObject))
-        }
+      } else {
+        setWarningType(undefined)
+      }
+
+      // set the chainwise code to localstorage
+      if (
+        isAddressValidForStarknet(referralCodeFromUrl) !== false &&
+        validateChecksumAddress(referralCodeFromUrl) !== false &&
+        referralCodeFromUrl !== localStorage.getItem('referralCode')?.[chainId as any]
+      ) {
+        const referralCodeObject = { [chainId]: referralCodeFromUrl }
+        localStorage.setItem('referralCode', JSON.stringify(referralCodeObject))
       }
     }
   }, [referralCodeFromUrl, chainId, traderReferralCode, isTraderReferralCodeFetching, address])
