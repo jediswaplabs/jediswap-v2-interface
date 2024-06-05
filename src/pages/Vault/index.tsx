@@ -225,16 +225,20 @@ const MyDepositWrapperInner = styled.div`
   z-index: -1;
   position: relative;
   padding: 24px 32px;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
 
   backdrop-filter: blur(38px);
   background-color: rgba(196, 196, 196, 0.01);
   box-shadow: 0px -63.121px 52.345px -49.265px rgba(96, 68, 144, 0.3) inset,
     0px 75.438px 76.977px -36.949px rgba(202, 172, 255, 0.3) inset,
     0px 3.079px 13.856px 0px rgba(154, 146, 210, 0.3) inset, 0px 0.77px 30.791px 0px rgba(227, 222, 255, 0.2) inset;
+`
+
+const MyDeposits = styled.div`
   font-size: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-bottom: 16px;
 `
 
 const VaultDetailsBottom = styled(AutoColumn)`
@@ -271,57 +275,6 @@ function NoVaultsPanel() {
 }
 
 const noop = () => {}
-const UserBalance = ({
-  tokenAddress,
-  vaultAddress,
-  tokenPrice,
-  getResult = noop,
-}: {
-  tokenAddress?: string
-  vaultAddress: string
-  tokenPrice?: number
-  getResult?: (arg: { vaultAddress: string; balance: number }) => any
-}) => {
-  const { address, isConnected } = useAccountDetails()
-
-  const {
-    data: userBalanceData,
-    isLoading: isUserBalanceLoading,
-    isError: isUserBalanceError,
-    isSuccess: isUserBalanceSuccess,
-  } = useBalance({
-    token: tokenAddress,
-    address,
-    watch: true,
-  })
-  let result
-  const balanceInUsd = Number(userBalanceData?.formatted ?? 0) * (tokenPrice ?? 0)
-  useEffect(() => {
-    if (isConnected && isUserBalanceSuccess) {
-      getResult({ vaultAddress, balance: balanceInUsd })
-    }
-  }, [userBalanceData, isUserBalanceSuccess, isConnected])
-
-  switch (true) {
-    case !isConnected:
-    case isUserBalanceError: {
-      result = formatUsdPrice(0)
-      break
-    }
-    case isUserBalanceLoading: {
-      result = '...'
-      break
-    }
-    case isUserBalanceSuccess: {
-      result = formatUsdPrice(balanceInUsd)
-      break
-    }
-    default: {
-      result = 0
-    }
-  }
-  return result
-}
 
 const BreadcrumbsRow = styled(Flex)``
 const Breadcrumbs = styled(Flex)`
@@ -359,7 +312,6 @@ const PageTitle = ({ token0, token1 }: { token0?: Token; token1?: Token }) => {
 export default function Vault({ className }: { className?: string }) {
   const { vaultId: vaultIdFromUrl } = useParams()
   const { chainId } = useAccountDetails()
-  const { formatPercent } = useFormatter()
   const [generalError, setGeneralError] = useState<boolean | null>(null)
   const [generalLoading, setGeneralLoading] = useState(true)
 
@@ -368,7 +320,12 @@ export default function Vault({ className }: { className?: string }) {
   const currency0 = useCurrency(currentVault?.token0?.address)
   const currency1 = useCurrency(currentVault?.token1?.address)
   const vaultState = useVaultState()
-  const { totalShares } = useUserShares(vaultIdFromUrl, vaultState, currency0 ?? undefined, currency1 ?? undefined)
+  const { totalShares, totalToken0Amount, totalToken1Amount } = useUserShares(
+    vaultIdFromUrl,
+    vaultState,
+    currency0 ?? undefined,
+    currency1 ?? undefined
+  )
   const formatted = formatBalance(Number(totalShares?.toString()) / 10 ** 18)
   const vaultsAddresses = Object.keys(allVaults ?? {})
 
@@ -506,8 +463,20 @@ export default function Vault({ className }: { className?: string }) {
                 <VaultElement chainId={chainId} currentVault={currentVault} />
                 <MyDepositWrapperOuter>
                   <MyDepositWrapperInner>
-                    <span>My Deposits</span>
-                    <span>{formatted}</span>
+                    <MyDeposits>
+                      <span>My Deposits</span>
+                      <span>{formatted}</span>
+                    </MyDeposits>
+                    <MyDepositWrapperInner style={{ padding: 20 }}>
+                      <MyDeposits>
+                        <span>{currency0?.symbol}</span>
+                        <span>{totalToken1Amount ? totalToken0Amount?.toSignificant() : 0}</span>
+                      </MyDeposits>
+                      <MyDeposits style={{ marginBottom: 0 }}>
+                        <span>{currency1?.symbol}</span>
+                        <span>{totalToken1Amount ? totalToken1Amount?.toSignificant() : 0}</span>
+                      </MyDeposits>
+                    </MyDepositWrapperInner>
                   </MyDepositWrapperInner>
                 </MyDepositWrapperOuter>
               </VaultTransactionPanel>

@@ -44,6 +44,8 @@ export function useUserShares(
 ): {
   token0: any
   token1: any
+  totalToken0Amount: any
+  totalToken1Amount: any
   totalShares: any
   withdrawError: any
   insufficientBalance: boolean
@@ -111,6 +113,25 @@ export function useUserShares(
   }, [typedValue, totalSupply, token1All, token0, currencyB])
   //   const token1 = token0 && priceRatio ? token0 / BigInt(priceRatio) : 0
 
+  const totalToken0Amount: CurrencyAmount<Currency> | undefined = useMemo(() => {
+    if (!shares || !totalSupply || !token0All || !currencyA) {
+      return undefined
+    }
+    const token0Amount =
+      shares.data && token0All && totalSupply ? (shares.data * token0All) / (totalSupply as bigint) : 0
+
+    return CurrencyAmount.fromRawAmount(currencyA, token0Amount.toString())
+  }, [shares, totalSupply, token0All, currencyA])
+
+  const totalToken1Amount: CurrencyAmount<Currency> | undefined = useMemo(() => {
+    if (!shares || !totalSupply || !token1All || !currencyB) {
+      return undefined
+    }
+    const token1Amount =
+      totalToken0Amount && priceRatio ? BigInt(totalToken0Amount.raw.toString()) / BigInt(priceRatio) : 0
+    return CurrencyAmount.fromRawAmount(currencyB, token1Amount.toString())
+  }, [shares, totalSupply, token1All, totalToken0Amount, currencyB])
+
   const formattedShares = formatUnits(totalShares ?? 0)
   let insufficientBalance = false
   const withdrawError = useMemo(() => {
@@ -128,6 +149,8 @@ export function useUserShares(
   return {
     token0,
     token1,
+    totalToken0Amount,
+    totalToken1Amount,
     totalShares,
     withdrawError,
     insufficientBalance,
