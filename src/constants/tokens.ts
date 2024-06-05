@@ -84,11 +84,11 @@ export function getSwapCurrencyId(currency: Currency): string {
 export const vaultURL = (type: string, chainId: ChainId) => {
   if (type === 'content') {
     return chainId === ChainId.MAINNET
-      ? 'https://vault-content-api.teahouse.finance'
+      ? 'https://vault-content-api.teahouse.finance/vaults'
       : 'https://test-vault-content-api.teahouse.finance/vaults'
   } else {
     return chainId === ChainId.MAINNET
-      ? 'https://vault-api.teahouse.finance'
+      ? 'https://vault-api.teahouse.finance/vaults/type/permissionless'
       : 'https://test20-vault-api.teahouse.finance/vaults/type/permissionless'
   }
 }
