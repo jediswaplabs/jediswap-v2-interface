@@ -278,7 +278,8 @@ export function useDerivedSwapInfo(
 
 function parseCurrencyFromURLParameter(urlParam: ParsedQs[string]): string {
   if (typeof urlParam === 'string') {
-    const valid = isAddress(urlParam)
+    // const valid = isAddress(urlParam)
+    const valid = isAddressValidForStarknet(urlParam)
     if (valid) return valid
     const upper = urlParam.toUpperCase()
     if (upper === 'ETH') return 'ETH'

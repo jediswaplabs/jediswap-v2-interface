@@ -6,7 +6,6 @@ import '@reach/dialog/styles.css'
 import { ApolloProvider } from '@apollo/client'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { Helmet } from 'react-helmet'
 import { QueryClient, QueryClientProvider } from 'react-query'
 import { Provider } from 'react-redux'
 import { HashRouter, useLocation } from 'react-router-dom'
@@ -14,7 +13,6 @@ import { HashRouter, useLocation } from 'react-router-dom'
 import { MulticallUpdater } from 'lib/state/multicall'
 import StarkMulticallUpdater from './state/multicall/updater'
 import { BlockNumberProvider } from 'lib/hooks/useBlockNumber'
-import { apolloClient } from 'graphql/data/apollo'
 import { FeatureFlagsProvider } from 'featureFlags'
 // import { SystemThemeUpdater, ThemeColorMetaUpdater } from 'theme/components/ThemeToggle'
 import Web3Provider from './components/Web3Provider'
@@ -35,9 +33,6 @@ function Updaters() {
   const baseUrl = `${window.location.origin}${location.pathname}`
   return (
     <>
-      <Helmet>
-        <link rel="canonical" href={baseUrl} />
-      </Helmet>
       <RadialGradientByChainUpdater />
       <ListsUpdater />
       <ApplicationUpdater />

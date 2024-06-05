@@ -1,10 +1,11 @@
 import { lazy, ReactNode, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { isBrowserRouterEnabled } from 'utils/env'
 import { Referral } from './Referral'
-import Swap from './Swap'
-import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
+import { isBrowserRouterEnabled } from 'utils/env';
+import PoolDetails from './PoolDetails';
+import Swap from './Swap';
+import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects';
 
 const AddLiquidity = lazy(() => import('pages/AddLiquidity'))
 
@@ -63,7 +64,6 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/pools', getElement: () => <Pool /> }),
   createRouteDefinition({ path: '/pools/:tokenId', getElement: () => <PositionPage /> }),
   createRouteDefinition({ path: '/referral', getElement: () => <Referral /> }),
-
   createRouteDefinition({
     path: '/add',
     nestedPaths: [':currencyIdA', ':currencyIdA/:currencyIdB', ':currencyIdA/:currencyIdB/:feeAmount'],
@@ -81,6 +81,7 @@ export const routes: RouteDefinition[] = [
     getElement: () => <AddLiquidity />,
   }),
   createRouteDefinition({ path: '/remove/:tokenId', getElement: () => <RemoveLiquidityV3 /> }),
+  createRouteDefinition({ path: '/explore/pools/:poolId', getElement: () =>  <PoolDetails />}),
   // @ts-ignore
   createRouteDefinition({ path: '*', getElement: () => <RedirectPathToSwapOnly /> }),
 ]

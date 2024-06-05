@@ -292,8 +292,8 @@ export default function CurrencyInputPanel({
             <FiatRow>
               <RowBetween>
                 {account && (
-                  <RowFixed style={{ height: '17px' }}>
-                    {showMax && formatted && (
+                  <RowFixed style={{ height: '17px' }}> {/*formatted can be NaN*/}
+                    {showMax && Boolean(formatted) && (   
                       <StyledBalanceMax onClick={handleMaxAmount}>
                         <Trans>MAX</Trans>
                       </StyledBalanceMax>
@@ -305,7 +305,7 @@ export default function CurrencyInputPanel({
                       fontSize={14}
                       style={{ display: 'inline', cursor: 'pointer' }}
                     >
-                      {formatted && <>Bal: {formatted}</>}
+                      {Boolean(formatted) && <>Bal: {formatted}</>} {/*formatted can be NaN*/}
                     </ThemedText.DeprecatedBody>
                   </RowFixed>
                 )}

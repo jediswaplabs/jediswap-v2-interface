@@ -26,6 +26,16 @@ export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {
   return (cachedNativeCurrency[chainId] = WETH[chainId])
 }
 
+export const getStarkRewardAddress = (chainId: ChainId) => {
+  return chainId === ChainId.MAINNET
+    ? '0x027dee8c8c7f28d67bc771afe0c786bfb59d78f0e1ce303a86006b91b98dc3cf'
+    : '0x01ba23f54ae0f830068314e8d3e9d3623e83ced3832d20ac61f598a969425747'
+}
+
+export const STARKNET_REWARDS_API_URL =
+  'https://kx58j6x5me.execute-api.us-east-1.amazonaws.com//starknet/fetchFile?file=qa_strk_grant.json'
+export const STRK_PRICE_API_URL = 'https://api.binance.com/api/v3/ticker/price?symbol=STRKUSDT'
+
 export const POOL_CLASS_HASH = {
   [ChainId.MAINNET]: '0x2cd3c16a0112b22ded4903707f268125fcf46fd7733761e62c13fc0157afd8d',
   [ChainId.GOERLI]: '0x2cd3c16a0112b22ded4903707f268125fcf46fd7733761e62c13fc0157afd8d',
@@ -61,7 +71,7 @@ export const STARKSCAN_PROXY_ADDRESS = {
 
 export const STARKSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: '',
-  [ChainId.GOERLI]: 'testnet.',
+  [ChainId.GOERLI]: 'sepolia.',
 }
 
 export function getSwapCurrencyId(currency: Currency): string {

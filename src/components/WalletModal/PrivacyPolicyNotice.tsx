@@ -27,7 +27,7 @@ const LAST_UPDATED_DATE = '6.7.23'
 export default function PrivacyPolicyNotice() {
   return (
     <div>
-      <Notice>New to Ethereum?</Notice>
+      <Notice>New to Starknet?</Notice>
       <StyledLink href="https://docs.jediswap.xyz/how-to-use-jediswap/how-to-set-up-a-starknet-wallet">
         <WalletInfo>Learn more about wallets</WalletInfo>
       </StyledLink>

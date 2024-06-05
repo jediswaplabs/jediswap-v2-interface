@@ -57,7 +57,7 @@ import { useQuery } from 'react-query'
 import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import { isAddressValidForStarknet } from 'utils/addresses'
-import findClosestPrice from 'utils/getClosestPrice'
+import { findClosestPrice } from 'utils/getClosest'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -243,9 +243,13 @@ function AddLiquidity() {
     const token1usdPrice = separatedFiatValueofLiquidity.data.token1usdPrice
       ? Number(separatedFiatValueofLiquidity.data.token1usdPrice) * Number(position?.amount1.toSignificant())
       : undefined
-
-    const isLiquidityToken0PositionToken0 =
-      position?.amount0.currency.address === (parsedAmounts.CURRENCY_A?.currency as any).address
+    
+    const parsedAddressA = (parsedAmounts.CURRENCY_A?.currency as any)?.address
+    const parsedAddressB = (parsedAmounts.CURRENCY_B?.currency as any)?.address
+    const isLiquidityToken0PositionToken0 = parsedAddressA ?
+      position?.amount0.currency.address === parsedAddressA :
+      position?.amount1.currency.address === parsedAddressB;
+    
     return {
       token0usdPrice: isLiquidityToken0PositionToken0 ? token0usdPrice : token1usdPrice,
       token1usdPrice: isLiquidityToken0PositionToken0 ? token1usdPrice : token0usdPrice,
@@ -566,9 +570,9 @@ function AddLiquidity() {
 
   const Buttons = () =>
     !account ? (
-      <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
+      <ButtonPrimary onClick={toggleWalletDrawer} $borderRadius="12px" style={{padding: '12px', fontSize: '18px'}}>
         <Trans>Connect wallet</Trans>
-      </ButtonLight>
+      </ButtonPrimary>
     ) : (
       <AutoColumn gap="md">
         <ButtonError

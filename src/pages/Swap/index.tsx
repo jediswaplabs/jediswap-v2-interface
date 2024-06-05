@@ -3,7 +3,7 @@
 import { Trans } from '@lingui/macro'
 import { InterfaceSectionName } from '@uniswap/analytics-events'
 import { ChainId, Currency, CurrencyAmount, Percent, Token } from '@vnaysn/jediswap-sdk-core'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import { ReactNode, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { ArrowDown } from 'react-feather'
@@ -58,7 +58,7 @@ import { OutputTaxTooltipBody } from './TaxTooltipBody'
 import { useQuery } from 'react-query'
 import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
-import findClosestPrice from 'utils/getClosestPrice'
+import { findClosestPrice } from 'utils/getClosest'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -347,10 +347,10 @@ export function Swap({
     currencyBalances,
     parsedAmount,
     currencies,
-    inputError: swapInputError,
     inputTax,
     outputTax,
   } = swapInfo
+  let { inputError: swapInputError }  = swapInfo
 
   const [inputTokenHasTax, outputTokenHasTax] = useMemo(
     () => [!inputTax.equalTo(0), !outputTax.equalTo(0)],
@@ -486,11 +486,14 @@ export function Swap({
     trade?.fillType
   )
 
-  const maxInputAmount: CurrencyAmount<Currency> | undefined = useMemo(
-    () => maxAmountSpend(currencyBalances[Field.INPUT]),
-    [currencyBalances]
-  )
-  const showMaxButton = Boolean(maxInputAmount?.greaterThan(0) && !parsedAmounts[Field.INPUT]?.equalTo(maxInputAmount))
+  const { balanceCurrencyAmount } = useAccountBalance(currencies[Field.INPUT])
+  const maxInputAmount = balanceCurrencyAmount //in future we could substract the amount for gas here (utils/maxAmountSpend) 
+  
+  const showMaxButton = Boolean(currencies[Field.INPUT] && maxInputAmount?.greaterThan(0) && !parsedAmounts[Field.INPUT]?.equalTo(maxInputAmount))
+  //we need this check because useDerivedSwapInfo does not give an error if the input value is slightly higher than the actual wallet balance
+  if (parsedAmounts[Field.INPUT] && maxInputAmount && maxInputAmount.lessThan(parsedAmounts[Field.INPUT])) {
+    swapInputError = <Trans>Insufficient {currencies[Field.INPUT]?.symbol} balance</Trans>
+  }
 
   const handleContinueToReview = useCallback(() => {
     setSwapState({
@@ -588,7 +591,7 @@ export function Swap({
     if (!token0usdPrice || !token1usdPrice) return undefined
     else
       return parseFloat(
-        (((token1usdPrice - token0usdPrice) / ((token0usdPrice + token1usdPrice) / 2)) * 100).toFixed(2)
+        ((token1usdPrice - token0usdPrice) / token0usdPrice * 100).toFixed(2)
       )
   }, [token0usdPrice, token1usdPrice])
 
