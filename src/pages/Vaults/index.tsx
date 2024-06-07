@@ -27,6 +27,7 @@ import { TOKENS_DATA } from 'apollo/queries'
 import { validateAndParseAddress } from 'starknet'
 import { findClosestPrice } from 'utils/getClosest'
 import FeeBadge from 'components/FeeBadge'
+import { DEFAULT_CHAIN_ID } from 'constants/tokens'
 
 interface UserBalanceResultParams {
   vaultAddress: string
@@ -330,7 +331,8 @@ interface ListItemProps {
 
 const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: ListItemProps) => {
   const { formatPercent } = useFormatter()
-  const { chainId } = useAccountDetails()
+  const { chainId: chainIdConnected } = useAccountDetails()
+  const chainId = chainIdConnected || DEFAULT_CHAIN_ID
   const below600 = useMedia('(max-width: 600px)')
   const below768 = useMedia('(max-width: 768px)')
 

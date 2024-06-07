@@ -6,6 +6,8 @@ import CurrencyInputPanel from 'components/CurrencyInputPanel'
 import { useVaultActionHandlers, useVaultDerivedInfo, useVaultState } from 'state/vaults/hooks'
 import { useCurrency } from 'hooks/Tokens'
 import { Field } from 'state/vaults/actions'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { DEFAULT_CHAIN_ID } from 'constants/tokens'
 
 const DepositWrapper = styled(AutoColumn)`
   width: 100%;
@@ -16,10 +18,12 @@ const DepositWrapper = styled(AutoColumn)`
 
 function VaultDeposit({ currentVault }: { currentVault: any }) {
   const { onFieldAInput, onFieldBInput } = useVaultActionHandlers()
+  const { chainId: chainIdConnected } = useAccountDetails()
+  const chainId = chainIdConnected || DEFAULT_CHAIN_ID
 
   // Vault Input state
-  const baseCurrency = useCurrency(currentVault.token0.address)
-  const currencyB = useCurrency(currentVault.token1.address)
+  const baseCurrency = useCurrency(currentVault.token0.address, chainId)
+  const currencyB = useCurrency(currentVault.token1.address, chainId)
   const vaultState = useSelector((state: any) => state.vaults)
 
   // vault state state

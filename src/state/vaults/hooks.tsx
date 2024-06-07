@@ -138,7 +138,8 @@ const getTokenPrices = async (contracts: string[]) => {
 export function useAllVaults() {
   const allVaults = useSelector((state: AppState) => state.vaults.allVaults)
   const dispatch = useAppDispatch()
-  const { chainId } = useAccountDetails()
+  const { chainId: chainIdConnected } = useAccountDetails()
+  const chainId = chainIdConnected || DEFAULT_CHAIN_ID
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const isFetchingRef = useRef(false)
