@@ -29,7 +29,7 @@ export function useFeeConfig(vaultAddress: string | undefined) {
         entrypoint: 'fee_config',
         contractAddress: vaultAddress,
       })
-      return Number(num.getDecimalString(results?.result?.[results?.result?.length - 3]))
+      return results?.result
     },
   })
 

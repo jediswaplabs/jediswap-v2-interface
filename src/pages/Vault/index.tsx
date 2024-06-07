@@ -254,6 +254,11 @@ const VaultDetailsImage = styled.img`
   width: 100%;
   height: auto;
 `
+const HighlightValue = styled(AutoColumn)`
+  background: rgba(217, 217, 217, 0.1);
+  padding: 10px;
+  border-radius: 4px;
+`
 
 function ErrorPanel({ text }: { text?: string }) {
   return (
@@ -332,6 +337,11 @@ export default function Vault({ className }: { className?: string }) {
   )
   const formatted = formatBalance(Number(totalShares?.toString()) / 10 ** 18)
   const vaultsAddresses = Object.keys(allVaults ?? {})
+
+  const fee_configAll = useFeeConfig(vaultIdFromUrl)
+  const exitFee = fee_configAll ? Number(num.getDecimalString(fee_configAll[2])) : 0
+  const performanceFee = fee_configAll ? Number(num.getDecimalString(fee_configAll[3])) : 0
+  const managementFee = fee_configAll ? Number(num.getDecimalString(fee_configAll[4])) : 0
 
   useEffect(() => {
     setGeneralError(Boolean(allVaultsError))
@@ -451,7 +461,7 @@ export default function Vault({ className }: { className?: string }) {
           const shareTokenDecimals = currentVault?.share?.decimals
           const shareTokenPriceInUnits = performanceData.shareTokenPrice / 10 ** (18 + shareTokenDecimals)
           apr = Number(performanceData.shareTokenApr / 10 ** 4)?.toFixed(2)
-          feeApr = Number(performanceData.feeApr / 10 ** 4)?.toFixed(2)
+          feeApr = Number(performanceData.feeApr7dAvg / 10 ** 4)?.toFixed(2)
           totalApr = Number((performanceData?.shareTokenApr + performanceData?.feeApr) / 10 ** 4)?.toFixed(2)
           shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
         }
@@ -464,37 +474,56 @@ export default function Vault({ className }: { className?: string }) {
                   <AutoRow>
                     <AutoColumn gap="15px" grow>
                       <VaultDataHeaders>PROVIDER</VaultDataHeaders>
-                      <ThemedText.BodySmall>{currentVault?.provider.name}</ThemedText.BodySmall>
+                      <ProviderLogo src={currentVault?.provider.logo} />
+                      {/* <ThemedText.BodySmall>{currentVault?.provider.name}</ThemedText.BodySmall> */}
                     </AutoColumn>
-                    <AutoColumn gap="15px" grow>
+                    <HighlightValue gap="15px" grow style={{ marginRight: '20px' }}>
                       <VaultDataHeaders>TVL</VaultDataHeaders>
                       <ThemedText.BodySmall fontWeight={500}>{tvl ? formatUsdPrice(tvl) : '-'}</ThemedText.BodySmall>
-                    </AutoColumn>
-                    <ProviderLogo src={currentVault?.provider.logo} />
+                    </HighlightValue>
+                    <HighlightValue gap="15px" grow>
+                      <VaultDataHeaders>APR</VaultDataHeaders>
+                      <ThemedText.BodySmall color={'signalGreen'} fontWeight={700}>
+                        {feeApr ? `${feeApr}%` : '-'}
+                      </ThemedText.BodySmall>
+                    </HighlightValue>
+                    {/* <ProviderLogo src={currentVault?.provider.logo} /> */}
                   </AutoRow>
                   <AutoRow>
-                    <AutoColumn gap="15px" grow>
-                      <VaultDataHeaders>APR RANGE</VaultDataHeaders>
+                    <AutoColumn gap="15px">
+                      <VaultDataHeaders>FEE BREAKUP</VaultDataHeaders>
                       <ThemedText.BodySmall color={'accent1'} fontWeight={700}>
-                        {totalApr ? totalApr : '-'}
+                        <VaultStrategyLinks>
+                          <a href={currentVault?.links.fee} target={'_blank'} rel="noreferrer">
+                            Learn more
+                          </a>
+                        </VaultStrategyLinks>
                       </ThemedText.BodySmall>
                     </AutoColumn>
                     <VerticalDivider />
                     <AutoColumn gap="10px" grow>
                       <AutoRow justify="space-between">
                         <ThemedText.BodySmall fontWeight={500} fontSize={'12px'}>
-                          Fee APR:
+                          Exit Fee:
                         </ThemedText.BodySmall>
-                        <ThemedText.BodySmall color={'accent1'} fontWeight={700}>
-                          {feeApr !== undefined ? feeApr : '-'}
+                        <ThemedText.BodySmall color={'jediWhite'} fontWeight={700}>
+                          {exitFee ? (exitFee / 10 ** 4).toFixed(2) + '%' : ''}
                         </ThemedText.BodySmall>
                       </AutoRow>
                       <AutoRow justify="space-between">
                         <ThemedText.BodySmall fontWeight={500} fontSize={'12px'}>
-                          STRK APR:
+                          Performance Fee:
                         </ThemedText.BodySmall>
-                        <ThemedText.BodySmall color={'accent1'} fontWeight={700}>
-                          {apr ? apr : '-'}
+                        <ThemedText.BodySmall color={'jediWhite'} fontWeight={700}>
+                          {performanceFee ? (performanceFee / 10 ** 4).toFixed(2) + '%' : ''}
+                        </ThemedText.BodySmall>
+                      </AutoRow>
+                      <AutoRow justify="space-between">
+                        <ThemedText.BodySmall fontWeight={500} fontSize={'12px'}>
+                          Management Fee(Annual):
+                        </ThemedText.BodySmall>
+                        <ThemedText.BodySmall color={'jediWhite'} fontWeight={700}>
+                          {managementFee ? (managementFee / 10 ** 4).toFixed(2) + '%' : ''}
                         </ThemedText.BodySmall>
                       </AutoRow>
                     </AutoColumn>
@@ -615,7 +644,8 @@ export function VaultElement({
     withdrawError,
     insufficientBalance: insufficientWithdrawalBalance,
   } = useUserShares(vaultAddressFromUrl, vaultState, baseCurrency ?? undefined, currencyB ?? undefined)
-  const fee_config = useFeeConfig(vaultAddressFromUrl)
+  const fee_configAll = useFeeConfig(vaultAddressFromUrl)
+  const fee_config = fee_configAll ? Number(num.getDecimalString(fee_configAll[fee_configAll.length - 3])) : 0
   const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
   const {
     writeAsync,
