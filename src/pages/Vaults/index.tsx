@@ -366,7 +366,7 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
   }, [vaultAddress, totalShares])
 
   const separatedFiatValueofLiquidity = useQuery({
-    queryKey: ['fiat_value', totalToken0Amount, totalToken1Amount],
+    queryKey: ['fiat_value', totalToken0Amount, totalToken1Amount, chainId, currency0, currency1],
     queryFn: async () => {
       if ((!totalToken0Amount && !totalToken1Amount) || !chainId || !currency0 || !currency1) return
       const ids = []
