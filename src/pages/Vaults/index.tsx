@@ -26,6 +26,7 @@ import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import { validateAndParseAddress } from 'starknet'
 import { findClosestPrice } from 'utils/getClosest'
+import FeeBadge from 'components/FeeBadge'
 
 interface UserBalanceResultParams {
   vaultAddress: string
@@ -454,6 +455,7 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
             <StyledTokenName className="pair-name-container">
               {currency0?.symbol}-{currency1?.symbol}
             </StyledTokenName>
+            <FeeBadge>{vaultData.feeTier}</FeeBadge>
           </Flex>
         </DataText>
         {!below768 && (
