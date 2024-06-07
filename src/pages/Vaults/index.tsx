@@ -434,7 +434,8 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
     const tokenPrice = vaultData.prices[vaultData.mainAssetKey]
     const shareTokenDecimals = vaultData?.share?.decimals
     const shareTokenPriceInUnits = performanceData.shareTokenPrice / 10 ** (18 + shareTokenDecimals)
-    apr = Number(performanceData.shareTokenApr / 10 ** 4)?.toFixed(2)
+    // apr = Number(performanceData.shareTokenApr / 10 ** 4)?.toFixed(2)
+    apr = Number(performanceData.feeApr7dAvg / 10 ** 4)?.toFixed(2)
     shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
   }
 
@@ -460,7 +461,9 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
         <ThemedText.BodySmall>{tvl ? formatUsdPrice(tvl) : '-'}</ThemedText.BodySmall>
       </DataText>
       <DataText area="apr">
-        <ThemedText.BodySmall color={'accent1'}>{apr ? apr : '-'}</ThemedText.BodySmall>
+        <ThemedText.BodySmall color={'signalGreen'} fontWeight={700}>
+          {apr ? `${apr}%` : '-'}
+        </ThemedText.BodySmall>
       </DataText>
       <DataText area="deposite">
         <ThemedText.BodySmall>
@@ -555,9 +558,9 @@ export default function Vaults({ maxItems = 10 }) {
       const vaultAUserDeposit = userPools?.[vaultAddressA]
       const vaultBUserDeposit = userPools?.[vaultAddressB]
       const vaultAValueToCompare =
-        isMyVaultsFilterEnabled && vaultAUserDeposit ? vaultAUserDeposit : vaultAPerformanceData?.shareTokenApr
+        isMyVaultsFilterEnabled && vaultAUserDeposit ? vaultAUserDeposit : vaultAPerformanceData?.feeApr7dAvg
       const vaultBValueToCompare =
-        isMyVaultsFilterEnabled && vaultBUserDeposit ? vaultBUserDeposit : vaultBPerformanceData?.shareTokenApr
+        isMyVaultsFilterEnabled && vaultBUserDeposit ? vaultBUserDeposit : vaultBPerformanceData?.feeApr7dAvg
       if (vaultAValueToCompare < vaultBValueToCompare) {
         return 1
       }
