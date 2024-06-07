@@ -194,6 +194,10 @@ const DashGrid = styled.div`
   grid-template-areas: 'name provider tvl apr deposit';
   padding: 0 1.125rem;
 
+  :hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
   > * {
     justify-content: center;
     :first-child {
@@ -236,6 +240,7 @@ const StyledTokenName = styled.span<{ active?: boolean }>`
   font-size: 14px;
   font-weight: 700;
   font-family: 'DM Sans';
+  margin-left: 10px;
 `
 
 interface ArrowProps {
@@ -440,39 +445,39 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
   }
 
   return (
-    <DashGrid style={{ height: '48px' }}>
-      <DataText area="name" fontWeight="500">
-        {!below600 && <div style={{ marginRight: '20px', width: '10px' }}>{index}</div>}
-        <Flex alignItems={'center'} style={{ gap: '8px' }}>
-          <DoubleCurrencyLogo size={below600 ? 16 : 24} currency0={currency0} currency1={currency1} margin />
-          <VaultLink to={`/vaults/${vaultAddress}`}>
+    <Link to={`/vaults/${vaultAddress}`} style={{ color: 'unset', textDecoration: 'none' }}>
+      <DashGrid style={{ height: '48px' }}>
+        <DataText area="name" fontWeight="500">
+          {!below600 && <div style={{ width: '10px' }}>{index}</div>}
+          <Flex alignItems={'center'} style={{ gap: '8px' }}>
+            <DoubleCurrencyLogo size={below600 ? 16 : 24} currency0={currency0} currency1={currency1} margin />
             <StyledTokenName className="pair-name-container">
               {currency0?.symbol}-{currency1?.symbol}
             </StyledTokenName>
-          </VaultLink>
-        </Flex>
-      </DataText>
-      {!below768 && (
-        <DataText area="provider">
-          <ProviderLogo src={vaultData.provider.logo} draggable={false} />
+          </Flex>
         </DataText>
-      )}
-      <DataText area="tvl">
-        <ThemedText.BodySmall>{tvl ? formatUsdPrice(tvl) : '-'}</ThemedText.BodySmall>
-      </DataText>
-      <DataText area="apr">
-        <ThemedText.BodySmall color={'signalGreen'} fontWeight={700}>
-          {apr ? `${apr}%` : '-'}
-        </ThemedText.BodySmall>
-      </DataText>
-      <DataText area="deposite">
-        <ThemedText.BodySmall>
-          <span>
-            {token0usdPrice && token0usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0}
-          </span>
-        </ThemedText.BodySmall>
-      </DataText>
-    </DashGrid>
+        {!below768 && (
+          <DataText area="provider">
+            <ProviderLogo src={vaultData.provider.logo} draggable={false} />
+          </DataText>
+        )}
+        <DataText area="tvl">
+          <ThemedText.BodySmall>{tvl ? formatUsdPrice(tvl) : '-'}</ThemedText.BodySmall>
+        </DataText>
+        <DataText area="apr">
+          <ThemedText.BodySmall color={'signalGreen'} fontWeight={700}>
+            {apr ? `${apr}%` : '-'}
+          </ThemedText.BodySmall>
+        </DataText>
+        <DataText area="deposite">
+          <ThemedText.BodySmall>
+            <span>
+              {token0usdPrice && token0usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0}
+            </span>
+          </ThemedText.BodySmall>
+        </DataText>
+      </DashGrid>
+    </Link>
   )
 }
 
