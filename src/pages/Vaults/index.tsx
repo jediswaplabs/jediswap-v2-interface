@@ -423,12 +423,13 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
 
   if (!isEmpty(vaultData)) {
     if (separatedFiatValueofLiquidity.data) {
+      const mainAssetKey = vaultData.mainAssetKey
       const { token0usdPrice, token1usdPrice } = separatedFiatValueofLiquidity.data
-      tvl =
-        token0usdPrice && token1usdPrice
-          ? (vaultData?.performance?.token0?.tvl / 10 ** vaultData['token0']?.decimals) * Number(token0usdPrice) +
-            (vaultData?.performance?.token1?.tvl / 10 ** vaultData['token1']?.decimals) * Number(token1usdPrice)
-          : 0
+      const mainAssetPrice = mainAssetKey === 'token0' ? token0usdPrice : token1usdPrice
+      tvl = mainAssetPrice
+        ? (vaultData?.performance?.[mainAssetKey].tvl / 10 ** vaultData[mainAssetKey]?.decimals) *
+          Number(mainAssetPrice)
+        : 0
     }
     const tokenPrice = vaultData.prices[vaultData.mainAssetKey]
     const shareTokenDecimals = vaultData?.share?.decimals

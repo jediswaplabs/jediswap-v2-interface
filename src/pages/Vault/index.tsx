@@ -438,14 +438,13 @@ export default function Vault({ className }: { className?: string }) {
 
         if (!isEmpty(currentVault)) {
           if (separatedFiatValueofLiquidity.data) {
+            const mainAssetKey = currentVault.mainAssetKey
             const { token0usdPrice, token1usdPrice } = separatedFiatValueofLiquidity.data
-            tvl =
-              token0usdPrice && token1usdPrice
-                ? (currentVault?.performance?.token0?.tvl / 10 ** currentVault['token0']?.decimals) *
-                    Number(token0usdPrice) +
-                  (currentVault?.performance?.token1?.tvl / 10 ** currentVault['token1']?.decimals) *
-                    Number(token1usdPrice)
-                : 0
+            const mainAssetPrice = mainAssetKey === 'token0' ? token0usdPrice : token1usdPrice
+            tvl = mainAssetPrice
+              ? (currentVault?.performance?.[mainAssetKey].tvl / 10 ** currentVault[mainAssetKey]?.decimals) *
+                Number(mainAssetPrice)
+              : 0
           }
 
           const tokenPrice = currentVault.prices[currentVault.mainAssetKey]
