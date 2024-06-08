@@ -142,63 +142,64 @@ export function useAllVaults() {
   const chainId = chainIdConnected || DEFAULT_CHAIN_ID
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const isFetchingRef = useRef(false)
-
-  const loadData = async () => {
-    if (isFetchingRef.current || !chainId) {
-      return
-    }
-    setError(null)
-    setIsLoading(true)
-    isFetchingRef.current = true
-    try {
-      const [vaultListWithContents, permissionlessVaultDataList] = await Promise.all([
-        getVaultListWithContents(chainId),
-        getPermissionlessVaultDataList(chainId),
-      ])
-      if (!vaultListWithContents || !permissionlessVaultDataList) {
-        throw new Error('Failed to fetch data')
-      }
-      const addresses = Object.keys(vaultListWithContents)
-      const tokensAddresses = uniq(
-        addresses
-          .flatMap((address) => [
-            vaultListWithContents[address]?.token0?.address,
-            vaultListWithContents[address]?.token1?.address,
-          ])
-          .filter(Boolean)
-      )
-      const prices = await getTokenPrices(tokensAddresses)
-      const combinedData = addresses.reduce((acc: any, address) => {
-        if (!permissionlessVaultDataList[address]) {
-          return acc
-        }
-        const token0Address = vaultListWithContents[address]?.token0?.address
-        const token1Address = vaultListWithContents[address]?.token1?.address
-        acc[address] = {
-          ...vaultListWithContents[address],
-          performance: {
-            ...permissionlessVaultDataList[address],
-          },
-          prices: {
-            token0: prices?.[token0Address] ?? null,
-            token1: prices?.[token1Address] ?? null,
-          },
-        }
-        return acc
-      }, {})
-      dispatch(updateAllVaults(combinedData))
-    } catch (e) {
-      console.error(e)
-      setError('Error while loading vaults')
-    } finally {
-      setIsLoading(false)
-      isFetchingRef.current = false
-    }
-  }
 
   useEffect(() => {
+    let ignore = false
+    const loadData = async () => {
+      setError(null)
+      setIsLoading(true)
+      try {
+        const [vaultListWithContents, permissionlessVaultDataList] = await Promise.all([
+          getVaultListWithContents(chainId),
+          getPermissionlessVaultDataList(chainId),
+        ])
+        if (!vaultListWithContents || !permissionlessVaultDataList) {
+          throw new Error('Failed to fetch data')
+        }
+        const addresses = Object.keys(vaultListWithContents)
+        const tokensAddresses = uniq(
+          addresses
+            .flatMap((address) => [
+              vaultListWithContents[address]?.token0?.address,
+              vaultListWithContents[address]?.token1?.address,
+            ])
+            .filter(Boolean)
+        )
+        const prices = await getTokenPrices(tokensAddresses)
+        const combinedData = addresses.reduce((acc: any, address) => {
+          if (!permissionlessVaultDataList[address]) {
+            return acc
+          }
+          const token0Address = vaultListWithContents[address]?.token0?.address
+          const token1Address = vaultListWithContents[address]?.token1?.address
+          acc[address] = {
+            ...vaultListWithContents[address],
+            performance: {
+              ...permissionlessVaultDataList[address],
+            },
+            prices: {
+              token0: prices?.[token0Address] ?? null,
+              token1: prices?.[token1Address] ?? null,
+            },
+          }
+          return acc
+        }, {})
+        if (!ignore) {
+          dispatch(updateAllVaults(combinedData))
+          setIsLoading(false)
+        }
+      } catch (e) {
+        if (!ignore) {
+          console.error(e)
+          setError('Error while loading vaults')
+          setIsLoading(false)
+        }
+      }
+    }
     loadData()
+    return () => {
+      ignore = true
+    }
   }, [chainId])
 
   return { data: allVaults, error, isLoading }
