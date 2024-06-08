@@ -20,10 +20,10 @@ const Wrapper = styled.div`
 
   ${(props) =>
     props.fill && !props.height
-        ? css`
+      ? css`
           height: 100vh;
         `
-        : css`
+      : css`
           height: 180px;
         `}
 `
@@ -35,14 +35,14 @@ const AnimatedImg = styled.div`
   }
 `
 
-const JediSwapLoader = ({ fill = false, ...attr }) => {
-    return (
-        <Wrapper fill={fill} {...attr}>
-            <AnimatedImg>
-                <img src={require('../../assets/jedi/squareLogo.png')} alt="loading-icon" />
-            </AnimatedImg>
-        </Wrapper>
-    )
+const JediSwapLoader = ({ fill = undefined, ...attr }) => {
+  return (
+    <Wrapper fill={fill} {...attr}>
+      <AnimatedImg>
+        <img src={require('../../assets/jedi/squareLogo.png')} alt="loading-icon" />
+      </AnimatedImg>
+    </Wrapper>
+  )
 }
 
 export default JediSwapLoader
