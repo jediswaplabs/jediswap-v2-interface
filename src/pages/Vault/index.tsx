@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify'
 import { Trans } from '@lingui/macro'
 import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { AlertTriangle, ArrowLeft } from 'react-feather'
@@ -466,6 +467,9 @@ export default function Vault({ className }: { className?: string }) {
           shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
         }
 
+        const dangerStrategyDetails = currentVault?.details || ''
+        const sanitizedStrategyDetails = DOMPurify.sanitize(dangerStrategyDetails)
+
         return (
           <AutoColumn gap={'18px'}>
             <PageContentWrapper>
@@ -535,7 +539,7 @@ export default function Vault({ className }: { className?: string }) {
                   <VaultDetailsImage src={currentVault?.lpStrategyGraph} />
                   {/* update later - img takes time to load issue */}
                   <VaultStrategyType>{currentVault?.strategyType}</VaultStrategyType>
-                  <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: currentVault?.details || '' }} />
+                  <VaultStrategyDetail dangerouslySetInnerHTML={{ __html: sanitizedStrategyDetails }} />
                   <VaultStrategyLinks>
                     <a
                       href={`https://${chainId === ChainId.GOERLI ? 'sepolia.' : ''}starkscan.co/contract/${
