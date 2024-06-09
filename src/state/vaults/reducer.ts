@@ -2,7 +2,7 @@
 // @ts-ignore
 
 import { createSlice } from '@reduxjs/toolkit'
-import { Token } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Token } from '@vnaysn/jediswap-sdk-core'
 import { Field } from './actions'
 
 interface URLs {
@@ -56,7 +56,7 @@ export type Vault = {
   riskLevel: string
   share: Share
   strategyType: string
-  type: string,
+  type: string
   performance: any
 }
 
@@ -70,6 +70,7 @@ export interface VaultState {
   readonly independentField: Field
   readonly typedValue: string
   readonly withdrawTypedValue: string
+  readonly chainId: ChainId | null
 }
 export const initialState: VaultState = {
   allVaults: null,
@@ -77,6 +78,7 @@ export const initialState: VaultState = {
   independentField: Field.CURRENCY_A,
   typedValue: '',
   withdrawTypedValue: '',
+  chainId: null,
 }
 
 const vaultsSlice = createSlice({
@@ -99,9 +101,13 @@ const vaultsSlice = createSlice({
     updateWithdrawInput(state, { payload: { typedValue } }) {
       state.withdrawTypedValue = typedValue
     },
+    updateChainId(state, { payload }) {
+      state.chainId = payload
+    },
   },
 })
 
-export const { updateAllVaults, updateUserVaults, updateInput, updateWithdrawInput } = vaultsSlice.actions
+export const { updateAllVaults, updateUserVaults, updateInput, updateWithdrawInput, updateChainId } =
+  vaultsSlice.actions
 
 export default vaultsSlice.reducer

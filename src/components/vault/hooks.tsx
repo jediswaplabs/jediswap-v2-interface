@@ -13,6 +13,8 @@ import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { removeExtraDecimals } from 'utils/removeExtraDecimals'
 import { Trans } from '@lingui/macro'
 import { formatUnits } from 'ethers/lib/utils'
+import { useSelector } from 'react-redux'
+import { AppState } from 'state/reducer'
 interface TokenData {
   [key: string]: any
 }
@@ -50,7 +52,8 @@ export function useUserShares(
   withdrawError: any
   insufficientBalance: boolean
 } {
-  const { address, chainId } = useAccountDetails()
+  const { address } = useAccountDetails()
+  const chainId = useSelector((state: AppState) => state.vaults.chainId)
   const shares = useQuery({
     queryKey: [`balance_of/${address}/${vaultAddress}/${chainId}`],
     queryFn: async () => {

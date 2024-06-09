@@ -5,7 +5,14 @@ import { ChainId, Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-c
 import { useBalance } from '@starknet-react/core'
 import { Trans } from '@lingui/macro'
 import { useParams } from 'react-router-dom'
-import { updateAllVaults, updateUserVaults, updateInput, updateWithdrawInput, VaultState } from './reducer'
+import {
+  updateAllVaults,
+  updateUserVaults,
+  updateInput,
+  updateWithdrawInput,
+  VaultState,
+  updateChainId,
+} from './reducer'
 import { useAppDispatch, useAppSelector } from '../hooks'
 import teahouseLogo from '../../assets/vaults/teahouse.svg'
 import { useAccountBalance, useAccountDetails } from '../../hooks/starknet-react'
@@ -186,6 +193,7 @@ export function useAllVaults() {
         }, {})
         if (!ignore) {
           dispatch(updateAllVaults(combinedData))
+          dispatch(updateChainId(chainId))
           setIsLoading(false)
         }
       } catch (e) {
@@ -202,7 +210,7 @@ export function useAllVaults() {
     }
   }, [chainId])
 
-  return { data: allVaults, error, isLoading }
+  return { data: allVaults, error, isLoading, chainId }
 }
 
 export function useVaultActionHandlers(): {
