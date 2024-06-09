@@ -335,11 +335,11 @@ export function useVaultDerivedInfo(
       error = error ?? <Trans>Enter an amount</Trans>
     }
 
-    if (currencyAAmount && currencyBalances?.[Field.CURRENCY_A] < currencyAAmount) {
+    if (currencyAAmount && Number(currencyBalances?.[Field.CURRENCY_A]) < Number(currencyAAmount)) {
       insufficientBalance = true
       error = error ?? <Trans>Insufficient {currencies[Field.CURRENCY_A]?.symbol} balance</Trans>
     }
-    if (currencyBAmount && currencyBalances?.[Field.CURRENCY_B] < currencyBAmount) {
+    if (currencyBAmount && Number(currencyBalances?.[Field.CURRENCY_B]) < Number(currencyBAmount)) {
       insufficientBalance = true
       error = error ?? <Trans>Insufficient {currencies[Field.CURRENCY_B]?.symbol} balance</Trans>
     }
