@@ -38,22 +38,6 @@ export function useFeeConfig(vaultAddress: string | undefined) {
   return fee.data ? fee.data : 0
 }
 
-function calcWithdrawToken(
-  shareTokenAmount: bigint | undefined,
-  shareTokenTotalSupply: any,
-  tokenAll: any,
-  currency: Currency | undefined
-) {
-  if (!shareTokenAmount || !shareTokenTotalSupply || !tokenAll || !currency) {
-    return undefined
-  }
-  const tokenAmount =
-    shareTokenAmount && tokenAll && shareTokenTotalSupply
-      ? (shareTokenAmount * tokenAll) / (shareTokenTotalSupply as bigint)
-      : 0
-  return CurrencyAmount.fromRawAmount(currency, tokenAmount.toString())
-}
-
 export function useUserShares(
   vaultAddress: string | undefined,
   state: VaultState | null,
@@ -93,7 +77,6 @@ export function useUserShares(
     withdrawTypedValue,
     new Token(DEFAULT_CHAIN_ID, '', 18)
   )
-  const typedValueBigInt = typedValue ? BigInt(typedValue.raw.toString()) : undefined
   const { data, isError } = useUnderlyingVaultAssets(vaultAddress)
 
   const { token0All, token1All } = useMemo(() => {
@@ -114,13 +97,48 @@ export function useUserShares(
     }
   }, [supply, supplyError])
 
-  //amount of token that the user gets for a given amount of share token after withdrawal
-  const token0 = calcWithdrawToken(typedValueBigInt, totalSupply, token0All, currencyA)
-  const token1 = calcWithdrawToken(typedValueBigInt, totalSupply, token1All, currencyB)
+  const token0: CurrencyAmount<Currency> | undefined = useMemo(() => {
+    if (!typedValue || !totalSupply || !token0All || !currencyA) {
+      return undefined
+    }
+    const token0Amount =
+      typedValue && token0All && totalSupply
+        ? (BigInt(typedValue.raw.toString()) * token0All) / (totalSupply as bigint)
+        : 0
 
-  //total available amount if a user withdraws 100%
-  const totalToken0Amount = calcWithdrawToken(shares?.data, totalSupply, token0All, currencyA)
-  const totalToken1Amount = calcWithdrawToken(shares?.data, totalSupply, token1All, currencyB)
+    return CurrencyAmount.fromRawAmount(currencyA, token0Amount.toString())
+  }, [typedValue, totalSupply, token0All, currencyA])
+
+  const token1: CurrencyAmount<Currency> | undefined = useMemo(() => {
+    if (!typedValue || !totalSupply || !token1All || !currencyB) {
+      return undefined
+    }
+    const token1Amount =
+      typedValue && token1All && totalSupply
+        ? (BigInt(typedValue.raw.toString()) * token1All) / (totalSupply as bigint)
+        : 0
+    return CurrencyAmount.fromRawAmount(currencyB, token1Amount.toString())
+  }, [typedValue, totalSupply, token1All, currencyB])
+
+  const totalToken0Amount: CurrencyAmount<Currency> | undefined = useMemo(() => {
+    if (!shares || !totalSupply || !token0All || !currencyA) {
+      return undefined
+    }
+    const token0Amount =
+      shares.data && token0All && totalSupply ? (shares.data * token0All) / (totalSupply as bigint) : 0
+
+    return CurrencyAmount.fromRawAmount(currencyA, token0Amount.toString())
+  }, [shares, totalSupply, token0All, currencyA])
+
+  const totalToken1Amount: CurrencyAmount<Currency> | undefined = useMemo(() => {
+    if (!shares || !totalSupply || !token1All || !currencyB) {
+      return undefined
+    }
+    const token1Amount =
+      shares.data && token0All && totalSupply ? (shares.data * token1All) / (totalSupply as bigint) : 0
+
+    return CurrencyAmount.fromRawAmount(currencyB, token1Amount.toString())
+  }, [shares, totalSupply, token1All, currencyB])
 
   const formattedShares = formatUnits(totalShares ?? 0)
   let insufficientBalance = false
