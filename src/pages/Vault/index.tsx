@@ -322,14 +322,15 @@ const PageTitle = ({ token0, token1 }: { token0?: Token; token1?: Token }) => {
 
 export default function Vault({ className }: { className?: string }) {
   const { vaultId: vaultIdFromUrl } = useParams()
-  const { chainId } = useAccountDetails()
+  const { chainId: chainIdConnected } = useAccountDetails()
+  const chainId = chainIdConnected || DEFAULT_CHAIN_ID
   const [generalError, setGeneralError] = useState<boolean | null>(null)
   const [generalLoading, setGeneralLoading] = useState(true)
 
   const { data: allVaults, error: allVaultsError, isLoading: isAllVaultsLoading } = useAllVaults()
   const currentVault: any = allVaults && vaultIdFromUrl ? allVaults[vaultIdFromUrl] : {}
-  const currency0: any = useCurrency(currentVault?.token0?.address)
-  const currency1: any = useCurrency(currentVault?.token1?.address)
+  const currency0: any = useCurrency(currentVault?.token0?.address, chainId)
+  const currency1: any = useCurrency(currentVault?.token1?.address, chainId)
   const vaultState = useVaultState()
   const { totalShares, totalToken0Amount, totalToken1Amount } = useUserShares(
     vaultIdFromUrl,
