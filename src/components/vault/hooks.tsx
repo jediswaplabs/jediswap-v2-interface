@@ -9,7 +9,7 @@ import { ReactNode, useMemo } from 'react'
 import { VaultState } from 'state/vaults/reducer'
 import { useParams } from 'react-router-dom'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
-import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
+import { Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
 import { removeExtraDecimals } from 'utils/removeExtraDecimals'
 import { Trans } from '@lingui/macro'
 import { formatUnits } from 'ethers/lib/utils'
@@ -73,17 +73,18 @@ export function useUserShares(
   const totalShares = shares.data
 
   const withdrawTypedValue = state ? state.withdrawTypedValue : '0'
-  const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currencyA)
+  const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(
+    withdrawTypedValue,
+    new Token(DEFAULT_CHAIN_ID, '', 18)
+  )
   const { data, isError } = useUnderlyingVaultAssets(vaultAddress)
 
-  const { token0All, token1All, priceRatio } = useMemo(() => {
+  const { token0All, token1All } = useMemo(() => {
     const result: any = data
-    if (!result || isError || !result[0] || !result[1])
-      return { token0All: undefined, token1All: undefined, priceRatio: undefined }
+    if (!result || isError || !result[0] || !result[1]) return { token0All: undefined, token1All: undefined }
     return {
       token0All: result[0],
       token1All: result[1],
-      priceRatio: result[0] / result[1],
     }
   }, [data, isError])
 
@@ -112,10 +113,12 @@ export function useUserShares(
     if (!typedValue || !totalSupply || !token1All || !currencyB) {
       return undefined
     }
-    const token1Amount = token0 && priceRatio ? BigInt(token0.raw.toString()) / BigInt(priceRatio) : 0
+    const token1Amount =
+      typedValue && token1All && totalSupply
+        ? (BigInt(typedValue.raw.toString()) * token1All) / (totalSupply as bigint)
+        : 0
     return CurrencyAmount.fromRawAmount(currencyB, token1Amount.toString())
   }, [typedValue, totalSupply, token1All, token0, currencyB])
-  //   const token1 = token0 && priceRatio ? token0 / BigInt(priceRatio) : 0
 
   const totalToken0Amount: CurrencyAmount<Currency> | undefined = useMemo(() => {
     if (!shares || !totalSupply || !token0All || !currencyA) {
@@ -132,7 +135,8 @@ export function useUserShares(
       return undefined
     }
     const token1Amount =
-      totalToken0Amount && priceRatio ? BigInt(totalToken0Amount.raw.toString()) / BigInt(priceRatio) : 0
+      shares.data && token0All && totalSupply ? (shares.data * token1All) / (totalSupply as bigint) : 0
+
     return CurrencyAmount.fromRawAmount(currencyB, token1Amount.toString())
   }, [shares, totalSupply, token1All, totalToken0Amount, currencyB])
 

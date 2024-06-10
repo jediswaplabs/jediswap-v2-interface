@@ -5,7 +5,8 @@ import { AlertTriangle, ArrowLeft } from 'react-feather'
 import { useMedia } from 'react-use'
 import styled, { css } from 'styled-components'
 import { Flex } from 'rebass'
-import { ChainId, Currency, CurrencyAmount, Fraction, ONE, Percent, Token } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency, CurrencyAmount, ONE, Percent, Token } from '@vnaysn/jediswap-sdk-core'
+import { DEFAULT_CHAIN_ID } from 'constants/tokens'
 import { isEmpty } from 'lodash'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBalance, useContractWrite } from '@starknet-react/core'
@@ -740,7 +741,10 @@ export function VaultElement({
     if (!token0 || !token1 || !withdrawTypedValue || !vaultAddress) return
 
     const callData = []
-    const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(withdrawTypedValue, currency0)
+    const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(
+      withdrawTypedValue,
+      new Token(DEFAULT_CHAIN_ID, '', 18)
+    )
     const defaultWithdrawSlippage = new Percent(99, 10000)
 
     const vaultFee = new Percent(
