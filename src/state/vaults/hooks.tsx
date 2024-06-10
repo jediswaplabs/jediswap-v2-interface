@@ -28,6 +28,8 @@ import { formatUsdPrice } from 'nft/utils'
 import { removeExtraDecimals } from 'utils/removeExtraDecimals'
 import { Vault } from './reducer'
 import { DEFAULT_CHAIN_ID, TEAHOUSE_LOGO_URI, vaultURL } from 'constants/tokens'
+import { getClient } from 'apollo/client'
+import { STRK_REWARDS_DATA } from 'apollo/queries'
 
 type Maybe<T> = T | null | undefined
 
@@ -142,6 +144,18 @@ const getTokenPrices = async (contracts: string[]) => {
   return result
 }
 
+function getRewardsData(jediRewards: any, vault: any) {
+  if (!jediRewards) {
+    return
+  }
+  const pair1 = `${vault?.token0.symbol}/${vault?.token1.symbol}`.toLowerCase()
+  const pair2 = `${vault?.token1.symbol}/${vault?.token0.symbol}`.toLowerCase()
+  const pairKey = Object.keys(jediRewards).find((key) => key.toLowerCase() === pair1 || key.toLowerCase() === pair2)
+  if (pairKey && jediRewards[pairKey]) {
+    return jediRewards[pairKey]
+  }
+}
+
 export function useAllVaults() {
   const allVaults = useSelector((state: AppState) => state.vaults.allVaults)
   const dispatch = useAppDispatch()
@@ -150,19 +164,26 @@ export function useAllVaults() {
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
+  const graphqlClient = getClient(chainId)
+
   useEffect(() => {
     let ignore = false
     const loadData = async () => {
       setError(null)
       setIsLoading(true)
       try {
-        const [vaultListWithContents, permissionlessVaultDataList] = await Promise.all([
+        const [vaultListWithContents, permissionlessVaultDataList, rewardsResp] = await Promise.all([
           getVaultListWithContents(chainId),
           getPermissionlessVaultDataList(chainId),
+          graphqlClient.query({
+            query: STRK_REWARDS_DATA(),
+            fetchPolicy: 'cache-first',
+          }),
         ])
         if (!vaultListWithContents || !permissionlessVaultDataList) {
           throw new Error('Failed to fetch data')
         }
+        const jediRewards = rewardsResp?.data?.strkGrantDataV2
         const addresses = Object.keys(vaultListWithContents)
         const tokensAddresses = uniq(
           addresses
@@ -189,6 +210,10 @@ export function useAllVaults() {
               token1: prices?.[token1Address] ?? null,
             },
           }
+
+          const rewardsData = getRewardsData(jediRewards, vaultListWithContents[address])
+          acc[address].aprStarknet = rewardsData?.apr || 0
+          acc[address].rewarded = acc[address].aprStarknet ? true : false
           return acc
         }, {})
         if (!ignore) {

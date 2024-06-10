@@ -443,7 +443,8 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
     const shareTokenDecimals = vaultData?.share?.decimals
     const shareTokenPriceInUnits = performanceData.shareTokenPrice / 10 ** (18 + shareTokenDecimals)
     // apr = Number(performanceData.shareTokenApr / 10 ** 4)?.toFixed(2)
-    apr = Number(performanceData.feeApr7dAvg / 10 ** 4)?.toFixed(2)
+    const feeApr = Number(performanceData.feeApr7dAvg / 10 ** 4)
+    apr = (feeApr + vaultData.aprStarknet * 100).toFixed(2)
     shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
   }
 
@@ -567,9 +568,13 @@ export default function Vaults({ maxItems = 10 }) {
       const vaultAUserDeposit = userPools?.[vaultAddressA]
       const vaultBUserDeposit = userPools?.[vaultAddressB]
       const vaultAValueToCompare =
-        isMyVaultsFilterEnabled && vaultAUserDeposit ? vaultAUserDeposit : vaultAPerformanceData?.feeApr7dAvg
+        isMyVaultsFilterEnabled && vaultAUserDeposit
+          ? vaultAUserDeposit
+          : vaultAPerformanceData?.feeApr7dAvg / 10 ** 4 + vaultA.aprStarknet * 100
       const vaultBValueToCompare =
-        isMyVaultsFilterEnabled && vaultBUserDeposit ? vaultBUserDeposit : vaultBPerformanceData?.feeApr7dAvg
+        isMyVaultsFilterEnabled && vaultBUserDeposit
+          ? vaultBUserDeposit
+          : vaultBPerformanceData?.feeApr7dAvg / 10 ** 4 + vaultB.aprStarknet * 100
       if (vaultAValueToCompare < vaultBValueToCompare) {
         return 1
       }

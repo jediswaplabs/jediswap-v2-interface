@@ -461,9 +461,10 @@ export default function Vault({ className }: { className?: string }) {
           const tokenPrice = currentVault.prices[currentVault.mainAssetKey]
           const shareTokenDecimals = currentVault?.share?.decimals
           const shareTokenPriceInUnits = performanceData.shareTokenPrice / 10 ** (18 + shareTokenDecimals)
-          apr = Number(performanceData.shareTokenApr / 10 ** 4)?.toFixed(2)
-          feeApr = Number(performanceData.feeApr7dAvg / 10 ** 4)?.toFixed(2)
-          totalApr = Number((performanceData?.shareTokenApr + performanceData?.feeApr) / 10 ** 4)?.toFixed(2)
+          // apr = Number(performanceData.shareTokenApr / 10 ** 4)?.toFixed(2)
+          feeApr = Number(performanceData.feeApr7dAvg / 10 ** 4)
+          apr = (feeApr + currentVault.aprStarknet * 100).toFixed(2)
+          // totalApr = Number((performanceData?.shareTokenApr + performanceData?.feeApr) / 10 ** 4)?.toFixed(2)
           shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
         }
 
@@ -488,7 +489,7 @@ export default function Vault({ className }: { className?: string }) {
                     <HighlightValue gap="15px" grow>
                       <VaultDataHeaders>APR</VaultDataHeaders>
                       <ThemedText.BodySmall color={'signalGreen'} fontWeight={700}>
-                        {feeApr ? `${feeApr}%` : '-'}
+                        {apr ? `${apr}%` : '-'}
                       </ThemedText.BodySmall>
                     </HighlightValue>
                     {/* <ProviderLogo src={currentVault?.provider.logo} /> */}

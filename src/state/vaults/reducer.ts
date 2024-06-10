@@ -58,6 +58,7 @@ export type Vault = {
   strategyType: string
   type: string
   performance: any
+  aprStarknet: number
 }
 
 type Vaults = {
