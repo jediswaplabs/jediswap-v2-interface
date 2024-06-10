@@ -39,7 +39,6 @@ const Web3StatusGeneric = styled(ButtonSecondary)`
 
 const Web3StatusConnectWrapper = styled.div`
   font-family: 'Avenir LT Std';
-  background-color: ${({ theme }) => theme.surface5};
   border: none;
   color: ${({ theme }) => theme.white};
 `
@@ -80,7 +79,9 @@ const NetworkSelected = styled(Web3StatusGeneric)<{}>`
   margin-right: 16px;
   padding: 10px 24px;
   cursor: auto;
-  &:hover, &:active, &:focus {
+  &:hover,
+  &:active,
+  &:focus {
     border-color: transparent;
   }
 `
@@ -142,7 +143,7 @@ function Web3StatusInner() {
   } else {
     return (
       <Web3StatusConnectWrapper tabIndex={0} onClick={handleWalletDropdownClick}>
-        <ButtonPrimary tabIndex={-1} data-testid="navbar-connect-wallet" style={{padding: "10px 25px"}}>
+        <ButtonPrimary tabIndex={-1} data-testid="navbar-connect-wallet" style={{ padding: '10px 25px' }}>
           <Trans>Connect wallet</Trans>
         </ButtonPrimary>
       </Web3StatusConnectWrapper>
