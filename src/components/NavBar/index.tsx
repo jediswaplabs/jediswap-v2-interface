@@ -17,6 +17,7 @@ import {
   Nav,
   StatusContainer,
 } from './styled'
+import { useIsVaultsPage } from '../../hooks/useIsVaultsPage'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import StarkIcon from 'assets/svg/starknet.svg'
@@ -39,6 +40,7 @@ const ExternalMenuItemLink = ({ to, children }) => (
 export const PageTabs = () => {
   const { pathname } = useLocation()
   const isPoolActive = useIsPoolsPage()
+  const isVaultsActive = useIsVaultsPage()
   const { chainId } = useAccountDetails()
 
   return (
@@ -52,6 +54,9 @@ export const PageTabs = () => {
       <ExternalMenuItemLink to={'https://info.v2.jediswap.xyz/'}>
         <Trans>Dashboard</Trans>
       </ExternalMenuItemLink>
+      <MenuItemLink to="/vaults" isActive={isVaultsActive}>
+        <Trans>Vaults</Trans>
+      </MenuItemLink>
       <ExternalMenuItemLink to="https://app.v1.jediswap.xyz/">
         <Trans>V1</Trans>
       </ExternalMenuItemLink>

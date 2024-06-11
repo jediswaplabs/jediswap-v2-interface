@@ -81,6 +81,20 @@ export function getSwapCurrencyId(currency: Currency): string {
   return NATIVE_CHAIN_ID
 }
 
+export const vaultURL = (type: string, chainId: ChainId) => {
+  if (type === 'content') {
+    return chainId === ChainId.MAINNET
+      ? 'https://vault-content-api.teahouse.finance/vaults'
+      : 'https://test-vault-content-api.teahouse.finance/vaults'
+  } else {
+    return chainId === ChainId.MAINNET
+      ? 'https://vault-api.teahouse.finance/vaults/type/permissionless'
+      : 'https://test20-vault-api.teahouse.finance/vaults/type/permissionless'
+  }
+}
+
+export const TEAHOUSE_LOGO_URI = 'https://vault.teahouse.finance/icon-token'
+
 export const domainURL = (chainId: ChainId) => {
   return chainId === ChainId.MAINNET
     ? 'https://app.starknet.id/api/indexer/addr_to_domain?addr='

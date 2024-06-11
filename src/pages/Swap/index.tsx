@@ -839,15 +839,19 @@ export function Swap({
 
   const handleInputSelect = useCallback(
     (inputCurrency: Currency) => {
-      onCurrencySelection(Field.INPUT, inputCurrency)
-      onCurrencyChange?.({
-        [Field.INPUT]: {
-          currencyId: getSwapCurrencyId(inputCurrency),
-        },
-        [Field.OUTPUT]: state[Field.OUTPUT],
-      })
+      if (currencies[Field.OUTPUT] === inputCurrency) {
+        onSwitchTokens(inputTokenHasTax, formattedAmounts[dependentField])
+      } else {
+        onCurrencySelection(Field.INPUT, inputCurrency)
+        onCurrencyChange?.({
+          [Field.INPUT]: {
+            currencyId: getSwapCurrencyId(inputCurrency),
+          },
+          [Field.OUTPUT]: state[Field.OUTPUT],
+        })
+      }
     },
-    [onCurrencyChange, onCurrencySelection, state]
+    [onCurrencyChange, onCurrencySelection, state, onSwitchTokens, currencies]
   )
   const inputCurrencyNumericalInputRef = useRef<HTMLInputElement>(null)
 
@@ -860,15 +864,19 @@ export function Swap({
 
   const handleOutputSelect = useCallback(
     (outputCurrency: Currency) => {
-      onCurrencySelection(Field.OUTPUT, outputCurrency)
-      onCurrencyChange?.({
-        [Field.INPUT]: state[Field.INPUT],
-        [Field.OUTPUT]: {
-          currencyId: getSwapCurrencyId(outputCurrency),
-        },
-      })
+      if (currencies[Field.INPUT] === outputCurrency) {
+        onSwitchTokens(inputTokenHasTax, formattedAmounts[dependentField])
+      } else {
+        onCurrencySelection(Field.OUTPUT, outputCurrency)
+        onCurrencyChange?.({
+          [Field.INPUT]: state[Field.INPUT],
+          [Field.OUTPUT]: {
+            currencyId: getSwapCurrencyId(outputCurrency),
+          },
+        })
+      }
     },
-    [onCurrencyChange, onCurrencySelection, state]
+    [onCurrencyChange, onCurrencySelection, state, onSwitchTokens, currencies]
   )
 
   const showPriceImpactWarning = isClassicTrade(trade) && largerPriceImpact && priceImpactSeverity > 3

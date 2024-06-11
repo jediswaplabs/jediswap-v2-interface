@@ -7,8 +7,11 @@ import PoolDetails from './PoolDetails'
 import Swap from './Swap'
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
 import Rewards from './Rewards'
+import Vaults from './Vaults'
 
 const AddLiquidity = lazy(() => import('pages/AddLiquidity'))
+const Vault = lazy(() => import('pages/Vault'))
+import Rewards from './Rewards'
 
 const RedirectDuplicateTokenIds = lazy(() => import('pages/AddLiquidity/redirects'))
 
@@ -65,6 +68,8 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/pools', getElement: () => <Pool /> }),
   createRouteDefinition({ path: '/pools/:tokenId', getElement: () => <PositionPage /> }),
   createRouteDefinition({ path: '/referral', getElement: () => <Referral /> }),
+  createRouteDefinition({ path: '/vaults', getElement: () => <Vaults /> }),
+  createRouteDefinition({ path: '/vaults/:vaultId', getElement: () => <Vault /> }),
   createRouteDefinition({ path: '/rewards', getElement: () => <Rewards /> }),
 
   createRouteDefinition({

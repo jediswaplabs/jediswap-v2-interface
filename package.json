@@ -1,6 +1,6 @@
 {
   "name": "@jediswap/interface",
-  "version": "7.1.4",
+  "version": "7.2.0",
   "description": "Jediswap Interface",
   "homepage": ".",
   "scripts": {
@@ -81,6 +81,7 @@
     "@types/array.prototype.flat": "^1.2.1",
     "@types/array.prototype.flatmap": "^1.2.2",
     "@types/d3": "^6.7.1",
+    "@types/dompurify": "^3.0.5",
     "@types/jest": "^27.0.1",
     "@types/lingui__core": "^2.7.1",
     "@types/lingui__macro": "^2.7.4",
@@ -238,6 +239,7 @@
     "clsx": "^1.1.1",
     "copy-to-clipboard": "^3.2.0",
     "d3": "^7.6.1",
+    "dompurify": "^3.1.5",
     "ethers": "^5.7.2",
     "ext-name": "^5.0.0",
     "focus-visible": "^5.2.0",

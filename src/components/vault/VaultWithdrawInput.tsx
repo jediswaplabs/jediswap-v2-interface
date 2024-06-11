@@ -1,28 +1,26 @@
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
-import { Pair } from '@vnaysn/jediswap-sdk-v2'
 import { darken } from 'polished'
 import { ReactNode, useCallback, useState } from 'react'
 import styled, { useTheme } from 'styled-components'
-
-import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
-import { TraceEvent } from 'analytics'
-import { LoadingOpacityContainer, loadingOpacityMixin } from 'components/Loader/styled'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { loadingOpacityMixin } from 'components/Loader/styled'
 import PrefetchBalancesWrapper from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
 import { isSupportedChain } from 'constants/chains'
 import { ThemedText } from 'theme/components'
 import { flexColumnNoWrap, flexRowNoWrap } from 'theme/styles'
-import { formatCurrencyAmount } from 'utils/formatCurrencyAmount'
 import { ReactComponent as DropDown } from '../../assets/images/dropdown.svg'
-import { useCurrencyBalance } from '../../state/connection/hooks'
 import { ButtonGray } from '../Button'
 import DoubleCurrencyLogo from '../DoubleLogo'
-import CurrencyLogo from '../Logo/CurrencyLogo'
 import { Input as NumericalInput } from '../NumericalInput'
 import { RowBetween, RowFixed } from '../Row'
-import CurrencySearchModal from '../SearchModal/CurrencySearchModal'
-import { FiatValue } from './FiatValue'
+import formatBalance from 'utils/formatBalance'
+import { useCurrency } from 'hooks/Tokens'
+import { useVaultState } from 'state/vaults/hooks'
+import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
+import JSBI from 'jsbi'
+import { BigNumber } from 'ethers'
+import { formatUnits } from 'ethers/lib/utils'
 
 const InputPanel = styled.div<{ hideInput?: boolean }>`
   ${flexColumnNoWrap};
@@ -37,8 +35,12 @@ const InputPanel = styled.div<{ hideInput?: boolean }>`
 `
 
 const Container = styled.div<{ hideInput: boolean; disabled: boolean }>`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   border-radius: ${({ hideInput }) => (hideInput ? '8px' : '8px')};
   background-color: rgba(196, 196, 196, 0.01);
+  padding: 16px;
   box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
     0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
     0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset,
@@ -47,7 +49,7 @@ const Container = styled.div<{ hideInput: boolean; disabled: boolean }>`
   ${({ theme, hideInput, disabled }) =>
     !disabled &&
     `
-    :focus{
+    :focus {
       border: 1px solid ${hideInput ? ' transparent' : theme.surface2};
     }
   `}
@@ -77,8 +79,8 @@ const CurrencySelect = styled(ButtonGray)<{
   width: ${({ hideInput }) => (hideInput ? '100%' : 'initial')};
   padding: 0 8px;
   justify-content: space-between;
-  margin-left: ${({ hideInput }) => (hideInput ? '0' : '12px')};
   visibility: ${({ visible }) => (visible ? 'visible' : 'hidden')};
+  border-radius: 8px;
   ${({ pointerEvents }) => pointerEvents && 'pointer-events: none'}
 `
 
@@ -86,7 +88,6 @@ const InputRow = styled.div<{ selected: boolean }>`
   ${flexRowNoWrap};
   align-items: center;
   justify-content: space-between;
-  padding: ${({ selected }) => (selected ? ' 1rem 1rem 0.75rem 0' : '1rem 1rem 1rem 0')};
 `
 
 const LabelRow = styled.div`
@@ -95,7 +96,6 @@ const LabelRow = styled.div`
   color: ${({ theme }) => theme.neutral1};
   font-size: 0.75rem;
   line-height: 1rem;
-  padding: 0 1rem 1rem;
   span:hover {
     cursor: pointer;
     color: ${({ theme }) => darken(0.2, theme.neutral2)};
@@ -104,7 +104,6 @@ const LabelRow = styled.div`
 
 const FiatRow = styled(LabelRow)`
   justify-content: flex-end;
-  padding: 0px 1rem 0.75rem;
   height: 32px;
 `
 
@@ -162,8 +161,8 @@ const StyledNumericalInput = styled(NumericalInput)<{ $loading: boolean }>`
   text-align: left;
 `
 
-const StyledPrefetchBalancesWrapper = styled(PrefetchBalancesWrapper)<{ $fullWidth: boolean }>`
-  width: ${({ $fullWidth }) => ($fullWidth ? '100%' : 'auto')};
+const StyledPrefetchBalancesWrapper = styled(PrefetchBalancesWrapper)`
+  width: 50%;
 `
 
 interface CurrencyInputPanelProps {
@@ -175,10 +174,10 @@ interface CurrencyInputPanelProps {
   onCurrencySelect?: (currency: Currency) => void
   currency?: Currency | null
   hideBalance?: boolean
-  pair?: Pair | null
+  vaultPair?: any
   hideInput?: boolean
   otherCurrency?: Currency | null
-  fiatValue?: number | undefined
+  fiatValue?: { data?: number; isLoading: boolean }
   id: string
   showCommonBases?: boolean
   showCurrencyAmount?: boolean
@@ -187,14 +186,14 @@ interface CurrencyInputPanelProps {
   locked?: boolean
   loading?: boolean
   hideShadow?: boolean
+  totalShares: any
 }
 
-export default function CurrencyInputPanel({
+export default function VaultWithdrawInput({
   value,
   onUserInput,
   onMax,
   showMaxButton,
-  onCurrencySelect,
   currency,
   otherCurrency,
   id,
@@ -204,100 +203,79 @@ export default function CurrencyInputPanel({
   renderBalance,
   fiatValue,
   hideBalance = false,
-  pair = null, // used for double token logo
+  vaultPair = null, // used for double token logo
   hideInput = false,
   locked = false,
   loading = false,
   hideShadow = false,
+  totalShares,
   ...rest
 }: CurrencyInputPanelProps) {
-  const [modalOpen, setModalOpen] = useState(false)
   const { address: account, chainId } = useAccountDetails()
-  const { formatted, balance } = useAccountBalance(currency as Currency)
-  const theme = useTheme()
+  const shares = totalShares ? formatUnits(totalShares) : 0
 
-  const handleDismissSearch = useCallback(() => {
-    setModalOpen(false)
-  }, [setModalOpen])
+  const formattedShares = formatBalance(shares)
+
+  const theme = useTheme()
 
   const chainAllowed = isSupportedChain(chainId)
 
   const handleMaxAmount = () => {
-    if (balance) {
-      onUserInput(balance)
+    if (totalShares && shares) {
+      onUserInput(shares)
     }
   }
 
   const containerStyles = hideShadow ? { boxShadow: 'none' } : {}
-  const showMax = balance !== null && Number(value) !== Number(balance)
+  //   const showMax = shares !== null && Number(value) !== Number(shares)
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>
       {!locked && (
         <Container hideInput={hideInput} disabled={!chainAllowed} style={containerStyles}>
-          <InputRow style={hideInput ? { padding: '0', borderRadius: '8px' } : {}} selected={!onCurrencySelect}>
-            <StyledPrefetchBalancesWrapper shouldFetchOnAccountUpdate={modalOpen} $fullWidth={hideInput}>
+          <InputRow style={hideInput ? { padding: '0', borderRadius: '8px' } : {}} selected>
+            <StyledPrefetchBalancesWrapper shouldFetchOnAccountUpdate={false}>
               <CurrencySelect
                 disabled={!chainAllowed}
-                visible={currency !== undefined}
+                visible
                 selected={!!currency}
                 hideInput={hideInput}
                 className="open-currency-select-button"
-                onClick={() => {
-                  if (onCurrencySelect) {
-                    setModalOpen(true)
-                  }
-                }}
-                pointerEvents={!onCurrencySelect ? 'none' : undefined}
+                pointerEvents={'none'}
               >
                 <Aligner>
                   <RowFixed>
-                    {pair ? (
-                      <span style={{ marginRight: '0.5rem' }}>
-                        <DoubleCurrencyLogo currency0={pair.token0} currency1={pair.token1} size={24} margin />
-                      </span>
-                    ) : (
-                      currency && <CurrencyLogo style={{ marginRight: '0.5rem' }} currency={currency} size="24px" />
-                    )}
-                    {pair ? (
-                      <StyledTokenName className="pair-name-container">
-                        {pair?.token0.symbol}:{pair?.token1.symbol}
-                      </StyledTokenName>
-                    ) : (
-                      <StyledTokenName className="token-symbol-container" active={Boolean(currency && currency.symbol)}>
-                        {(currency && currency.symbol && currency.symbol.length > 20
-                          ? `${currency.symbol.slice(0, 4)}...${currency.symbol.slice(
-                              currency.symbol.length - 5,
-                              currency.symbol.length
-                            )}`
-                          : currency?.symbol) || <Trans>Select a token</Trans>}
-                      </StyledTokenName>
-                    )}
+                    <span style={{ marginRight: '0.5rem' }}>
+                      <DoubleCurrencyLogo
+                        currency0={vaultPair?.token0Currency}
+                        currency1={vaultPair?.token1Currency}
+                        size={24}
+                      />
+                    </span>
+
+                    <StyledTokenName className="pair-name-container">
+                      {vaultPair?.token0Currency?.symbol}-{vaultPair?.token1Currency?.symbol}
+                    </StyledTokenName>
                   </RowFixed>
-                  {onCurrencySelect && <StyledDropDown selected={!!currency} />}
                 </Aligner>
               </CurrencySelect>
             </StyledPrefetchBalancesWrapper>
             {!hideInput && (
-              <div>
-                <StyledNumericalInput
-                  className="token-amount-input"
-                  value={value}
-                  onUserInput={onUserInput}
-                  disabled={!chainAllowed}
-                  $loading={loading}
-                  style={{ width: 'auto', textAlign: 'right' }}
-                />
-              </div>
+              <StyledNumericalInput
+                className="token-amount-input"
+                value={value}
+                onUserInput={onUserInput}
+                disabled={!chainAllowed}
+                $loading={loading}
+                style={{ width: 'auto', textAlign: 'right' }}
+              />
             )}
           </InputRow>
-          {Boolean(!hideInput && !hideBalance && currency) && (
+          {Boolean(!hideInput && !hideBalance) && (
             <FiatRow>
               <RowBetween>
                 {account && (
                   <RowFixed style={{ height: '17px' }}>
-                    {' '}
-                    {/*formatted can be NaN*/}
-                    {showMax && Boolean(formatted) && (
+                    {true && formattedShares && (
                       <StyledBalanceMax onClick={handleMaxAmount}>
                         <Trans>MAX</Trans>
                       </StyledBalanceMax>
@@ -309,31 +287,14 @@ export default function CurrencyInputPanel({
                       fontSize={14}
                       style={{ display: 'inline', cursor: 'pointer' }}
                     >
-                      {Boolean(formatted) && <>Bal: {formatted}</>} {/*formatted can be NaN*/}
+                      {formattedShares && <>Bal: {formattedShares}</>}
                     </ThemedText.DeprecatedBody>
                   </RowFixed>
                 )}
-                <LoadingOpacityContainer $loading={loading}>
-                  {fiatValue === 0 || (parseFloat(value) && fiatValue === undefined)
-                    ? 'N/A'
-                    : fiatValue && <FiatValue fiatValue={fiatValue} />}
-                </LoadingOpacityContainer>
               </RowBetween>
             </FiatRow>
           )}
         </Container>
-      )}
-      {onCurrencySelect && (
-        <CurrencySearchModal
-          isOpen={modalOpen}
-          onDismiss={handleDismissSearch}
-          onCurrencySelect={onCurrencySelect}
-          selectedCurrency={currency}
-          otherSelectedCurrency={otherCurrency}
-          showCommonBases={showCommonBases}
-          showCurrencyAmount={showCurrencyAmount}
-          disableNonToken={disableNonToken}
-        />
       )}
     </InputPanel>
   )

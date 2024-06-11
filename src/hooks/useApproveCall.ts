@@ -6,7 +6,6 @@ import { DEFAULT_CHAIN_ID, WETH } from 'constants/tokens'
 import ERC20_ABI from 'abis/erc20.json'
 
 export function useApprovalCall(amountToApprove?: CurrencyAmount<Currency>, spender?: string): () => Call | null {
-  const { account, chainId } = useAccountDetails()
   const token: Token | undefined = amountToApprove?.currency?.isToken ? amountToApprove.currency : undefined
 
   return useCallback(() => {
