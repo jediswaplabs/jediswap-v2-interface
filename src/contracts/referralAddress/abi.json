@@ -13,7 +13,7 @@
         "type": "function",
         "inputs": [
           {
-            "name": "_account",
+            "name": "account",
             "type": "core::starknet::contract_address::ContractAddress"
           }
         ],
@@ -29,7 +29,7 @@
         "type": "function",
         "inputs": [
           {
-            "name": "_address",
+            "name": "address",
             "type": "core::starknet::contract_address::ContractAddress"
           }
         ],

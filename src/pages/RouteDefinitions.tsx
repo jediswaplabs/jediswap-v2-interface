@@ -6,7 +6,6 @@ import { isBrowserRouterEnabled } from 'utils/env'
 import PoolDetails from './PoolDetails'
 import Swap from './Swap'
 import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
-import Rewards from './Rewards'
 import Vaults from './Vaults'
 
 const AddLiquidity = lazy(() => import('pages/AddLiquidity'))
