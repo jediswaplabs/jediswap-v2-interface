@@ -17,6 +17,7 @@ import signatures from './signatures/reducer'
 import transactions from './transactions/reducer'
 import user from './user/reducer'
 import wallets from './wallets/reducer'
+import vaults from './vaults/reducer'
 
 const appReducer = combineReducers({
   application,
@@ -35,6 +36,7 @@ const appReducer = combineReducers({
   signatures,
   lists,
   pairs,
+  vaults,
 });
 
 export type AppState = ReturnType<typeof appReducer>

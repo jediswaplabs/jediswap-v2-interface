@@ -1,0 +1,1743 @@
+[
+  {
+    "name": "UpgradeableImpl",
+    "type": "impl",
+    "interface_name": "openzeppelin::upgrades::interface::IUpgradeable"
+  },
+  {
+    "name": "openzeppelin::upgrades::interface::IUpgradeable",
+    "type": "interface",
+    "items": [
+      {
+        "name": "upgrade",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "new_class_hash",
+            "type": "core::starknet::class_hash::ClassHash"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "name": "ERC20MetadataImpl",
+    "type": "impl",
+    "interface_name": "openzeppelin::token::erc20::interface::IERC20Metadata"
+  },
+  {
+    "name": "core::byte_array::ByteArray",
+    "type": "struct",
+    "members": [
+      {
+        "name": "data",
+        "type": "core::array::Array::<core::bytes_31::bytes31>"
+      },
+      {
+        "name": "pending_word",
+        "type": "core::felt252"
+      },
+      {
+        "name": "pending_word_len",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "name": "openzeppelin::token::erc20::interface::IERC20Metadata",
+    "type": "interface",
+    "items": [
+      {
+        "name": "name",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::byte_array::ByteArray"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "symbol",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::byte_array::ByteArray"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "decimals",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u8"
+          }
+        ],
+        "state_mutability": "view"
+      }
+    ]
+  },
+  {
+    "name": "TeaVaultJediV2Impl",
+    "type": "impl",
+    "interface_name": "tea_vault_jedi_v2::tea_vault_jedi_v2::ITeaVaultJediV2"
+  },
+  {
+    "name": "core::integer::u256",
+    "type": "struct",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::FeeConfig",
+    "type": "struct",
+    "members": [
+      {
+        "name": "treasury",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "entry_fee",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "exit_fee",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "performance_fee",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "management_fee",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "name": "core::bool",
+    "type": "enum",
+    "variants": [
+      {
+        "name": "False",
+        "type": "()"
+      },
+      {
+        "name": "True",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "name": "jediswap_v2_core::libraries::signed_integers::i32::i32",
+    "type": "struct",
+    "members": [
+      {
+        "name": "mag",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "sign",
+        "type": "core::bool"
+      }
+    ]
+  },
+  {
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::Position",
+    "type": "struct",
+    "members": [
+      {
+        "name": "tick_lower",
+        "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+      },
+      {
+        "name": "tick_upper",
+        "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+      },
+      {
+        "name": "liquidity",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "name": "core::array::Span::<core::felt252>",
+    "type": "struct",
+    "members": [
+      {
+        "name": "snapshot",
+        "type": "@core::array::Array::<core::felt252>"
+      }
+    ]
+  },
+  {
+    "name": "jediswap_v2_core::libraries::signed_integers::i256::i256",
+    "type": "struct",
+    "members": [
+      {
+        "name": "mag",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "sign",
+        "type": "core::bool"
+      }
+    ]
+  },
+  {
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::ITeaVaultJediV2",
+    "type": "interface",
+    "items": [
+      {
+        "name": "DECIMALS_MULTIPLIER",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "manager",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "fee_config",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::FeeConfig"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "pool",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "last_collect_management_fee",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u64"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "asset_token0",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "asset_token1",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "get_token0_balance",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "get_token1_balance",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "get_pool_tokens",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "(core::starknet::contract_address::ContractAddress, core::starknet::contract_address::ContractAddress, core::integer::u8, core::integer::u8)"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "get_pool_info",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "(core::integer::u32, core::integer::u256, jediswap_v2_core::libraries::signed_integers::i32::i32)"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "position_info_ticks",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "tick_lower",
+            "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+          },
+          {
+            "name": "tick_upper",
+            "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "(core::integer::u256, core::integer::u256, core::integer::u256, core::integer::u256)"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "position_info_index",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "index",
+            "type": "core::integer::u32"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "(core::integer::u256, core::integer::u256, core::integer::u256, core::integer::u256)"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "all_position_info",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "(core::integer::u256, core::integer::u256, core::integer::u256, core::integer::u256)"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "vault_all_underlying_assets",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "(core::integer::u256, core::integer::u256)"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "estimated_value_in_token0",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "estimated_value_in_token1",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "get_liquidity_for_amounts",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "tick_lower",
+            "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+          },
+          {
+            "name": "tick_upper",
+            "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+          },
+          {
+            "name": "amount0",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "amount1",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u128"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "get_amounts_for_liquidity",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "tick_lower",
+            "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+          },
+          {
+            "name": "tick_upper",
+            "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+          },
+          {
+            "name": "liquidity",
+            "type": "core::integer::u128"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "(core::integer::u256, core::integer::u256)"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "get_all_positions",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::array::Array::<tea_vault_jedi_v2::tea_vault_jedi_v2::Position>"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "set_fee_config",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "fee_config",
+            "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::FeeConfig"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "assign_manager",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "manager",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "collect_management_fee",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "deposit",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "shares",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "amount0_max",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "amount1_max",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "(core::integer::u256, core::integer::u256)"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "withdraw",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "shares",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "amount0_min",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "amount1_min",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "(core::integer::u256, core::integer::u256)"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "add_liquidity",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "tick_lower",
+            "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+          },
+          {
+            "name": "tick_upper",
+            "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+          },
+          {
+            "name": "liquidity",
+            "type": "core::integer::u128"
+          },
+          {
+            "name": "amount0_min",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "amount1_min",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "deadline",
+            "type": "core::integer::u64"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "(core::integer::u256, core::integer::u256)"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "remove_liquidity",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "tick_lower",
+            "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+          },
+          {
+            "name": "tick_upper",
+            "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+          },
+          {
+            "name": "liquidity",
+            "type": "core::integer::u128"
+          },
+          {
+            "name": "amount0_min",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "amount1_min",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "deadline",
+            "type": "core::integer::u64"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "(core::integer::u256, core::integer::u256)"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "collect_position_swap_fee",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "tick_lower",
+            "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+          },
+          {
+            "name": "tick_upper",
+            "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "(core::integer::u128, core::integer::u128)"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "collect_all_swap_fee",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "(core::integer::u128, core::integer::u128)"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "swap_input_single",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "zero_for_one",
+            "type": "core::bool"
+          },
+          {
+            "name": "amount_in",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "amount_out_min",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "min_price_in_sqrt_price_x96",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "deadline",
+            "type": "core::integer::u64"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "swap_output_single",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "zero_for_one",
+            "type": "core::bool"
+          },
+          {
+            "name": "amount_out",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "amount_in_max",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "max_price_in_sqrt_price_x96",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "deadline",
+            "type": "core::integer::u64"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "jediswap_v2_mint_callback",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "amount0_owed",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "amount1_owed",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "callback_data_span",
+            "type": "core::array::Span::<core::felt252>"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "jediswap_v2_swap_callback",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "amount0_delta",
+            "type": "jediswap_v2_core::libraries::signed_integers::i256::i256"
+          },
+          {
+            "name": "amount1_delta",
+            "type": "jediswap_v2_core::libraries::signed_integers::i256::i256"
+          },
+          {
+            "name": "callback_data_span",
+            "type": "core::array::Span::<core::felt252>"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "claim_reward",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "reward_contract",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "claim_selector",
+            "type": "core::felt252"
+          },
+          {
+            "name": "amount",
+            "type": "core::integer::u128"
+          },
+          {
+            "name": "proof",
+            "type": "core::array::Span::<core::felt252>"
+          },
+          {
+            "name": "reward_token",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "receiver",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "pause",
+        "type": "function",
+        "inputs": [],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "unpause",
+        "type": "function",
+        "inputs": [],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "name": "OwnableTwoStepImpl",
+    "type": "impl",
+    "interface_name": "openzeppelin::access::ownable::interface::IOwnableTwoStep"
+  },
+  {
+    "name": "openzeppelin::access::ownable::interface::IOwnableTwoStep",
+    "type": "interface",
+    "items": [
+      {
+        "name": "owner",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "pending_owner",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "accept_ownership",
+        "type": "function",
+        "inputs": [],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "transfer_ownership",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "new_owner",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "renounce_ownership",
+        "type": "function",
+        "inputs": [],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "name": "OwnableCamelOnlyImpl",
+    "type": "impl",
+    "interface_name": "openzeppelin::access::ownable::interface::IOwnableTwoStepCamelOnly"
+  },
+  {
+    "name": "openzeppelin::access::ownable::interface::IOwnableTwoStepCamelOnly",
+    "type": "interface",
+    "items": [
+      {
+        "name": "pendingOwner",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "acceptOwnership",
+        "type": "function",
+        "inputs": [],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "transferOwnership",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "newOwner",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "renounceOwnership",
+        "type": "function",
+        "inputs": [],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "name": "ERC20Impl",
+    "type": "impl",
+    "interface_name": "openzeppelin::token::erc20::interface::IERC20"
+  },
+  {
+    "name": "openzeppelin::token::erc20::interface::IERC20",
+    "type": "interface",
+    "items": [
+      {
+        "name": "total_supply",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "balance_of",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "account",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "allowance",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "owner",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "spender",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "transfer",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "recipient",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "amount",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::bool"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "transfer_from",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "sender",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "recipient",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "amount",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::bool"
+          }
+        ],
+        "state_mutability": "external"
+      },
+      {
+        "name": "approve",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "spender",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "amount",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::bool"
+          }
+        ],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "name": "ERC20CamelOnlyImpl",
+    "type": "impl",
+    "interface_name": "openzeppelin::token::erc20::interface::IERC20CamelOnly"
+  },
+  {
+    "name": "openzeppelin::token::erc20::interface::IERC20CamelOnly",
+    "type": "interface",
+    "items": [
+      {
+        "name": "totalSupply",
+        "type": "function",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "balanceOf",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "account",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "name": "transferFrom",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "sender",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "recipient",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "amount",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::bool"
+          }
+        ],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "name": "constructor",
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "name",
+        "type": "core::byte_array::ByteArray"
+      },
+      {
+        "name": "symbol",
+        "type": "core::byte_array::ByteArray"
+      },
+      {
+        "name": "factory",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "token0",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "token1",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "fee_tier",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "decimal_offset",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "manager",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "fee_cap",
+        "type": "core::integer::u32"
+      },
+      {
+        "name": "fee_config",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::FeeConfig"
+      },
+      {
+        "name": "owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::TeaVaultV3PairCreated",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "tea_vault_address",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::FeeConfigChanged",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "sender",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "data",
+        "name": "timestamp",
+        "type": "core::integer::u64"
+      },
+      {
+        "kind": "data",
+        "name": "fee_config",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::FeeConfig"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::ManagerChanged",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "sender",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "key",
+        "name": "new_manager",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::ManagementFeeCollected",
+    "type": "event",
+    "members": [
+      {
+        "kind": "data",
+        "name": "shares",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::DepositShares",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "share_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "data",
+        "name": "shares",
+        "type": "core::integer::u256"
+      },
+      {
+        "kind": "data",
+        "name": "amount0",
+        "type": "core::integer::u256"
+      },
+      {
+        "kind": "data",
+        "name": "amount1",
+        "type": "core::integer::u256"
+      },
+      {
+        "kind": "data",
+        "name": "fee_amount0",
+        "type": "core::integer::u256"
+      },
+      {
+        "kind": "data",
+        "name": "fee_amount1",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::WithdrawShares",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "share_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "data",
+        "name": "shares",
+        "type": "core::integer::u256"
+      },
+      {
+        "kind": "data",
+        "name": "amount0",
+        "type": "core::integer::u256"
+      },
+      {
+        "kind": "data",
+        "name": "amount1",
+        "type": "core::integer::u256"
+      },
+      {
+        "kind": "data",
+        "name": "fee_shares",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::AddLiquidity",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "pool",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "data",
+        "name": "tick_lower",
+        "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+      },
+      {
+        "kind": "data",
+        "name": "tick_upper",
+        "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+      },
+      {
+        "kind": "data",
+        "name": "liquidity",
+        "type": "core::integer::u128"
+      },
+      {
+        "kind": "data",
+        "name": "amount0",
+        "type": "core::integer::u256"
+      },
+      {
+        "kind": "data",
+        "name": "amount1",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::RemoveLiquidity",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "pool",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "data",
+        "name": "tick_lower",
+        "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+      },
+      {
+        "kind": "data",
+        "name": "tick_upper",
+        "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+      },
+      {
+        "kind": "data",
+        "name": "liquidity",
+        "type": "core::integer::u128"
+      },
+      {
+        "kind": "data",
+        "name": "amount0",
+        "type": "core::integer::u256"
+      },
+      {
+        "kind": "data",
+        "name": "amount1",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::Collect",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "pool",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "data",
+        "name": "tick_lower",
+        "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+      },
+      {
+        "kind": "data",
+        "name": "tick_upper",
+        "type": "jediswap_v2_core::libraries::signed_integers::i32::i32"
+      },
+      {
+        "kind": "data",
+        "name": "amount0",
+        "type": "core::integer::u128"
+      },
+      {
+        "kind": "data",
+        "name": "amount1",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::CollectSwapFees",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "pool",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "data",
+        "name": "amount0",
+        "type": "core::integer::u128"
+      },
+      {
+        "kind": "data",
+        "name": "amount1",
+        "type": "core::integer::u128"
+      },
+      {
+        "kind": "data",
+        "name": "fee_amount0",
+        "type": "core::integer::u256"
+      },
+      {
+        "kind": "data",
+        "name": "fee_amount1",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::Swap",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "zero_for_one",
+        "type": "core::bool"
+      },
+      {
+        "kind": "key",
+        "name": "exact_input",
+        "type": "core::bool"
+      },
+      {
+        "kind": "data",
+        "name": "amount_in",
+        "type": "core::integer::u256"
+      },
+      {
+        "kind": "data",
+        "name": "amount_out",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::ClaimReward",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "reward_token",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "key",
+        "name": "receiver",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "data",
+        "name": "amount",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "openzeppelin::upgrades::upgradeable::UpgradeableComponent::Upgraded",
+    "type": "event",
+    "members": [
+      {
+        "kind": "data",
+        "name": "class_hash",
+        "type": "core::starknet::class_hash::ClassHash"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "openzeppelin::upgrades::upgradeable::UpgradeableComponent::Event",
+    "type": "event",
+    "variants": [
+      {
+        "kind": "nested",
+        "name": "Upgraded",
+        "type": "openzeppelin::upgrades::upgradeable::UpgradeableComponent::Upgraded"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "openzeppelin::access::ownable::ownable::OwnableComponent::OwnershipTransferred",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "previous_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "key",
+        "name": "new_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "openzeppelin::access::ownable::ownable::OwnableComponent::OwnershipTransferStarted",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "previous_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "key",
+        "name": "new_owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "openzeppelin::access::ownable::ownable::OwnableComponent::Event",
+    "type": "event",
+    "variants": [
+      {
+        "kind": "nested",
+        "name": "OwnershipTransferred",
+        "type": "openzeppelin::access::ownable::ownable::OwnableComponent::OwnershipTransferred"
+      },
+      {
+        "kind": "nested",
+        "name": "OwnershipTransferStarted",
+        "type": "openzeppelin::access::ownable::ownable::OwnableComponent::OwnershipTransferStarted"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "openzeppelin::security::pausable::PausableComponent::Paused",
+    "type": "event",
+    "members": [
+      {
+        "kind": "data",
+        "name": "account",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "openzeppelin::security::pausable::PausableComponent::Unpaused",
+    "type": "event",
+    "members": [
+      {
+        "kind": "data",
+        "name": "account",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "openzeppelin::security::pausable::PausableComponent::Event",
+    "type": "event",
+    "variants": [
+      {
+        "kind": "nested",
+        "name": "Paused",
+        "type": "openzeppelin::security::pausable::PausableComponent::Paused"
+      },
+      {
+        "kind": "nested",
+        "name": "Unpaused",
+        "type": "openzeppelin::security::pausable::PausableComponent::Unpaused"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "openzeppelin::security::reentrancyguard::ReentrancyGuardComponent::Event",
+    "type": "event",
+    "variants": []
+  },
+  {
+    "kind": "struct",
+    "name": "openzeppelin::token::erc20::erc20::ERC20Component::Transfer",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "from",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "key",
+        "name": "to",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "data",
+        "name": "value",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "kind": "struct",
+    "name": "openzeppelin::token::erc20::erc20::ERC20Component::Approval",
+    "type": "event",
+    "members": [
+      {
+        "kind": "key",
+        "name": "owner",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "key",
+        "name": "spender",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "kind": "data",
+        "name": "value",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "openzeppelin::token::erc20::erc20::ERC20Component::Event",
+    "type": "event",
+    "variants": [
+      {
+        "kind": "nested",
+        "name": "Transfer",
+        "type": "openzeppelin::token::erc20::erc20::ERC20Component::Transfer"
+      },
+      {
+        "kind": "nested",
+        "name": "Approval",
+        "type": "openzeppelin::token::erc20::erc20::ERC20Component::Approval"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::Event",
+    "type": "event",
+    "variants": [
+      {
+        "kind": "nested",
+        "name": "TeaVaultV3PairCreated",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::TeaVaultV3PairCreated"
+      },
+      {
+        "kind": "nested",
+        "name": "FeeConfigChanged",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::FeeConfigChanged"
+      },
+      {
+        "kind": "nested",
+        "name": "ManagerChanged",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::ManagerChanged"
+      },
+      {
+        "kind": "nested",
+        "name": "ManagementFeeCollected",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::ManagementFeeCollected"
+      },
+      {
+        "kind": "nested",
+        "name": "DepositShares",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::DepositShares"
+      },
+      {
+        "kind": "nested",
+        "name": "WithdrawShares",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::WithdrawShares"
+      },
+      {
+        "kind": "nested",
+        "name": "AddLiquidity",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::AddLiquidity"
+      },
+      {
+        "kind": "nested",
+        "name": "RemoveLiquidity",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::RemoveLiquidity"
+      },
+      {
+        "kind": "nested",
+        "name": "Collect",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::Collect"
+      },
+      {
+        "kind": "nested",
+        "name": "CollectSwapFees",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::CollectSwapFees"
+      },
+      {
+        "kind": "nested",
+        "name": "Swap",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::Swap"
+      },
+      {
+        "kind": "nested",
+        "name": "ClaimReward",
+        "type": "tea_vault_jedi_v2::tea_vault_jedi_v2::TeaVaultJediV2::ClaimReward"
+      },
+      {
+        "kind": "flat",
+        "name": "UpgradeableEvent",
+        "type": "openzeppelin::upgrades::upgradeable::UpgradeableComponent::Event"
+      },
+      {
+        "kind": "flat",
+        "name": "OwnableEvent",
+        "type": "openzeppelin::access::ownable::ownable::OwnableComponent::Event"
+      },
+      {
+        "kind": "flat",
+        "name": "PausableEvent",
+        "type": "openzeppelin::security::pausable::PausableComponent::Event"
+      },
+      {
+        "kind": "flat",
+        "name": "ReentrancyGuardEvent",
+        "type": "openzeppelin::security::reentrancyguard::ReentrancyGuardComponent::Event"
+      },
+      {
+        "kind": "flat",
+        "name": "ERC20Event",
+        "type": "openzeppelin::token::erc20::erc20::ERC20Component::Event"
+      }
+    ]
+  }
+]

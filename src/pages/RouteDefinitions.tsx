@@ -1,13 +1,15 @@
 import { lazy, ReactNode, useMemo } from 'react'
 import { useLocation } from 'react-router-dom'
 
-import { isBrowserRouterEnabled } from 'utils/env';
-import PoolDetails from './PoolDetails';
-import Swap from './Swap';
-import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects';
-import Rewards from './Rewards'
+import { isBrowserRouterEnabled } from 'utils/env'
+import PoolDetails from './PoolDetails'
+import Swap from './Swap'
+import { RedirectPathToSwapOnly, RedirectToSwap } from './Swap/redirects'
+import Vaults from './Vaults'
 
 const AddLiquidity = lazy(() => import('pages/AddLiquidity'))
+const Vault = lazy(() => import('pages/Vault'))
+import Rewards from './Rewards'
 
 const RedirectDuplicateTokenIds = lazy(() => import('pages/AddLiquidity/redirects'))
 
@@ -63,6 +65,8 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/pool/:tokenId', getElement: () => <PositionPage /> }),
   createRouteDefinition({ path: '/pools', getElement: () => <Pool /> }),
   createRouteDefinition({ path: '/pools/:tokenId', getElement: () => <PositionPage /> }),
+  createRouteDefinition({ path: '/vaults', getElement: () => <Vaults /> }),
+  createRouteDefinition({ path: '/vaults/:vaultId', getElement: () => <Vault /> }),
   createRouteDefinition({ path: '/rewards', getElement: () => <Rewards /> }),
 
   createRouteDefinition({
@@ -82,7 +86,7 @@ export const routes: RouteDefinition[] = [
     getElement: () => <AddLiquidity />,
   }),
   createRouteDefinition({ path: '/remove/:tokenId', getElement: () => <RemoveLiquidityV3 /> }),
-  createRouteDefinition({ path: '/explore/pools/:poolId', getElement: () =>  <PoolDetails />}),
+  createRouteDefinition({ path: '/explore/pools/:poolId', getElement: () => <PoolDetails /> }),
   // @ts-ignore
   createRouteDefinition({ path: '*', getElement: () => <RedirectPathToSwapOnly /> }),
 ]
