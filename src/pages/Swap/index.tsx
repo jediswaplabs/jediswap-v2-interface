@@ -43,7 +43,7 @@ import { SwapResult, useSwapCallback } from 'hooks/useSwapCallback'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useUSDPrice } from 'hooks/useUSDPrice'
 import useWrapCallback, { WrapType } from 'hooks/useWrapCallback'
-import { Call, CallData, cairo, validateAndParseAddress } from 'starknet'
+import { Call, CallData, cairo, getChecksumAddress, validateAndParseAddress } from 'starknet'
 import { InterfaceTrade, TradeState } from 'state/routing/types'
 import { isClassicTrade, isPreviewTrade } from 'state/routing/utils'
 import { Field, forceExactInput, replaceSwapState } from 'state/swap/actions'
@@ -628,7 +628,7 @@ export function Swap({
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
 
     console.log(urlReferralCode, registeredReferralCode, address, 'test')
-    if (urlReferralCode && registeredReferralCode === undefined && urlReferralCode != address) {
+    if (urlReferralCode && registeredReferralCode === undefined && urlReferralCode != getChecksumAddress(address)) {
       const referralCode = {
         _code: cairo.felt(urlReferralCode),
       }

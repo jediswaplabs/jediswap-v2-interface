@@ -15,7 +15,7 @@ import { useApprovalCall } from 'hooks/useApproveCall'
 import usePrevious from 'hooks/usePrevious'
 import { useTraderReferralCode } from 'hooks/useReferral'
 import { BodyWrapper } from 'pages/AppBody'
-import { Call, CallData, cairo } from 'starknet'
+import { Call, CallData, cairo, getChecksumAddress } from 'starknet'
 import {
   useRangeHopCallbacks,
   useV3DerivedMintInfo,
@@ -326,7 +326,7 @@ function AddLiquidity() {
           (chainId ?? DEFAULT_CHAIN_ID) as any
         ]
       }
-      if (urlReferralCode && registeredReferralCode === undefined && urlReferralCode != account) {
+      if (urlReferralCode && registeredReferralCode === undefined && urlReferralCode != getChecksumAddress(account)) {
         const referralCode = {
           _code: cairo.felt(urlReferralCode),
         }

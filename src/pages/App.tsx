@@ -113,6 +113,7 @@ export default function App() {
       if (traderReferralCode === undefined && !isTraderReferralCodeFetching) {
         if (
           address &&
+          isAddressValidForStarknet(referralCodeFromUrl) !== false &&
           getChecksumAddress(address) != getChecksumAddress(referralCodeFromUrl) &&
           validateChecksumAddress(referralCodeFromUrl) !== false &&
           referralCodeFromUrl !== localStorage.getItem('referralCode')?.[chainId as any]
@@ -176,7 +177,19 @@ export default function App() {
 
   return (
     <ApolloProvider client={getClient(chainId)}>
-      {warningType !== undefined && <WarningBanner type={warningType} content={content} />}
+      {warningType !== undefined && (
+        <WarningBanner
+          type={warningType}
+          content={content}
+          onClose={
+            warningType !== 'error'
+              ? () => {
+                  setWarningType(undefined)
+                }
+              : undefined
+          }
+        />
+      )}
       <ErrorBoundary>
         <HeaderWrapper scrollY={scrollY} transparent={isHeaderTransparent} bannerIsVisible={false}>
           <NavBar />
