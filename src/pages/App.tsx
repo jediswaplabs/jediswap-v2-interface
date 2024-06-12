@@ -18,7 +18,7 @@ import { parseReferralCodeURLParameter } from 'state/swap/hooks'
 import { isAddressValidForStarknet, shortenAddress } from 'utils/addresses'
 import { ApolloProvider } from '@apollo/client'
 import { getClient } from 'apollo/client'
-import { validateChecksumAddress } from 'starknet'
+import { getChecksumAddress, validateChecksumAddress } from 'starknet'
 import { bannerType, WarningBanner } from './Referral/Warning'
 import { useTraderReferralCode } from 'hooks/useReferral'
 // import Footer from 'components/Footer'
@@ -112,7 +112,8 @@ export default function App() {
       //set the banner
       if (traderReferralCode === undefined && !isTraderReferralCodeFetching) {
         if (
-          address?.toUpperCase() != referralCodeFromUrl.toUpperCase() &&
+          address &&
+          getChecksumAddress(address) != getChecksumAddress(referralCodeFromUrl) &&
           validateChecksumAddress(referralCodeFromUrl) !== false &&
           referralCodeFromUrl !== localStorage.getItem('referralCode')?.[chainId as any]
         ) {

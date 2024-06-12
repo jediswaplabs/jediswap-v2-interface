@@ -9,6 +9,7 @@ import { ButtonPrimary, ButtonSize } from 'components/Button'
 import { WarningBanner } from './Warning'
 import { useEffect, useState } from 'react'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { getChecksumAddress } from 'starknet'
 
 const ReferralWrapper = styled.div`
   .page-head {
@@ -129,7 +130,11 @@ export function Referral() {
           For more information, please read the <a href="/#">referral program details.</a>
         </div>
 
-        {!account ? <ConnectWalletBox /> : <CopyReferralCodeBox userReferralCode={account.address} />}
+        {!account ? (
+          <ConnectWalletBox />
+        ) : (
+          <CopyReferralCodeBox userReferralCode={getChecksumAddress(account.address)} />
+        )}
         {account && <LpLeaderboardLink />}
       </ReferralWrapper>
     </PageWrapper>
