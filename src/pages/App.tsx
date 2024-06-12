@@ -134,6 +134,8 @@ export default function App() {
         const referralCodeObject = { [chainId]: referralCodeFromUrl }
         localStorage.setItem('referralCode', JSON.stringify(referralCodeObject))
       }
+    } else {
+      setWarningType(undefined)
     }
   }, [referralCodeFromUrl, chainId, traderReferralCode, isTraderReferralCodeFetching, address])
 
