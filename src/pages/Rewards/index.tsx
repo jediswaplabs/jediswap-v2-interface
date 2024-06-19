@@ -240,7 +240,8 @@ const ClaimWrapper = styled.div`
 
 const ClaimButtonGradient = styled(ButtonPrimary)`
   display: flex;
-  width: auto;
+  // width: auto;
+  width: 160px;
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
