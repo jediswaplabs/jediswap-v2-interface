@@ -261,13 +261,13 @@ function AddLiquidity() {
     const token1usdPrice = separatedFiatValueofLiquidity.data.token1usdPrice
       ? Number(separatedFiatValueofLiquidity.data.token1usdPrice) * Number(position?.amount1.toSignificant())
       : undefined
-    
+
     const parsedAddressA = (parsedAmounts.CURRENCY_A?.currency as any)?.address
     const parsedAddressB = (parsedAmounts.CURRENCY_B?.currency as any)?.address
-    const isLiquidityToken0PositionToken0 = parsedAddressA ?
-      position?.amount0.currency.address === parsedAddressA :
-      position?.amount1.currency.address === parsedAddressB;
-    
+    const isLiquidityToken0PositionToken0 = parsedAddressA
+      ? position?.amount0.currency.address === parsedAddressA
+      : position?.amount1.currency.address === parsedAddressB
+
     return {
       token0usdPrice: isLiquidityToken0PositionToken0 ? token0usdPrice : token1usdPrice,
       token1usdPrice: isLiquidityToken0PositionToken0 ? token1usdPrice : token0usdPrice,
@@ -565,7 +565,7 @@ function AddLiquidity() {
 
   const Buttons = () =>
     !account ? (
-      <ButtonPrimary onClick={toggleWalletDrawer} $borderRadius="12px" style={{padding: '12px', fontSize: '18px'}}>
+      <ButtonPrimary onClick={toggleWalletDrawer} $borderRadius="12px" style={{ padding: '12px', fontSize: '18px' }}>
         <Trans>Connect wallet</Trans>
       </ButtonPrimary>
     ) : (
