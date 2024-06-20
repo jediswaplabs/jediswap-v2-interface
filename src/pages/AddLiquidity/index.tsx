@@ -577,7 +577,7 @@ function AddLiquidity() {
           disabled={!isValid || showWarning}
           error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
         >
-          <Text fontWeight={535}>
+          <Text fontWeight={750}>
             {showWarning ? 'Add liquidity is paused' : errorMessage ? errorMessage : <Trans>Preview</Trans>}
           </Text>
         </ButtonError>
