@@ -441,7 +441,7 @@ function CollectFees(props) {
   const [feeValue0, feeValue1] = useStaticFeeResults(poolAddress, owner, position, showCollectAsWeth, parsedTokenId)
 
   const fiatPrices = useQuery({
-    queryKey: [`fiat_value_position/${parsedTokenId}/${position?.amount0.toSignificant()}`],
+    queryKey: [`fiat_prices_position/${parsedTokenId}/${position?.amount0.toSignificant()}`],
     queryFn: () => fetchPricesForPosition(graphqlClient, position),
   })
   const { feeValue0USD, feeValue1USD } = useMemo(() => {
@@ -454,7 +454,7 @@ function CollectFees(props) {
 
   const fiatValueOfFees = useMemo(() => {
     if (feeValue0USD || feeValue1USD) {
-      return (Number(feeValue0USD) + Number(feeValue1USD)).toFixed(12)
+      return (Number(feeValue0USD) + Number(feeValue1USD)).toFixed(4)
     }
     return undefined
   }, [feeValue0USD, feeValue1USD])
@@ -706,7 +706,7 @@ function PositionPageContent() {
   })
 
   const fiatPrices = useQuery({
-    queryKey: [`fiat_value_position/${tokenId}/${position?.amount0.toSignificant()}`],
+    queryKey: [`fiat_prices_position/${tokenId}/${position?.amount0.toSignificant()}`],
     queryFn: () => fetchPricesForPosition(graphqlClient, position),
   })
 
