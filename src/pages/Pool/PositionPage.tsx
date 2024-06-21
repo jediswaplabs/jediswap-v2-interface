@@ -674,7 +674,7 @@ function PositionPageContent() {
   }, [price0, price1, feeValue0, feeValue1])
 
   const separatedFiatValueofLiquidity = useQuery({
-    queryKey: [`fiat_value_0/${position?.amount0.toSignificant()}/${position?.amount0.currency.symbol}`],
+    queryKey: [`fiat_value_position/${tokenId}/${position?.amount0.toSignificant()}`],
     queryFn: async () => {
       const ids = []
       if (!position?.amount0 && !position?.amount1) return
