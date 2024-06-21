@@ -404,7 +404,58 @@ function CollectFees(props) {
     showCollectAsWeth,
     parsedTokenId,
   } = props
+  const { chainId } = useAccountDetails()
   const [feeValue0, feeValue1] = useStaticFeeResults(poolAddress, owner, position, showCollectAsWeth, parsedTokenId)
+
+  const fiatPrices = useQuery({
+    queryKey: [`fiat_value_position/${parsedTokenId}/${position?.amount0.toSignificant()}`],
+    queryFn: async () => {
+      const ids = []
+      if (!position?.amount0 && !position?.amount1) return
+      if (position?.amount0) ids.push(position?.amount0.currency.address)
+      if (position?.amount1) ids.push(position?.amount1.currency.address)
+      const graphqlClient = getClient(chainId)
+      let result = await graphqlClient.query({
+        query: TOKENS_DATA({ tokenIds: ids }),
+        fetchPolicy: 'cache-first',
+      })
+
+      try {
+        if (result.data) {
+          const tokensData = result.data.tokensData
+          if (tokensData) {
+            const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
+            const isToken0InputAmount =
+              isAddressValidForStarknet(position?.amount0.currency.address) ===
+              isAddressValidForStarknet(price0Obj.token.tokenAddress)
+            const price0 = findClosestPrice(price0Obj?.period)
+            const price1 = findClosestPrice(price1Obj?.period)
+            return {
+              token0usdPrice: isToken0InputAmount ? price0 : price1,
+              token1usdPrice: isToken0InputAmount ? price1 : price0,
+            }
+          }
+        }
+      } catch (e) {
+        console.log(e)
+        return { token0usdPrice: null, token1usdPrice: null }
+      }
+    },
+  })
+  const { token0usdPrice: feeValue0USD, token1usdPrice: feeValue1USD } = useMemo(() => {
+    if (!fiatPrices.data) return { token0usdPrice: undefined, token1usdPrice: undefined }
+    return {
+      token0usdPrice: fiatPrices.data.token0usdPrice ? fiatPrices.data.token0usdPrice * feeValue0?.toSignificant() : 0,
+      token1usdPrice: fiatPrices.data.token1usdPrice ? fiatPrices.data.token1usdPrice * feeValue1?.toSignificant() : 0,
+    }
+  }, [fiatPrices])
+
+  const fiatValueOfFees = useMemo(() => {
+    if (feeValue0USD || feeValue1USD) {
+      return (Number(feeValue0USD) + Number(feeValue1USD)).toFixed(4)
+    }
+    return undefined
+  }, [feeValue0USD, feeValue1USD])
   const theme = useTheme()
 
   const feeValueUpper = inverted ? feeValue0 : feeValue1
@@ -478,6 +529,15 @@ function CollectFees(props) {
                     <Trans>$-</Trans>
                   </ThemedText.DeprecatedLargeHeader>
                 )} */}
+                {fiatValueOfFees ? (
+                  <ThemedText.DeprecatedLargeHeader fontSize="24px" fontWeight={535}>
+                    <Trans>${fiatValueOfFees}</Trans>
+                  </ThemedText.DeprecatedLargeHeader>
+                ) : (
+                  <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="24px" fontWeight={535}>
+                    <Trans>$-</Trans>
+                  </ThemedText.DeprecatedLargeHeader>
+                )}
               </AutoColumn>
               {ownsNFT && (feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) || !!txHash) ? (
                 <ResponsiveButtonConfirmed
@@ -634,7 +694,7 @@ function PositionPageContent() {
     [inverted, pool, priceLower, priceUpper]
   )
 
-  // fees
+  // fees (not used)
   const [feeValue0, feeValue1] = useV3PositionFees(pool ?? undefined, positionDetails?.tokenId, receiveWETH)
 
   // these currencies will match the feeValue{0,1} currencies for the purposes of fee collection
