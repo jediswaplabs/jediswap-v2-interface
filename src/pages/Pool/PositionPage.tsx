@@ -173,6 +173,7 @@ import { useQuery } from 'react-query'
 import { getClient, jediSwapClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import { findClosestPrice } from 'utils/getClosest'
+import { isAddressValidForStarknet } from 'utils/addresses'
 
 function CurrentPriceCard({
   inverted,
@@ -690,9 +691,14 @@ function PositionPageContent() {
           const tokensData = result.data.tokensData
           if (tokensData) {
             const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
+            const isToken0InputAmount =
+              isAddressValidForStarknet(position?.amount0.currency.address) ===
+              isAddressValidForStarknet(price0Obj.token.tokenAddress)
+            const price0 = findClosestPrice(price0Obj?.period)
+            const price1 = findClosestPrice(price1Obj?.period)
             return {
-              token0usdPrice: findClosestPrice(price1Obj?.period),
-              token1usdPrice: findClosestPrice(price0Obj?.period),
+              token0usdPrice: isToken0InputAmount ? price0 : price1,
+              token1usdPrice: isToken0InputAmount ? price1 : price0,
             }
           }
         }
@@ -708,15 +714,17 @@ function PositionPageContent() {
     return {
       token0usdPrice: separatedFiatValueofLiquidity.data.token0usdPrice
         ? separatedFiatValueofLiquidity.data.token0usdPrice * position?.amount0.toSignificant()
-        : undefined,
+        : 0,
       token1usdPrice: separatedFiatValueofLiquidity.data.token1usdPrice
         ? separatedFiatValueofLiquidity.data.token1usdPrice * position?.amount1.toSignificant()
-        : undefined,
+        : 0,
     }
   }, [separatedFiatValueofLiquidity])
 
   const fiatValueofLiquidity = useMemo(() => {
-    if (token0usdPrice && token1usdPrice) (Number(token0usdPrice) + Number(token1usdPrice)).toFixed(4)
+    if (token0usdPrice || token1usdPrice) {
+      return (Number(token0usdPrice) + Number(token1usdPrice)).toFixed(4)
+    }
     return undefined
   }, [token0usdPrice, token1usdPrice])
 
@@ -919,11 +927,11 @@ function PositionPageContent() {
                       <Trans>Liquidity</Trans>
                     </Label>
                     {fiatValueofLiquidity ? (
-                      <ThemedText.DeprecatedLargeHeader fontSize="36px" fontWeight={535}>
+                      <ThemedText.DeprecatedLargeHeader fontSize="24px" fontWeight={535}>
                         <Trans>${fiatValueofLiquidity}</Trans>
                       </ThemedText.DeprecatedLargeHeader>
                     ) : (
-                      <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="36px" fontWeight={535}>
+                      <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="24px" fontWeight={535}>
                         <Trans>$-</Trans>
                       </ThemedText.DeprecatedLargeHeader>
                     )}
