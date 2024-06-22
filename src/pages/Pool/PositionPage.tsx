@@ -173,6 +173,7 @@ import { useQuery } from 'react-query'
 import { getClient, jediSwapClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import { findClosestPrice } from 'utils/getClosest'
+import { isAddressValidForStarknet } from 'utils/addresses'
 
 function CurrentPriceCard({
   inverted,
@@ -376,6 +377,38 @@ export function PositionPageUnsupportedContent() {
   )
 }
 
+async function fetchPricesForPosition(graphqlClient, position) {
+  const ids = []
+  if (!position?.amount0 && !position?.amount1) return
+  if (position?.amount0) ids.push(position?.amount0.currency.address)
+  if (position?.amount1) ids.push(position?.amount1.currency.address)
+  let result = await graphqlClient.query({
+    query: TOKENS_DATA({ tokenIds: ids }),
+    fetchPolicy: 'cache-first',
+  })
+
+  try {
+    if (result.data) {
+      const tokensData = result.data.tokensData
+      if (tokensData) {
+        const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
+        const isToken0InputAmount =
+          isAddressValidForStarknet(position?.amount0.currency.address) ===
+          isAddressValidForStarknet(price0Obj.token.tokenAddress)
+        const price0 = findClosestPrice(price0Obj?.period)
+        const price1 = findClosestPrice(price1Obj?.period)
+        return {
+          token0usdPrice: isToken0InputAmount ? price0 : price1,
+          token1usdPrice: isToken0InputAmount ? price1 : price0,
+        }
+      }
+    }
+  } catch (e) {
+    console.log(e)
+    return { token0usdPrice: null, token1usdPrice: null }
+  }
+}
+
 export default function PositionPage() {
   if (true) {
     return <PositionPageContent />
@@ -403,7 +436,28 @@ function CollectFees(props) {
     showCollectAsWeth,
     parsedTokenId,
   } = props
+  const { chainId } = useAccountDetails()
+  const graphqlClient = getClient(chainId)
   const [feeValue0, feeValue1] = useStaticFeeResults(poolAddress, owner, position, showCollectAsWeth, parsedTokenId)
+
+  const fiatPrices = useQuery({
+    queryKey: [`fiat_prices_position/${parsedTokenId}/${position?.amount0.toSignificant()}`],
+    queryFn: () => fetchPricesForPosition(graphqlClient, position),
+  })
+  const { feeValue0USD, feeValue1USD } = useMemo(() => {
+    if (!fiatPrices.data) return { feeValue0USD: undefined, feeValue1USD: undefined }
+    return {
+      feeValue0USD: fiatPrices.data.token0usdPrice ? fiatPrices.data.token0usdPrice * feeValue0?.toSignificant() : 0,
+      feeValue1USD: fiatPrices.data.token1usdPrice ? fiatPrices.data.token1usdPrice * feeValue1?.toSignificant() : 0,
+    }
+  }, [fiatPrices])
+
+  const fiatValueOfFees = useMemo(() => {
+    if (feeValue0USD || feeValue1USD) {
+      return (Number(feeValue0USD) + Number(feeValue1USD)).toFixed(4)
+    }
+    return undefined
+  }, [feeValue0USD, feeValue1USD])
   const theme = useTheme()
 
   const feeValueUpper = inverted ? feeValue0 : feeValue1
@@ -468,15 +522,15 @@ function CollectFees(props) {
                 <Label>
                   <Trans>Unclaimed fees</Trans>
                 </Label>
-                {/*   {fiatValueOfFees?.greaterThan(new Fraction(1, 100)) ? (
-                  <ThemedText.DeprecatedLargeHeader color={theme.success} fontSize="36px" fontWeight={535}>
-                    <Trans>${fiatValueOfFees.toFixed(2, { groupSeparator: ',' })}</Trans>
+                {fiatValueOfFees ? (
+                  <ThemedText.DeprecatedLargeHeader fontSize="24px" fontWeight={535}>
+                    <Trans>${fiatValueOfFees}</Trans>
                   </ThemedText.DeprecatedLargeHeader>
                 ) : (
-                  <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="36px" fontWeight={535}>
+                  <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="24px" fontWeight={535}>
                     <Trans>$-</Trans>
                   </ThemedText.DeprecatedLargeHeader>
-                )} */}
+                )}
               </AutoColumn>
               {ownsNFT && (feeValue0?.greaterThan(0) || feeValue1?.greaterThan(0) || !!txHash) ? (
                 <ResponsiveButtonConfirmed
@@ -557,6 +611,7 @@ function CollectFees(props) {
 function PositionPageContent() {
   const { tokenId: tokenIdFromUrl } = useParams<{ tokenId?: string }>()
   const { chainId, account, address, provider } = useAccountDetails()
+  const graphqlClient = getClient(chainId)
 
   const theme = useTheme()
   const { formatTickPrice } = useFormatter()
@@ -633,7 +688,7 @@ function PositionPageContent() {
     [inverted, pool, priceLower, priceUpper]
   )
 
-  // fees
+  // fees (not used)
   const [feeValue0, feeValue1] = useV3PositionFees(pool ?? undefined, positionDetails?.tokenId, receiveWETH)
 
   // these currencies will match the feeValue{0,1} currencies for the purposes of fee collection
@@ -650,75 +705,29 @@ function PositionPageContent() {
     calls: callData,
   })
 
-  // usdc prices always in terms of tokens
-  const price0 = useStablecoinPrice(token0 ?? undefined)
-  const price1 = useStablecoinPrice(token1 ?? undefined)
-
-  const fiatValueOfFees: CurrencyAmount<Currency> | null = useMemo(() => {
-    if (!price0 || !price1 || !feeValue0 || !feeValue1) {
-      return null
-    }
-
-    // we wrap because it doesn't matter, the quote returns a USDC amount
-    const feeValue0Wrapped = feeValue0?.wrapped
-    const feeValue1Wrapped = feeValue1?.wrapped
-
-    if (!feeValue0Wrapped || !feeValue1Wrapped) {
-      return null
-    }
-
-    const amount0 = price0.quote(feeValue0Wrapped)
-    const amount1 = price1.quote(feeValue1Wrapped)
-    return amount0.add(amount1)
-  }, [price0, price1, feeValue0, feeValue1])
-
-  const separatedFiatValueofLiquidity = useQuery({
-    queryKey: [`fiat_value_0/${position?.amount0.toSignificant()}/${position?.amount0.currency.symbol}`],
-    queryFn: async () => {
-      const ids = []
-      if (!position?.amount0 && !position?.amount1) return
-      if (position?.amount0) ids.push(position?.amount0.currency.address)
-      if (position?.amount1) ids.push(position?.amount1.currency.address)
-      const graphqlClient = getClient(chainId)
-      let result = await graphqlClient.query({
-        query: TOKENS_DATA({ tokenIds: ids }),
-        fetchPolicy: 'cache-first',
-      })
-
-      try {
-        if (result.data) {
-          const tokensData = result.data.tokensData
-          if (tokensData) {
-            const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
-            return {
-              token0usdPrice: findClosestPrice(price1Obj?.period),
-              token1usdPrice: findClosestPrice(price0Obj?.period),
-            }
-          }
-        }
-      } catch (e) {
-        console.log(e)
-        return { token0usdPrice: null, token1usdPrice: null }
-      }
-    },
+  const fiatPrices = useQuery({
+    queryKey: [`fiat_prices_position/${tokenId}/${position?.amount0.toSignificant()}`],
+    queryFn: () => fetchPricesForPosition(graphqlClient, position),
   })
 
-  const { token0usdPrice, token1usdPrice } = useMemo(() => {
-    if (!separatedFiatValueofLiquidity.data) return { token0usdPrice: undefined, token1usdPrice: undefined }
+  const { token0usdValue, token1usdValue } = useMemo(() => {
+    if (!fiatPrices.data) return { token0usdValue: undefined, token1usdValue: undefined }
     return {
-      token0usdPrice: separatedFiatValueofLiquidity.data.token0usdPrice
-        ? separatedFiatValueofLiquidity.data.token0usdPrice * position?.amount0.toSignificant()
-        : undefined,
-      token1usdPrice: separatedFiatValueofLiquidity.data.token1usdPrice
-        ? separatedFiatValueofLiquidity.data.token1usdPrice * position?.amount1.toSignificant()
-        : undefined,
+      token0usdValue: fiatPrices.data.token0usdPrice
+        ? fiatPrices.data.token0usdPrice * position?.amount0.toSignificant()
+        : 0,
+      token1usdValue: fiatPrices.data.token1usdPrice
+        ? fiatPrices.data.token1usdPrice * position?.amount1.toSignificant()
+        : 0,
     }
-  }, [separatedFiatValueofLiquidity])
+  }, [fiatPrices])
 
   const fiatValueofLiquidity = useMemo(() => {
-    if (token0usdPrice && token1usdPrice) (Number(token0usdPrice) + Number(token1usdPrice)).toFixed(4)
+    if (token0usdValue || token1usdValue) {
+      return (Number(token0usdValue) + Number(token1usdValue)).toFixed(4)
+    }
     return undefined
-  }, [token0usdPrice, token1usdPrice])
+  }, [token0usdValue, token1usdValue])
 
   useEffect(() => {
     if (callData) {
@@ -919,11 +928,11 @@ function PositionPageContent() {
                       <Trans>Liquidity</Trans>
                     </Label>
                     {fiatValueofLiquidity ? (
-                      <ThemedText.DeprecatedLargeHeader fontSize="36px" fontWeight={535}>
+                      <ThemedText.DeprecatedLargeHeader fontSize="24px" fontWeight={535}>
                         <Trans>${fiatValueofLiquidity}</Trans>
                       </ThemedText.DeprecatedLargeHeader>
                     ) : (
-                      <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="36px" fontWeight={535}>
+                      <ThemedText.DeprecatedLargeHeader color={theme.neutral1} fontSize="24px" fontWeight={535}>
                         <Trans>$-</Trans>
                       </ThemedText.DeprecatedLargeHeader>
                     )}
