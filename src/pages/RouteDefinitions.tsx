@@ -64,6 +64,7 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/pool', getElement: () => <Pool /> }),
   createRouteDefinition({ path: '/pool/:tokenId', getElement: () => <PositionPage /> }),
   createRouteDefinition({ path: '/pools', getElement: () => <Pool /> }),
+  createRouteDefinition({ path: '/positions', getElement: () => <Pool /> }),
   createRouteDefinition({ path: '/pools/:tokenId', getElement: () => <PositionPage /> }),
   createRouteDefinition({ path: '/vaults', getElement: () => <Vaults /> }),
   createRouteDefinition({ path: '/vaults/:vaultId', getElement: () => <Vault /> }),

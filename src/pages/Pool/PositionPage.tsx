@@ -831,10 +831,10 @@ function PositionPageContent() {
             <Link
               data-cy="visit-pool"
               style={{ textDecoration: 'none', width: 'fit-content', marginBottom: '0.5rem' }}
-              to="/pools"
+              to="/positions"
             >
               <HoverText>
-                <Trans>← Back to Pools</Trans>
+                <Trans>← Back to Positions</Trans>
               </HoverText>
             </Link>
             <ResponsiveRow>

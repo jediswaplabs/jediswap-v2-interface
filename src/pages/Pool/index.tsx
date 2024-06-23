@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styled, { css, useTheme } from 'styled-components'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { AutoColumn } from 'components/Column'
@@ -109,15 +109,20 @@ export default function Pool() {
   const { address, chainId } = useAccountDetails()
 
   const { tokenIds, loading: loadingPositions } = useTokenIds(address, chainId)
+  const location = useLocation()
+  const navigate = useNavigate()
 
-  const [showMyPositions, setShowMyPositions] = useState<boolean>(false)
+  const initialShowMyPos = location.pathname === '/positions' ? true : false
+  const [showMyPositions, setShowMyPositions] = useState<boolean>(initialShowMyPos)
   const [showRewardedOnly, setShowRewardedOnly] = useState(false)
   const [globalPoolsData, setGlobalPoolsData] = useState<any>({})
-
   const chainIdFinal = chainId || ChainId.MAINNET
   const allTokens = useDefaultActiveTokens(chainIdFinal)
   const whitelistedIds = Object.keys(allTokens)
   const graphqlClient = getClient(chainIdFinal)
+  useEffect(() => {
+    setShowMyPositions(initialShowMyPos)
+  }, [initialShowMyPos])
   //fetch pools data and rewards data
   useEffect(() => {
     let ignore = false
@@ -280,7 +285,8 @@ export default function Pool() {
             <ResponsiveButtonTabs
               secondary={false}
               active={!showMyPositions}
-              onClick={() => setShowMyPositions(false)}
+              // onClick={() => setShowMyPositions(false)}
+              onClick={() => navigate('/pools')}
               style={{ fontSize: '0.875rem' }}
             >
               <Trans>Top Pools</Trans>
@@ -288,7 +294,8 @@ export default function Pool() {
             <ResponsiveButtonTabs
               secondary={true}
               active={showMyPositions}
-              onClick={() => setShowMyPositions(true)}
+              // onClick={() => setShowMyPositions(true)}
+              onClick={() => navigate('/positions')}
               style={{ fontSize: '0.875rem' }}
             >
               <Trans>My Positions</Trans>
