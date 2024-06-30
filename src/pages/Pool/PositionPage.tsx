@@ -7,7 +7,7 @@ import { Currency, CurrencyAmount, Fraction, Percent, Price, Token } from '@vnay
 import { NonfungiblePositionManager, Pool, Position } from '@vnaysn/jediswap-sdk-v3'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { PropsWithChildren, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import styled, { useTheme } from 'styled-components'
 
 import { sendAnalyticsEvent, Trace } from 'analytics'
@@ -615,6 +615,8 @@ function PositionPageContent() {
 
   const theme = useTheme()
   const { formatTickPrice } = useFormatter()
+  const location = useLocation()
+  const navigate = useNavigate()
 
   const parsedTokenId = parseInt(tokenIdFromUrl)
 
@@ -831,7 +833,15 @@ function PositionPageContent() {
             <Link
               data-cy="visit-pool"
               style={{ textDecoration: 'none', width: 'fit-content', marginBottom: '0.5rem' }}
-              to="/positions"
+              to={'/'}
+              onClick={(e) => {
+                e.preventDefault()
+                if (location.key === 'default') {
+                  navigate('/positions')
+                } else {
+                  navigate(-1)
+                }
+              }}
             >
               <HoverText>
                 <Trans>← Back to Positions</Trans>
