@@ -1,5 +1,5 @@
 import { lazy, ReactNode, useMemo } from 'react'
-import { useLocation } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 
 import { Referral } from './Referral'
 import { isBrowserRouterEnabled } from 'utils/env'
@@ -62,11 +62,13 @@ function createRouteDefinition(route: Partial<RouteDefinition>): RouteDefinition
 export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/swap', getElement: () => <Swap /> }),
   createRouteDefinition({ path: '/swap/:outputCurrency', getElement: () => <RedirectToSwap /> }),
-  createRouteDefinition({ path: '/pool', getElement: () => <Pool /> }),
-  createRouteDefinition({ path: '/pool/:tokenId', getElement: () => <PositionPage /> }),
   createRouteDefinition({ path: '/pools', getElement: () => <Pool /> }),
-  createRouteDefinition({ path: '/pools/:tokenId', getElement: () => <PositionPage /> }),
   createRouteDefinition({ path: '/referral', getElement: () => <Referral /> }),
+  createRouteDefinition({ path: '/pools/:poolId', getElement: () => <PoolDetails /> }),
+  createRouteDefinition({ path: '/pool', getElement: () => <Navigate to="/pools" replace={true} /> }),
+  createRouteDefinition({ path: '/pool/:poolId', getElement: () => <PoolDetails /> }),
+  createRouteDefinition({ path: '/positions', getElement: () => <Pool /> }),
+  createRouteDefinition({ path: '/positions/:tokenId', getElement: () => <PositionPage /> }),
   createRouteDefinition({ path: '/vaults', getElement: () => <Vaults /> }),
   createRouteDefinition({ path: '/vaults/:vaultId', getElement: () => <Vault /> }),
   createRouteDefinition({ path: '/rewards', getElement: () => <Rewards /> }),
@@ -88,7 +90,6 @@ export const routes: RouteDefinition[] = [
     getElement: () => <AddLiquidity />,
   }),
   createRouteDefinition({ path: '/remove/:tokenId', getElement: () => <RemoveLiquidityV3 /> }),
-  createRouteDefinition({ path: '/explore/pools/:poolId', getElement: () => <PoolDetails /> }),
   // @ts-ignore
   createRouteDefinition({ path: '*', getElement: () => <RedirectPathToSwapOnly /> }),
 ]

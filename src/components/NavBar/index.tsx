@@ -48,7 +48,7 @@ export const PageTabs = () => {
       <MenuItemLink to="/swap" isActive={pathname.startsWith('/swap')}>
         <Trans>Trade</Trans>
       </MenuItemLink>
-      <MenuItemLink to="/pool" dataTestId="pool-nav-link" isActive={isPoolActive}>
+      <MenuItemLink to="/pools" dataTestId="pool-nav-link" isActive={isPoolActive}>
         <Trans>Pool</Trans>
       </MenuItemLink>
       <ExternalMenuItemLink to={'https://info.v2.jediswap.xyz/'}>

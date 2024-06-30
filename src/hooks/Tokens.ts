@@ -16,7 +16,7 @@ import { deserializeToken, useUserAddedTokens } from '../state/user/hooks'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import { useTokenContract } from './useContractV2'
 import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
-import { ETH_ADDRESS, WETH } from 'constants/tokens'
+import { DEFAULT_CHAIN_ID, ETH_ADDRESS, WETH } from 'constants/tokens'
 import { useContractRead } from '@starknet-react/core'
 import { BlockTag, num } from 'starknet'
 
@@ -72,7 +72,7 @@ export function useAllTokensMultichain(): ChainTokenMap {
 /** Returns all tokens from the default list + user added tokens */
 export function useDefaultActiveTokens(chainId: Maybe<ChainId>): { [address: string]: Token } {
   const defaultListTokens = useCombinedActiveList()
-  const tokensFromMap = useTokensFromMap(defaultListTokens, chainId)
+  const tokensFromMap = useTokensFromMap(defaultListTokens, chainId ?? DEFAULT_CHAIN_ID)
   const userAddedTokens = useUserAddedTokens()
   return useMemo(() => {
     return (

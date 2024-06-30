@@ -70,7 +70,8 @@ export const useAccountBalance = (currency: Currency | undefined) => {
     address,
     watch: true,
   })
-  const balance = data ? ethers.utils.formatUnits(data.value, data.decimals) : null  //data?.formatted is not accurately implemented, so we a convert balance to String by ourselves
-  const balanceCurrencyAmount =  data && currency ? CurrencyAmount.fromRawAmount(currency, data.value.toString()) : null
+  const balance = data ? ethers.utils.formatUnits(data.value, data.decimals) : null //data?.formatted is not accurately implemented, so we a convert balance to String by ourselves
+  const balanceCurrencyAmount =
+    data && currency ? CurrencyAmount.fromRawAmount(currency, data.value.toString()) : undefined
   return { balance, formatted: formatBalance(balance), balanceCurrencyAmount }
 }

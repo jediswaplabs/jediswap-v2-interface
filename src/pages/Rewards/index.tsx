@@ -240,7 +240,8 @@ const ClaimWrapper = styled.div`
 
 const ClaimButtonGradient = styled(ButtonPrimary)`
   display: flex;
-  width: auto;
+  // width: auto;
+  width: 160px;
   justify-content: center;
   align-items: center;
   flex-shrink: 0;
@@ -451,7 +452,10 @@ const WalletNotConnected = () => {
     <ConnectWalletWrapper>
       <img src={WalletIcon} />
       <ConnectWalletText>Connect wallet to see your STRK rewards</ConnectWalletText>
-      <ClaimButtonGradient onClick={toggleWalletDrawer} style={{ marginTop: '20px', padding: '10px 36px' }}>
+      <ClaimButtonGradient
+        onClick={toggleWalletDrawer}
+        style={{ marginTop: '20px', padding: '10px 36px', width: 'auto' }}
+      >
         <ClaimText>Connect Wallet</ClaimText>
       </ClaimButtonGradient>
     </ConnectWalletWrapper>
@@ -811,7 +815,7 @@ export default function Rewards() {
           </Coins> */}
           <RowBetween>
             <ClaimHeader>
-              <ClaimHeaderText>Next claim available on June 14</ClaimHeaderText>
+              <ClaimHeaderText>Next claim available on June 28</ClaimHeaderText>
               <img src={StarsIcon} style={{ marginLeft: '20px', marginBottom: '15px' }} />
             </ClaimHeader>
           </RowBetween>
