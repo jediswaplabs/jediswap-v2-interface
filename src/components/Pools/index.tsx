@@ -107,7 +107,7 @@ const DashGrid = styled.div<{ fade?: boolean; disbaleLinks?: boolean; focus?: bo
 
 const ListWrapper = styled.div``
 
-const ClickableText = styled(Text) <{ area: string }>`
+const ClickableText = styled(Text)<{ area: string }>`
   color: ${({ theme }) => theme.text1};
   &:hover {
     cursor: pointer;
@@ -117,7 +117,7 @@ const ClickableText = styled(Text) <{ area: string }>`
   user-select: none;
 `
 
-const DataText = styled(Flex) <{ area?: string }>`
+const DataText = styled(Flex)<{ area?: string }>`
   align-items: center;
   text-align: center;
   color: ${({ theme }) => theme.text1};
@@ -168,8 +168,8 @@ const StrkBadgeOuter = styled.div`
   display: flex;
   flex-direction: row;
   border-radius: 2px;
-  border: 1px solid #EC796B;
-  background: #0C0C4F;
+  border: 1px solid #ec796b;
+  background: #0c0c4f;
   padding: 3px;
   width: 48px;
   height: 16px;
@@ -222,7 +222,7 @@ const DEFAULT_NO_PAIRS_PLACEHOLDER_TEXT = 'Pairs will appear here'
 function calcCommonApr(pairData: any) {
   const feeRatio24H = pairData.oneDayFeesUSD / pairData.totalValueLockedUSD
   const aprFee = feeRatio24H * 365 * 100
-  const aprStarknet = pairData.aprStarknet *100
+  const aprStarknet = pairData.aprStarknet * 100
   const cleanedAprFee = isNaN(aprFee) || !isFinite(aprFee) ? 0 : aprFee
   const cleanedAprStarknet = isNaN(aprStarknet) || !isFinite(aprStarknet) ? 0 : aprStarknet
   const cleanedAprCommon = cleanedAprFee + cleanedAprStarknet
@@ -237,7 +237,7 @@ function PairList({
   useTracked = false,
   waitForData = true,
   noPairsPlaceholderText = DEFAULT_NO_PAIRS_PLACEHOLDER_TEXT,
-  showRewardedOnly = false
+  showRewardedOnly = false,
 }: {
   pairs: any
   color?: string
@@ -245,7 +245,7 @@ function PairList({
   maxItems?: number
   useTracked?: boolean
   waitForData?: boolean
-  noPairsPlaceholderText?: string,
+  noPairsPlaceholderText?: string
   showRewardedOnly?: boolean
 }) {
   const below600 = useMedia('(max-width: 600px)')
@@ -256,7 +256,7 @@ function PairList({
   const [maxPage, setMaxPage] = useState(1)
   const ITEMS_PER_PAGE = maxItems
   const { chainId } = useAccountDetails()
-  
+
   const chainIdFinal = chainId || ChainId.MAINNET
   const allTokens = useDefaultActiveTokens(chainIdFinal)
   // sorting
@@ -266,8 +266,7 @@ function PairList({
   const filteredPairsAddresses = useMemo(() => {
     return (
       pairs &&
-      Object.keys(pairs)
-      .filter((address: string) => {
+      Object.keys(pairs).filter((address: string) => {
         if (!showRewardedOnly) {
           return true
         }
@@ -304,17 +303,17 @@ function PairList({
     doubleCurrencyImageData: any
   }) => {
     const feePercent = (pairData ? parseFloat(pairData.fee) / 10000 : 0) + '%'
-    let rewardsBadges = null;
-    const strkBadge = <StrkBadgeOuter>
-      <div>
-        <img src={StarknetIcon} style={{ width: '10px' }} />
-      </div>
-      <div style={{fontWeight: 500}}>STRK</div>
-    </StrkBadgeOuter>
+    let rewardsBadges = null
+    const strkBadge = (
+      <StrkBadgeOuter>
+        <div>
+          <img src={StarknetIcon} style={{ width: '10px' }} />
+        </div>
+        <div style={{ fontWeight: 500 }}>STRK</div>
+      </StrkBadgeOuter>
+    )
     if (pairData.rewarded) {
-      rewardsBadges = <Rewards>
-        {pairData.aprStarknet && strkBadge}
-      </Rewards>
+      rewardsBadges = <Rewards>{pairData.aprStarknet && strkBadge}</Rewards>
     }
     if (pairData && pairData.token0 && pairData.token1) {
       const feeTier = pairData.fee / 10 ** 6
@@ -329,14 +328,14 @@ function PairList({
 
       const feeRatio24H = pairData.oneDayFeesUSD / pairData.totalValueLockedUSD
       const aprFee = feeRatio24H * 365 * 100
-      const aprStarknet = pairData.aprStarknet *100
-      
+      const aprStarknet = pairData.aprStarknet * 100
+
       const cleanedAprFee = isNaN(aprFee) || !isFinite(aprFee) ? 0 : aprFee
       const displayAprFee = formattedPercent(cleanedAprFee, true)
-  
+
       const cleanedAprStarknet = isNaN(aprStarknet) || !isFinite(aprStarknet) ? 0 : aprStarknet
       const displayAprStarknet = formattedPercent(cleanedAprStarknet, true)
-  
+
       const cleanedAprCommon = cleanedAprFee + cleanedAprStarknet
       const displayAprCommon = formattedPercent(cleanedAprCommon, true, darkTheme.signalGreen, 700)
 
@@ -346,8 +345,12 @@ function PairList({
       const getTooltipMarkup = () => {
         return (
           <div style={{ fontSize: '10px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}><span style={{ opacity: 0.7 }}>Fee APR:</span> {displayAprFee}</Flex>
-            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}><span style={{ opacity: 0.7 }}>STRK APR:</span> {displayAprStarknet}</Flex>
+            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}>
+              <span style={{ opacity: 0.7 }}>Fee APR:</span> {displayAprFee}
+            </Flex>
+            <Flex style={{ gap: '20px', justifyContent: 'space-between' }}>
+              <span style={{ opacity: 0.7 }}>STRK APR:</span> {displayAprStarknet}
+            </Flex>
           </div>
         )
       }
@@ -360,7 +363,7 @@ function PairList({
       // const weekVolume = Math.round(pairData.oneWeekVolumeUSD)
       if (below1080) {
         return (
-          <Link to={'/explore/pools/' + pairAddress} style={{ color: 'unset', textDecoration: 'none' }}>
+          <Link to={'/pools/' + pairAddress} style={{ color: 'unset', textDecoration: 'none' }}>
             <div style={{ margin: '10px 0', padding: '20px', borderRadius: '8px', border: '1px solid #959595' }}>
               <div style={{ display: 'flex' }}>
                 {doubleCurrencyImageData && (
@@ -402,7 +405,7 @@ function PairList({
         )
       }
       return (
-        <Link to={'/explore/pools/' + pairAddress} style={{ color: 'unset', textDecoration: 'none' }}>
+        <Link to={'/pools/' + pairAddress} style={{ color: 'unset', textDecoration: 'none' }}>
           <DashGrid style={{ height: '48px' }} disbaleLinks={disbaleLinks} focus={true}>
             <DataText area="name" fontWeight="500">
               {/* {!below600 && <div style={{ marginRight: '20px', width: '10px' }}>{index}</div>} */}
@@ -414,7 +417,10 @@ function PairList({
                   margin
                 />
               )}
-              <AutoRow gap={'4px'} style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap', marginLeft: '10px', fontWeight: 700 }}>
+              <AutoRow
+                gap={'4px'}
+                style={{ whiteSpace: 'nowrap', flexWrap: 'nowrap', marginLeft: '10px', fontWeight: 700 }}
+              >
                 <FormattedName
                   text={pairData.token0.symbol + '-' + pairData.token1.symbol}
                   maxCharacters={below600 ? 8 : 16}
@@ -430,7 +436,13 @@ function PairList({
             {/* {!below1080 && <DataText area="volWeek">{formatDataText(weekVolume, pairData.oneWeekVolumeUSD)}</DataText>} */}
             {!below1080 && <DataText area="fees">{formatDataText(fees, pairData.oneDayVolumeUSD)}</DataText>}
             {!below1080 && (
-              <DataText area="apy" className="apr-wrapper" data-tooltip-html={pairData.rewarded ? renderToStaticMarkup(getTooltipMarkup()) : null} data-tooltip-place="bottom-start" data-tooltip-offset={-20}>
+              <DataText
+                area="apy"
+                className="apr-wrapper"
+                data-tooltip-html={pairData.rewarded ? renderToStaticMarkup(getTooltipMarkup()) : null}
+                data-tooltip-place="bottom-start"
+                data-tooltip-offset={-20}
+              >
                 {formatDataText(displayAprCommon, String(displayAprCommon), pairData.oneDayVolumeUSD === 0)}
               </DataText>
             )}
@@ -490,13 +502,13 @@ function PairList({
         )
       })
 
-    if (!pairList) {
-      return <LocalLoader />
-    }
+  if (!pairList) {
+    return <LocalLoader />
+  }
 
-    if (waitForData && !pairList.length) {
-      return <LocalLoader />
-    }
+  if (waitForData && !pairList.length) {
+    return <LocalLoader />
+  }
 
   if (!waitForData && !pairList.length) {
     return (
