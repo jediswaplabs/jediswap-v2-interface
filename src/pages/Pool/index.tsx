@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styled, { css, useTheme } from 'styled-components'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
 import { AutoColumn } from 'components/Column'
@@ -11,7 +11,24 @@ import { isSupportedChain } from 'constants/chains'
 // import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
 import { useTokenIds } from 'hooks/useV3Positions'
 import { ThemedText } from 'theme/components'
-import { ButtonRow, ErrorContainer, LoadingRows, MainContentWrapper, NetworkIcon, OnlyRewardedSwitcher, OnlyRewardedSwitcherContainer, OnlyRewardedSwitcherLabel, PageHeader, PageWrapper, Panel, PanelTopLight, PanelWrapper, ResponsiveButtonPrimary, ResponsiveButtonTabs, TitleRow } from './styled'
+import {
+  ButtonRow,
+  ErrorContainer,
+  LoadingRows,
+  MainContentWrapper,
+  NetworkIcon,
+  OnlyRewardedSwitcher,
+  OnlyRewardedSwitcherContainer,
+  OnlyRewardedSwitcherLabel,
+  PageHeader,
+  PageWrapper,
+  Panel,
+  PanelTopLight,
+  PanelWrapper,
+  ResponsiveButtonPrimary,
+  ResponsiveButtonTabs,
+  TitleRow,
+} from './styled'
 import { getAllPools } from 'api/PoolsData'
 import Pools from 'components/Pools'
 import { formattedNum, formattedPercent, get2DayPercentChange, getPercentChange } from 'utils/formatNum'
@@ -79,9 +96,9 @@ function getRewardsData(jediRewards: any, pool: any) {
   if (!jediRewards) {
     return
   }
-  const pair1 = (`${pool?.token0.symbol}/${pool?.token1.symbol}`).toLowerCase()
-  const pair2 = (`${pool?.token1.symbol}/${pool?.token0.symbol}`).toLowerCase()
-  const pairKey = Object.keys(jediRewards).find(key => key.toLowerCase() === pair1 || key.toLowerCase() === pair2)
+  const pair1 = `${pool?.token0.symbol}/${pool?.token1.symbol}`.toLowerCase()
+  const pair2 = `${pool?.token1.symbol}/${pool?.token0.symbol}`.toLowerCase()
+  const pairKey = Object.keys(jediRewards).find((key) => key.toLowerCase() === pair1 || key.toLowerCase() === pair2)
   if (pairKey && jediRewards[pairKey]) {
     return jediRewards[pairKey]
   }
@@ -91,19 +108,24 @@ export default function Pool() {
   const [poolsData, setpoolsData] = useState<any[] | undefined>([])
   const { address, chainId } = useAccountDetails()
 
-  const { tokenIds, loading: loadingPositions } = useTokenIds(address, chainId);
+  const { tokenIds, loading: loadingPositions } = useTokenIds(address, chainId)
+  const location = useLocation()
+  const navigate = useNavigate()
 
-  const [showMyPositions, setShowMyPositions] = useState<boolean>(false)
+  const initialShowMyPos = location.pathname === '/positions' ? true : false
+  const [showMyPositions, setShowMyPositions] = useState<boolean>(initialShowMyPos)
   const [showRewardedOnly, setShowRewardedOnly] = useState(false)
   const [globalPoolsData, setGlobalPoolsData] = useState<any>({})
-
   const chainIdFinal = chainId || ChainId.MAINNET
   const allTokens = useDefaultActiveTokens(chainIdFinal)
   const whitelistedIds = Object.keys(allTokens)
   const graphqlClient = getClient(chainIdFinal)
+  useEffect(() => {
+    setShowMyPositions(initialShowMyPos)
+  }, [initialShowMyPos])
   //fetch pools data and rewards data
   useEffect(() => {
-    let ignore = false;
+    let ignore = false
     const getPoolsData = async () => {
       if (whitelistedIds.length === 0) {
         return
@@ -112,18 +134,18 @@ export default function Pool() {
         getAllPools(graphqlClient, [...whitelistedIds, ETH_ADDRESS]), //add ETH token
         graphqlClient.query({
           query: STRK_REWARDS_DATA(),
-          fetchPolicy: 'cache-first'
-        })
-      ];
-      const [poolsDataRawResult, rewardsRespResult] = await Promise.allSettled(requests);
+          fetchPolicy: 'cache-first',
+        }),
+      ]
+      const [poolsDataRawResult, rewardsRespResult] = await Promise.allSettled(requests)
       let poolsDataRaw: any = null
-      if (poolsDataRawResult.status === "fulfilled") {
-        poolsDataRaw = poolsDataRawResult.value as ApolloQueryResult<any>;;
+      if (poolsDataRawResult.status === 'fulfilled') {
+        poolsDataRaw = poolsDataRawResult.value as ApolloQueryResult<any>
       }
-      let jediRewards: any = null;
-      if (rewardsRespResult.status === "fulfilled") {
-        const rewardsResp = rewardsRespResult.value as ApolloQueryResult<any>;
-        jediRewards = rewardsResp.data?.strkGrantDataV2;
+      let jediRewards: any = null
+      if (rewardsRespResult.status === 'fulfilled') {
+        const rewardsResp = rewardsRespResult.value as ApolloQueryResult<any>
+        jediRewards = rewardsResp.data?.strkGrantDataV2
       }
       const poolsData: any = {}
       poolsDataRaw?.forEach((data: any) => {
@@ -149,7 +171,7 @@ export default function Pool() {
 
   //fetch global pools data data
   useEffect(() => {
-    let ignore = false;
+    let ignore = false
     const getGlobalPoolsData = async () => {
       try {
         const historicalData = await graphqlClient.query({
@@ -161,7 +183,10 @@ export default function Pool() {
         if (!ignore) {
           setGlobalPoolsData({
             totalValueLockedUSD: oneDayData.totalValueLockedUSD,
-            totalValueLockedUSDChange: getPercentChange(oneDayData.totalValueLockedUSD, oneDayData.totalValueLockedUSDFirst),
+            totalValueLockedUSDChange: getPercentChange(
+              oneDayData.totalValueLockedUSD,
+              oneDayData.totalValueLockedUSDFirst
+            ),
             volumeUSD: oneDayData.volumeUSD,
             volumeUSDChange: get2DayPercentChange(oneDayData.volumeUSD, twoDaysData.volumeUSD),
             feesUSD: oneDayData.feesUSD,
@@ -213,24 +238,18 @@ export default function Pool() {
 
   return (
     <PageWrapper>
-      <PageHeader>
-        POOLS
-      </PageHeader>
+      <PageHeader>POOLS</PageHeader>
       {/* <PageSection> */}
       <AutoColumn style={{ gap: '12px' }}>
         <PanelWrapper>
           <PanelTopLight>
             <AutoColumn gap="20px">
-              <RowBetween style={{ fontWeight: 700 }}>
-                Total Liquidity
-              </RowBetween>
+              <RowBetween style={{ fontWeight: 700 }}>Total Liquidity</RowBetween>
               <RowBetween align="baseline">
                 <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
                   {formattedNum(globalPoolsData.totalValueLockedUSD, true)}
                 </div>
-                <div>
-                  {formattedPercent(globalPoolsData.totalValueLockedUSDChange)}
-                </div>
+                <div>{formattedPercent(globalPoolsData.totalValueLockedUSDChange)}</div>
               </RowBetween>
             </AutoColumn>
           </PanelTopLight>
@@ -244,24 +263,16 @@ export default function Pool() {
                 <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
                   {formattedNum(globalPoolsData.volumeUSD, true)}
                 </div>
-                <div>
-                  {formattedPercent(globalPoolsData.volumeUSDChange)}
-                </div>
+                <div>{formattedPercent(globalPoolsData.volumeUSDChange)}</div>
               </RowBetween>
             </AutoColumn>
           </PanelTopLight>
           <PanelTopLight>
             <AutoColumn gap="20px">
-              <RowBetween style={{ fontWeight: 700 }}>
-                Total fees (24hr)
-              </RowBetween>
+              <RowBetween style={{ fontWeight: 700 }}>Total fees (24hr)</RowBetween>
               <RowBetween align="baseline">
-                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
-                  {formattedNum(globalPoolsData.feesUSD, true)}
-                </div>
-                <div>
-                  {formattedPercent(globalPoolsData.feesUSDChange)}
-                </div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>{formattedNum(globalPoolsData.feesUSD, true)}</div>
+                <div>{formattedPercent(globalPoolsData.feesUSDChange)}</div>
               </RowBetween>
             </AutoColumn>
           </PanelTopLight>
@@ -271,13 +282,31 @@ export default function Pool() {
       <AutoColumn gap="lg" justify="center" style={{ marginTop: 24 }}>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <ButtonRow justifyContent={'space-between'}>
-            <ResponsiveButtonTabs secondary={false} active={!showMyPositions} onClick={() => setShowMyPositions(false)} style={{ fontSize: "0.875rem" }}>
+            <ResponsiveButtonTabs
+              secondary={false}
+              active={!showMyPositions}
+              // onClick={() => setShowMyPositions(false)}
+              onClick={() => navigate('/pools')}
+              style={{ fontSize: '0.875rem' }}
+            >
               <Trans>Top Pools</Trans>
             </ResponsiveButtonTabs>
-            <ResponsiveButtonTabs secondary={true} active={showMyPositions} onClick={() => setShowMyPositions(true)} style={{ fontSize: "0.875rem" }}>
+            <ResponsiveButtonTabs
+              secondary={true}
+              active={showMyPositions}
+              // onClick={() => setShowMyPositions(true)}
+              onClick={() => navigate('/positions')}
+              style={{ fontSize: '0.875rem' }}
+            >
               <Trans>My Positions</Trans>
             </ResponsiveButtonTabs>
-            <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH" style={{ fontSize: "1.125rem", fontWeight: 750 }}>
+            <ResponsiveButtonPrimary
+              data-cy="join-pool-button"
+              id="join-pool-button"
+              as={Link}
+              to="/add/ETH"
+              style={{ fontSize: '1.125rem', fontWeight: 750 }}
+            >
               + <Trans>New position</Trans>
             </ResponsiveButtonPrimary>
           </ButtonRow>
