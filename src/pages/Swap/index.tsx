@@ -38,7 +38,7 @@ import { useIsSwapUnsupported } from 'hooks/useIsSwapUnsupported'
 import { useMaxAmountIn } from 'hooks/useMaxAmountIn'
 import usePermit2Allowance, { AllowanceState } from 'hooks/usePermit2Allowance'
 import usePrevious from 'hooks/usePrevious'
-import { useTraderReferralCode } from 'hooks/useReferral'
+import { getReferralInfoFromStorageFrouser, setOnChainReferralTrueForuser } from 'hooks/useReferral'
 import { SwapResult, useSwapCallback } from 'hooks/useSwapCallback'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useUSDPrice } from 'hooks/useUSDPrice'
@@ -153,32 +153,28 @@ export default function SwapPage({ className }: { className?: string }) {
   const [allPairs, setAllPairs] = useState<any>([])
   const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
 
-  const { data: traderReferralCode, isLoading: isTraderReferralCodeFetching } = useTraderReferralCode()
-
   //fetch Token Ids
   useEffect(() => {
     const getTokenIds = async () => {
       if (connectedChainId) {
         try {
           setLoadingPositions(true)
-          if (!isTraderReferralCodeFetching) {
-            const pools = await fetchAllPools(connectedChainId)
-            const pairs = await fetchAllPairs(connectedChainId)
-            if (pools && pools.data) {
-              const allPoolsArray: number[] = pools.data.map((item: any) =>
-                validateAndParseAddress(item.contract_address)
-              )
-              setAllPools(allPoolsArray)
-              setLoadingPositions(false)
-            }
+          const pools = await fetchAllPools(connectedChainId)
+          const pairs = await fetchAllPairs(connectedChainId)
+          if (pools && pools.data) {
+            const allPoolsArray: number[] = pools.data.map((item: any) =>
+              validateAndParseAddress(item.contract_address)
+            )
+            setAllPools(allPoolsArray)
+            setLoadingPositions(false)
+          }
 
-            if (pairs && pairs.data) {
-              const allPairsArray: number[] = pairs.data.map((item: any) =>
-                validateAndParseAddress(item.contract_address)
-              )
-              setAllPairs(allPairsArray)
-              setLoadingPositions(false)
-            }
+          if (pairs && pairs.data) {
+            const allPairsArray: number[] = pairs.data.map((item: any) =>
+              validateAndParseAddress(item.contract_address)
+            )
+            setAllPairs(allPairsArray)
+            setLoadingPositions(false)
           }
         } catch (e) {
           console.error(e)
@@ -188,14 +184,8 @@ export default function SwapPage({ className }: { className?: string }) {
     }
 
     getTokenIds()
-  }, [connectedChainId, isTraderReferralCodeFetching])
+  }, [connectedChainId])
 
-  let urlReferralCode = undefined
-  if (localStorage.getItem('referralCode')) {
-    urlReferralCode = JSON.parse(localStorage.getItem('referralCode') as string)?.[
-      (connectedChainId ?? DEFAULT_CHAIN_ID) as any
-    ]
-  }
   return (
     <PageWrapper>
       {loadingPositions ? (
@@ -208,8 +198,6 @@ export default function SwapPage({ className }: { className?: string }) {
           initialOutputCurrencyId={loadedUrlParams?.[Field.OUTPUT]?.currencyId}
           allPools={allPools}
           allPairs={allPairs}
-          registeredReferralCode={traderReferralCode}
-          urlReferralCode={urlReferralCode}
           // disableTokenInputs={supportedChainId === undefined}
         />
       )}
@@ -233,8 +221,6 @@ export function Swap({
   chainId,
   onCurrencyChange,
   disableTokenInputs = false,
-  registeredReferralCode,
-  urlReferralCode,
 }: {
   className?: string
   initialInputCurrencyId?: string | null
@@ -244,8 +230,6 @@ export function Swap({
   chainId?: ChainId
   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
   disableTokenInputs?: boolean
-  registeredReferralCode?: string
-  urlReferralCode: string | undefined
 }) {
   const connectionReady = useConnectionReady()
   const referralContract = useReferralContract()
@@ -536,6 +520,9 @@ export function Swap({
       writeAsync()
         .then((response) => {
           if (response?.transaction_hash) {
+            if (address && chainId) {
+              setOnChainReferralTrueForuser(address, chainId, swapCallData)
+            }
           }
         })
         .catch((err) => {
@@ -627,10 +614,11 @@ export function Swap({
     const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
 
-    console.log(urlReferralCode, registeredReferralCode, address, 'test')
-    if (urlReferralCode && registeredReferralCode === undefined && urlReferralCode != getChecksumAddress(address)) {
+    let localStorageReferralCode = getReferralInfoFromStorageFrouser(address, chainId)
+
+    if (localStorageReferralCode && localStorageReferralCode.isCorrect && localStorageReferralCode.onChain !== true) {
       const referralCode = {
-        _code: cairo.felt(urlReferralCode),
+        _code: cairo.felt(localStorageReferralCode.referredBy),
       }
       const compiledReferralCode = CallData.compile(referralCode)
       const referralCall = {
@@ -812,7 +800,7 @@ export function Swap({
       }
     }
     setSwapCallData(callData)
-  }, [trade, address, deadline, approveCallback, urlReferralCode, registeredReferralCode])
+  }, [trade, address, deadline, approveCallback])
 
   // warnings on the greater of fiat value price impact and execution price impact
   const { priceImpactSeverity, largerPriceImpact } = useMemo(() => {

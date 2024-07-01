@@ -13,7 +13,7 @@ import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useApprovalCall } from 'hooks/useApproveCall'
 import usePrevious from 'hooks/usePrevious'
-import { useTraderReferralCode } from 'hooks/useReferral'
+import { getReferralInfoFromStorageFrouser, setOnChainReferralTrueForuser } from 'hooks/useReferral'
 import { BodyWrapper } from 'pages/AppBody'
 import { Call, CallData, cairo, getChecksumAddress } from 'starknet'
 import {
@@ -273,6 +273,9 @@ function AddLiquidity() {
           setAttemptingTxn(false)
           if (response?.transaction_hash) {
             setTxHash(response.transaction_hash)
+            if (account && chainId) {
+              setOnChainReferralTrueForuser(account, chainId, mintCallData)
+            }
           }
         })
         .catch((err) => {
@@ -283,21 +286,13 @@ function AddLiquidity() {
   }, [mintCallData])
 
   const referralContract = useReferralContract()
-  const { data: registeredReferralCode, error: tradeReferralCodeError } = useTraderReferralCode()
 
   async function onAdd() {
     if (!chainId || !account) {
       return
     }
 
-    if (
-      !positionManager ||
-      !baseCurrency ||
-      !quoteCurrency ||
-      !parsedAmounts ||
-      !referralContract ||
-      !!tradeReferralCodeError
-    ) {
+    if (!positionManager || !baseCurrency || !quoteCurrency || !parsedAmounts || !referralContract) {
       return
     }
 
@@ -320,15 +315,11 @@ function AddLiquidity() {
       const router_address: string = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
       const callData = []
 
-      let urlReferralCode = undefined
-      if (localStorage.getItem('referralCode')) {
-        urlReferralCode = JSON.parse(localStorage.getItem('referralCode') as string)?.[
-          (chainId ?? DEFAULT_CHAIN_ID) as any
-        ]
-      }
-      if (urlReferralCode && registeredReferralCode === undefined && urlReferralCode != getChecksumAddress(account)) {
+      let localStorageReferralCode = getReferralInfoFromStorageFrouser(account, chainId)
+
+      if (localStorageReferralCode && localStorageReferralCode.isCorrect && localStorageReferralCode.onChain !== true) {
         const referralCode = {
-          _code: cairo.felt(urlReferralCode),
+          _code: cairo.felt(localStorageReferralCode.referredBy),
         }
         const compiledReferralCode = CallData.compile(referralCode)
         const referralCall = {

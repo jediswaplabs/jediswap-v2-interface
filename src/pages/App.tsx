@@ -3,7 +3,6 @@ import { useAtom } from 'jotai'
 import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { Navigate, Route, Routes, useLocation, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
-
 import ErrorBoundary from 'components/ErrorBoundary'
 import Loader from 'components/Icons/LoadingSpinner'
 import NavBar, { PageTabs } from 'components/NavBar'
@@ -20,7 +19,9 @@ import { ApolloProvider } from '@apollo/client'
 import { getClient } from 'apollo/client'
 import { getChecksumAddress, validateChecksumAddress } from 'starknet'
 import { bannerType, WarningBanner } from './Referral/Warning'
-import { useTraderReferralCode } from 'hooks/useReferral'
+import { getReferralInfoFromStorageFrouser, ILocalStorageUserData, useReferralstate } from 'hooks/useReferral'
+import fetchReferrer from 'api/fetchReferrer'
+import { has } from 'immer/dist/internal'
 // import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
@@ -96,51 +97,27 @@ export default function App() {
   const isLoaded = useFeatureFlagsIsLoaded()
   const location = useLocation()
   const { pathname } = location
-
   const [scrollY, setScrollY] = useState(0)
   const [warningType, setWarningType] = useState<bannerType | undefined>(undefined)
+  const [hasUserClosedWarning, setHasUserClosedWarning] = useState(false)
   const scrolledState = scrollY > 0
   const routerConfig = useRouterConfig()
-  const { chainId, address } = useAccountDetails()
-
-  const parsedQs = useParsedQueryString()
-  const referralCodeFromUrl = parseReferralCodeURLParameter(parsedQs.referralCode)
-  const { data: traderReferralCode, isLoading: isTraderReferralCodeFetching } = useTraderReferralCode()
+  const { chainId, address: account } = useAccountDetails()
+  const localStorageData = getReferralInfoFromStorageFrouser(account, chainId)
+  const isHeaderTransparent = !scrolledState
+  useReferralstate()
 
   useEffect(() => {
-    if (chainId && referralCodeFromUrl) {
-      //set the banner
-      if (traderReferralCode === undefined && !isTraderReferralCodeFetching) {
-        if (
-          address &&
-          isAddressValidForStarknet(referralCodeFromUrl) !== false &&
-          getChecksumAddress(address) != getChecksumAddress(referralCodeFromUrl) &&
-          validateChecksumAddress(referralCodeFromUrl) !== false &&
-          referralCodeFromUrl !== localStorage.getItem('referralCode')?.[chainId as any]
-        ) {
-          setWarningType('success')
-        } else {
-          setWarningType('warning')
-        }
+    if (localStorageData && account && hasUserClosedWarning === false) {
+      if (localStorageData.isCorrect === false) {
+        setWarningType('warning')
       } else {
-        setWarningType(undefined)
-      }
-
-      // set the chainwise code to localstorage
-      if (
-        isAddressValidForStarknet(referralCodeFromUrl) !== false &&
-        validateChecksumAddress(referralCodeFromUrl) !== false &&
-        referralCodeFromUrl !== localStorage.getItem('referralCode')?.[chainId as any]
-      ) {
-        const referralCodeObject = { [chainId]: referralCodeFromUrl }
-        localStorage.setItem('referralCode', JSON.stringify(referralCodeObject))
+        setWarningType('success')
       }
     } else {
       setWarningType(undefined)
     }
-  }, [referralCodeFromUrl, chainId, traderReferralCode, isTraderReferralCodeFetching, address])
-
-  const isHeaderTransparent = !scrolledState
+  }, [localStorageData, account, hasUserClosedWarning])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -168,7 +145,7 @@ export default function App() {
     </>
   )
   if (warningType === 'success') {
-    content = <>Referred by {shortenAddress(referralCodeFromUrl ?? '', 4, 4)}</>
+    content = <>Referred by {shortenAddress(localStorageData?.referredBy ?? '', 4, 4)}</>
   } else if (warningType === 'warning') {
     content = (
       <>Caution: The referral link doesn’t seem to be correct. Please use the correct link to get referral points.</>
@@ -184,7 +161,7 @@ export default function App() {
           onClose={
             warningType !== 'error'
               ? () => {
-                  setWarningType(undefined)
+                  setHasUserClosedWarning(true)
                 }
               : undefined
           }
