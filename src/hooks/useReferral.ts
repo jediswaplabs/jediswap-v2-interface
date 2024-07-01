@@ -62,7 +62,7 @@ export function useReferralstate() {
 
   useEffect(() => {
     if (chainId && account) {
-      if (localStorageData === undefined || localStorageData.onChain === false) {
+      if (localStorageData === undefined || localStorageData?.onChain === false) {
         fetchReferrer(chainId, account).then(
           (dataFromBlockChain: { id: number; jsonrpc: string; result: string[] }) => {
             if (dataFromBlockChain.result[0] !== '0x0') {
