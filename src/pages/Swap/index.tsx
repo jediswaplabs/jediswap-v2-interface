@@ -601,6 +601,7 @@ export function Swap({
   }, [trade])
 
   const approveCallback = useApprovalCall(amountToApprove, spender)
+  const localStoragedata = getReferralInfoFromStorageForuser()
 
   const handleSwap = useCallback(() => {
     if (!trade || !address || !deadline || !referralContract || !chainId) return
@@ -614,7 +615,6 @@ export function Swap({
     const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
 
-    const localStoragedata = getReferralInfoFromStorageForuser()
     const localStorageReferralCode = localStoragedata && localStoragedata[chainId] && localStoragedata[chainId][address]
 
     if (localStorageReferralCode && localStorageReferralCode.isCorrect && localStorageReferralCode.onChain !== true) {
@@ -865,7 +865,7 @@ export function Swap({
         })
       }
     },
-    [onCurrencyChange, onCurrencySelection, state, onSwitchTokens, currencies]
+    [onCurrencyChange, onCurrencySelection, state, onSwitchTokens, currencies, localStoragedata]
   )
 
   const showPriceImpactWarning = isClassicTrade(trade) && largerPriceImpact && priceImpactSeverity > 3

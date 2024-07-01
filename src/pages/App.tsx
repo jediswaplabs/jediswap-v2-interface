@@ -104,7 +104,7 @@ export default function App() {
   const routerConfig = useRouterConfig()
   const { chainId, address: account } = useAccountDetails()
   const localStorageData = getReferralInfoFromStorageForuser()
-  let userStorageReferralData = undefined
+  let userStorageReferralData: ILocalStorageUserData | undefined = undefined
   if (
     localStorageData &&
     account !== undefined &&
