@@ -63,7 +63,7 @@ export function useReferralstate() {
 
   useEffect(() => {
     if (chainId && account) {
-      if (localStorageData === undefined || localStorageData?.onChain === false) {
+      if (!localStorageData || localStorageData?.onChain === false) {
         fetchReferrer(chainId, account).then(
           (dataFromBlockChain: { id: number; jsonrpc: string; result: string[] }) => {
             if (dataFromBlockChain.result[0] !== '0x0') {
@@ -110,7 +110,10 @@ function isAddressValidForReferral(userAddress: string, refereeAddress: string) 
   It takes the user address and the chain id as input.
   It returns the referral code of the user from the local storage.
 */
-export function getReferralInfoFromStorageFrouser(userAddress: string | undefined, chainId: ChainId | undefined) {
+export function getReferralInfoFromStorageFrouser(
+  userAddress: string | undefined | null,
+  chainId: ChainId | undefined
+) {
   const rawLocalStorageData = localStorage.getItem('referralCode')
   const localStorageData: ILocalStorageUserData | undefined =
     rawLocalStorageData && JSON.parse(rawLocalStorageData)?.[chainId as any]?.[userAddress as any]
