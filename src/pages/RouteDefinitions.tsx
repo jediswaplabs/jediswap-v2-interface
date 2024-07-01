@@ -1,6 +1,7 @@
 import { lazy, ReactNode, useMemo } from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 
+import { Referral } from './Referral'
 import { isBrowserRouterEnabled } from 'utils/env'
 import PoolDetails from './PoolDetails'
 import Swap from './Swap'
@@ -62,6 +63,7 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/swap', getElement: () => <Swap /> }),
   createRouteDefinition({ path: '/swap/:outputCurrency', getElement: () => <RedirectToSwap /> }),
   createRouteDefinition({ path: '/pools', getElement: () => <Pool /> }),
+  createRouteDefinition({ path: '/referral', getElement: () => <Referral /> }),
   createRouteDefinition({ path: '/pools/:poolId', getElement: () => <PoolDetails /> }),
   createRouteDefinition({ path: '/pool', getElement: () => <Navigate to="/pools" replace={true} /> }),
   createRouteDefinition({ path: '/pool/:poolId', getElement: () => <PoolDetails /> }),
