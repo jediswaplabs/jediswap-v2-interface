@@ -59,6 +59,7 @@ export function useReferralstate() {
   const referralCodeFromUrl = parseReferralCodeURLParameter(parsedQs.referralCode)
   const isTestnet = parsedQs.testnet == 'true'
   const localStorageData = getReferralInfoFromStorageFrouser(account, chainId)
+  console.log('localStorageData', localStorageData)
 
   useEffect(() => {
     if (chainId && account) {
