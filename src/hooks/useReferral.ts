@@ -43,6 +43,11 @@ export interface ILocalStorageUserData {
   onChain: boolean
   isCorrect: boolean
 }
+export interface ILocalStorageReferralData {
+  [chainId: string]: {
+    [userAddress: string]: ILocalStorageUserData
+  }
+}
 
 /*
   This hook is used to get the referral state of the user.
@@ -58,11 +63,11 @@ export function useReferralstate() {
   const parsedQs = useParsedQueryString()
   const referralCodeFromUrl = parseReferralCodeURLParameter(parsedQs.referralCode)
   const isTestnet = parsedQs.testnet == 'true'
-  const localStorageData = getReferralInfoFromStorageFrouser(account, chainId)
-  console.log('localStorageData', localStorageData)
 
   useEffect(() => {
     if (chainId && account) {
+      const referralData = getReferralInfoFromStorageForuser()
+      const localStorageData = referralData && referralData[chainId] && referralData[chainId][account]
       if (!localStorageData || localStorageData?.onChain === false) {
         fetchReferrer(chainId, account).then(
           (dataFromBlockChain: { id: number; jsonrpc: string; result: string[] }) => {
@@ -72,7 +77,19 @@ export function useReferralstate() {
                 onChain: true,
                 isCorrect: true,
               }
-              localStorage.setItem('referralCode', JSON.stringify({ [chainId]: { [account]: referralCodeObject } }))
+
+              if (!referralData) {
+                localStorage.setItem('referralCode', JSON.stringify({ [chainId]: { [account]: referralCodeObject } }))
+              } else {
+                const newLocalStorageData = {
+                  ...referralData,
+                  [chainId]: {
+                    ...referralData[chainId],
+                    [account]: referralCodeObject,
+                  },
+                }
+                localStorage.setItem('referralCode', JSON.stringify(newLocalStorageData))
+              }
             } else if (
               referralCodeFromUrl &&
               ((isTestnet && chainId != ChainId.MAINNET) || (!isTestnet && chainId == ChainId.MAINNET))
@@ -82,7 +99,18 @@ export function useReferralstate() {
                 onChain: false,
                 isCorrect: isAddressValidForReferral(account, referralCodeFromUrl),
               }
-              localStorage.setItem('referralCode', JSON.stringify({ [chainId]: { [account]: referralCodeObject } }))
+              if (!referralData) {
+                localStorage.setItem('referralCode', JSON.stringify({ [chainId]: { [account]: referralCodeObject } }))
+              } else {
+                const newLocalStorageData = {
+                  ...referralData,
+                  [chainId]: {
+                    ...referralData[chainId],
+                    [account]: referralCodeObject,
+                  },
+                }
+                localStorage.setItem('referralCode', JSON.stringify(newLocalStorageData))
+              }
             }
           }
         )
@@ -110,13 +138,9 @@ function isAddressValidForReferral(userAddress: string, refereeAddress: string) 
   It takes the user address and the chain id as input.
   It returns the referral code of the user from the local storage.
 */
-export function getReferralInfoFromStorageFrouser(
-  userAddress: string | undefined | null,
-  chainId: ChainId | undefined
-) {
+export function getReferralInfoFromStorageForuser() {
   const rawLocalStorageData = localStorage.getItem('referralCode')
-  const localStorageData: ILocalStorageUserData | undefined =
-    rawLocalStorageData && JSON.parse(rawLocalStorageData)?.[chainId as any]?.[userAddress as any]
+  const localStorageData: ILocalStorageReferralData | undefined = rawLocalStorageData && JSON.parse(rawLocalStorageData)
   return localStorageData
 }
 
@@ -127,13 +151,25 @@ export function getReferralInfoFromStorageFrouser(
 export function setOnChainReferralTrueForuser(userAddress: string, chainId: ChainId, calls: Call[]) {
   const setReferrerCall = calls.find((call) => call.entrypoint === 'set_referrer')
   if (setReferrerCall) {
-    const userReferralInfoLocal = getReferralInfoFromStorageFrouser(userAddress, chainId)
+    const referralInfoLocal = getReferralInfoFromStorageForuser()
+    const userReferralInfoLocal =
+      referralInfoLocal && referralInfoLocal[chainId] && referralInfoLocal[chainId][userAddress]
     if (userReferralInfoLocal && userReferralInfoLocal.onChain === false) {
       const newInfo = {
         ...userReferralInfoLocal,
         onChain: true,
       }
-      localStorage.setItem('referralCode', JSON.stringify({ [chainId]: { [userAddress]: newInfo } }))
+      // localStorage.setItem('referralCode', JSON.stringify({ [chainId]: { [userAddress]: newInfo } }))
+
+      // replace newinfo for user and keep the other user and chain data
+      const newLocalStorageData = {
+        ...referralInfoLocal,
+        [chainId]: {
+          ...referralInfoLocal[chainId],
+          [userAddress]: newInfo,
+        },
+      }
+      localStorage.setItem('referralCode', JSON.stringify(newLocalStorageData))
     }
   }
 }

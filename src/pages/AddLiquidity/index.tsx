@@ -13,7 +13,7 @@ import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useApprovalCall } from 'hooks/useApproveCall'
 import usePrevious from 'hooks/usePrevious'
-import { getReferralInfoFromStorageFrouser, setOnChainReferralTrueForuser } from 'hooks/useReferral'
+import { getReferralInfoFromStorageForuser, setOnChainReferralTrueForuser } from 'hooks/useReferral'
 import { BodyWrapper } from 'pages/AppBody'
 import { Call, CallData, cairo, getChecksumAddress } from 'starknet'
 import {
@@ -315,7 +315,9 @@ function AddLiquidity() {
       const router_address: string = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
       const callData = []
 
-      let localStorageReferralCode = getReferralInfoFromStorageFrouser(account, chainId)
+      const localStoragedata = getReferralInfoFromStorageForuser()
+      const localStorageReferralCode =
+        localStoragedata && localStoragedata[chainId] && localStoragedata[chainId][account]
 
       if (localStorageReferralCode && localStorageReferralCode.isCorrect && localStorageReferralCode.onChain !== true) {
         const referralCode = {

@@ -19,7 +19,7 @@ import { ApolloProvider } from '@apollo/client'
 import { getClient } from 'apollo/client'
 import { getChecksumAddress, validateChecksumAddress } from 'starknet'
 import { bannerType, WarningBanner } from './Referral/Warning'
-import { getReferralInfoFromStorageFrouser, ILocalStorageUserData, useReferralstate } from 'hooks/useReferral'
+import { getReferralInfoFromStorageForuser, ILocalStorageUserData, useReferralstate } from 'hooks/useReferral'
 import fetchReferrer from 'api/fetchReferrer'
 import { has } from 'immer/dist/internal'
 // import Footer from 'components/Footer'
@@ -103,13 +103,23 @@ export default function App() {
   const scrolledState = scrollY > 0
   const routerConfig = useRouterConfig()
   const { chainId, address: account } = useAccountDetails()
-  const localStorageData = getReferralInfoFromStorageFrouser(account, chainId)
+  const localStorageData = getReferralInfoFromStorageForuser()
+  let userStorageReferralData = undefined
+  if (
+    localStorageData &&
+    account !== undefined &&
+    chainId !== undefined &&
+    localStorageData[chainId] &&
+    localStorageData[chainId][account]
+  ) {
+    userStorageReferralData = localStorageData[chainId][account]
+  }
   const isHeaderTransparent = !scrolledState
   useReferralstate()
 
   useEffect(() => {
-    if (localStorageData && account && hasUserClosedWarning === false) {
-      if (localStorageData.isCorrect === false) {
+    if (userStorageReferralData && account && hasUserClosedWarning === false) {
+      if (userStorageReferralData.isCorrect === false) {
         setWarningType('warning')
       } else {
         setWarningType('success')
@@ -145,7 +155,7 @@ export default function App() {
     </>
   )
   if (warningType === 'success') {
-    content = <>Referred by {shortenAddress(localStorageData?.referredBy ?? '', 4, 4)}</>
+    content = <>Referred by {shortenAddress(userStorageReferralData?.referredBy ?? '', 4, 4)}</>
   } else if (warningType === 'warning') {
     content = (
       <>Caution: The referral link doesn’t seem to be correct. Please use the correct link to get referral points.</>
