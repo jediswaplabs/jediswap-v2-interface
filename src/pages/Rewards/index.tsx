@@ -780,7 +780,7 @@ export default function Rewards() {
               <DefiSpringWrapper>
                 <DefiSpringTitle>StarkNet DeFi Spring</DefiSpringTitle>
                 <DefiSpringSubTitle>
-                  40M <img src={StarkIcon} alt="starknet_logo" /> STRK
+                  90M <img src={StarkIcon} alt="starknet_logo" /> STRK
                 </DefiSpringSubTitle>
                 <IncentivesText>
                   JediSwap users will receive STRK incentives as part of the StarkNet DeFi Spring Program.
@@ -815,7 +815,7 @@ export default function Rewards() {
           </Coins> */}
           <RowBetween>
             <ClaimHeader>
-              <ClaimHeaderText>Next claim available on June 28</ClaimHeaderText>
+              <ClaimHeaderText>Next claim available on July 12</ClaimHeaderText>
               <img src={StarsIcon} style={{ marginLeft: '20px', marginBottom: '15px' }} />
             </ClaimHeader>
           </RowBetween>
@@ -874,9 +874,9 @@ export default function Rewards() {
                     </Row>
                   </Container>
                 </AutoColumn>
-                <div style={{ marginTop: '20px', fontSize: '20px' }}>
+                {/* <div style={{ marginTop: '20px', fontSize: '20px' }}>
                   NOTE: Jediswap v2 LPs are accumulating STRK rewards already. Claim for v2 rewards will go live soon.
-                </div>
+                </div> */}
               </>
             )}
           </CardSection>
