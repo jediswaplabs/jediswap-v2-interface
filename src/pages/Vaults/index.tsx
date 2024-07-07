@@ -496,30 +496,32 @@ const MobileVaultListItem = ({ index, vaultAddress, vaultData, getUserBalance = 
     getUserBalance,
   })
   return (
-    <VaultMobileContainer>
-      <PageTitleHeader>
-        <DoubleCurrencyLogo size={16} currency0={currency0} currency1={currency1} />
-        <span
-          style={{
-            marginLeft: '10px',
-          }}
-        >
-          {currency0?.symbol}-{currency1?.symbol}
-        </span>
-      </PageTitleHeader>
-      <PageTitleRow>
-        <MobileLabels>TVL</MobileLabels>
-        <MobileLabels>APR</MobileLabels>
-        <MobileLabels>My Deposit</MobileLabels>
-      </PageTitleRow>
-      <PageTitleRow>
-        <MobileValues>{tvl ? formatUsdPrice(tvl) : '-'}</MobileValues>
-        <MobileValues>{apr ? `${apr}%` : '-'}</MobileValues>
-        <MobileValues style={{ color: '#2AAAFE' }}>
-          {token0usdPrice && token0usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0}
-        </MobileValues>
-      </PageTitleRow>
-    </VaultMobileContainer>
+    <Link to={`/vaults/${vaultAddress}`} style={{ color: 'unset', textDecoration: 'none' }}>
+      <VaultMobileContainer>
+        <PageTitleHeader>
+          <DoubleCurrencyLogo size={16} currency0={currency0} currency1={currency1} />
+          <span
+            style={{
+              marginLeft: '10px',
+            }}
+          >
+            {currency0?.symbol}-{currency1?.symbol}
+          </span>
+        </PageTitleHeader>
+        <PageTitleRow>
+          <MobileLabels>TVL</MobileLabels>
+          <MobileLabels>APR</MobileLabels>
+          <MobileLabels>My Deposit</MobileLabels>
+        </PageTitleRow>
+        <PageTitleRow>
+          <MobileValues>{tvl ? formatUsdPrice(tvl) : '-'}</MobileValues>
+          <MobileValues>{apr ? `${apr}%` : '-'}</MobileValues>
+          <MobileValues style={{ color: '#2AAAFE' }}>
+            {token0usdPrice && token0usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0}
+          </MobileValues>
+        </PageTitleRow>
+      </VaultMobileContainer>
+    </Link>
   )
 }
 
