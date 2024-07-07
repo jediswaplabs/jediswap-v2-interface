@@ -55,6 +55,7 @@ const PageWrapper = styled(AutoColumn)`
 
   @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     padding-top: 20px;
+    gap: 16px;
   }
 `
 
@@ -125,6 +126,9 @@ const PromotionBannerContainer = styled.div<PromotionBannerContainerProps>`
   position: relative;
   padding-left: ${(props) => (props.noDecorations ? '0' : '140px')};
   overflow: hidden;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    margin-bottom: 8px;
+  }
 `
 const PromotionBannerDecoration = styled.img`
   position: absolute;
@@ -276,6 +280,32 @@ const DataText = styled(Flex)<DataTextProps>`
   @media screen and (max-width: 600px) {
     font-size: 12px;
   }
+`
+
+const MobileLabels = styled.div`
+  color: #9b9b9b;
+  font-size: 12px;
+  font-weight: 500;
+  flex: 1;
+`
+
+const MobileValues = styled.div`
+  font-size: 14px;
+  flex: 1;
+`
+
+const PageTitleHeader = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+`
+
+const VaultMobileContainer = styled.div`
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 8px;
+  border: 1px solid #959595;
 `
 
 function ErrorPanel({ text }: { text?: string }) {
@@ -458,55 +488,40 @@ const getVaultDetails = ({
   return { tvl, apr, currency0, currency1, token0usdPrice, sharesUSDPrice }
 }
 
-const MobileVaultListItem = ({ tvl, apr, currency0, currency1, token0usdPrice, sharesUSDPrice }: any) => (
-  <div
-    style={{
-      borderRadius: '15px',
-      padding: '15px',
-      marginBottom: '10px',
-    }}
-  >
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: '10px',
-      }}
-    >
-      <DoubleCurrencyLogo size={16} currency0={currency0} currency1={currency1} />
-      <span
-        style={{
-          marginLeft: '10px',
-        }}
-      >
-        {currency0?.symbol}-{currency1?.symbol}
-      </span>
-    </div>
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        fontSize: '14px',
-      }}
-    >
-      <span style={{ flex: 1 }}>TVL</span>
-      <span style={{ flex: 1 }}>APR</span>
-      <span style={{ flex: 1 }}>My Deposit</span>
-    </div>
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-      }}
-    >
-      <span style={{ flex: 1 }}>{tvl ? formatUsdPrice(tvl) : '-'}</span>
-      <span style={{ flex: 1 }}>{apr ? `${apr}%` : '-'}</span>
-      <span style={{ color: '#2AAAFE', flex: 1 }}>
-        {token0usdPrice && token0usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0}
-      </span>
-    </div>
-  </div>
-)
+const MobileVaultListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: ListItemProps) => {
+  const { tvl, apr, currency0, currency1, token0usdPrice, sharesUSDPrice } = getVaultDetails({
+    index,
+    vaultAddress,
+    vaultData,
+    getUserBalance,
+  })
+  return (
+    <VaultMobileContainer>
+      <PageTitleHeader>
+        <DoubleCurrencyLogo size={16} currency0={currency0} currency1={currency1} />
+        <span
+          style={{
+            marginLeft: '10px',
+          }}
+        >
+          {currency0?.symbol}-{currency1?.symbol}
+        </span>
+      </PageTitleHeader>
+      <PageTitleRow>
+        <MobileLabels>TVL</MobileLabels>
+        <MobileLabels>APR</MobileLabels>
+        <MobileLabels>My Deposit</MobileLabels>
+      </PageTitleRow>
+      <PageTitleRow>
+        <MobileValues>{tvl ? formatUsdPrice(tvl) : '-'}</MobileValues>
+        <MobileValues>{apr ? `${apr}%` : '-'}</MobileValues>
+        <MobileValues style={{ color: '#2AAAFE' }}>
+          {token0usdPrice && token0usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0}
+        </MobileValues>
+      </PageTitleRow>
+    </VaultMobileContainer>
+  )
+}
 
 const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: ListItemProps) => {
   const below600 = useMedia('(max-width: 600px)')
@@ -520,49 +535,38 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
   })
   return (
     <Link to={`/vaults/${vaultAddress}`} style={{ color: 'unset', textDecoration: 'none' }}>
-      {below768 ? (
-        <MobileVaultListItem
-          tvl={tvl}
-          apr={apr}
-          currency0={currency0}
-          currency1={currency1}
-          token0usdPrice={token0usdPrice}
-          sharesUSDPrice={sharesUSDPrice}
-        />
-      ) : (
-        <DashGrid style={{ height: '48px' }}>
-          <DataText area="name" fontWeight="500">
-            {!below600 && <div style={{ width: '10px' }}>{index}</div>}
-            <Flex alignItems={'center'} style={{ gap: '8px' }}>
-              <DoubleCurrencyLogo size={below600 ? 16 : 24} currency0={currency0} currency1={currency1} margin />
-              <StyledTokenName className="pair-name-container">
-                {currency0?.symbol}-{currency1?.symbol}
-              </StyledTokenName>
-              <FeeBadge>{vaultData.feeTier}</FeeBadge>
-            </Flex>
+      <DashGrid style={{ height: '48px' }}>
+        <DataText area="name" fontWeight="500">
+          {!below600 && <div style={{ width: '10px' }}>{index}</div>}
+          <Flex alignItems={'center'} style={{ gap: '8px' }}>
+            <DoubleCurrencyLogo size={below600 ? 16 : 24} currency0={currency0} currency1={currency1} margin />
+            <StyledTokenName className="pair-name-container">
+              {currency0?.symbol}-{currency1?.symbol}
+            </StyledTokenName>
+            <FeeBadge>{vaultData.feeTier}</FeeBadge>
+          </Flex>
+        </DataText>
+        {!below768 && (
+          <DataText area="provider">
+            <ProviderLogo src={vaultData.provider.logo} draggable={false} />
           </DataText>
-          {!below768 && (
-            <DataText area="provider">
-              <ProviderLogo src={vaultData.provider.logo} draggable={false} />
-            </DataText>
-          )}
-          <DataText area="tvl">
-            <ThemedText.BodySmall>{tvl ? formatUsdPrice(tvl) : '-'}</ThemedText.BodySmall>
-          </DataText>
-          <DataText area="apr">
-            <ThemedText.BodySmall color={'signalGreen'} fontWeight={700}>
-              {apr ? `${apr}%` : '-'}
-            </ThemedText.BodySmall>
-          </DataText>
-          <DataText area="deposite">
-            <ThemedText.BodySmall>
-              <span>
-                {token0usdPrice && token0usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0}
-              </span>
-            </ThemedText.BodySmall>
-          </DataText>
-        </DashGrid>
-      )}
+        )}
+        <DataText area="tvl">
+          <ThemedText.BodySmall>{tvl ? formatUsdPrice(tvl) : '-'}</ThemedText.BodySmall>
+        </DataText>
+        <DataText area="apr">
+          <ThemedText.BodySmall color={'signalGreen'} fontWeight={700}>
+            {apr ? `${apr}%` : '-'}
+          </ThemedText.BodySmall>
+        </DataText>
+        <DataText area="deposite">
+          <ThemedText.BodySmall>
+            <span>
+              {token0usdPrice && token0usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0}
+            </span>
+          </ThemedText.BodySmall>
+        </DataText>
+      </DashGrid>
     </Link>
   )
 }
@@ -786,7 +790,26 @@ export default function Vaults({ maxItems = 10 }) {
           />
         </MyVaultsSwitcherContainer>
       </PageTitleRow>
-      {getContent()}
+      {below768 ? (
+        <>
+          {vaultsList.map(
+            (vaultAddress, index) =>
+              vaultAddress && (
+                <div key={index}>
+                  <MobileVaultListItem
+                    key={index}
+                    index={(page - 1) * ITEMS_PER_PAGE + index + 1}
+                    vaultAddress={vaultAddress}
+                    vaultData={vaults?.[vaultAddress]}
+                    getUserBalance={getUserBalanceResult}
+                  />
+                </div>
+              )
+          )}
+        </>
+      ) : (
+        getContent()
+      )}
     </PageWrapper>
   )
 }
