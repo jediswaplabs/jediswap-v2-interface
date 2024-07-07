@@ -82,6 +82,10 @@ const CurrencySelect = styled(ButtonGray)<{
   visibility: ${({ visible }) => (visible ? 'visible' : 'hidden')};
   border-radius: 8px;
   ${({ pointerEvents }) => pointerEvents && 'pointer-events: none'}
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    height: auto;
+  }
 `
 
 const InputRow = styled.div<{ selected: boolean }>`
@@ -131,6 +135,10 @@ const StyledTokenName = styled.span<{ active?: boolean }>`
   font-size: 14px;
   font-weight: 700;
   font-family: 'DM Sans';
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    line-height: 18px;
+  }
 `
 
 const StyledBalanceMax = styled.button<{ disabled?: boolean }>`
@@ -159,6 +167,10 @@ const StyledBalanceMax = styled.button<{ disabled?: boolean }>`
 const StyledNumericalInput = styled(NumericalInput)<{ $loading: boolean }>`
   ${loadingOpacityMixin};
   text-align: left;
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    font-size: 16px;
+  }
 `
 
 const StyledPrefetchBalancesWrapper = styled(PrefetchBalancesWrapper)`
@@ -260,14 +272,16 @@ export default function VaultWithdrawInput({
               </CurrencySelect>
             </StyledPrefetchBalancesWrapper>
             {!hideInput && (
-              <StyledNumericalInput
-                className="token-amount-input"
-                value={value}
-                onUserInput={onUserInput}
-                disabled={!chainAllowed}
-                $loading={loading}
-                style={{ width: 'auto', textAlign: 'right' }}
-              />
+              <div>
+                <StyledNumericalInput
+                  className="token-amount-input"
+                  value={value}
+                  onUserInput={onUserInput}
+                  disabled={!chainAllowed}
+                  $loading={loading}
+                  style={{ width: 'auto', textAlign: 'right' }}
+                />
+              </div>
             )}
           </InputRow>
           {Boolean(!hideInput && !hideBalance) && (

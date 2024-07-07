@@ -19,6 +19,14 @@ const SummaryWrapper = styled.div<{ hideInput?: boolean }>`
   will-change: height;
   padding: 16px;
   border: 1px solid #ffffff50;
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    font-size: 16px;
+  }
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    font-size: 12px;
+  }
 `
 
 const VaultRow = styled.div`
@@ -39,6 +47,14 @@ const StyledTokenName = styled.span`
   font-size: 16px;
   font-weight: 700;
   font-family: 'DM Sans';
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    font-size: 16px;
+  }
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
+    font-size: 12px;
+  }
 `
 function TokenCountRow({ currency, value }: { currency: any; value: string }) {
   return (
