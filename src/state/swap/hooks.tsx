@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { ChainId, Currency, CurrencyAmount, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
+import { ChainId, Currency, CurrencyAmount, Fraction, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { useConnectionReady } from 'connection/eagerlyConnect'
 import { useFotAdjustmentsEnabled } from 'featureFlags/flags/fotAdjustments'
@@ -28,6 +28,9 @@ import { isAddressValidForStarknet } from 'utils/addresses'
 import { useBestV3TradeExactIn, useBestV3TradeExactOut } from 'hooks/useBestV3Trade'
 import { useTradeExactIn, useTradeExactOut } from 'hooks/Trades'
 import { BigNumber } from 'ethers'
+import { parse } from 'path'
+import { is } from 'immer/dist/internal'
+import { disconnect } from 'process'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
@@ -108,6 +111,7 @@ export function useDerivedSwapInfo(
   allPools: string[],
   allPairs: string[]
 ): SwapInfo {
+  console.log(allPools, 'allPoools')
   const { address: account } = useAccountDetails()
   const {
     independentField,
@@ -139,11 +143,19 @@ export function useDerivedSwapInfo(
     () => tryParseCurrencyAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined),
     [inputCurrency, isExactIn, outputCurrency, typedValue]
   )
+  const distributedAmount = useMemo(() => {
+    if (!parsedAmount) return undefined
+    return getAmountDistribution(typedValue, 25, isExactIn ? inputCurrency : outputCurrency)
+  }, [parsedAmount])
+
+  console.log(parsedAmount, distributedAmount, typedValue, 'parsedAmount')
 
   const bestV3TradeExactIn = useBestV3TradeExactIn(
     allPools,
-    isExactIn ? parsedAmount : undefined,
-    outputCurrency ?? undefined
+    isExactIn && distributedAmount ? distributedAmount[1] : undefined,
+    outputCurrency,
+    inputCurrency,
+    distributedAmount ? distributedAmount[0] : undefined
   )
   const bestV3TradeExactOut = useBestV3TradeExactOut(
     allPools,
@@ -151,64 +163,66 @@ export function useDerivedSwapInfo(
     !isExactIn ? parsedAmount : undefined
   )
 
-  const [bestV2TradeExactIn] = useTradeExactIn(
-    allPairs,
-    isExactIn ? parsedAmount : undefined,
-    outputCurrency ?? undefined
-  )
+  // const [bestV2TradeExactIn] = useTradeExactIn(
+  //   allPairs,
+  //   isExactIn ? parsedAmount : undefined,
+  //   outputCurrency ?? undefined
+  // )
 
-  const [bestV2TradeExactOut] = useTradeExactOut(
-    allPairs,
-    inputCurrency ?? undefined,
-    !isExactIn ? parsedAmount : undefined
-  )
+  // const [bestV2TradeExactOut] = useTradeExactOut(
+  //   allPairs,
+  //   inputCurrency ?? undefined,
+  //   !isExactIn ? parsedAmount : undefined
+  // )
 
-  const bestTradeExactIn = useMemo(() => {
-    if (bestV2TradeExactIn && bestV3TradeExactIn && bestV3TradeExactIn.trade) {
-      const v2OutputAmount = BigInt(bestV2TradeExactIn.outputAmount.raw.toString())
-      const v3OutputAmount = BigInt(bestV3TradeExactIn.trade.outputAmount.raw.toString())
-      return v2OutputAmount > v3OutputAmount
-        ? { state: TradeState.VALID, trade: bestV2TradeExactIn }
-        : bestV3TradeExactIn
-    } else if (!bestV2TradeExactIn && bestV3TradeExactIn) {
-      return bestV3TradeExactIn
-    } else if (bestV2TradeExactIn && !bestV3TradeExactIn?.trade) {
-      return { state: TradeState.VALID, trade: bestV2TradeExactIn }
-    }
+  // const bestTradeExactIn = useMemo(() => {
+  //   if (bestV2TradeExactIn && bestV3TradeExactIn && bestV3TradeExactIn.trade) {
+  //     const v2OutputAmount = BigInt(bestV2TradeExactIn.outputAmount.raw.toString())
+  //     const v3OutputAmount = BigInt(bestV3TradeExactIn.trade.outputAmount.raw.toString())
+  //     return v2OutputAmount > v3OutputAmount
+  //       ? { state: TradeState.VALID, trade: bestV2TradeExactIn }
+  //       : bestV3TradeExactIn
+  //   } else if (!bestV2TradeExactIn && bestV3TradeExactIn) {
+  //     return bestV3TradeExactIn
+  //   } else if (bestV2TradeExactIn && !bestV3TradeExactIn?.trade) {
+  //     return { state: TradeState.VALID, trade: bestV2TradeExactIn }
+  //   }
 
-    return {
-      state: TradeState.INVALID,
-      trade: null,
-    }
-  }, [bestV2TradeExactIn, bestV3TradeExactIn])
+  //   return {
+  //     state: TradeState.INVALID,
+  //     trade: null,
+  //   }
+  // }, [bestV2TradeExactIn, bestV3TradeExactIn])
 
-  const bestTradeExactOut = useMemo(() => {
-    if (bestV2TradeExactOut && bestV3TradeExactOut && bestV3TradeExactOut.trade) {
-      const v2InputAmount = BigInt(bestV2TradeExactOut.inputAmount.raw.toString())
-      const v3InputAmount = BigInt(bestV3TradeExactOut.trade.inputAmount.raw.toString())
-      return v2InputAmount < v3InputAmount
-        ? { state: TradeState.VALID, trade: bestV2TradeExactOut }
-        : bestV3TradeExactOut
-    } else if (!bestV2TradeExactOut && bestV3TradeExactOut) {
-      return bestV3TradeExactOut
-    } else if (bestV2TradeExactOut && !bestV3TradeExactOut?.trade) {
-      return { state: TradeState.VALID, trade: bestV2TradeExactOut }
-    }
+  // const bestTradeExactOut = useMemo(() => {
+  //   if (bestV2TradeExactOut && bestV3TradeExactOut && bestV3TradeExactOut.trade) {
+  //     const v2InputAmount = BigInt(bestV2TradeExactOut.inputAmount.raw.toString())
+  //     const v3InputAmount = BigInt(bestV3TradeExactOut.trade.inputAmount.raw.toString())
+  //     return v2InputAmount < v3InputAmount
+  //       ? { state: TradeState.VALID, trade: bestV2TradeExactOut }
+  //       : bestV3TradeExactOut
+  //   } else if (!bestV2TradeExactOut && bestV3TradeExactOut) {
+  //     return bestV3TradeExactOut
+  //   } else if (bestV2TradeExactOut && !bestV3TradeExactOut?.trade) {
+  //     return { state: TradeState.VALID, trade: bestV2TradeExactOut }
+  //   }
 
-    return {
-      state: TradeState.INVALID,
-      trade: null,
-    }
-  }, [bestV2TradeExactOut, bestV3TradeExactOut])
+  //   return {
+  //     state: TradeState.INVALID,
+  //     trade: null,
+  //   }
+  // }, [bestV2TradeExactOut, bestV3TradeExactOut])
 
   const trade =
-    chainId === ChainId.GOERLI
-      ? isExactIn
-        ? bestV3TradeExactIn
-        : bestV3TradeExactOut
-      : isExactIn
-      ? bestTradeExactIn
-      : bestTradeExactOut
+    // chainId === ChainId.GOERLI
+    //   ?
+    isExactIn ? bestV3TradeExactIn : bestV3TradeExactOut
+  // :
+  // isExactIn
+  // ? bestTradeExactIn
+  // : bestTradeExactOut
+
+  console.log(trade, 'trade')
   const currencyBalances = useMemo(
     () => ({
       [Field.INPUT]: relevantTokenBalances[0],
@@ -367,4 +381,23 @@ export function useDefaultsFromURLSearch(): SwapState {
   }, [dispatch, chainId, parsedSwapState])
 
   return parsedSwapState
+}
+
+// Note multiplications here can result in a loss of precision in the amounts (e.g. taking 50% of 101)
+// This is reconcilled at the end of the algorithm by adding any lost precision to one of
+// the splits in the route.
+export function getAmountDistribution(
+  amount: string,
+  distributionPercent: number,
+  currency?: Currency
+): [number[], (CurrencyAmount<any> | undefined)[]] {
+  const percents = []
+  const amounts = []
+
+  for (let i = 1; i <= 100 / distributionPercent; i++) {
+    percents.push(i * distributionPercent)
+    amounts.push((Number(amount) * (i * distributionPercent)) / 100)
+  }
+
+  return [percents, amounts.map((number) => tryParseCurrencyAmount(number.toString(), currency ?? undefined))]
 }
