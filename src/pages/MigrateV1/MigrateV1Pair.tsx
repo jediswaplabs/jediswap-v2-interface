@@ -40,7 +40,7 @@ import { AutoColumn } from '../../components/Column'
 import FormattedCurrencyAmount from '../../components/FormattedCurrencyAmount'
 import CurrencyLogo from '../../components/Logo/CurrencyLogo'
 import { AutoRow, RowBetween, RowFixed } from '../../components/Row'
-import { WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
+import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS, WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
 import { useCurrency, useToken } from '../../hooks/Tokens'
 import { usePairContract, useRouterContract } from '../../hooks/useContractV2'
 import useIsArgentWallet from '../../hooks/useIsArgentWallet'
@@ -63,6 +63,7 @@ import { useV2MigratorContract } from 'hooks/useContract'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
 import { useContractWrite } from '@starknet-react/core'
 import { useApprovalCall } from 'hooks/useApproveCall'
+import { toI32 } from 'utils/toI32'
 
 const ZERO = JSBI.BigInt(0)
 
@@ -277,7 +278,10 @@ function V2PairMigration({
     percentToRemove.multiply(pairBalance.raw).quotient
   )
 
-  const approvalCallback = useApprovalCall(liquidityAmount, router?.address)
+  const approvalLiqCallback = useApprovalCall(liquidityAmount, router?.address)
+  const routerAddress: string = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
+  const approvalACallback = useApprovalCall(position?.amount0, routerAddress)
+  const approvalBCallback = useApprovalCall(position?.amount1, routerAddress)
 
   const migrate = async () => {
     if (
@@ -289,7 +293,8 @@ function V2PairMigration({
       typeof tickUpper !== 'number' ||
       !v3Amount0Min ||
       !v3Amount1Min ||
-      !chainId
+      !chainId ||
+      !position
     )
       return
 
@@ -324,54 +329,45 @@ function V2PairMigration({
     }
 
     const callData = []
-    const approval = approvalCallback()
+    const approval = approvalLiqCallback()
+    const approvalA = approvalACallback()
+    const approvalB = approvalBCallback()
     if (approval) {
       callData.push(approval)
     }
     callData.push(calls)
+    if (approvalA) {
+      callData.push(approvalA)
+    }
+    if (approvalB) {
+      callData.push(approvalB)
+    }
+
+    const mintData = {
+      token0: position.pool.token0.address,
+      token1: position.pool.token1.address,
+      fee: position.pool.fee,
+      tick_lower: toI32(position.tickLower),
+      tick_upper: toI32(position.tickUpper),
+      amount0_desired: cairo.uint256(position.amount0.raw.toString()),
+      amount1_desired: cairo.uint256(position.amount1.raw.toString()),
+      amount0_min: cairo.uint256(v3Amount0Min.toString()),
+      amount1_min: cairo.uint256(v3Amount1Min.toString()),
+      recipient: account,
+      deadline: cairo.felt(deadline.toString()),
+    }
+    const mintCallData = CallData.compile(mintData)
+    const mcalls = {
+      contractAddress: routerAddress,
+      entrypoint: 'mint',
+      calldata: mintCallData,
+    }
+
+    callData.push(mcalls)
+
     setMintCallData(callData)
 
-    // // TODO could save gas by not doing this in multicall
-    // data.push(
-    //   migrator.interface.encodeFunctionData('migrate', [
-    //     {
-    //       pair: pairContract.address,
-    //       liquidityToMigrate: `0x${pairBalance.quotient.toString(16)}`,
-    //       percentageToMigrate,
-    //       token0: token0.address,
-    //       token1: token1.address,
-    //       fee: feeAmount,
-    //       tickLower,
-    //       tickUpper,
-    //       amount0Min: `0x${v3Amount0Min.toString(16)}`,
-    //       amount1Min: `0x${v3Amount1Min.toString(16)}`,
-    //       recipient: account,
-    //       deadline: deadlineToUse,
-    //       refundAsETH: true, // hard-code this for now
-    //     },
-    //   ])
-    // )
-
     setConfirmingMigration(true)
-
-    // migrator.estimateGas
-    //   .multicall(data)
-    //   .then((gasEstimate) => {
-    //     return migrator
-    //       .multicall(data, { gasLimit: calculateGasMargin(gasEstimate) })
-    //       .then((response: TransactionResponse) => {
-    //         addTransaction(response, {
-    //           type: TransactionType.MIGRATE_LIQUIDITY_V3,
-    //           baseCurrencyId: currencyId(currency0),
-    //           quoteCurrencyId: currencyId(currency1),
-    //           isFork: false,
-    //         })
-    //         setPendingMigrationHash(response.hash)
-    //       })
-    //   })
-    //   .catch(() => {
-    //     setConfirmingMigration(false)
-    //   })
   }
 
   const isSuccessfullyMigrated = !!pendingMigrationHash && JSBI.equal(pairBalance.quotient, ZERO)
@@ -513,7 +509,7 @@ function V2PairMigration({
           ) : !noLiquidity && v3SpotPrice ? ( */}
           <RowBetween>
             <ThemedText.DeprecatedBody fontSize={14}>
-              <Trans>V3 {invertPrice ? currency1.symbol : currency0.symbol} Price:</Trans>
+              <Trans>{invertPrice ? currency1.symbol : currency0.symbol} Price:</Trans>
             </ThemedText.DeprecatedBody>
             <ThemedText.DeprecatedBlack fontSize={14}>
               {invertPrice

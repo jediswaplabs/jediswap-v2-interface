@@ -114,7 +114,7 @@ export default function MigrateV2() {
               <Trans>Migrate V1 liquidity</Trans>
             </ThemedText.DeprecatedMediumHeader>
             <div>
-              <QuestionHelper text={<Trans>Migrate your liquidity tokens from Uniswap V2 to Uniswap V3.</Trans>} />
+              {/* <QuestionHelper text={<Trans>Migrate your liquidity tokens from Uniswap V2 to Uniswap V3.</Trans>} /> */}
             </div>
           </AutoRow>
 
