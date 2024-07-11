@@ -16,6 +16,8 @@ const RedirectDuplicateTokenIds = lazy(() => import('pages/AddLiquidity/redirect
 const Pool = lazy(() => import('pages/Pool'))
 const PositionPage = lazy(() => import('pages/Pool/PositionPage'))
 const RemoveLiquidityV3 = lazy(() => import('pages/RemoveLiquidity/V3'))
+const MigrateV1 = lazy(() => import('pages/MigrateV1'))
+const MigrateV1Pair = lazy(() => import('pages/MigrateV1/MigrateV1Pair'))
 
 interface RouterConfig {
   browserRouterEnabled?: boolean
@@ -70,7 +72,8 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/vaults', getElement: () => <Vaults /> }),
   createRouteDefinition({ path: '/vaults/:vaultId', getElement: () => <Vault /> }),
   createRouteDefinition({ path: '/rewards', getElement: () => <Rewards /> }),
-
+  createRouteDefinition({ path: '/migrate/', getElement: () => <MigrateV1 /> }),
+  createRouteDefinition({ path: '/migrate/:address', getElement: () => <MigrateV1Pair /> }),
   createRouteDefinition({
     path: '/add',
     nestedPaths: [':currencyIdA', ':currencyIdA/:currencyIdB', ':currencyIdA/:currencyIdB/:feeAmount'],
