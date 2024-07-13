@@ -25,6 +25,7 @@ import CurrencyLogo from '../Logo/CurrencyLogo'
 import { AutoRow, RowBetween, RowFixed } from '../Row'
 import { Dots } from '../swap/styled'
 import { FixedHeightRow } from '.'
+import { useToken } from 'hooks/Tokens'
 
 const StyledPositionCard = styled(LightCard)<{ bgColor: any }>`
   border: none;
@@ -44,8 +45,12 @@ interface PositionCardProps {
 export default function V2PositionCard({ pair, border, stakedBalance }: PositionCardProps) {
   const { address: account } = useAccountDetails()
 
-  const currency0 = unwrappedToken(pair.token0)
-  const currency1 = unwrappedToken(pair.token1)
+  // const currency0 = unwrappedToken(pair.token0)
+  // const currency1 = unwrappedToken(pair.token1)
+  const token0 = useToken(pair.token0.address) as Token
+  const token1 = useToken(pair.token1.address) as Token
+  const currency0 = unwrappedToken(token0)
+  const currency1 = unwrappedToken(token1)
 
   const [showMore, setShowMore] = useState(false)
 
