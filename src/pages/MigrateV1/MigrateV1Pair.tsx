@@ -29,7 +29,12 @@ import { Navigate, useParams } from 'react-router-dom'
 import { Text } from 'rebass'
 import { useAppDispatch } from 'state/hooks'
 import { Bound, resetMintState } from 'state/mint/v3/actions'
-import { useRangeHopCallbacks, useV3DerivedMintInfo, useV3MintActionHandlers } from 'state/mint/v3/hooks'
+import {
+  useRangeHopCallbacks,
+  useV3DerivedMintInfo,
+  useV3MintActionHandlers,
+  useV3MintState,
+} from 'state/mint/v3/hooks'
 import { useIsTransactionPending, useTransactionAdder } from 'state/transactions/hooks'
 import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
 import { useTheme } from 'styled-components'
@@ -64,6 +69,8 @@ import { Pair } from '@vnaysn/jediswap-sdk-v2'
 import { useContractWrite } from '@starknet-react/core'
 import { useApprovalCall } from 'hooks/useApproveCall'
 import { toI32 } from 'utils/toI32'
+import { DynamicSection, StyledInput } from 'pages/AddLiquidity/styled'
+import HoverInlineText from 'components/HoverInlineText'
 
 const ZERO = JSBI.BigInt(0)
 
@@ -153,6 +160,8 @@ function V2PairMigration({
 
   const currency0 = unwrappedToken(token0)
   const currency1 = unwrappedToken(token1)
+  const baseCurrency = currency0
+  const quoteCurrency = currency1
 
   // this is just getLiquidityValue with the fee off, but for the passed pair
   const token0Value = useMemo(
@@ -172,7 +181,7 @@ function V2PairMigration({
 
   // get spot prices + price difference
   const v2SpotPrice = useMemo(() => new Price(token0, token1, reserve0, reserve1), [token0, token1, reserve0, reserve1])
-  const v3SpotPrice = poolState === PoolState.EXISTS ? pool?.token0Price : undefined
+  // const v3SpotPrice = poolState === PoolState.EXISTS ? pool?.token0Price : undefined
 
   // let priceDifferenceFraction: Fraction | undefined =
   //   v2SpotPrice && v3SpotPrice ? v3SpotPrice.divide(v2SpotPrice).subtract(1).multiply(100) : undefined
@@ -184,7 +193,7 @@ function V2PairMigration({
 
   // the following is a small hack to get access to price range data/input handlers
   const [baseToken, setBaseToken] = useState(token0)
-  const { ticks, pricesAtTicks, invertPrice, invalidRange, outOfRange, ticksAtLimit } = useV3DerivedMintInfo(
+  const { ticks, pricesAtTicks, invertPrice, invalidRange, outOfRange, ticksAtLimit, price } = useV3DerivedMintInfo(
     token0,
     token1,
     feeAmount,
@@ -205,7 +214,8 @@ function V2PairMigration({
     tickUpper
   )
 
-  const { onLeftRangeInput, onRightRangeInput } = useV3MintActionHandlers(noLiquidity)
+  const { onLeftRangeInput, onRightRangeInput, onStartPriceInput } = useV3MintActionHandlers(noLiquidity)
+  const { independentField, typedValue, startPriceTypedValue } = useV3MintState()
 
   // the v3 tick is either the pool's tickCurrent, or the tick closest to the v2 spot price
   const tick = pool?.tickCurrent ?? priceToClosestTick(v2SpotPrice)
@@ -298,18 +308,6 @@ function V2PairMigration({
     )
       return
 
-    // create/initialize pool if necessary
-    // if (noLiquidity) {
-    //   data.push(
-    //     migrator.interface.encodeFunctionData('createAndInitializePoolIfNecessary', [
-    //       token0.address,
-    //       token1.address,
-    //       feeAmount,
-    //       `0x${sqrtPrice.toString(16)}`,
-    //     ])
-    //   )
-    // }
-
     const removeLiquidityArgs = {
       tokenA: token0.address,
       tokenB: token1.address,
@@ -329,6 +327,23 @@ function V2PairMigration({
     }
 
     const callData = []
+    if (noLiquidity) {
+      //create and initialize pool
+      const initializeData = {
+        token0: position.pool.token0.address,
+        token1: position.pool.token1.address,
+        fee: position.pool.fee,
+        sqrt_price_X96: cairo.uint256(position?.pool?.sqrtRatioX96.toString()),
+      }
+
+      const initializeCallData = CallData.compile(initializeData)
+      const icalls = {
+        contractAddress: routerAddress,
+        entrypoint: 'create_and_initialize_pool',
+        calldata: initializeCallData,
+      }
+      callData.push(icalls)
+    }
     const approval = approvalLiqCallback()
     const approvalA = approvalACallback()
     const approvalB = approvalBCallback()
@@ -422,7 +437,90 @@ function V2PairMigration({
           </RowBetween>
 
           <FeeSelector feeAmount={feeAmount} handleFeePoolSelect={setFeeAmount} />
-          {noLiquidity && (
+          <DynamicSection gap="md" disabled={!feeAmount}>
+            {!noLiquidity ? (
+              <>
+                {Boolean(price && baseCurrency && quoteCurrency) && (
+                  <AutoColumn gap="2px" style={{ marginTop: '0.5rem' }}>
+                    <Trans>
+                      <ThemedText.DeprecatedMain fontWeight={535} fontSize={12} color="text1">
+                        Current price:
+                      </ThemedText.DeprecatedMain>
+                      <ThemedText.DeprecatedBody fontWeight={535} fontSize={20} color="text1">
+                        {price && (
+                          <HoverInlineText
+                            maxCharacters={20}
+                            text={invertPrice ? price.invert().toSignificant(6) : price.toSignificant(6)}
+                          />
+                        )}
+                      </ThemedText.DeprecatedBody>
+                      {baseCurrency && (
+                        <ThemedText.DeprecatedBody color="text2" fontSize={12}>
+                          {quoteCurrency?.symbol} per {baseCurrency.symbol}
+                        </ThemedText.DeprecatedBody>
+                      )}
+                    </Trans>
+                  </AutoColumn>
+                )}
+              </>
+            ) : (
+              <AutoColumn gap="md">
+                {noLiquidity && (
+                  <BlueCard
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      padding: '1rem 1rem',
+                    }}
+                  >
+                    <ThemedText.DeprecatedBody fontSize={12} textAlign="left" color={theme.accent1}>
+                      <Trans>
+                        This pool must be initialized before you can add liquidity. To initialize, select a starting
+                        price for the pool. Then, enter your liquidity price range and deposit amount. Gas fees will be
+                        higher than usual due to the initialization transaction.
+                      </Trans>
+                    </ThemedText.DeprecatedBody>
+                  </BlueCard>
+                )}
+                <LightCard padding="12px">
+                  <StyledInput
+                    className="start-price-input"
+                    value={startPriceTypedValue}
+                    onUserInput={onStartPriceInput}
+                  />
+                </LightCard>
+                <RowBetween
+                  style={{
+                    padding: '12px',
+                    borderRadius: '12px',
+                  }}
+                >
+                  <ThemedText.DeprecatedMain>
+                    <Trans>Starting {baseCurrency?.symbol} Price:</Trans>
+                  </ThemedText.DeprecatedMain>
+                  <ThemedText.DeprecatedMain>
+                    {price ? (
+                      <ThemedText.DeprecatedMain>
+                        <RowFixed>
+                          <HoverInlineText
+                            maxCharacters={20}
+                            text={invertPrice ? price?.invert()?.toSignificant(8) : price?.toSignificant(8)}
+                          />{' '}
+                          <span style={{ marginLeft: '4px' }}>
+                            {quoteCurrency?.symbol} per {baseCurrency?.symbol}
+                          </span>
+                        </RowFixed>
+                      </ThemedText.DeprecatedMain>
+                    ) : (
+                      '-'
+                    )}
+                  </ThemedText.DeprecatedMain>
+                </RowBetween>
+              </AutoColumn>
+            )}
+          </DynamicSection>
+          {/* {noLiquidity && (
             <BlueCard style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <AlertCircle color={theme.neutral1} style={{ marginBottom: '12px', opacity: 0.8 }} />
               <ThemedText.DeprecatedBody
@@ -445,7 +543,7 @@ function V2PairMigration({
                 <Trans>Your transaction cost will be much higher as it includes the gas to create the pool.</Trans>
               </ThemedText.DeprecatedBody>
 
-              {/* {v2SpotPrice && (
+              {v2SpotPrice && (
                 <AutoColumn gap="sm" style={{ marginTop: '12px' }}>
                   <RowBetween>
                     <ThemedText.DeprecatedBody fontWeight={535} fontSize={14}>
@@ -458,9 +556,9 @@ function V2PairMigration({
                     </ThemedText.DeprecatedBody>
                   </RowBetween>
                 </AutoColumn>
-              )} */}
+              )}
             </BlueCard>
-          )}
+          )} */}
 
           {/* {largePriceDifference ? (
             <YellowCard>
@@ -507,7 +605,7 @@ function V2PairMigration({
               </ThemedText.DeprecatedBody>
             </YellowCard>
           ) : !noLiquidity && v3SpotPrice ? ( */}
-          <RowBetween>
+          {/* <RowBetween>
             <ThemedText.DeprecatedBody fontSize={14}>
               <Trans>{invertPrice ? currency1.symbol : currency0.symbol} Price:</Trans>
             </ThemedText.DeprecatedBody>
@@ -516,7 +614,7 @@ function V2PairMigration({
                 ? `${v3SpotPrice?.invert()?.toSignificant(6)} ${currency0.symbol}`
                 : `${v3SpotPrice?.toSignificant(6)} ${currency1.symbol}`}
             </ThemedText.DeprecatedBlack>
-          </RowBetween>
+          </RowBetween> */}
           {/* ) : null} */}
 
           <RowBetween>
