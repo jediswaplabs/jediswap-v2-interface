@@ -65,6 +65,7 @@ const localStoreReferralDataObjectName = 'referralCodeV2'
  */
 function setReferralDataToLocalStore(data: string) {
   localStorage.setItem(localStoreReferralDataObjectName, data)
+  localStorage.removeItem('noWalletReferralCode')
 }
 
 /**
@@ -105,6 +106,8 @@ export function getReferralInfoFromLocalStorageForUser(
  * If the referral code is present in the local storage, it checks if the referral code is on-chain or off-chain.
  * If the referral code is off-chain and the referral code is present in the URL, it sets the referral code in the local storage.
  * If the referral code is on-chain, it does not do anything.
+ * If user is not connected to the wallet, save the referral code in the local storage - noWalletReferralCode.
+ * Upon wallet connection, check noWalletReferralCode and set the referral code in the local storage.
  */
 export function useReferralstate() {
   const { chainId, address: account } = useAccountDetails()
@@ -114,9 +117,34 @@ export function useReferralstate() {
 
   useEffect(() => {
     if (chainId && account) {
+      const referralCodeFromLocalStorage = localStorage.getItem('noWalletReferralCode')
+      if (!referralCodeFromUrl && referralCodeFromLocalStorage) {
+        const { referralInfoLocal: referralData, userReferralInfoLocal: localStorageData } =
+          getReferralInfoFromLocalStorageForUser(chainId, account)
+        if (!localStorageData) {
+          const referralCodeObject: ILocalStorageUserData = {
+            referredBy: referralCodeFromLocalStorage,
+            onChain: false,
+            isCorrect: isAddressValidForReferral(account, referralCodeFromLocalStorage),
+            isNotifClosed: false,
+          }
+          if (!referralData) {
+            setReferralDataToLocalStore(JSON.stringify({ [chainId]: { [account]: referralCodeObject } }))
+          } else {
+            const newLocalStorageData = {
+              ...referralData,
+              [chainId]: {
+                ...referralData[chainId],
+                [account]: referralCodeObject,
+              },
+            }
+            setReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
+          }
+        }
+      }
       const { referralInfoLocal: referralData, userReferralInfoLocal: localStorageData } =
         getReferralInfoFromLocalStorageForUser(chainId, account)
-      if (!localStorageData || localStorageData?.onChain === false) {
+      if (!localStorageData || localStorageData?.onChain === false || localStorageData?.isCorrect === false) {
         fetchReferrer(chainId, account).then(
           (dataFromBlockChain: { id: number; jsonrpc: string; result: string[] }) => {
             if (dataFromBlockChain.result[0] !== '0x0') {
@@ -165,6 +193,8 @@ export function useReferralstate() {
           }
         )
       }
+    } else if (referralCodeFromUrl) {
+      localStorage.setItem('noWalletReferralCode', referralCodeFromUrl)
     }
   }, [chainId, account, referralCodeFromUrl, isTestnet])
 }
