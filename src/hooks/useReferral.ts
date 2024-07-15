@@ -10,6 +10,13 @@ import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import { Call, getChecksumAddress, validateChecksumAddress } from 'starknet'
 
+/* 
+  This function is used to fetch the referrer of the user from bloackchain.
+  It takes the chain id and the user address as input.
+  It returns the referrer of the user.
+  It fetches data on every pending block.
+  Not used anymore.
+*/
 export function useTraderReferralCode(): {
   data: any
   error: any
@@ -42,11 +49,34 @@ export interface ILocalStorageUserData {
   referredBy: string
   onChain: boolean
   isCorrect: boolean
+  isNotifClosed: boolean
 }
 export interface ILocalStorageReferralData {
   [chainId: string]: {
     [userAddress: string]: ILocalStorageUserData
   }
+}
+
+const localStoreReferralDataObjectName = 'referralCodeV2'
+
+/* 
+  This function is used to set the referral code in the local storage.
+  It takes the referral code as input.
+  It sets the referral code in the local storage.
+*/
+function setToReferralDataToLocalStore(data: string) {
+  localStorage.setItem(localStoreReferralDataObjectName, data)
+}
+
+/*
+  This function is used to get the referral code of the user from the local storage.
+  It takes the user address and the chain id as input.
+  It returns the referral code of the user from the local storage.
+*/
+export function getReferralInfoFromStorageForuser() {
+  const rawLocalStorageData = localStorage.getItem(localStoreReferralDataObjectName)
+  const localStorageData: ILocalStorageReferralData | undefined = rawLocalStorageData && JSON.parse(rawLocalStorageData)
+  return localStorageData
 }
 
 /*
@@ -76,10 +106,11 @@ export function useReferralstate() {
                 referredBy: dataFromBlockChain.result[0],
                 onChain: true,
                 isCorrect: true,
+                isNotifClosed: false,
               }
 
               if (!referralData) {
-                localStorage.setItem('referralCode', JSON.stringify({ [chainId]: { [account]: referralCodeObject } }))
+                setToReferralDataToLocalStore(JSON.stringify({ [chainId]: { [account]: referralCodeObject } }))
               } else {
                 const newLocalStorageData = {
                   ...referralData,
@@ -88,7 +119,7 @@ export function useReferralstate() {
                     [account]: referralCodeObject,
                   },
                 }
-                localStorage.setItem('referralCode', JSON.stringify(newLocalStorageData))
+                setToReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
               }
             } else if (
               referralCodeFromUrl &&
@@ -98,9 +129,10 @@ export function useReferralstate() {
                 referredBy: referralCodeFromUrl,
                 onChain: false,
                 isCorrect: isAddressValidForReferral(account, referralCodeFromUrl),
+                isNotifClosed: false,
               }
               if (!referralData) {
-                localStorage.setItem('referralCode', JSON.stringify({ [chainId]: { [account]: referralCodeObject } }))
+                setToReferralDataToLocalStore(JSON.stringify({ [chainId]: { [account]: referralCodeObject } }))
               } else {
                 const newLocalStorageData = {
                   ...referralData,
@@ -109,7 +141,7 @@ export function useReferralstate() {
                     [account]: referralCodeObject,
                   },
                 }
-                localStorage.setItem('referralCode', JSON.stringify(newLocalStorageData))
+                setToReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
               }
             }
           }
@@ -134,17 +166,6 @@ function isAddressValidForReferral(userAddress: string, refereeAddress: string) 
 }
 
 /*
-  This function is used to get the referral code of the user from the local storage.
-  It takes the user address and the chain id as input.
-  It returns the referral code of the user from the local storage.
-*/
-export function getReferralInfoFromStorageForuser() {
-  const rawLocalStorageData = localStorage.getItem('referralCode')
-  const localStorageData: ILocalStorageReferralData | undefined = rawLocalStorageData && JSON.parse(rawLocalStorageData)
-  return localStorageData
-}
-
-/*
   This is done to avoid the user setting the referral code in the URL multiple times.
   If the set_referrer call is successful, the referral code is set in the local storage.
 */
@@ -159,7 +180,6 @@ export function setOnChainReferralTrueForuser(userAddress: string, chainId: Chai
         ...userReferralInfoLocal,
         onChain: true,
       }
-      // localStorage.setItem('referralCode', JSON.stringify({ [chainId]: { [userAddress]: newInfo } }))
 
       // replace newinfo for user and keep the other user and chain data
       const newLocalStorageData = {
@@ -169,7 +189,34 @@ export function setOnChainReferralTrueForuser(userAddress: string, chainId: Chai
           [userAddress]: newInfo,
         },
       }
-      localStorage.setItem('referralCode', JSON.stringify(newLocalStorageData))
+      setToReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
     }
+  }
+}
+
+/* 
+  This function is used to set the isNotifClosed flag to true for the user.
+  It takes the user address and the chain id as input.
+  It sets the isNotifClosed flag to true for the user in the local storage.
+*/
+export function setIsNotifClosedForuser(userAddress: string, chainId: ChainId) {
+  const referralInfoLocal = getReferralInfoFromStorageForuser()
+  const userReferralInfoLocal =
+    referralInfoLocal && referralInfoLocal[chainId] && referralInfoLocal[chainId][userAddress]
+  if (userReferralInfoLocal) {
+    const newInfo = {
+      ...userReferralInfoLocal,
+      isNotifClosed: true,
+    }
+
+    // replace newinfo for user and keep the other user and chain data
+    const newLocalStorageData = {
+      ...referralInfoLocal,
+      [chainId]: {
+        ...referralInfoLocal[chainId],
+        [userAddress]: newInfo,
+      },
+    }
+    setToReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
   }
 }

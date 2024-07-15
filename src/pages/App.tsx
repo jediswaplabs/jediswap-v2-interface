@@ -19,7 +19,12 @@ import { ApolloProvider } from '@apollo/client'
 import { getClient } from 'apollo/client'
 import { getChecksumAddress, validateChecksumAddress } from 'starknet'
 import { bannerType, WarningBanner } from './Referral/Warning'
-import { getReferralInfoFromStorageForuser, ILocalStorageUserData, useReferralstate } from 'hooks/useReferral'
+import {
+  getReferralInfoFromStorageForuser,
+  ILocalStorageUserData,
+  setIsNotifClosedForuser,
+  useReferralstate,
+} from 'hooks/useReferral'
 import fetchReferrer from 'api/fetchReferrer'
 import { has } from 'immer/dist/internal'
 // import Footer from 'components/Footer'
@@ -118,7 +123,12 @@ export default function App() {
   useReferralstate()
 
   useEffect(() => {
-    if (userStorageReferralData && account && hasUserClosedWarning === false) {
+    if (
+      userStorageReferralData &&
+      account &&
+      hasUserClosedWarning === false &&
+      userStorageReferralData.isNotifClosed === false
+    ) {
       if (userStorageReferralData.isCorrect === false) {
         setWarningType('warning')
       } else {
@@ -172,6 +182,7 @@ export default function App() {
             warningType !== 'error'
               ? () => {
                   setHasUserClosedWarning(true)
+                  setIsNotifClosedForuser(account!, chainId!)
                 }
               : undefined
           }

@@ -39,6 +39,7 @@ const BannerTextWrapper = styled(ThemedText.BodySecondary)<{ type: bannerType }>
   align-items: center;
   display: flex;
   justify-content: center;
+  font-weight: 500 !important;
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     @supports (-webkit-line-clamp: 2) {
