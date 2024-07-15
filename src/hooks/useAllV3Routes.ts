@@ -56,14 +56,13 @@ export function useAllV3Routes(
 ): { loading: boolean; routes: any[] } {
   const { chainId } = useAccountDetails()
   const { pools, loading: poolsLoading } = useV3SwapPools(allPools, currencyIn, currencyOut)
-  console.log('pools', pools)
   // const [singleHopOnly] = useUserSingleHopOnly()
   const singleHopOnly = false
 
   return useMemo(() => {
     if (poolsLoading || !chainId || !pools || !currencyIn || !currencyOut) return { loading: true, routes: [] }
 
-    const routes = computeAllRoutes(currencyIn, currencyOut, pools, chainId, [], [], currencyIn, singleHopOnly ? 1 : 4)
+    const routes = computeAllRoutes(currencyIn, currencyOut, pools, chainId, [], [], currencyIn, singleHopOnly ? 1 : 2)
     return { loading: false, routes }
   }, [chainId, currencyIn, currencyOut, pools, poolsLoading, singleHopOnly])
 }

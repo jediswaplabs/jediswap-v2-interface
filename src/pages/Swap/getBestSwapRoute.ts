@@ -20,8 +20,17 @@ export async function getBestSwapRoute(routesWithValidQuotes: any[], tradeType: 
   }
 
   console.log('percentToQuotes', percentToQuotes)
-  const betRoute = await getBestSwapRouteBy(tradeType, percentToQuotes, percents, (routeQuote) => routeQuote.amount)
+  const betRoute = await getBestSwapRouteBy(
+    tradeType,
+    percentToQuotes,
+    percents,
+    tradeType === TradeType.EXACT_INPUT
+      ? (routeQuote) => routeQuote.outputAmount
+      : (routeQuote) => routeQuote.inputAmount
+  )
   console.log('betRoute', betRoute)
+
+  return betRoute
 }
 
 async function getBestSwapRouteBy(

@@ -4,9 +4,7 @@ import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { useConnectionReady } from 'connection/eagerlyConnect'
 import { useFotAdjustmentsEnabled } from 'featureFlags/flags/fotAdjustments'
 import useAutoSlippageTolerance from 'hooks/useAutoSlippageTolerance'
-import { useDebouncedTrade } from 'hooks/useDebouncedTrade'
 import { useSwapTaxes } from 'hooks/useSwapTaxes'
-import { useUSDPrice } from 'hooks/useUSDPrice'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { ParsedQs } from 'qs'
 import { ReactNode, useCallback, useEffect, useMemo } from 'react'
@@ -15,10 +13,7 @@ import { useAppDispatch } from 'state/hooks'
 import { InterfaceTrade, TradeState } from 'state/routing/types'
 import { isClassicTrade } from 'state/routing/utils'
 import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
-
-// import { TOKEN_SHORTHANDS } from '../../constants/tokens'
 import { useCurrency } from '../../hooks/Tokens'
-import useENS from '../../hooks/useENS'
 import useParsedQueryString from '../../hooks/useParsedQueryString'
 import { isAddress } from '../../utils'
 import { useCurrencyBalances } from '../connection/hooks'
@@ -26,11 +21,6 @@ import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies
 import { SwapState } from './reducer'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import { useBestV3TradeExactIn, useBestV3TradeExactOut } from 'hooks/useBestV3Trade'
-import { useTradeExactIn, useTradeExactOut } from 'hooks/Trades'
-import { BigNumber } from 'ethers'
-import { parse } from 'path'
-import { is } from 'immer/dist/internal'
-import { disconnect } from 'process'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
@@ -139,28 +129,32 @@ export function useDerivedSwapInfo(
   const token1balance = useAccountBalance(outputCurrency ?? undefined)
 
   const isExactIn: boolean = independentField === Field.INPUT
-  const parsedAmount = useMemo(
-    () => tryParseCurrencyAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined),
-    [inputCurrency, isExactIn, outputCurrency, typedValue]
-  )
+  // const parsedAmount = useMemo(
+  //   () => tryParseCurrencyAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined),
+  //   [inputCurrency, isExactIn, outputCurrency, typedValue]
+  // )
   const distributedAmount = useMemo(() => {
-    if (!parsedAmount) return undefined
+    if (!typedValue) return undefined
     return getAmountDistribution(typedValue, 25, isExactIn ? inputCurrency : outputCurrency)
-  }, [parsedAmount])
+  }, [typedValue])
 
-  console.log(parsedAmount, distributedAmount, typedValue, 'parsedAmount')
+  console.log(distributedAmount, typedValue, 'parsedAmount')
 
   const bestV3TradeExactIn = useBestV3TradeExactIn(
     allPools,
     isExactIn && distributedAmount ? distributedAmount[1] : undefined,
     outputCurrency,
     inputCurrency,
-    distributedAmount ? distributedAmount[0] : undefined
+    distributedAmount ? distributedAmount[0] : undefined,
+    typedValue
   )
   const bestV3TradeExactOut = useBestV3TradeExactOut(
     allPools,
+    !isExactIn && distributedAmount ? distributedAmount[1] : undefined,
     inputCurrency ?? undefined,
-    !isExactIn ? parsedAmount : undefined
+    outputCurrency,
+    distributedAmount ? distributedAmount[0] : undefined,
+    typedValue
   )
 
   // const [bestV2TradeExactIn] = useTradeExactIn(
@@ -222,7 +216,7 @@ export function useDerivedSwapInfo(
   // ? bestTradeExactIn
   // : bestTradeExactOut
 
-  console.log(trade, 'trade')
+  console.log(trade, bestV3TradeExactIn, bestV3TradeExactOut, 'finaltrade')
   const currencyBalances = useMemo(
     () => ({
       [Field.INPUT]: relevantTokenBalances[0],
@@ -264,7 +258,7 @@ export function useDerivedSwapInfo(
       inputError = inputError ?? <Trans>Select a token</Trans>
     }
 
-    if (!parsedAmount) {
+    if (!typedValue) {
       inputError = inputError ?? <Trans>Enter an amount</Trans>
     }
 
@@ -276,13 +270,13 @@ export function useDerivedSwapInfo(
     }
 
     return inputError
-  }, [account, currencies, parsedAmount, currencyBalances, trade?.trade, allowedSlippage, connectionReady])
+  }, [account, currencies, typedValue, currencyBalances, trade?.trade, allowedSlippage, connectionReady])
 
   return useMemo(
     () => ({
       currencies,
       currencyBalances,
-      parsedAmount,
+      typedValue,
       inputError,
       trade,
       autoSlippage,
@@ -290,7 +284,7 @@ export function useDerivedSwapInfo(
       inputTax,
       outputTax,
     }),
-    [allowedSlippage, autoSlippage, currencies, currencyBalances, inputError, inputTax, outputTax, parsedAmount, trade]
+    [allowedSlippage, autoSlippage, currencies, currencyBalances, inputError, inputTax, outputTax, typedValue, trade]
   )
 }
 
