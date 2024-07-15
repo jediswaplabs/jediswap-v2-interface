@@ -59,35 +59,50 @@ export interface ILocalStorageReferralData {
 
 const localStoreReferralDataObjectName = 'referralCodeV2'
 
-/* 
-  This function is used to set the referral code in the local storage.
-  It takes the referral code as input.
-  It sets the referral code in the local storage.
-*/
-function setToReferralDataToLocalStore(data: string) {
+/**
+ * This function sets referral data to local storage.
+ * @param {string} data - The referral data to be stored. In Json format.
+ */
+function setReferralDataToLocalStore(data: string) {
   localStorage.setItem(localStoreReferralDataObjectName, data)
 }
 
-/*
-  This function is used to get the referral code of the user from the local storage.
-  It takes the user address and the chain id as input.
-  It returns the referral code of the user from the local storage.
-*/
-export function getReferralInfoFromStorageForuser() {
+/**
+ * This function retrieves referral data from local storage.
+ * @returns {ILocalStorageReferralData | undefined} The referral data from local storage.
+ */
+export function getReferralInfoFromStorage() {
   const rawLocalStorageData = localStorage.getItem(localStoreReferralDataObjectName)
   const localStorageData: ILocalStorageReferralData | undefined = rawLocalStorageData && JSON.parse(rawLocalStorageData)
   return localStorageData
 }
 
-/*
-  This hook is used to get the referral state of the user.
-  It checks the local storage for the referral code of the user.
-  If the referral code is not present in the local storage, it fetches the referral code from the blockchain.
-  If the referral code is not present in the local storage and the referral code is present in the URL, it sets the referral code in the local storage.
-  If the referral code is present in the local storage, it checks if the referral code is on-chain or off-chain.
-  If the referral code is off-chain and the referral code is present in the URL, it sets the referral code in the local storage.
-  If the referral code is on-chain, it does not do anything.
-*/
+/**
+ * This function retrieves the referral information from local storage for a specific user.
+ * It returns the referralInfoLocal object and the userReferralInfoLocal object.
+ * @param {string} chainId - The chain ID of the user.
+ * @param {string} userAddress - The address of the user.
+ * @returns {Object} The referralInfoLocal object and the userReferralInfoLocal object.
+ */
+function getReferralInfoFromLocalStorageForUser(
+  chainId: string,
+  userAddress: string
+): { referralInfoLocal: any; userReferralInfoLocal: any } {
+  const referralInfoLocal = getReferralInfoFromStorage()
+  const userReferralInfoLocal =
+    referralInfoLocal && referralInfoLocal[chainId] && referralInfoLocal[chainId][userAddress]
+  return { referralInfoLocal, userReferralInfoLocal }
+}
+
+/**
+ * This hook is used to get the referral state of the user.
+ * It checks the local storage for the referral code of the user.
+ * If the referral code is not present in the local storage, it fetches the referral code from the blockchain.
+ * If the referral code is not present in the local storage and the referral code is present in the URL, it sets the referral code in the local storage.
+ * If the referral code is present in the local storage, it checks if the referral code is on-chain or off-chain.
+ * If the referral code is off-chain and the referral code is present in the URL, it sets the referral code in the local storage.
+ * If the referral code is on-chain, it does not do anything.
+ */
 export function useReferralstate() {
   const { chainId, address: account } = useAccountDetails()
   const parsedQs = useParsedQueryString()
@@ -96,8 +111,8 @@ export function useReferralstate() {
 
   useEffect(() => {
     if (chainId && account) {
-      const referralData = getReferralInfoFromStorageForuser()
-      const localStorageData = referralData && referralData[chainId] && referralData[chainId][account]
+      const { referralInfoLocal: referralData, userReferralInfoLocal: localStorageData } =
+        getReferralInfoFromLocalStorageForUser(chainId, account)
       if (!localStorageData || localStorageData?.onChain === false) {
         fetchReferrer(chainId, account).then(
           (dataFromBlockChain: { id: number; jsonrpc: string; result: string[] }) => {
@@ -110,7 +125,7 @@ export function useReferralstate() {
               }
 
               if (!referralData) {
-                setToReferralDataToLocalStore(JSON.stringify({ [chainId]: { [account]: referralCodeObject } }))
+                setReferralDataToLocalStore(JSON.stringify({ [chainId]: { [account]: referralCodeObject } }))
               } else {
                 const newLocalStorageData = {
                   ...referralData,
@@ -119,7 +134,7 @@ export function useReferralstate() {
                     [account]: referralCodeObject,
                   },
                 }
-                setToReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
+                setReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
               }
             } else if (
               referralCodeFromUrl &&
@@ -132,7 +147,7 @@ export function useReferralstate() {
                 isNotifClosed: false,
               }
               if (!referralData) {
-                setToReferralDataToLocalStore(JSON.stringify({ [chainId]: { [account]: referralCodeObject } }))
+                setReferralDataToLocalStore(JSON.stringify({ [chainId]: { [account]: referralCodeObject } }))
               } else {
                 const newLocalStorageData = {
                   ...referralData,
@@ -141,7 +156,7 @@ export function useReferralstate() {
                     [account]: referralCodeObject,
                   },
                 }
-                setToReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
+                setReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
               }
             }
           }
@@ -151,12 +166,14 @@ export function useReferralstate() {
   }, [chainId, account, referralCodeFromUrl, isTestnet])
 }
 
-/*
-  This function is used to check if the address is valid for referral.
-  It checks if the address is valid for starknet.
-  It checks if the address is not same as the user address.
-  It checks if the address is a valid checksum address.
-*/
+/**
+ * This function is used to check if the address is valid for referral.
+ * It checks if the address is valid for starknet.
+ * It checks if the address is not same as the user address.
+ * It checks if the address is a valid checksum address.
+ * @param {string} address - The address to be checked.
+ * @returns {boolean} True if the address is valid, false otherwise.
+ */
 function isAddressValidForReferral(userAddress: string, refereeAddress: string) {
   return (
     isAddressValidForStarknet(refereeAddress) !== false &&
@@ -165,23 +182,22 @@ function isAddressValidForReferral(userAddress: string, refereeAddress: string) 
   )
 }
 
-/*
+/** 
   This is done to avoid the user setting the referral code in the URL multiple times.
   If the set_referrer call is successful, the referral code is set in the local storage.
+  * @param {string} chainId - The chain ID of the user.
+  * @param {string} account - The account of the user.
 */
 export function setOnChainReferralTrueForuser(userAddress: string, chainId: ChainId, calls: Call[]) {
   const setReferrerCall = calls.find((call) => call.entrypoint === 'set_referrer')
   if (setReferrerCall) {
-    const referralInfoLocal = getReferralInfoFromStorageForuser()
-    const userReferralInfoLocal =
-      referralInfoLocal && referralInfoLocal[chainId] && referralInfoLocal[chainId][userAddress]
+    const { referralInfoLocal, userReferralInfoLocal } = getReferralInfoFromLocalStorageForUser(chainId, userAddress)
     if (userReferralInfoLocal && userReferralInfoLocal.onChain === false) {
       const newInfo = {
         ...userReferralInfoLocal,
         onChain: true,
       }
 
-      // replace newinfo for user and keep the other user and chain data
       const newLocalStorageData = {
         ...referralInfoLocal,
         [chainId]: {
@@ -189,27 +205,26 @@ export function setOnChainReferralTrueForuser(userAddress: string, chainId: Chai
           [userAddress]: newInfo,
         },
       }
-      setToReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
+      setReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
     }
   }
 }
 
-/* 
+/** 
   This function is used to set the isNotifClosed flag to true for the user.
   It takes the user address and the chain id as input.
   It sets the isNotifClosed flag to true for the user in the local storage.
+  * @param {string} chainId - The chain ID of the user.
+  * @param {string} account - The account of the user.
 */
 export function setIsNotifClosedForuser(userAddress: string, chainId: ChainId) {
-  const referralInfoLocal = getReferralInfoFromStorageForuser()
-  const userReferralInfoLocal =
-    referralInfoLocal && referralInfoLocal[chainId] && referralInfoLocal[chainId][userAddress]
+  const { referralInfoLocal, userReferralInfoLocal } = getReferralInfoFromLocalStorageForUser(chainId, userAddress)
   if (userReferralInfoLocal) {
     const newInfo = {
       ...userReferralInfoLocal,
       isNotifClosed: true,
     }
 
-    // replace newinfo for user and keep the other user and chain data
     const newLocalStorageData = {
       ...referralInfoLocal,
       [chainId]: {
@@ -217,6 +232,6 @@ export function setIsNotifClosedForuser(userAddress: string, chainId: ChainId) {
         [userAddress]: newInfo,
       },
     }
-    setToReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
+    setReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
   }
 }
