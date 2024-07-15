@@ -19,12 +19,7 @@ import { ApolloProvider } from '@apollo/client'
 import { getClient } from 'apollo/client'
 import { getChecksumAddress, validateChecksumAddress } from 'starknet'
 import { bannerType, WarningBanner } from './Referral/Warning'
-import {
-  getReferralInfoFromStorageForuser,
-  ILocalStorageUserData,
-  setIsNotifClosedForuser,
-  useReferralstate,
-} from 'hooks/useReferral'
+import { getReferralInfoFromLocalStorageForUser, setIsNotifClosedForuser, useReferralstate } from 'hooks/useReferral'
 import fetchReferrer from 'api/fetchReferrer'
 import { has } from 'immer/dist/internal'
 // import Footer from 'components/Footer'
@@ -108,17 +103,8 @@ export default function App() {
   const scrolledState = scrollY > 0
   const routerConfig = useRouterConfig()
   const { chainId, address: account } = useAccountDetails()
-  const localStorageData = getReferralInfoFromStorageForuser()
-  let userStorageReferralData: ILocalStorageUserData | undefined = undefined
-  if (
-    localStorageData &&
-    account !== undefined &&
-    chainId !== undefined &&
-    localStorageData[chainId] &&
-    localStorageData[chainId][account]
-  ) {
-    userStorageReferralData = localStorageData[chainId][account]
-  }
+  const { referralInfoLocal: localStorageData, userReferralInfoLocal: userStorageReferralData } =
+    getReferralInfoFromLocalStorageForUser(chainId, account)
   const isHeaderTransparent = !scrolledState
   useReferralstate()
 

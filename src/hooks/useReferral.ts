@@ -84,13 +84,16 @@ export function getReferralInfoFromStorage() {
  * @param {string} userAddress - The address of the user.
  * @returns {Object} The referralInfoLocal object and the userReferralInfoLocal object.
  */
-function getReferralInfoFromLocalStorageForUser(
-  chainId: string,
-  userAddress: string
+export function getReferralInfoFromLocalStorageForUser(
+  chainId?: string,
+  userAddress?: string
 ): { referralInfoLocal: any; userReferralInfoLocal: any } {
   const referralInfoLocal = getReferralInfoFromStorage()
-  const userReferralInfoLocal =
-    referralInfoLocal && referralInfoLocal[chainId] && referralInfoLocal[chainId][userAddress]
+  let userReferralInfoLocal: ILocalStorageUserData | undefined = undefined
+
+  if (referralInfoLocal && chainId && userAddress) {
+    userReferralInfoLocal = referralInfoLocal && referralInfoLocal[chainId] && referralInfoLocal[chainId][userAddress]
+  }
   return { referralInfoLocal, userReferralInfoLocal }
 }
 

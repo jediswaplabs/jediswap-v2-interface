@@ -38,7 +38,7 @@ import { useIsSwapUnsupported } from 'hooks/useIsSwapUnsupported'
 import { useMaxAmountIn } from 'hooks/useMaxAmountIn'
 import usePermit2Allowance, { AllowanceState } from 'hooks/usePermit2Allowance'
 import usePrevious from 'hooks/usePrevious'
-import { getReferralInfoFromStorageForuser, setOnChainReferralTrueForuser } from 'hooks/useReferral'
+import { getReferralInfoFromLocalStorageForUser, setOnChainReferralTrueForuser } from 'hooks/useReferral'
 import { SwapResult, useSwapCallback } from 'hooks/useSwapCallback'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useUSDPrice } from 'hooks/useUSDPrice'
@@ -601,7 +601,8 @@ export function Swap({
   }, [trade])
 
   const approveCallback = useApprovalCall(amountToApprove, spender)
-  const localStoragedata = getReferralInfoFromStorageForuser()
+
+  const { userReferralInfoLocal: localStorageReferralCode } = getReferralInfoFromLocalStorageForUser(chainId, address)
 
   const handleSwap = useCallback(() => {
     if (!trade || !address || !deadline || !referralContract || !chainId) return
@@ -614,8 +615,6 @@ export function Swap({
     callData.push(handleApproval)
     const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
-
-    const localStorageReferralCode = localStoragedata && localStoragedata[chainId] && localStoragedata[chainId][address]
 
     if (localStorageReferralCode && localStorageReferralCode.isCorrect && localStorageReferralCode.onChain !== true) {
       const referralCode = {
@@ -865,7 +864,7 @@ export function Swap({
         })
       }
     },
-    [onCurrencyChange, onCurrencySelection, state, onSwitchTokens, currencies, localStoragedata]
+    [onCurrencyChange, onCurrencySelection, state, onSwitchTokens, currencies, localStorageReferralCode]
   )
 
   const showPriceImpactWarning = isClassicTrade(trade) && largerPriceImpact && priceImpactSeverity > 3
