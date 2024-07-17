@@ -1,7 +1,7 @@
 import { QueryResult } from '@apollo/client'
 import { BigNumber } from '@ethersproject/bignumber'
 import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
-import { FeeAmount, Pool, Position } from '@vnaysn/jediswap-sdk-v3'
+import { FeeAmount, Pool, Position } from '@harshalmaniya/jediswap-sdk-v3'
 
 import { USDC_MAINNET, WETH } from 'constants/tokens'
 import { Chain, Exact, TokenProjectQuery } from 'graphql/data/types-and-hooks'

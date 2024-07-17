@@ -1,5 +1,5 @@
 import { t } from '@lingui/macro'
-import { Position } from '@vnaysn/jediswap-sdk-v3'
+import { Position } from '@harshalmaniya/jediswap-sdk-v3'
 import { useCallback, useMemo, useReducer } from 'react'
 import { useNavigate } from 'react-router-dom'
 import styled from 'styled-components'

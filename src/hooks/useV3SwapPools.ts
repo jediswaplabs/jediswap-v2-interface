@@ -4,7 +4,7 @@ import { useToken } from './Tokens'
 import { useContractRead } from '@starknet-react/core'
 import POOL_ABI from 'contracts/pool/abi.json'
 import { toInt } from 'utils/toInt'
-import { Pool } from '@vnaysn/jediswap-sdk-v3'
+import { Pool } from '@harshalmaniya/jediswap-sdk-v3'
 import { Currency } from '@vnaysn/jediswap-sdk-core'
 import { BlockTag } from 'starknet'
 

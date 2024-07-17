@@ -5,7 +5,7 @@ import { t } from '@lingui/macro'
 import { CustomUserProperties, SwapEventName } from '@uniswap/analytics-events'
 import { Percent } from '@vnaysn/jediswap-sdk-core'
 import { FlatFeeOptions, SwapRouter } from '@vnaysn/jediswap-router-sdk'
-import { FeeOptions, toHex } from '@vnaysn/jediswap-sdk-v3'
+import { FeeOptions, toHex } from '@harshalmaniya/jediswap-sdk-v3'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useCallback } from 'react'
 

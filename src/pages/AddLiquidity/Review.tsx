@@ -1,5 +1,5 @@
 import { Currency, CurrencyAmount, Price } from '@vnaysn/jediswap-sdk-core'
-import { Position } from '@vnaysn/jediswap-sdk-v3'
+import { Position } from '@harshalmaniya/jediswap-sdk-v3'
 import styled from 'styled-components'
 
 import { AutoColumn } from 'components/Column'

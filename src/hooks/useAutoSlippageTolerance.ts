@@ -1,7 +1,7 @@
 import { MixedRoute, partitionMixedRouteByProtocol, Protocol, Trade } from '@vnaysn/jediswap-router-sdk'
 import { Currency, CurrencyAmount, Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
-import { Pool } from '@vnaysn/jediswap-sdk-v3'
+import { Pool } from '@harshalmaniya/jediswap-sdk-v3'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { SUPPORTED_GAS_ESTIMATE_CHAIN_IDS } from 'constants/chains'
 import JSBI from 'jsbi'

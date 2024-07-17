@@ -1,5 +1,5 @@
 import { Token } from '@vnaysn/jediswap-sdk-core'
-import { tickToPrice } from '@vnaysn/jediswap-sdk-v3'
+import { tickToPrice } from '@harshalmaniya/jediswap-sdk-v3'
 import { TickProcessed } from 'hooks/usePoolTickData'
 import JSBI from 'jsbi'
 

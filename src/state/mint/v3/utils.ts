@@ -6,7 +6,7 @@ import {
   priceToClosestTick,
   TICK_SPACINGS,
   TickMath,
-} from '@vnaysn/jediswap-sdk-v3'
+} from '@harshalmaniya/jediswap-sdk-v3'
 import JSBI from 'jsbi'
 
 export function tryParsePrice(baseToken?: Token, quoteToken?: Token, value?: string) {

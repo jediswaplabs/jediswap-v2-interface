@@ -1,7 +1,7 @@
 import { IRoute, Protocol } from '@vnaysn/jediswap-router-sdk'
 import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
-import { Pool } from '@vnaysn/jediswap-sdk-v3'
+import { Pool } from '@harshalmaniya/jediswap-sdk-v3'
 
 import { TokenAmountInput, TokenTradeRouteInput, TradePoolInput } from 'graphql/data/types-and-hooks'
 import { ClassicTrade } from 'state/routing/types'

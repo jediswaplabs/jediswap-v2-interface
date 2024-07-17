@@ -2,7 +2,7 @@ import { MixedRouteSDK } from '@vnaysn/jediswap-router-sdk'
 import { Currency, CurrencyAmount, Percent, Token, TradeType } from '@vnaysn/jediswap-sdk-core'
 // import { DutchOrderInfo, DutchOrderInfoJSON } from '@uniswap/uniswapx-sdk'
 import { Pair, Route as V2Route } from '@vnaysn/jediswap-sdk-v2'
-import { FeeAmount, Pool, Route as V3Route } from '@vnaysn/jediswap-sdk-v3'
+import { FeeAmount, Pool, Route as V3Route } from '@harshalmaniya/jediswap-sdk-v3'
 import { BIPS_BASE } from 'constants/misc'
 import { nativeOnChain } from 'constants/tokens'
 

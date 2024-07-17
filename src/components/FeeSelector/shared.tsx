@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
-import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
+import { FeeAmount } from '@harshalmaniya/jediswap-sdk-v3'
 import { SUPPORTED_CHAINS } from 'constants/addresses'
 import type { ReactNode } from 'react'
 

@@ -1,5 +1,5 @@
 import { Token, Currency, TradeType } from '@vnaysn/jediswap-sdk-core'
-import { Pool, Route, Trade } from '@vnaysn/jediswap-sdk-v3'
+import { Pool, Route, Trade } from '@harshalmaniya/jediswap-sdk-v3'
 import { useEffect, useMemo, useState } from 'react'
 import { useAllV3Routes } from './useAllV3Routes'
 import { DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS_V2 } from 'constants/tokens'

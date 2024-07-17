@@ -1,4 +1,4 @@
-import { FeeAmount, nearestUsableTick, TICK_SPACINGS, TickMath } from '@vnaysn/jediswap-sdk-v3'
+import { FeeAmount, nearestUsableTick, TICK_SPACINGS, TickMath } from '@harshalmaniya/jediswap-sdk-v3'
 import { useMemo } from 'react'
 import { Bound } from 'state/mint/v3/actions'
 

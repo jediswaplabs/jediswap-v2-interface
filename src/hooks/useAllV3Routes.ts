@@ -1,5 +1,5 @@
 import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
-import { Pool, Route } from '@vnaysn/jediswap-sdk-v3'
+import { Pool, Route } from '@harshalmaniya/jediswap-sdk-v3'
 import { useMemo } from 'react'
 // import { useUserSingleHopOnly } from '../state/user/hooks'
 import { useV3SwapPools } from './useV3SwapPools'

@@ -11,7 +11,7 @@ import {
 } from '@vnaysn/jediswap-sdk-core'
 import { DutchOrderInfoJSON, DutchOrderTrade as IDutchOrderTrade } from '@uniswap/uniswapx-sdk'
 import { Route as V2Route } from '@vnaysn/jediswap-sdk-v2'
-import { Route as V3Route } from '@vnaysn/jediswap-sdk-v3'
+import { Route as V3Route } from '@harshalmaniya/jediswap-sdk-v3'
 
 export enum TradeState {
   LOADING = 'loading',

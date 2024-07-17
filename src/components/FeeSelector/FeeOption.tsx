@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
+import { FeeAmount } from '@harshalmaniya/jediswap-sdk-v3'
 import React from 'react'
 import styled from 'styled-components'
 

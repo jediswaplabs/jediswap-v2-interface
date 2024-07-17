@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { Percent, TradeType } from '@vnaysn/jediswap-sdk-core'
 import { FlatFeeOptions } from '@vnaysn/jediswap-router-sdk'
-import { FeeOptions } from '@vnaysn/jediswap-sdk-v3'
+import { FeeOptions } from '@harshalmaniya/jediswap-sdk-v3'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { BigNumber } from 'ethers/lib/ethers'
 import { useCallback } from 'react'

@@ -1,5 +1,5 @@
 import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
-import { FeeAmount, nearestUsableTick, Pool, TICK_SPACINGS, tickToPrice } from '@vnaysn/jediswap-sdk-v3'
+import { FeeAmount, nearestUsableTick, Pool, TICK_SPACINGS, tickToPrice } from '@harshalmaniya/jediswap-sdk-v3'
 import { useAccountDetails } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import ms from 'ms'

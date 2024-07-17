@@ -1,7 +1,7 @@
 import { Trans } from '@lingui/macro'
 import { Protocol } from '@vnaysn/jediswap-router-sdk'
 import { Currency } from '@vnaysn/jediswap-sdk-core'
-import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
+import { FeeAmount } from '@harshalmaniya/jediswap-sdk-v3'
 import { Box } from 'rebass'
 import styled from 'styled-components'
 

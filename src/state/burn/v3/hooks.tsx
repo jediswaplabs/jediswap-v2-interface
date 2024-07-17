@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { Currency, CurrencyAmount, Percent } from '@vnaysn/jediswap-sdk-core'
-import { Position } from '@vnaysn/jediswap-sdk-v3'
+import { Position } from '@harshalmaniya/jediswap-sdk-v3'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useToken } from 'hooks/Tokens'
 import { usePool } from 'hooks/usePools'
