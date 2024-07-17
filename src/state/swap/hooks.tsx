@@ -134,6 +134,7 @@ export function useDerivedSwapInfo(
   //   [inputCurrency, isExactIn, outputCurrency, typedValue]
   // )
   const distributedAmount = useMemo(() => {
+    console.log('goes in here')
     if (!typedValue) return undefined
     return getAmountDistribution(typedValue, 25, isExactIn ? inputCurrency : outputCurrency)
   }, [typedValue])

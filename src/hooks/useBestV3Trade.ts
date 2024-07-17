@@ -53,6 +53,8 @@ export function useBestV3TradeExactIn(
   const swapRouterAddress = SWAP_ROUTER_ADDRESS_V2[chainId ?? DEFAULT_CHAIN_ID]
   const deadline = useTransactionDeadline()
 
+  const [bestRoute, setBestRoute] = useState<any>(null)
+
   const quoteExactInInputs = useMemo(() => {
     if (routesLoading || !amountIns || !address || !routes || !routes.length || !deadline) return
     return amountIns
@@ -269,7 +271,7 @@ export function useBestV3TradeExactIn(
         return {
           ...result,
           route: routes[routeIndex],
-          amount: amountIns[i % amountInsLength],
+          amountIn: amountIns[i % amountInsLength],
           percent: percents[i % amountInsLength],
         }
       })
@@ -277,7 +279,7 @@ export function useBestV3TradeExactIn(
       const resolvedResults = settledResultsWithRoute
         .filter((result) => result?.status === 'fulfilled')
         .map((result: any) => {
-          const response = { ...result.value, route: result.route, amount: result.amount, percent: result.percent }
+          const response = { ...result.value, route: result.route, amountIn: result.amountIn, percent: result.percent }
           return response
         })
 
@@ -297,7 +299,7 @@ export function useBestV3TradeExactIn(
       return {
         ...subArray[0],
         route: subArray.route,
-        amount: subArray.amount,
+        inputAmount: subArray.amountIn,
         percent: subArray.percent,
         poolAddresses: subArray.route.pools.map((pool: Pool) => {
           return getPoolAddress(pool.token0, pool.token1, pool.fee, chainId)
@@ -306,50 +308,52 @@ export function useBestV3TradeExactIn(
     })
     // const bestRouteResults = { bestRoute: null, amountOut: null }
 
-    const validQuotes = subRoutesArray.filter((result: any) => result?.transaction_trace?.execute_invocation?.result)
+    const validQuotes = subRoutesArray
+      .filter((result: any) => result?.transaction_trace?.execute_invocation?.result)
+      .map((result: any) => {
+        const selected_tx_result = result?.transaction_trace?.execute_invocation?.result
+        const value = selected_tx_result[selected_tx_result.length - 2]
+        const amountOut = fromUint256ToNumber({ high: value })
+
+        return {
+          ...result,
+          outputAmount: tryParseCurrencyAmount(cairo.felt(amountOut), currencyOut),
+        }
+      })
     return validQuotes
-
-    // const { bestRoute, amountOut } = subRoutesArray
-    //   .filter((result: any) => result?.transaction_trace?.execute_invocation?.result)
-    //   .reduce((currentBest: any, result: any, i: any) => {
-    //     const selected_tx_result = result?.transaction_trace?.execute_invocation?.result
-    //     const value = selected_tx_result[selected_tx_result.length - 2]
-    //     const amountOut = fromUint256ToNumber({ high: value })
-    //     console.log('selected_tx_result', selected_tx_result, value, amountOut)
-    //     if (!result) return currentBest
-    //     if (currentBest.amountOut === null) {
-    //       return {
-    //         bestRoute: result?.route,
-    //         amountOut,
-    //       }
-    //     } else if (Number(cairo.felt(currentBest.amountOut)) < Number(cairo.felt(amountOut))) {
-    //       return {
-    //         bestRoute: result?.route,
-    //         amountOut,
-    //       }
-    //     }
-
-    //     return currentBest
-    //   }, bestRouteResults)
-
-    // return { bestRoute, amountOut }
   }, [amountOutResults])
 
   console.log('filteredAmountOutResults', filteredAmountOutResults)
 
-  const bestRoute = useMemo(async () => {
+  async function getBestRoute() {
     return await getBestSwapRoute(filteredAmountOutResults ?? [], TradeType.EXACT_INPUT, percents ?? [])
+  }
+
+  useEffect(() => {
+    async function fetchBestRoute() {
+      const route = await getBestRoute()
+      setBestRoute(route)
+    }
+
+    fetchBestRoute()
   }, [filteredAmountOutResults])
-  // const { bestRoute, amountOut } = useMemo(() => {
-  //   if (!filteredAmountOutResults) return { bestRoute: null, amountOut: null }
-  //   return { bestRoute: filteredAmountOutResults.bestRoute, amountOut: filteredAmountOutResults.amountOut }
-  // }, [filteredAmountOutResults])
 
   return useMemo(() => {
-    // if (!routes.length) {
+    if (!routes.length) {
+      return {
+        state: TradeState.NO_ROUTE_FOUND,
+        trade: null,
+      }
+    }
+    if (!bestRoute) {
+      return {
+        state: TradeState.INVALID,
+        trade: null,
+      }
+    }
     return {
-      state: TradeState.NO_ROUTE_FOUND,
-      trade: null,
+      state: TradeState.VALID,
+      trade: Trade.createUncheckedTradeWithMultipleRoutes({ routes: bestRoute, tradeType: TradeType.EXACT_INPUT }),
     }
   }, [amountIns, currencyOut, filteredAmountOutResults, routes, routesLoading])
 }

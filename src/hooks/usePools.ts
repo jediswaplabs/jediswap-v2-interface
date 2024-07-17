@@ -1,7 +1,7 @@
 import { useToken } from 'hooks/Tokens'
 import { useAccountDetails } from './starknet-react'
 // import { Interface } from '@ethersproject/abi'
-import { BigintIsh, Currency, Token } from '@vnaysn/jediswap-sdk-core'
+import { BigintIsh, ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import IUniswapV3PoolStateJSON from '@uniswap/v3-core/artifacts/contracts/interfaces/pool/IUniswapV3PoolState.sol/IUniswapV3PoolState.json'
 import { POOL_INIT_CODE_HASH, toHex } from '@vnaysn/jediswap-sdk-v3'
 import { FeeAmount, Pool } from '@vnaysn/jediswap-sdk-v3'
@@ -273,7 +273,7 @@ export function getPoolAddress(
   currencyA: Currency | undefined,
   currencyB: Currency | undefined,
   feeAmount: FeeAmount | undefined,
-  chainId: string | undefined
+  chainId: ChainId | undefined
 ): string | undefined {
   if (currencyA && currencyB && feeAmount && chainId) {
     const tokenA = currencyA.wrapped
@@ -298,4 +298,37 @@ export function getPoolAddress(
   }
 
   return undefined
+}
+
+export function usePoolAddress(
+  currencyA: Currency | undefined,
+  currencyB: Currency | undefined,
+  feeAmount: FeeAmount | undefined
+): string | undefined {
+  const { chainId } = useAccountDetails()
+  return useMemo(() => {
+    if (currencyA && currencyB && feeAmount && chainId) {
+      const tokenA = currencyA.wrapped
+      const tokenB = currencyB.wrapped
+      if (tokenA.equals(tokenB)) return undefined
+      const tokens = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA] // does safety checks
+
+      //compute pool contract address
+      const { calculateContractAddressFromHash } = hash
+
+      const salt = ec.starkCurve.poseidonHashMany([
+        BigInt(tokens[0].address),
+        BigInt(tokens[1].address),
+        BigInt(feeAmount),
+      ])
+
+      const contructorCalldata = CallData.compile([tokens[0].address, tokens[1].address, feeAmount, feeAmount / 50])
+
+      return tokenA && tokenB && !tokenA.equals(tokenB)
+        ? calculateContractAddressFromHash(salt, POOL_CLASS_HASH[chainId], contructorCalldata, FACTORY_ADDRESS[chainId])
+        : undefined
+    }
+
+    return undefined
+  }, [currencyA, currencyB, feeAmount, chainId])
 }
