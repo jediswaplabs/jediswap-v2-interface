@@ -101,7 +101,6 @@ export function useDerivedSwapInfo(
   allPools: string[],
   allPairs: string[]
 ): SwapInfo {
-  console.log(allPools, 'allPoools')
   const { address: account } = useAccountDetails()
   const {
     independentField,
@@ -134,7 +133,6 @@ export function useDerivedSwapInfo(
   //   [inputCurrency, isExactIn, outputCurrency, typedValue]
   // )
   const distributedAmount = useMemo(() => {
-    console.log('goes in here')
     if (!typedValue) return undefined
     return getAmountDistribution(typedValue, 25, isExactIn ? inputCurrency : outputCurrency)
   }, [typedValue])

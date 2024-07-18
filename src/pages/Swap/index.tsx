@@ -473,6 +473,8 @@ export function Swap({
     [dependentField, formatCurrencyAmount, independentField, parsedAmounts, showWrap, typedValue]
   )
 
+  console.log('formattedAmounts', formattedAmounts, parsedAmounts, parsedAmount)
+
   const userHasSpecifiedInputOutput = Boolean(
     currencies[Field.INPUT] && currencies[Field.OUTPUT] && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0))
   )

@@ -239,18 +239,6 @@ export function useBestV3TradeExactIn(
           ? payloadForContractType1
           : payloadForContractType0
 
-        console.log('payloadBasedOnCairoVersion', isWalletCairoVersionGreaterThanZero, {
-          ...totalTx,
-          ...approveSelector,
-          ...{ approve_offset: '0x0' },
-          ...approve_call_data_length,
-          ...inputSelector,
-          ...{ input_offset: approve_call_data_length },
-          ...input_call_data_length,
-          ...{ total_call_data_length: '0xe' },
-          ...approve_call_data,
-          ...call.calldata,
-        })
         const response = provider.simulateTransaction(
           [{ type: TransactionType.INVOKE, ...payloadBasedOnCairoVersion, signature, nonce }],
           {
@@ -261,9 +249,7 @@ export function useBestV3TradeExactIn(
         return response
       })
 
-      // console.log('callPromises', callPromises)
       const settledResults = await Promise.allSettled(callPromises as any)
-      console.log('settledResults', settledResults)
       const settledResultsWithRoute = settledResults.map((result, i) => {
         if (!amountIns || !percents) return
         const amountInsLength = amountIns.length
@@ -313,8 +299,6 @@ export function useBestV3TradeExactIn(
     },
   })
 
-  console.log('bestRouteIn', bestRoute)
-
   return useMemo(() => {
     if (!routes.length) {
       return {
@@ -356,8 +340,6 @@ export function useBestV3TradeExactOut(
   const deadline = useTransactionDeadline()
 
   const [bestRoute, setBestRoute] = useState<any>(null)
-
-  console.log('infinite')
 
   const quoteExactOutInputs = useMemo(() => {
     if (routesLoading || !amountOuts || !address || !routes || !routes.length || !deadline) return
@@ -620,7 +602,6 @@ export function useBestV3TradeExactOut(
       }
     },
   })
-  console.log('bestRouteOut', bestRoute)
 
   return useMemo(() => {
     if (!routes.length) {
