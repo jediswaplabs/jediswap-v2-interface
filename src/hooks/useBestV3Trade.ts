@@ -189,7 +189,7 @@ export function useBestV3TradeExactIn(
   const message: BigNumberish[] = [1, 128, 18, 14]
   const msgHash = hash.computeHashOnElements(message)
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
-  const amountOutResults = useQuery({
+  useQuery({
     queryKey: ['get_simulation', address, amountIn, nonce_results?.data, currencyOut?.symbol, contract_version?.data],
     queryFn: async () => {
       if (
@@ -285,58 +285,35 @@ export function useBestV3TradeExactIn(
 
       return resolvedResults
     },
-    onSuccess: (data) => {
-      // Handle the successful data fetching here if needed
+    onSuccess: async (data) => {
+      if (data) {
+        const validQuotes = data
+          .filter((result: any) => {
+            return result[0].transaction_trace.execute_invocation.result
+          })
+          .map((result: any) => {
+            const selected_tx_result = result[0].transaction_trace.execute_invocation.result
+            const value = selected_tx_result[selected_tx_result.length - 2]
+            const amountOut = fromUint256ToNumber({ high: value })
+
+            return {
+              ...result[0],
+              route: result.route,
+              inputAmount: result.amountIn,
+              percent: result.percent,
+              poolAddresses: result.route.pools.map((pool: Pool) => {
+                return getPoolAddress(pool.token0, pool.token1, pool.fee, chainId)
+              }),
+              outputAmount: tryParseCurrencyAmount(cairo.felt(amountOut), currencyOut),
+            }
+          })
+        const route = await getBestSwapRoute(validQuotes, TradeType.EXACT_INPUT, percents ?? [])
+        setBestRoute(route)
+      }
     },
   })
 
-  const filteredAmountOutResults = useMemo(() => {
-    if (!amountOutResults) return
-    const data = amountOutResults?.data
-
-    if (!data) return
-    const subRoutesArray = data.map((subArray, index) => {
-      return {
-        ...subArray[0],
-        route: subArray.route,
-        inputAmount: subArray.amountIn,
-        percent: subArray.percent,
-        poolAddresses: subArray.route.pools.map((pool: Pool) => {
-          return getPoolAddress(pool.token0, pool.token1, pool.fee, chainId)
-        }),
-      }
-    })
-    // const bestRouteResults = { bestRoute: null, amountOut: null }
-
-    const validQuotes = subRoutesArray
-      .filter((result: any) => result?.transaction_trace?.execute_invocation?.result)
-      .map((result: any) => {
-        const selected_tx_result = result?.transaction_trace?.execute_invocation?.result
-        const value = selected_tx_result[selected_tx_result.length - 2]
-        const amountOut = fromUint256ToNumber({ high: value })
-
-        return {
-          ...result,
-          outputAmount: tryParseCurrencyAmount(cairo.felt(amountOut), currencyOut),
-        }
-      })
-    return validQuotes
-  }, [amountOutResults])
-
-  console.log('filteredAmountOutResults', filteredAmountOutResults)
-
-  async function getBestRoute() {
-    return await getBestSwapRoute(filteredAmountOutResults ?? [], TradeType.EXACT_INPUT, percents ?? [])
-  }
-
-  useEffect(() => {
-    async function fetchBestRoute() {
-      const route = await getBestRoute()
-      setBestRoute(route)
-    }
-
-    fetchBestRoute()
-  }, [filteredAmountOutResults])
+  console.log('bestRouteIn', bestRoute)
 
   return useMemo(() => {
     if (!routes.length) {
@@ -355,7 +332,7 @@ export function useBestV3TradeExactIn(
       state: TradeState.VALID,
       trade: Trade.createUncheckedTradeWithMultipleRoutes({ routes: bestRoute, tradeType: TradeType.EXACT_INPUT }),
     }
-  }, [amountIns, currencyOut, filteredAmountOutResults, routes, routesLoading])
+  }, [amountIns, currencyOut, routes, routesLoading])
 }
 
 /**
@@ -379,6 +356,8 @@ export function useBestV3TradeExactOut(
   const deadline = useTransactionDeadline()
 
   const [bestRoute, setBestRoute] = useState<any>(null)
+
+  console.log('infinite')
 
   const quoteExactOutInputs = useMemo(() => {
     if (routesLoading || !amountOuts || !address || !routes || !routes.length || !deadline) return
@@ -519,7 +498,7 @@ export function useBestV3TradeExactOut(
 
   const msgHash = hash.computeHashOnElements(message)
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
-  const amountInResults = useQuery({
+  useQuery({
     queryKey: [
       'get_simulation',
       address,
@@ -614,57 +593,35 @@ export function useBestV3TradeExactOut(
         })
       return resolvedResults
     },
-    onSuccess: (data) => {
-      // Handle the successful data fetching here if needed
+    onSuccess: async (data) => {
+      if (data) {
+        const validQuotes = data
+          .filter((result: any) => {
+            return result[0].transaction_trace.execute_invocation.result
+          })
+          .map((result: any) => {
+            const selected_tx_result = result[0].transaction_trace.execute_invocation.result
+            const value = selected_tx_result[selected_tx_result.length - 2]
+            const amountIn = fromUint256ToNumber({ high: value })
+
+            return {
+              ...result[0],
+              route: result.route,
+              outputAmount: result.amountOut,
+              percent: result.percent,
+              poolAddresses: result.route.pools.map((pool: Pool) => {
+                return getPoolAddress(pool.token0, pool.token1, pool.fee, chainId)
+              }),
+              inputAmount: tryParseCurrencyAmount(cairo.felt(amountIn), currencyIn),
+            }
+          })
+        const route = await getBestSwapRoute(validQuotes, TradeType.EXACT_OUTPUT, percents ?? [])
+        setBestRoute(route)
+      }
     },
   })
+  console.log('bestRouteOut', bestRoute)
 
-  const filteredAmountInResults = useMemo(() => {
-    if (!amountInResults) return
-    const data = amountInResults?.data
-
-    if (!data) return
-    const subRoutesArray = data.map((subArray, index) => {
-      return {
-        ...subArray[0],
-        route: subArray.route,
-        outputAmount: subArray.amountOut,
-        percent: subArray.percent,
-        poolAddresses: subArray.route.pools.map((pool: Pool) => {
-          return getPoolAddress(pool.token0, pool.token1, pool.fee, chainId)
-        }),
-      }
-    })
-
-    const validQuotes = subRoutesArray
-      .filter((result: any) => result?.transaction_trace?.execute_invocation?.result)
-      .map((result: any) => {
-        const selected_tx_result = result?.transaction_trace?.execute_invocation?.result
-        const value = selected_tx_result[selected_tx_result.length - 2]
-        const amountIn = fromUint256ToNumber({ high: value })
-
-        return {
-          ...result,
-          inputAmount: tryParseCurrencyAmount(cairo.felt(amountIn), currencyIn),
-        }
-      })
-    return validQuotes
-  }, [amountInResults])
-
-  console.log('filteredAmountInResults', filteredAmountInResults)
-
-  async function getBestRoute() {
-    return await getBestSwapRoute(filteredAmountInResults ?? [], TradeType.EXACT_OUTPUT, percents ?? [])
-  }
-
-  useEffect(() => {
-    async function fetchBestRoute() {
-      const route = await getBestRoute()
-      setBestRoute(route)
-    }
-
-    fetchBestRoute()
-  }, [filteredAmountInResults])
   return useMemo(() => {
     if (!routes.length) {
       return {
@@ -682,5 +639,5 @@ export function useBestV3TradeExactOut(
       state: TradeState.VALID,
       trade: Trade.createUncheckedTradeWithMultipleRoutes({ routes: bestRoute, tradeType: TradeType.EXACT_OUTPUT }),
     }
-  }, [amountOuts, currencyIn, routesLoading, routes, filteredAmountInResults, bestRoute])
+  }, [amountOuts, currencyIn, routesLoading, routes])
 }
