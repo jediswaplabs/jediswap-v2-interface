@@ -55,7 +55,7 @@ const PageWrapper = styled(AutoColumn)`
 
   @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     padding-top: 20px;
-    gap: 16px;
+    gap: 8px;
   }
 `
 
