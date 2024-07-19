@@ -160,6 +160,10 @@ const StyledBalanceMax = styled.button<{ disabled?: boolean }>`
 const StyledNumericalInput = styled(NumericalInput)<{ $loading: boolean }>`
   ${loadingOpacityMixin};
   text-align: left;
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    font-size: 16px;
+  }
 `
 
 const StyledPrefetchBalancesWrapper = styled(PrefetchBalancesWrapper)<{ $fullWidth: boolean }>`
@@ -230,6 +234,7 @@ export default function CurrencyInputPanel({
 
   const containerStyles = hideShadow ? { boxShadow: 'none' } : {}
   const showMax = balance !== null && Number(value) !== Number(balance)
+
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>
       {!locked && (

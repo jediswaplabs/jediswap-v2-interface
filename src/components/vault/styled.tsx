@@ -28,6 +28,10 @@ const VaultWrapperOuter = styled.main`
   transition: transform 250ms ease;
   border-radius: 8px;
   height: fit-content;
+
+  @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    width: 100%;
+  }
 `
 
 const VaultWrapperInner = styled.div`

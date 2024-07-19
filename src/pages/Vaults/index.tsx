@@ -55,6 +55,7 @@ const PageWrapper = styled(AutoColumn)`
 
   @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     padding-top: 20px;
+    gap: 16px;
   }
 `
 
@@ -125,6 +126,9 @@ const PromotionBannerContainer = styled.div<PromotionBannerContainerProps>`
   position: relative;
   padding-left: ${(props) => (props.noDecorations ? '0' : '140px')};
   overflow: hidden;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    margin-bottom: 8px;
+  }
 `
 const PromotionBannerDecoration = styled.img`
   position: absolute;
@@ -278,6 +282,32 @@ const DataText = styled(Flex)<DataTextProps>`
   }
 `
 
+const MobileLabels = styled.div`
+  color: #9b9b9b;
+  font-size: 12px;
+  font-weight: 500;
+  flex: 1;
+`
+
+const MobileValues = styled.div`
+  font-size: 14px;
+  flex: 1;
+`
+
+const PageTitleHeader = styled.div`
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 14px;
+`
+
+const VaultMobileContainer = styled.div`
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 8px;
+  border: 1px solid #959595;
+`
+
 function ErrorPanel({ text }: { text?: string }) {
   return (
     <ErrorContainer>
@@ -329,19 +359,27 @@ interface ListItemProps {
   getUserBalance?: ({ vaultAddress, balance }: UserBalanceResultParams) => void
 }
 
-const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: ListItemProps) => {
-  const { formatPercent } = useFormatter()
+const getVaultDetails = ({
+  index,
+  vaultAddress,
+  vaultData,
+  getUserBalance = noop,
+}: ListItemProps): {
+  tvl: number | undefined
+  apr: string | undefined
+  currency0: any
+  currency1: any
+  token0usdPrice: any
+  sharesUSDPrice: any
+} => {
   const { chainId: chainIdConnected } = useAccountDetails()
   const chainId = chainIdConnected || DEFAULT_CHAIN_ID
-  const below600 = useMedia('(max-width: 600px)')
-  const below768 = useMedia('(max-width: 768px)')
-
   const shareTokenAddress = vaultData?.share?.address
   const performanceData = vaultData.performance[vaultData.mainAssetKey]
 
-  if (!(vaultData.token0 && vaultData.token1 && shareTokenAddress)) {
-    return null
-  }
+  // if (!(vaultData.token0 && vaultData.token1 && shareTokenAddress)) {
+  //   return null
+  // }
 
   const currency0: any = new Token(
     vaultData.token0.chainId,
@@ -447,7 +485,56 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
     apr = (feeApr + vaultData.aprStarknet * 100).toFixed(2)
     shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
   }
+  return { tvl, apr, currency0, currency1, token0usdPrice, sharesUSDPrice }
+}
 
+const MobileVaultListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: ListItemProps) => {
+  const { tvl, apr, currency0, currency1, token0usdPrice, sharesUSDPrice } = getVaultDetails({
+    index,
+    vaultAddress,
+    vaultData,
+    getUserBalance,
+  })
+  return (
+    <Link to={`/vaults/${vaultAddress}`} style={{ color: 'unset', textDecoration: 'none' }}>
+      <VaultMobileContainer>
+        <PageTitleHeader>
+          <DoubleCurrencyLogo size={16} currency0={currency0} currency1={currency1} />
+          <span
+            style={{
+              marginLeft: '10px',
+            }}
+          >
+            {currency0?.symbol}-{currency1?.symbol}
+          </span>
+        </PageTitleHeader>
+        <PageTitleRow>
+          <MobileLabels>TVL</MobileLabels>
+          <MobileLabels>APR</MobileLabels>
+          <MobileLabels>My Deposit</MobileLabels>
+        </PageTitleRow>
+        <PageTitleRow>
+          <MobileValues>{tvl ? formatUsdPrice(tvl) : '-'}</MobileValues>
+          <MobileValues>{apr ? `${apr}%` : '-'}</MobileValues>
+          <MobileValues style={{ color: '#2AAAFE' }}>
+            {token0usdPrice && token0usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0}
+          </MobileValues>
+        </PageTitleRow>
+      </VaultMobileContainer>
+    </Link>
+  )
+}
+
+const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: ListItemProps) => {
+  const below600 = useMedia('(max-width: 600px)')
+  const below768 = useMedia('(max-width: 768px)')
+
+  const { tvl, apr, currency0, currency1, token0usdPrice, sharesUSDPrice } = getVaultDetails({
+    index,
+    vaultAddress,
+    vaultData,
+    getUserBalance,
+  })
   return (
     <Link to={`/vaults/${vaultAddress}`} style={{ color: 'unset', textDecoration: 'none' }}>
       <DashGrid style={{ height: '48px' }}>
@@ -705,7 +792,26 @@ export default function Vaults({ maxItems = 10 }) {
           />
         </MyVaultsSwitcherContainer>
       </PageTitleRow>
-      {getContent()}
+      {below768 ? (
+        <>
+          {vaultsList.map(
+            (vaultAddress, index) =>
+              vaultAddress && (
+                <div key={index}>
+                  <MobileVaultListItem
+                    key={index}
+                    index={(page - 1) * ITEMS_PER_PAGE + index + 1}
+                    vaultAddress={vaultAddress}
+                    vaultData={vaults?.[vaultAddress]}
+                    getUserBalance={getUserBalanceResult}
+                  />
+                </div>
+              )
+          )}
+        </>
+      ) : (
+        getContent()
+      )}
     </PageWrapper>
   )
 }
