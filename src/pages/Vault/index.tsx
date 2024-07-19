@@ -162,6 +162,9 @@ const VaultDetailsContainer = styled(Flex)`
   width: 416px;
   border-radius: 4px;
   gap: 20px;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    flex-basis: 100%;
+  }
 `
 const VaultName = styled.div`
   font-size: 18px;
@@ -217,6 +220,10 @@ const VaultTransactionPanel = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    flex-basis: 100%;
+  }
 `
 
 const MyDepositWrapperOuter = styled.div`
@@ -302,7 +309,10 @@ const BreadcrumbsNavLink = styled(StyledRouterLink)`
 
 const PageContentWrapper = styled(Flex)`
   gap: 20px;
-  flex-direction: row;
+  display: block;
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    flex-wrap: wrap-reverse;
+  }
 `
 
 const PageTitle = ({ token0, token1 }: { token0?: Token; token1?: Token }) => {
@@ -625,8 +635,6 @@ export function VaultElement({
   const connectionReady = useConnectionReady()
   const { address: account } = useAccountDetails()
   const { vaultId: vaultAddressFromUrl } = useParams()
-  const currency0 = useCurrency(currentVault.token0.address)
-  const currency1 = useCurrency(currentVault.token1.address)
   const vaultState = useVaultState()
   const { withdrawTypedValue } = vaultState
   // Vault Input state

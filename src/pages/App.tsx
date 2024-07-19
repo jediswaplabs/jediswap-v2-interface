@@ -39,6 +39,7 @@ const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
     min-height: calc(100vh);
+    margin-top: 0;
   }
 `
 
