@@ -6,6 +6,7 @@ import { AutoColumn } from 'components/Column'
 import StarkIcon from 'assets/svg/starknet.svg'
 import CoinsIcon from 'assets/svg/coins.svg'
 import StarsIcon from 'assets/svg/stars.svg'
+import ArrowRight from 'assets/svg/arrow_right.svg'
 import WalletIcon from 'assets/wallets/Wallet.png'
 import { MouseoverTooltip, TooltipSize } from 'components/Tooltip'
 import './style.css'
@@ -146,6 +147,7 @@ const IncentivesText = styled.div`
   font-style: normal;
   font-weight: 400;
   line-height: 26px; /* 162.5% */
+  margin-bottom: 20px;
 `
 
 const HeaderText = styled.div`
@@ -193,6 +195,11 @@ const DefiSpringWrapper = styled.div`
   grid-template-columns: 1fr;
   width: 100%;
   justify-content: space-between;
+`
+const DefiSpringLink = styled.a`
+  color: ${({ theme }) => theme.jediBlue};
+  text-decoration: none;
+  font-weight: 700;
 `
 
 const DefiSpringTitle = styled.div`
@@ -787,6 +794,9 @@ export default function Rewards() {
                   JediSwap users will receive STRK incentives as part of the StarkNet DeFi Spring Program.
                 </IncentivesText>
               </DefiSpringWrapper>
+              <DefiSpringLink href="https://docs.jediswap.xyz/defi-spring-strk-incentives-for-v2" target="_blank">
+                See How we are calculating it <img src={ArrowRight} />
+              </DefiSpringLink>
             </FirstColumn>
             <SecondColumn>
               <MobileWrapper>
