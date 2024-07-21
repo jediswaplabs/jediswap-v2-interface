@@ -15,7 +15,7 @@ import { ReactNode, useCallback, useState } from 'react'
 import { Bound } from 'state/mint/v3/actions'
 import { useTheme } from 'styled-components'
 import { ThemedText } from 'theme/components'
-import { useFormatter } from 'utils/formatNumbers'
+import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { unwrappedToken } from 'utils/unwrappedToken'
 
 export const PositionPreview = ({
@@ -132,6 +132,7 @@ export const PositionPreview = ({
                   price: priceLower,
                   atLimit: ticksAtLimit,
                   direction: Bound.LOWER,
+                  numberType: NumberType.TokenTx,
                 })}
               </ThemedText.DeprecatedMediumHeader>
               <ThemedText.DeprecatedMain textAlign="center" fontSize="12px">
@@ -155,6 +156,7 @@ export const PositionPreview = ({
                   price: priceUpper,
                   atLimit: ticksAtLimit,
                   direction: Bound.UPPER,
+                  numberType: NumberType.TokenTx,
                 })}
               </ThemedText.DeprecatedMediumHeader>
               <ThemedText.DeprecatedMain textAlign="center" fontSize="12px">
