@@ -141,7 +141,7 @@ export function useDerivedSwapInfo(
 
   const bestV3TradeExactIn = useBestV3TradeExactIn(
     allPools,
-    isExactIn && distributedAmount ? distributedAmount[1] : undefined,
+    isExactIn && outputCurrency && distributedAmount ? distributedAmount[1] : undefined,
     outputCurrency,
     inputCurrency,
     distributedAmount ? distributedAmount[0] : undefined,
@@ -149,7 +149,7 @@ export function useDerivedSwapInfo(
   )
   const bestV3TradeExactOut = useBestV3TradeExactOut(
     allPools,
-    !isExactIn && distributedAmount ? distributedAmount[1] : undefined,
+    !isExactIn && inputCurrency && distributedAmount ? distributedAmount[1] : undefined,
     inputCurrency ?? undefined,
     outputCurrency,
     distributedAmount ? distributedAmount[0] : undefined,

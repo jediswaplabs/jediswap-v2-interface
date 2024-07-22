@@ -150,7 +150,7 @@ export function useBestV3TradeExactIn(
   const approveSelector = useMemo(() => {
     if (!amountIns) return
     return {
-      currency_address: amountIns[0].currency.tokenInfo.address,
+      currency_address: amountIns[0]?.currency?.tokenInfo?.address,
       selector: hash.getSelectorFromName('approve'),
     }
   }, [amountIns])
