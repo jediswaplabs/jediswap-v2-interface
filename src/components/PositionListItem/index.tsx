@@ -17,7 +17,7 @@ import { usePool } from 'hooks/usePools'
 import { Bound } from 'state/mint/v3/actions'
 import { MEDIA_WIDTHS } from 'theme'
 import { HideSmall, MediumOnly, SmallOnly, ThemedText } from 'theme/components'
-import { useFormatter } from 'utils/formatNumbers'
+import { NumberType, useFormatter } from 'utils/formatNumbers'
 import { unwrappedToken } from 'utils/unwrappedToken'
 import { DAI, USDC_MAINNET, USDT, WBTC, WRAPPED_NATIVE_CURRENCY } from '../../constants/tokens'
 
@@ -231,6 +231,7 @@ export default function PositionListItem({
                   price: priceLower,
                   atLimit: tickAtLimit,
                   direction: Bound.LOWER,
+                  numberType: NumberType.TokenTx,
                 })}{' '}
               </span>
               <HoverInlineText text={currencyQuote?.symbol} /> per <HoverInlineText text={currencyBase?.symbol ?? ''} />
@@ -252,6 +253,7 @@ export default function PositionListItem({
                   price: priceUpper,
                   atLimit: tickAtLimit,
                   direction: Bound.UPPER,
+                  numberType: NumberType.TokenTx,
                 })}{' '}
               </span>
               <HoverInlineText text={currencyQuote?.symbol} /> per{' '}
