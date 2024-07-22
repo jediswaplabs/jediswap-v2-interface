@@ -9,6 +9,7 @@ import { parseReferralCodeURLParameter } from 'state/swap/hooks'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import { Call, getChecksumAddress, validateChecksumAddress } from 'starknet'
+import { is } from 'immer/dist/internal'
 
 /* 
   This function is used to fetch the referrer of the user from bloackchain.
@@ -211,7 +212,7 @@ function isAddressValidForReferral(userAddress: string, refereeAddress: string) 
   return (
     isAddressValidForStarknet(refereeAddress) !== false &&
     getChecksumAddress(userAddress) != getChecksumAddress(refereeAddress) &&
-    validateChecksumAddress(refereeAddress) !== false
+    (isLowercaseHexAddress(refereeAddress) === true || validateChecksumAddress(refereeAddress) !== false)
   )
 }
 
@@ -267,4 +268,13 @@ export function setIsNotifClosedForuser(userAddress: string, chainId: ChainId) {
     }
     setReferralDataToLocalStore(JSON.stringify(newLocalStorageData))
   }
+}
+
+/**
+ *  This function is used to check if the address is a lowercase hex address.
+ * @param address
+ * @returns
+ */
+function isLowercaseHexAddress(address: string) {
+  return /^0x[0-9a-f]{63}$/.test(address)
 }
