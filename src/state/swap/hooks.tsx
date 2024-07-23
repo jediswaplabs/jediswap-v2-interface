@@ -21,6 +21,7 @@ import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies
 import { SwapState } from './reducer'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import { useBestV3TradeExactIn, useBestV3TradeExactOut } from 'hooks/useBestV3Trade'
+import { NumberType, useFormatter } from 'utils/formatNumbers'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
@@ -101,6 +102,8 @@ export function useDerivedSwapInfo(
   allPools: string[],
   allPairs: string[]
 ): SwapInfo {
+  const { formatCurrencyAmount } = useFormatter()
+
   const { address: account } = useAccountDetails()
   const {
     independentField,
@@ -216,6 +219,21 @@ export function useDerivedSwapInfo(
   // : bestTradeExactOut
 
   console.log(trade, bestV3TradeExactIn, bestV3TradeExactOut, 'finaltrade')
+  trade.trade?.swaps.forEach((trade, index) => {
+    console.log(
+      formatCurrencyAmount({
+        amount: trade.inputAmount,
+        type: NumberType.SwapTradeAmount,
+        placeholder: '',
+      }),
+      formatCurrencyAmount({
+        amount: trade.outputAmount,
+        type: NumberType.SwapTradeAmount,
+        placeholder: '',
+      }),
+      'trade' + index
+    )
+  })
   const currencyBalances = useMemo(
     () => ({
       [Field.INPUT]: relevantTokenBalances[0],

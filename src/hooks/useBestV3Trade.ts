@@ -13,6 +13,7 @@ import { providerInstance } from 'utils/getLibrary'
 import { getBestSwapRoute } from 'pages/Swap/getBestSwapRoute'
 import { getPoolAddress } from './usePools'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
+import { NumberType, useFormatter } from 'utils/formatNumbers'
 
 function fromUint256ToNumber(uint256: any) {
   // Assuming uint256 is an object with 'high' and 'low' properties
@@ -273,6 +274,7 @@ export function useBestV3TradeExactIn(
     },
     onSuccess: async (data) => {
       if (data) {
+        console.log(data, 'data')
         const validQuotes = data
           .filter((result: any) => {
             return result[0].transaction_trace.execute_invocation.result
@@ -338,6 +340,7 @@ export function useBestV3TradeExactOut(
   const { address, account, chainId, connector } = useAccountDetails()
   const swapRouterAddress = SWAP_ROUTER_ADDRESS_V2[chainId ?? DEFAULT_CHAIN_ID]
   const deadline = useTransactionDeadline()
+  const { formatCurrencyAmount } = useFormatter()
 
   const [bestRoute, setBestRoute] = useState<any>(null)
 
@@ -602,6 +605,22 @@ export function useBestV3TradeExactOut(
       }
     },
   })
+
+  if (bestRoute)
+    console.log(
+      formatCurrencyAmount({
+        amount: Trade.createUncheckedTrade({
+          tradeType: TradeType.EXACT_OUTPUT,
+          route: bestRoute?.[0]?.route,
+          inputAmount: bestRoute?.[0].inputAmount,
+          outputAmount: bestRoute?.[0].outputAmount,
+        }).inputAmount,
+        type: NumberType.SwapTradeAmount,
+        placeholder: '',
+      }),
+
+      'singleTrade'
+    )
 
   return useMemo(() => {
     if (!routes.length) {
