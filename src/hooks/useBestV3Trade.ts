@@ -1,9 +1,9 @@
-import { Token, Currency, TradeType } from '@vnaysn/jediswap-sdk-core'
+import { Token, Currency, TradeType, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { Pool, Route, Trade } from '@harshalmaniya/jediswap-sdk-v3'
 import { useEffect, useMemo, useState } from 'react'
 import { useAllV3Routes } from './useAllV3Routes'
 import { DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS_V2 } from 'constants/tokens'
-import { BigNumberish, CallData, TransactionType, cairo } from 'starknet'
+import { BigNumberish, CallData, TransactionType, cairo, num } from 'starknet'
 import { TradeState } from 'state/routing/types'
 import { ec, hash, WeierstrassSignatureType } from 'starknet'
 import { useAccountDetails } from './starknet-react'
@@ -42,6 +42,18 @@ export function useBestV3TradeExactIn(
   percents?: number[],
   amountIn?: any
 ): { state: TradeState; trade: any | null } {
+  const { formatCurrencyAmount } = useFormatter()
+  if (amountIns)
+    amountIns.forEach((amount) => {
+      console.log(
+        formatCurrencyAmount({
+          amount: amount,
+          type: NumberType.SwapTradeAmount,
+          placeholder: '',
+        }),
+        'amountIns'
+      )
+    })
   const { routes, loading: routesLoading } = useAllV3Routes(allPools, currencyIn, currencyOut)
 
   if (!routes)
@@ -204,7 +216,9 @@ export function useBestV3TradeExactIn(
         !deadline
       )
         return
+
       const nonce = Number(nonce_results.data)
+      console.log('query', nonce)
       const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
       const callPromises = quoteExactInInputs.map(async ({ call, input_call_data_length, inputSelector }, i) => {
         const provider = providerInstance(chainId)
@@ -251,6 +265,7 @@ export function useBestV3TradeExactIn(
       })
 
       const settledResults = await Promise.allSettled(callPromises as any)
+      console.log(settledResults, 'settledResults')
       const settledResultsWithRoute = settledResults.map((result, i) => {
         if (!amountIns || !percents) return
         const amountInsLength = amountIns.length
@@ -273,7 +288,7 @@ export function useBestV3TradeExactIn(
       return resolvedResults
     },
     onSuccess: async (data) => {
-      if (data) {
+      if (data && currencyOut) {
         console.log(data, 'data')
         const validQuotes = data
           .filter((result: any) => {
@@ -292,7 +307,7 @@ export function useBestV3TradeExactIn(
               poolAddresses: result.route.pools.map((pool: Pool) => {
                 return getPoolAddress(pool.token0, pool.token1, pool.fee, chainId)
               }),
-              outputAmount: tryParseCurrencyAmount(cairo.felt(amountOut), currencyOut),
+              outputAmount: CurrencyAmount.fromRawAmount(currencyOut, num.hexToDecimalString(amountOut)),
             }
           })
         const route = await getBestSwapRoute(validQuotes, TradeType.EXACT_INPUT, percents ?? [])
@@ -579,7 +594,7 @@ export function useBestV3TradeExactOut(
       return resolvedResults
     },
     onSuccess: async (data) => {
-      if (data) {
+      if (data && currencyIn) {
         const validQuotes = data
           .filter((result: any) => {
             return result[0].transaction_trace.execute_invocation.result
@@ -597,7 +612,7 @@ export function useBestV3TradeExactOut(
               poolAddresses: result.route.pools.map((pool: Pool) => {
                 return getPoolAddress(pool.token0, pool.token1, pool.fee, chainId)
               }),
-              inputAmount: tryParseCurrencyAmount(cairo.felt(amountIn), currencyIn),
+              inputAmount: CurrencyAmount.fromRawAmount(currencyIn, num.hexToDecimalString(amountIn)),
             }
           })
         const route = await getBestSwapRoute(validQuotes, TradeType.EXACT_OUTPUT, percents ?? [])
@@ -608,6 +623,16 @@ export function useBestV3TradeExactOut(
 
   if (bestRoute)
     console.log(
+      formatCurrencyAmount({
+        amount: bestRoute?.[0]?.outputAmount,
+        type: NumberType.SwapTradeAmount,
+        placeholder: '',
+      }),
+      formatCurrencyAmount({
+        amount: bestRoute?.[0]?.inputAmount,
+        type: NumberType.SwapTradeAmount,
+        placeholder: '',
+      }),
       formatCurrencyAmount({
         amount: Trade.createUncheckedTrade({
           tradeType: TradeType.EXACT_OUTPUT,
