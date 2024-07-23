@@ -53,6 +53,8 @@ import { useQuery } from 'react-query'
 import { TOKENS_DATA } from 'apollo/queries'
 import { getClient } from 'apollo/client'
 import { findClosestPrice } from 'utils/getClosest'
+import { getReferralInfoFromLocalStorageForUser, setOnChainReferralTrueForuser } from 'hooks/useReferral'
+import { useReferralContract } from 'hooks/useContractV2'
 
 export const DEFAULT_VAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -640,6 +642,7 @@ export function VaultElement({
   // modal and loading
   const [attemptingTxn, setAttemptingTxn] = useState<boolean>(false) // clicked confirm
   const [showConfirm, setShowConfirm] = useState<boolean>(false)
+  const referralContract = useReferralContract()
 
   const vaultInfo = useVaultDerivedInfo(vaultState, baseCurrency ?? undefined, currencyB ?? undefined)
 
@@ -669,6 +672,9 @@ export function VaultElement({
           setAttemptingTxn(false)
           if (response?.transaction_hash) {
             setTxHash(response.transaction_hash)
+            if (account && chainId) {
+              setOnChainReferralTrueForuser(account, chainId, callData)
+            }
           }
         })
         .catch((err) => {
@@ -694,11 +700,36 @@ export function VaultElement({
   const approvalACallback = useApprovalCall(amountAToApprove, vaultAddress)
   const approvalBCallback = useApprovalCall(amountBToApprove, vaultAddress)
 
+  const addReferralCall = (callData: any[]) => {
+    const { userReferralInfoLocal: localStorageReferralCode } = getReferralInfoFromLocalStorageForUser(chainId, account)
+
+    if (
+      referralContract &&
+      localStorageReferralCode &&
+      localStorageReferralCode.isCorrect &&
+      localStorageReferralCode.onChain !== true
+    ) {
+      const referralCode = {
+        _code: cairo.felt(localStorageReferralCode.referredBy),
+      }
+      const compiledReferralCode = CallData.compile(referralCode)
+      const referralCall = {
+        contractAddress: referralContract.address,
+        entrypoint: 'set_referrer',
+        calldata: compiledReferralCode,
+      }
+      callData.push(referralCall)
+    }
+  }
+
   const onDeposit = () => {
     if (!chainId || !account || !parsedAmountA || !parsedAmountB || !vaultAddress) {
       return
     }
-    const callData = []
+    const callData: any[] = []
+
+    addReferralCall(callData)
+
     const adjustedAmountAWithSlippage = calculateMaximumAmountWithSlippage(parsedAmountA, defaultDepositSlippage)
     const adjustedAmountBWithSlippage = calculateMaximumAmountWithSlippage(parsedAmountB, defaultDepositSlippage)
 
@@ -741,7 +772,10 @@ export function VaultElement({
     const vaultAddress = vaultAddressFromUrl
     if (!token0 || !token1 || !withdrawTypedValue || !vaultAddress) return
 
-    const callData = []
+    const callData: any[] = []
+
+    addReferralCall(callData)
+
     const typedValue: CurrencyAmount<Currency> | undefined = tryParseCurrencyAmount(
       withdrawTypedValue,
       new Token(DEFAULT_CHAIN_ID, '', 18)
