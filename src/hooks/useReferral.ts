@@ -209,10 +209,12 @@ export function useReferralstate() {
  * @returns {boolean} True if the address is valid, false otherwise.
  */
 function isAddressValidForReferral(userAddress: string, refereeAddress: string) {
+  const validStarknetAddress = isAddressValidForStarknet(refereeAddress)
   return (
-    isAddressValidForStarknet(refereeAddress) !== false &&
+    validStarknetAddress !== false &&
     getChecksumAddress(userAddress) != getChecksumAddress(refereeAddress) &&
-    (isLowercaseHexAddress(refereeAddress) === true || validateChecksumAddress(refereeAddress) !== false)
+    (isLowercaseHexAddress(refereeAddress, validStarknetAddress) === true ||
+      validateChecksumAddress(refereeAddress) !== false)
   )
 }
 
@@ -275,6 +277,6 @@ export function setIsNotifClosedForuser(userAddress: string, chainId: ChainId) {
  * @param address
  * @returns
  */
-function isLowercaseHexAddress(address: string) {
-  return /^0x[0-9a-f]{63}$/.test(address)
+function isLowercaseHexAddress(address: string, starkvalidAddress: string) {
+  return starkvalidAddress.length && address.length && /^0x[0-9a-f]+$/.test(address)
 }
