@@ -1,4 +1,4 @@
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import { InjectedConnector, Connector } from '@starknet-react/core'
 import { WebWalletConnector } from '@argent/starknet-react-webwallet-connector'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
@@ -128,7 +128,6 @@ export default function OptionV2({
   id,
 }: OptionProps) {
   const { activationState, tryActivation } = useActivationState()
-  const toggleAccountDrawer = useToggleAccountDrawer()
   const { chainId } = useAccountDetails()
   const { connect } = useConnectors()
   // const activate = () => tryActivation(connection, toggleAccountDrawer, chainId)

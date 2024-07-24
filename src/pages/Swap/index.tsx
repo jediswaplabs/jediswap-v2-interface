@@ -2,7 +2,7 @@
 
 import { Trans } from '@lingui/macro'
 import { ChainId, Currency, CurrencyAmount, Percent, Token } from '@vnaysn/jediswap-sdk-core'
-import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
+import { useAccountBalance, useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import { ReactNode, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { ArrowDown } from 'react-feather'
@@ -67,7 +67,7 @@ import { SWAP_ROUTER_ADDRESS_V2, getSwapCurrencyId, DEFAULT_CHAIN_ID, SWAP_ROUTE
 import fetchAllPools from 'api/fetchAllPools'
 import { Call, CallData, cairo, num, validateAndParseAddress } from 'starknet'
 import { LoadingRows } from 'components/Loader/styled'
-import { useContractWrite } from '@starknet-react/core'
+import { useConnect, useContractWrite } from '@starknet-react/core'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useApprovalCall } from 'hooks/useApproveCall'
 import { Pool, TradeType, toHex } from '@vnaysn/jediswap-sdk-v3'
@@ -299,8 +299,7 @@ export function Swap({
 
   const theme = useTheme()
 
-  // toggle wallet when disconnected
-  const toggleWalletDrawer = useToggleAccountDrawer()
+  const toggleWalletModal = useWalletConnect()
 
   // swap state
   const prefilledState = useMemo(
@@ -1002,7 +1001,7 @@ export function Swap({
               <Trans>Unsupported asset</Trans>
             </ButtonPrimary>
           ) : connectionReady && !account ? (
-            <ButtonPrimary onClick={toggleWalletDrawer} size={ButtonSize.large}>
+            <ButtonPrimary onClick={toggleWalletModal} size={ButtonSize.large}>
               <Trans>Connect wallet</Trans>
             </ButtonPrimary>
           ) : isFetchingOutput ? (

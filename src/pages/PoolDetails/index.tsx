@@ -3,12 +3,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { validateAndParseAddress } from 'starknet'
 
-import { AutoColumn } from "components/Column";
-import Row, { AutoRow, RowBetween, RowFixed } from "components/Row";
-import { formattedNum, formattedPercent } from "utils/formatNum";
-import { getAllPools } from 'api/PoolsData';
+import { AutoColumn } from 'components/Column'
+import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
+import { formattedNum, formattedPercent } from 'utils/formatNum'
+import { getAllPools } from 'api/PoolsData'
 import { useDefaultActiveTokens } from 'hooks/Tokens'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import { ETH_ADDRESS, WETH } from 'constants/tokens'
 import DoubleTokenLogo from '../../components/DoubleLogo'
 import FeeBadge from 'components/FeeBadge'
@@ -21,7 +21,7 @@ import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { useTokenIds } from 'hooks/useV3Positions'
 import { PageWrapper, PanelWrapper, PanelTopLight, ResponsiveButtonPrimary } from 'pages/Pool/styled'
 
-const ResponsiveButtonTabs = styled(ButtonPrimary) <{ secondary: boolean; active: boolean }>`
+const ResponsiveButtonTabs = styled(ButtonPrimary)<{ secondary: boolean; active: boolean }>`
   font-family: 'DM Sans';
   border-radius: 4px;
   font-size: 16px;
@@ -63,9 +63,9 @@ export default function PoolDetails() {
   const [poolData, setpoolData] = useState<any | undefined>({})
   const { address, chainId } = useAccountDetails()
 
-  const { tokenIds, loading: loadingPositions } = useTokenIds(address, chainId);
+  const { tokenIds, loading: loadingPositions } = useTokenIds(address, chainId)
 
-  const toggleWalletDrawer = useToggleAccountDrawer()
+  const toggleWalletDrawer = useWalletConnect()
   const showConnectAWallet = Boolean(!address)
 
   const chainIdFinal = chainId || ChainId.MAINNET
@@ -75,7 +75,7 @@ export default function PoolDetails() {
 
   //fetch pools data
   useEffect(() => {
-    let ignore = false;
+    let ignore = false
     const getPoolsData = async () => {
       if (whitelistedIds.length === 0) {
         return
@@ -96,7 +96,6 @@ export default function PoolDetails() {
       ignore = true
     }
   }, [Object.keys(allTokens).join(','), chainIdFinal])
-
 
   const {
     poolAddress,
@@ -142,7 +141,7 @@ export default function PoolDetails() {
       >
         ← <span style={{ color: '#50D5FF', fontWeight: 500 }}>Back to top pools</span>
       </Link>
-      <Row align="center" style={{ gap: '8px', marginTop: '10px', fontSize: '1.25rem', fontWeight: 700  }}>
+      <Row align="center" style={{ gap: '8px', marginTop: '10px', fontSize: '1.25rem', fontWeight: 700 }}>
         {doubleCurrencyImageData && (
           <DoubleTokenLogo
             // size={below600 ? 16 : 20}
@@ -154,12 +153,27 @@ export default function PoolDetails() {
         )}
         {poolData?.token0?.symbol} - {poolData?.token1?.symbol}
         <FeeBadge>{feePercent}</FeeBadge>
-        <ResponsiveButtonPrimary as={Link} to={`/add/${poolData?.token0?.tokenAddress}/${poolData?.token1?.tokenAddress}/${poolData?.fee}`} style={{fontSize: "1.125rem", fontWeight: 750 }}>
+        <ResponsiveButtonPrimary
+          as={Link}
+          to={`/add/${poolData?.token0?.tokenAddress}/${poolData?.token1?.tokenAddress}/${poolData?.fee}`}
+          style={{ fontSize: '1.125rem', fontWeight: 750 }}
+        >
           + New position
         </ResponsiveButtonPrimary>
       </Row>
       <AutoColumn gap="12px">
-        <div style={{ position: 'relative', display: 'flex', alignItems: 'center', background: '#141451', padding: '15px', margin: '20px 0', gap: '30px', fontWeight: 700 }}>
+        <div
+          style={{
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            background: '#141451',
+            padding: '15px',
+            margin: '20px 0',
+            gap: '30px',
+            fontWeight: 700,
+          }}
+        >
           {/* <TYPE.main fontSize="16px" fontWeight={500}> */}
           Current Price:
           {/* </TYPE.main> */}
@@ -167,21 +181,33 @@ export default function PoolDetails() {
             {currentPriceDisplayMode === 'token0' && (
               <FixedPanel style={{ width: '100%', display: 'flex', gap: '10px' }}>
                 <CurrencyLogo currency={doubleCurrencyImageData?.token0} />
-                <RowFixed>{token0 && token1 ? `1 ${formattedSymbol0} = ${formattedNum(token1Price)} ${formattedSymbol1}` : '-'}</RowFixed>
+                <RowFixed>
+                  {token0 && token1 ? `1 ${formattedSymbol0} = ${formattedNum(token1Price)} ${formattedSymbol1}` : '-'}
+                </RowFixed>
               </FixedPanel>
             )}
             {currentPriceDisplayMode === 'token1' && (
               <FixedPanel style={{ width: '100%', display: 'flex', gap: '10px' }}>
                 <CurrencyLogo currency={doubleCurrencyImageData?.token1} />
-                <RowFixed>{token0 && token1 ? `1 ${formattedSymbol1} = ${formattedNum(token0Price)} ${formattedSymbol0}` : '-'}</RowFixed>
+                <RowFixed>
+                  {token0 && token1 ? `1 ${formattedSymbol1} = ${formattedNum(token0Price)} ${formattedSymbol0}` : '-'}
+                </RowFixed>
               </FixedPanel>
             )}
           </div>
           <div style={{ display: 'flex' }}>
-            <ResponsiveButtonTabs active={currentPriceDisplayMode === 'token0'} onClick={() => setCurrentPriceDisplayMode('token0')} style={{fontSize: '0.875rem', borderRadius: "4px 0px 0px 4px"}}>
+            <ResponsiveButtonTabs
+              active={currentPriceDisplayMode === 'token0'}
+              onClick={() => setCurrentPriceDisplayMode('token0')}
+              style={{ fontSize: '0.875rem', borderRadius: '4px 0px 0px 4px' }}
+            >
               {poolData?.token0?.symbol}
             </ResponsiveButtonTabs>
-            <ResponsiveButtonTabs active={currentPriceDisplayMode === 'token1'} onClick={() => setCurrentPriceDisplayMode('token1')} style={{fontSize: '0.875rem', borderRadius: "0px 4px 4px 0px"}}>
+            <ResponsiveButtonTabs
+              active={currentPriceDisplayMode === 'token1'}
+              onClick={() => setCurrentPriceDisplayMode('token1')}
+              style={{ fontSize: '0.875rem', borderRadius: '0px 4px 4px 0px' }}
+            >
               {poolData?.token1?.symbol}
             </ResponsiveButtonTabs>
           </div>
@@ -192,16 +218,10 @@ export default function PoolDetails() {
         <PanelWrapper>
           <PanelTopLight>
             <AutoColumn gap="20px">
-              <RowBetween style={{ fontWeight: 700 }}>
-                Total Liquidity
-              </RowBetween>
+              <RowBetween style={{ fontWeight: 700 }}>Total Liquidity</RowBetween>
               <RowBetween align="baseline">
-                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
-                  {formattedNum(totalValueLockedUSD, true)}
-                </div>
-                <div>
-                  {formattedPercent(liquidityChangeUSD)}
-                </div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>{formattedNum(totalValueLockedUSD, true)}</div>
+                <div>{formattedPercent(liquidityChangeUSD)}</div>
               </RowBetween>
             </AutoColumn>
           </PanelTopLight>
@@ -212,27 +232,17 @@ export default function PoolDetails() {
                 <div />
               </RowBetween>
               <RowBetween align="baseline">
-                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
-                  {formattedNum(oneDayVolumeUSD, true)}
-                </div>
-                <div>
-                  {formattedPercent(volumeChangeUSD)}
-                </div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>{formattedNum(oneDayVolumeUSD, true)}</div>
+                <div>{formattedPercent(volumeChangeUSD)}</div>
               </RowBetween>
             </AutoColumn>
           </PanelTopLight>
           <PanelTopLight>
             <AutoColumn gap="20px">
-              <RowBetween style={{ fontWeight: 700 }}>
-                Total fees (24hr)
-              </RowBetween>
+              <RowBetween style={{ fontWeight: 700 }}>Total fees (24hr)</RowBetween>
               <RowBetween align="baseline">
-                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
-                  {formattedNum(oneDayFeesUSD, true)}
-                </div>
-                <div>
-                  {formattedPercent(feesChangeUSD)}
-                </div>
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>{formattedNum(oneDayFeesUSD, true)}</div>
+                <div>{formattedPercent(feesChangeUSD)}</div>
               </RowBetween>
             </AutoColumn>
           </PanelTopLight>
@@ -249,8 +259,7 @@ export default function PoolDetails() {
           showConnectAWallet={showConnectAWallet}
           toggleWalletDrawer={toggleWalletDrawer}
         />
-      )
-      }
-    </PageWrapper >
+      )}
+    </PageWrapper>
   )
 }

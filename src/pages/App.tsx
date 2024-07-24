@@ -20,6 +20,9 @@ import {
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { ApolloProvider } from '@apollo/client'
 import { getClient } from 'apollo/client'
+import { connect } from 'starknetkit'
+import { useConnect } from '@starknet-react/core'
+import { useAvailableConnectors } from 'context/StarknetProvider'
 // import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
@@ -95,6 +98,8 @@ const HeaderWrapper = styled.div<{
 export default function App() {
   const isLoaded = useFeatureFlagsIsLoaded()
   const location = useLocation()
+  const { connect: connectWallet } = useConnect()
+  const connectors = useAvailableConnectors()
   const { pathname } = location
 
   const [scrollY, setScrollY] = useState(0)
@@ -122,6 +127,18 @@ export default function App() {
     }
     window.addEventListener('scroll', scrollListener)
     return () => window.removeEventListener('scroll', scrollListener)
+  }, [])
+
+  useEffect(() => {
+    const connectToStarknet = async () => {
+      const { wallet } = await connect({ modalMode: 'neverAsk' })
+      if (wallet && wallet.isConnected) {
+        const connector = connectors.find((item) => item.id === wallet.id)
+        connectWallet({ connector })
+      }
+    }
+
+    connectToStarknet()
   }, [])
 
   return (

@@ -23,7 +23,7 @@ import { HISTORICAL_POOLS_DATA, STRK_REWARDS_DATA } from 'apollo/queries'
 import { isEmpty } from 'lodash'
 import DoubleCurrencyLogo from 'components/DoubleLogo'
 import { useDefaultActiveTokens } from 'hooks/Tokens'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import { CardSection, DataCard } from 'components/earn/styled'
 import { colors } from 'theme/colors'
 import TransactionConfirmationModal, { TransactionErrorContent } from 'components/TransactionConfirmationModal'
@@ -455,7 +455,7 @@ const Coins = styled.div`
 `
 
 const WalletNotConnected = () => {
-  const toggleWalletDrawer = useToggleAccountDrawer()
+  const toggleWalletDrawer = useWalletConnect()
   return (
     <ConnectWalletWrapper>
       <img src={WalletIcon} />

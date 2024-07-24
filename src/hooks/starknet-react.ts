@@ -7,7 +7,9 @@ import { useDefaultActiveTokens } from './Tokens'
 import formatBalance from 'utils/formatBalance'
 import { useQuery } from 'react-query'
 import { ethers } from 'ethers'
-// Define the type for the balances object
+import { useAvailableConnectors } from 'context/StarknetProvider'
+import { useStarknetkitConnectModal } from 'starknetkit'
+
 declare enum StarknetChainId {
   SN_MAIN = '0x534e5f4d41494e',
   SN_GOERLI = '0x534e5f5345504f4c4941',
@@ -25,6 +27,40 @@ const convertStarknetToChainId = (starknetId: StarknetChainId): ChainId | undefi
   }
 }
 
+// export const getAccountDetails = async () => {
+//   const un = undefined
+//   const { wallet } = await connect()
+//   if (wallet?.isConnected) {
+//     const { account, selectedAddress, isConnected, chainId } = wallet
+//     return { account, address: selectedAddress, isConnected, chainId, connector: un }
+//   }
+
+//   return {
+//     account: un,
+//     address: un,
+//     isConnected: un,
+//     chainId: un,
+//     connector: un,
+//   }
+// }
+
+export const useWalletConnect = () => {
+  const connectors = useAvailableConnectors()
+  const { connect } = useConnect()
+
+  const { starknetkitConnectModal } = useStarknetkitConnectModal({
+    connectors,
+  })
+  return async () => {
+    const { connector } = await starknetkitConnectModal()
+    if (!connector) {
+      return
+    }
+
+    connect({ connector })
+  }
+}
+
 export const useAccountDetails = (): {
   account: AccountInterface | undefined
   address: string | undefined
@@ -33,7 +69,6 @@ export const useAccountDetails = (): {
   connector: Connector | undefined
 } => {
   const { account, address, isConnected, status, connector } = useAccount()
-
   const { provider } = useProvider()
 
   const connectedChainId = useQuery({

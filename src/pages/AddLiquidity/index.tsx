@@ -65,7 +65,7 @@ import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { Dots } from '../Pool/styled'
 import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import { useContractWrite, useProvider } from '@starknet-react/core'
 import { BigNumberish, cairo, Call, CallData, hash, num } from 'starknet'
 import JSBI from 'jsbi'
@@ -106,7 +106,7 @@ function AddLiquidity() {
   }>()
   const { address: account, chainId } = useAccountDetails()
   const theme = useTheme()
-  const toggleWalletDrawer = useToggleAccountDrawer() // toggle wallet when disconnected
+  const toggleWalletDrawer = useWalletConnect() // toggle wallet when disconnected
   const positionManager = useV3NFTPositionManagerContract()
   const parsedTokenId = tokenId ? parseInt(tokenId) : undefined
 

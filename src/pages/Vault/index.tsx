@@ -12,7 +12,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useBalance, useContractWrite } from '@starknet-react/core'
 import { useSelector } from 'react-redux'
 import JSBI from 'jsbi'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import { AutoColumn } from 'components/Column'
 import { StyledRouterLink, ThemedText } from 'theme/components'
 import DoubleCurrencyLogo from '../../components/DoubleLogo'
@@ -642,7 +642,7 @@ export function VaultElement({
   const currencyB = useCurrency(currentVault.token1.address)
 
   // toggle wallet when disconnected
-  const toggleWalletDrawer = useToggleAccountDrawer()
+  const toggleWalletDrawer = useWalletConnect()
 
   const [txHash, setTxHash] = useState<string>('')
   // modal and loading

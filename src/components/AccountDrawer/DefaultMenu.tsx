@@ -23,7 +23,7 @@ enum MenuState {
   LOCAL_CURRENCY_SETTINGS,
 }
 
-function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
+function DefaultMenu({ drawerOpen, closeWalletDrawer }: { drawerOpen: boolean; closeWalletDrawer: any }) {
   const { address: account } = useAccountDetails()
   const isAuthenticated = !!account
 
@@ -47,7 +47,11 @@ function DefaultMenu({ drawerOpen }: { drawerOpen: boolean }) {
   const SubMenu = useMemo(() => {
     switch (menu) {
       case MenuState.DEFAULT:
-        return isAuthenticated ? <AuthenticatedHeader account={account} /> : <WalletModal openSettings={openSettings} />
+        return isAuthenticated ? (
+          <AuthenticatedHeader account={account} closeWalletDrawer={closeWalletDrawer} />
+        ) : (
+          <WalletModal openSettings={openSettings} />
+        )
       case MenuState.SETTINGS:
         return (
           <SettingsMenu
