@@ -1,5 +1,5 @@
 import { Price, Token } from '@vnaysn/jediswap-sdk-core'
-import { tickToPrice } from '@harshalmaniya/jediswap-sdk-v3'
+import { tickToPrice } from '@vnaysn/jediswap-sdk-v3'
 
 export function getTickToPrice(baseToken?: Token, quoteToken?: Token, tick?: number): Price<Token, Token> | undefined {
   if (!baseToken || !quoteToken || typeof tick !== 'number') {

@@ -1,6 +1,6 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
-import { Pool, Position } from '@harshalmaniya/jediswap-sdk-v3'
+import { Pool, Position } from '@vnaysn/jediswap-sdk-v3'
 import { useSingleCallResult } from 'lib/hooks/multicall'
 import useBlockNumber from 'lib/hooks/useBlockNumber'
 import { useEffect, useMemo, useState } from 'react'

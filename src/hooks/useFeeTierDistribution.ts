@@ -1,5 +1,5 @@
 import { Currency, Token } from '@vnaysn/jediswap-sdk-core'
-import { FeeAmount } from '@harshalmaniya/jediswap-sdk-v3'
+import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
 import useBlockNumber from 'lib/hooks/useBlockNumber'
 import ms from 'ms'
 import { useMemo } from 'react'

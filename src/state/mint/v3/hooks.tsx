@@ -10,7 +10,7 @@ import {
   TICK_SPACINGS,
   TickMath,
   tickToPrice,
-} from '@harshalmaniya/jediswap-sdk-v3'
+} from '@vnaysn/jediswap-sdk-v3'
 import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { usePool } from 'hooks/usePools'
 import JSBI from 'jsbi'

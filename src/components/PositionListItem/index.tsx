@@ -1,7 +1,7 @@
 import { BigNumber } from '@ethersproject/bignumber'
 import { Trans } from '@lingui/macro'
 import { Percent, Price, Token } from '@vnaysn/jediswap-sdk-core'
-import { Position } from '@harshalmaniya/jediswap-sdk-v3'
+import { Position } from '@vnaysn/jediswap-sdk-v3'
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components'

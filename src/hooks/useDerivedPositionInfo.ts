@@ -1,4 +1,4 @@
-import { Pool, Position } from '@harshalmaniya/jediswap-sdk-v3'
+import { Pool, Position } from '@vnaysn/jediswap-sdk-v3'
 import { usePool } from 'hooks/usePools'
 import { PositionDetails } from 'types/position'
 

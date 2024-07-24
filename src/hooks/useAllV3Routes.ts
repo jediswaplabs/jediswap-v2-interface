@@ -1,5 +1,5 @@
 import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
-import { Pool, Route } from '@harshalmaniya/jediswap-sdk-v3'
+import { Pool, Route } from '@vnaysn/jediswap-sdk-v3'
 import { useMemo } from 'react'
 // import { useUserSingleHopOnly } from '../state/user/hooks'
 import { useV3SwapPools } from './useV3SwapPools'
@@ -57,7 +57,7 @@ export function useAllV3Routes(
   const { chainId } = useAccountDetails()
   const { pools, loading: poolsLoading } = useV3SwapPools(allPools, currencyIn, currencyOut)
   // const [singleHopOnly] = useUserSingleHopOnly()
-  const singleHopOnly = false
+  const singleHopOnly = true
 
   return useMemo(() => {
     if (poolsLoading || !chainId || !pools || !currencyIn || !currencyOut) return { loading: true, routes: [] }

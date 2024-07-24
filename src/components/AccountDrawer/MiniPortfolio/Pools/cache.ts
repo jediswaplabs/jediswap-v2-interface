@@ -1,5 +1,5 @@
 import { ChainId, Token } from '@vnaysn/jediswap-sdk-core'
-import { Pool, Position } from '@harshalmaniya/jediswap-sdk-v3'
+import { Pool, Position } from '@vnaysn/jediswap-sdk-v3'
 import { useAllTokensMultichain } from 'hooks/Tokens'
 import { atom, useAtom } from 'jotai'
 import { atomWithStorage } from 'jotai/utils'

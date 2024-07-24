@@ -1,6 +1,7 @@
 import { Token, Currency, TradeType, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
-import { Pool, Route, Trade } from '@harshalmaniya/jediswap-sdk-v3'
-import { useEffect, useMemo, useState } from 'react'
+import { Pool, Route } from '@vnaysn/jediswap-sdk-v3'
+import { Trade } from '@harshalmaniya/jediswap-sdk-v3'
+import { useMemo, useState } from 'react'
 import { useAllV3Routes } from './useAllV3Routes'
 import { DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS_V2 } from 'constants/tokens'
 import { BigNumberish, CallData, TransactionType, cairo, num } from 'starknet'
@@ -265,7 +266,7 @@ export function useBestV3TradeExactIn(
       })
 
       const settledResults = await Promise.allSettled(callPromises as any)
-      // console.log(settledResults, 'settledResults')
+      console.log(settledResults, 'settledResults')
       const settledResultsWithRoute = settledResults.map((result, i) => {
         if (!amountIns || !percents) return
         const amountInsLength = amountIns.length

@@ -24,7 +24,7 @@ export async function getBestSwapRoute(routesWithValidQuotes: any[], tradeType: 
     tradeType,
     percentToQuotes,
     percents,
-    tradeType === TradeType.EXACT_INPUT
+    tradeType === TradeType.EXACT_OUTPUT
       ? (routeQuote) => routeQuote.outputAmount
       : (routeQuote) => routeQuote.inputAmount
   )
@@ -232,10 +232,10 @@ async function getBestSwapRouteBy(
           //     }
           //   }
 
-          const quoteAfterL1Adjust =
-            routeType == TradeType.EXACT_INPUT
-              ? quoteNew.subtract(gasCostL1QuoteToken)
-              : quoteNew.add(gasCostL1QuoteToken)
+          const quoteAfterL1Adjust = quoteNew
+          // routeType == TradeType.EXACT_INPUT
+          //   ? quoteNew.subtract(gasCostL1QuoteToken)
+          //   : quoteNew.add(gasCostL1QuoteToken)
 
           bestSwapsPerSplit.push({
             quote: quoteAfterL1Adjust,

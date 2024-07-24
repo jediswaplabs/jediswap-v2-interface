@@ -1,6 +1,6 @@
 import { ChainId, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
 import IUniswapV3PoolStateJSON from '@uniswap/v3-core/artifacts/contracts/interfaces/pool/IUniswapV3PoolState.sol/IUniswapV3PoolState.json'
-import { computePoolAddress, Pool, Position } from '@harshalmaniya/jediswap-sdk-v3'
+import { computePoolAddress, Pool, Position } from '@vnaysn/jediswap-sdk-v3'
 import { DEFAULT_ERC20_DECIMALS } from 'constants/tokens'
 import { BigNumber } from 'ethers/lib/ethers'
 import { Interface } from 'ethers/lib/utils'

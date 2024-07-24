@@ -1,6 +1,6 @@
 import { Trans } from '@lingui/macro'
 import { Currency } from '@vnaysn/jediswap-sdk-core'
-import { Position } from '@harshalmaniya/jediswap-sdk-v3'
+import { Position } from '@vnaysn/jediswap-sdk-v3'
 import RangeBadge from 'components/Badge/RangeBadge'
 import { LightCard } from 'components/Card'
 import { AutoColumn } from 'components/Column'

@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { FeeAmount } from '@harshalmaniya/jediswap-sdk-v3'
+import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
 import Badge from 'components/Badge'
 import { useFeeTierDistribution } from 'hooks/useFeeTierDistribution'
 import { PoolState } from 'hooks/usePools'
