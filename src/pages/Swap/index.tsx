@@ -473,8 +473,6 @@ export function Swap({
     [dependentField, formatCurrencyAmount, independentField, parsedAmounts, showWrap, typedValue]
   )
 
-  console.log('formattedAmounts', formattedAmounts, parsedAmounts, parsedAmount)
-
   const userHasSpecifiedInputOutput = Boolean(
     currencies[Field.INPUT] && currencies[Field.OUTPUT] && parsedAmounts[independentField]?.greaterThan(JSBI.BigInt(0))
   )
@@ -625,10 +623,12 @@ export function Swap({
     const route = (trade as any).route
     const callData = []
     callData.push(handleApproval)
+    console.log('trade', trade)
     const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
     const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
     if (isTradeTypeV2) {
       const isRouteSingleHop = route.pools.length === 1
+      console.log('isRouteSingleHop', isRouteSingleHop, route)
       if (trade.tradeType === TradeType.EXACT_INPUT) {
         if (isRouteSingleHop) {
           const exactInputSingleParams = {
@@ -739,6 +739,8 @@ export function Swap({
             },
             { inputToken: firstInputToken, path: [], types: [] }
           )
+
+          console.log('path', path)
 
           const reversePath = path.reverse()
 

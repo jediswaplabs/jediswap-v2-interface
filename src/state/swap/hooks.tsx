@@ -140,7 +140,7 @@ export function useDerivedSwapInfo(
     return getAmountDistribution(typedValue, 25, isExactIn ? inputCurrency : outputCurrency)
   }, [typedValue])
 
-  console.log(distributedAmount, typedValue, 'parsedAmount')
+  // console.log(distributedAmount, typedValue, 'parsedAmount')
 
   const bestV3TradeExactIn = useBestV3TradeExactIn(
     allPools,
@@ -218,22 +218,22 @@ export function useDerivedSwapInfo(
   // ? bestTradeExactIn
   // : bestTradeExactOut
 
-  console.log(trade, bestV3TradeExactIn, bestV3TradeExactOut, 'finaltrade')
-  trade.trade?.swaps.forEach((trade, index) => {
-    console.log(
-      formatCurrencyAmount({
-        amount: trade.inputAmount,
-        type: NumberType.SwapTradeAmount,
-        placeholder: '',
-      }),
-      formatCurrencyAmount({
-        amount: trade.outputAmount,
-        type: NumberType.SwapTradeAmount,
-        placeholder: '',
-      }),
-      'trade' + index
-    )
-  })
+  // console.log(trade, bestV3TradeExactIn, bestV3TradeExactOut, 'finaltrade')
+  // trade.trade?.swaps.forEach((trade, index) => {
+  //   console.log(
+  //     formatCurrencyAmount({
+  //       amount: trade.inputAmount,
+  //       type: NumberType.SwapTradeAmount,
+  //       placeholder: '',
+  //     }),
+  //     formatCurrencyAmount({
+  //       amount: trade.outputAmount,
+  //       type: NumberType.SwapTradeAmount,
+  //       placeholder: '',
+  //     }),
+  //     'trade' + index
+  //   )
+  // })
   const currencyBalances = useMemo(
     () => ({
       [Field.INPUT]: relevantTokenBalances[0],

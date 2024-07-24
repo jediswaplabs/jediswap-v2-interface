@@ -43,17 +43,17 @@ export function useBestV3TradeExactIn(
   amountIn?: any
 ): { state: TradeState; trade: any | null } {
   const { formatCurrencyAmount } = useFormatter()
-  if (amountIns)
-    amountIns.forEach((amount) => {
-      console.log(
-        formatCurrencyAmount({
-          amount: amount,
-          type: NumberType.SwapTradeAmount,
-          placeholder: '',
-        }),
-        'amountIns'
-      )
-    })
+  // if (amountIns)
+  //   amountIns.forEach((amount) => {
+  //     console.log(
+  //       formatCurrencyAmount({
+  //         amount: amount,
+  //         type: NumberType.SwapTradeAmount,
+  //         placeholder: '',
+  //       }),
+  //       'amountIns'
+  //     )
+  //   })
   const { routes, loading: routesLoading } = useAllV3Routes(allPools, currencyIn, currencyOut)
 
   if (!routes)
@@ -218,7 +218,7 @@ export function useBestV3TradeExactIn(
         return
 
       const nonce = Number(nonce_results.data)
-      console.log('query', nonce)
+      // console.log('query', nonce)
       const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
       const callPromises = quoteExactInInputs.map(async ({ call, input_call_data_length, inputSelector }, i) => {
         const provider = providerInstance(chainId)
@@ -265,7 +265,7 @@ export function useBestV3TradeExactIn(
       })
 
       const settledResults = await Promise.allSettled(callPromises as any)
-      console.log(settledResults, 'settledResults')
+      // console.log(settledResults, 'settledResults')
       const settledResultsWithRoute = settledResults.map((result, i) => {
         if (!amountIns || !percents) return
         const amountInsLength = amountIns.length
@@ -289,7 +289,7 @@ export function useBestV3TradeExactIn(
     },
     onSuccess: async (data) => {
       if (data && currencyOut) {
-        console.log(data, 'data')
+        // console.log(data, 'data')
         const validQuotes = data
           .filter((result: any) => {
             return result[0].transaction_trace.execute_invocation.result
@@ -621,31 +621,31 @@ export function useBestV3TradeExactOut(
     },
   })
 
-  if (bestRoute)
-    console.log(
-      formatCurrencyAmount({
-        amount: bestRoute?.[0]?.outputAmount,
-        type: NumberType.SwapTradeAmount,
-        placeholder: '',
-      }),
-      formatCurrencyAmount({
-        amount: bestRoute?.[0]?.inputAmount,
-        type: NumberType.SwapTradeAmount,
-        placeholder: '',
-      }),
-      formatCurrencyAmount({
-        amount: Trade.createUncheckedTrade({
-          tradeType: TradeType.EXACT_OUTPUT,
-          route: bestRoute?.[0]?.route,
-          inputAmount: bestRoute?.[0].inputAmount,
-          outputAmount: bestRoute?.[0].outputAmount,
-        }).inputAmount,
-        type: NumberType.SwapTradeAmount,
-        placeholder: '',
-      }),
+  // if (bestRoute)
+  //   console.log(
+  //     formatCurrencyAmount({
+  //       amount: bestRoute?.[0]?.outputAmount,
+  //       type: NumberType.SwapTradeAmount,
+  //       placeholder: '',
+  //     }),
+  //     formatCurrencyAmount({
+  //       amount: bestRoute?.[0]?.inputAmount,
+  //       type: NumberType.SwapTradeAmount,
+  //       placeholder: '',
+  //     }),
+  //     formatCurrencyAmount({
+  //       amount: Trade.createUncheckedTrade({
+  //         tradeType: TradeType.EXACT_OUTPUT,
+  //         route: bestRoute?.[0]?.route,
+  //         inputAmount: bestRoute?.[0].inputAmount,
+  //         outputAmount: bestRoute?.[0].outputAmount,
+  //       }).inputAmount,
+  //       type: NumberType.SwapTradeAmount,
+  //       placeholder: '',
+  //     }),
 
-      'singleTrade'
-    )
+  //     'singleTrade'
+  //   )
 
   return useMemo(() => {
     if (!routes.length) {
