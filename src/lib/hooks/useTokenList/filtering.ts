@@ -1,13 +1,13 @@
 import { NativeCurrency, Token } from '@vnaysn/jediswap-sdk-core'
 import { TokenInfo } from '@uniswap/token-lists'
 
-import { isAddressValidForERC20 } from '../../../utils'
+import { isAddressERC20 } from '../../../utils'
 
 const alwaysTrue = () => true
 
 /** Creates a filter function that filters tokens that do not match the query. */
 export function getTokenFilter<T extends Token | TokenInfo>(query: string): (token: T | NativeCurrency) => boolean {
-  const searchingAddress = isAddressValidForERC20(query)
+  const searchingAddress = isAddressERC20(query)
 
   if (searchingAddress) {
     const address = searchingAddress.toLowerCase()

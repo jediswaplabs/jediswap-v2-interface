@@ -22,13 +22,12 @@ import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { CloseIcon, ThemedSeparator, ThemedText } from 'theme/components'
 import { UserAddedToken } from 'types/tokens'
 import { useDefaultActiveTokens, useIsUserAddedToken, useSearchInactiveTokenLists, useToken } from '../../hooks/Tokens'
-import { isAddressValidForERC20 } from '../../utils'
 import Column from '../Column'
 import Row, { RowBetween } from '../Row'
 import CommonBases from './CommonBases'
 import CurrencyList, { CurrencyRow, formatAnalyticsEventProperties } from './CurrencyList'
 import { PaddedColumn, SearchInput, Separator } from './styled'
-import { isAddressValid } from 'utils/addresses'
+import { isAddressValidForStarknet } from 'utils/addresses'
 
 const ContentWrapper = styled(Column)`
   background-color: ${({ theme }) => theme.surface1};
@@ -72,7 +71,7 @@ export function CurrencySearch({
 
   const [searchQuery, setSearchQuery] = useState<string>('')
   const debouncedQuery = useDebounce(searchQuery, 200)
-  const isAddressSearch = isAddressValid(debouncedQuery)
+  const isAddressSearch = isAddressValidForStarknet(debouncedQuery)
   const searchToken = useToken(debouncedQuery)
   const searchTokenIsAdded = useIsUserAddedToken(searchToken)
 
@@ -201,7 +200,7 @@ export function CurrencySearch({
   const inputRef = useRef<HTMLInputElement>()
   const handleInput = useCallback((event: ChangeEvent<HTMLInputElement>) => {
     const input = event.target.value
-    const checksummedInput = isAddressValid(input)
+    const checksummedInput = isAddressValidForStarknet(input)
     setSearchQuery(checksummedInput || input)
     fixedList.current?.scrollTo(0)
   }, [])

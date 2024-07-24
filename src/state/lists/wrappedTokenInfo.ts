@@ -1,8 +1,7 @@
 import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { Tags, TokenInfo, TokenList } from '@uniswap/token-lists'
 
-import { isAddressValidForERC20 } from '../../utils'
-import { isAddressValid } from 'utils/addresses'
+import { isAddressValidForStarknet } from 'utils/addresses'
 
 type TagDetails = Tags[keyof Tags]
 interface TagInfo extends TagDetails {
@@ -22,7 +21,7 @@ export class WrappedTokenInfo implements Token {
   constructor(tokenInfo: TokenInfo, list?: TokenList) {
     this.tokenInfo = tokenInfo
     this.list = list
-    const checksummedAddress = isAddressValid(this.tokenInfo.address)
+    const checksummedAddress = isAddressValidForStarknet(this.tokenInfo.address)
     if (!checksummedAddress) {
       throw new Error(`Invalid token address: ${this.tokenInfo.address}`)
     }

@@ -38,7 +38,7 @@ import { UNKNOWN_TOKEN_SYMBOL, useTokenFromActiveNetwork } from 'lib/hooks/useCu
 import { Swap } from 'pages/Swap'
 import { Field } from 'state/swap/actions'
 import { SwapState } from 'state/swap/reducer'
-import { isAddressValid } from 'utils/addresses'
+import { isAddressValidForStarknet } from 'utils/addresses'
 import { addressesAreEquivalent } from 'utils/addressesAreEquivalent'
 import InvalidTokenDetails from './InvalidTokenDetails'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
@@ -119,7 +119,7 @@ export default function TokenDetails({
     throw new Error('Invalid token details route: tokenAddress param is undefined')
   }
   const address = useMemo(
-    () => (urlAddress === NATIVE_CHAIN_ID ? urlAddress : isAddressValid(urlAddress) || undefined),
+    () => (urlAddress === NATIVE_CHAIN_ID ? urlAddress : isAddressValidForStarknet(urlAddress) || undefined),
     [urlAddress]
   )
 

@@ -74,7 +74,7 @@ import { useApprovalCall } from 'hooks/useApproveCall'
 import { useQuery } from 'react-query'
 import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
-import { isAddressValid } from 'utils/addresses'
+import { isAddressValidForStarknet } from 'utils/addresses'
 import findClosestPrice from 'utils/getClosestPrice'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
@@ -233,7 +233,8 @@ function AddLiquidity() {
           if (tokensData) {
             const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
             const isToken0InputAmount =
-              isAddressValid(position?.amount0.currency.address) === isAddressValid(price0Obj.token.tokenAddress)
+              isAddressValidForStarknet(position?.amount0.currency.address) ===
+              isAddressValidForStarknet(price0Obj.token.tokenAddress)
             const price0 = findClosestPrice(price0Obj?.period)
             const price1 = findClosestPrice(price1Obj?.period)
             return {

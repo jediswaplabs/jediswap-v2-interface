@@ -13,7 +13,7 @@ import ERC20_ABI from 'abis/erc20.json'
 import { useAllLists, useCombinedActiveList, useCombinedTokenMapFromUrls } from '../state/lists/hooks'
 import { WrappedTokenInfo } from '../state/lists/wrappedTokenInfo'
 import { deserializeToken, useUserAddedTokens } from '../state/user/hooks'
-import { isAddressValid } from 'utils/addresses'
+import { isAddressValidForStarknet } from 'utils/addresses'
 import { useTokenContract } from './useContractV2'
 import { NEVER_RELOAD, useSingleCallResult } from 'state/multicall/hooks'
 import { ETH_ADDRESS, WETH } from 'constants/tokens'
@@ -193,7 +193,7 @@ export function useIsUserAddedToken(currency: Currency | undefined | null): bool
 export function useToken(tokenAddress?: string | null): Token | null | undefined {
   const { chainId } = useAccountDetails()
   const tokens = useDefaultActiveTokens(chainId)
-  const address = isAddressValid(tokenAddress)
+  const address = isAddressValidForStarknet(tokenAddress)
   const validTokenAddress = address ? address : undefined
   const token: Token | undefined = address ? tokens[address] : undefined
 

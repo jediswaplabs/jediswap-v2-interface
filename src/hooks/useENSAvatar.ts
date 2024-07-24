@@ -6,7 +6,7 @@ import uriToHttp from 'lib/utils/uriToHttp'
 import { useEffect, useMemo, useState } from 'react'
 import { safeNamehash } from 'utils/safeNamehash'
 
-import { isAddressValidForERC20 } from '../utils'
+import { isAddressERC20 } from '../utils'
 import isZero from '../utils/isZero'
 import { useENSRegistrarContract, useENSResolverContract, useERC721Contract, useERC1155Contract } from './useContract'
 import useDebounce from './useDebounce'
@@ -22,7 +22,7 @@ export default function useENSAvatar(
 ): { avatar: string | null; loading: boolean } {
   const debouncedAddress = useDebounce(address, 200)
   const node = useMemo(() => {
-    if (!debouncedAddress || !isAddressValidForERC20(debouncedAddress)) return undefined
+    if (!debouncedAddress || !isAddressERC20(debouncedAddress)) return undefined
     return safeNamehash(`${debouncedAddress.toLowerCase().substr(2)}.addr.reverse`)
   }, [debouncedAddress])
 

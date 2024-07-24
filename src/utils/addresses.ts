@@ -3,7 +3,7 @@ import { validateAndParseAddress } from 'starknet'
 import isZero from './isZero'
 
 // returns the checksummed address if the address is valid, otherwise returns false
-export function isAddressValidForERC20(value: any): string | false {
+export function isAddressERC20(value: any): string | false {
   try {
     // Alphabetical letters must be made lowercase for getAddress to work.
     // See documentation here: https://docs.ethers.io/v5/api/utils/address/
@@ -14,7 +14,7 @@ export function isAddressValidForERC20(value: any): string | false {
 }
 
 // returns the checksummed address if the address is valid, otherwise returns false
-export function isAddressValid(addr: string | null | undefined): string | false {
+export function isAddressValidForStarknet(addr: string | null | undefined): string | false {
   try {
     if (addr && !isZero(addr)) {
       return validateAndParseAddress(addr)
@@ -31,7 +31,7 @@ export function isSameAddress(a?: string, b?: string) {
 
 // Shortens an Ethereum address
 export function shortenAddress(address = '', charsStart = 4, charsEnd = 4): string {
-  const parsed = isAddressValid(address)
+  const parsed = isAddressValidForStarknet(address)
   if (!parsed) return ''
   return ellipseAddressAdd0x(parsed, charsStart, charsEnd)
 }
