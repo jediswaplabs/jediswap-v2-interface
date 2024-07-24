@@ -71,6 +71,7 @@ import { useApprovalCall } from 'hooks/useApproveCall'
 import { toI32 } from 'utils/toI32'
 import { DynamicSection, StyledInput } from 'pages/AddLiquidity/styled'
 import HoverInlineText from 'components/HoverInlineText'
+import { ZERO_PERCENT } from 'constants/misc'
 
 const ZERO = JSBI.BigInt(0)
 
@@ -150,7 +151,7 @@ function V2PairMigration({
   const theme = useTheme()
   const deadline = useTransactionDeadline() // custom from users settings
   const blockTimestamp = useCurrentBlockTimestamp()
-  const allowedSlippage = useUserSlippageToleranceWithDefault(DEFAULT_MIGRATE_SLIPPAGE_TOLERANCE) // custom from users
+  // const allowedSlippage = useUserSlippageToleranceWithDefault(DEFAULT_MIGRATE_SLIPPAGE_TOLERANCE) // custom from users
 
   const [mintCallData, setMintCallData] = useState<Call[]>([])
 
@@ -168,10 +169,12 @@ function V2PairMigration({
     () => pair.getLiquidityValue(pair.token0, totalSupply, pairBalance, false),
     [token0, pairBalance, reserve0, totalSupply]
   )
+  console.log('token0Value', token0Value.toExact())
   const token1Value = useMemo(
     () => pair.getLiquidityValue(pair.token1, totalSupply, pairBalance, false),
     [token1, pairBalance, reserve1, totalSupply]
   )
+  console.log('token1Value', token1Value.toExact())
 
   // set up v3 pool
   const [feeAmount, setFeeAmount] = useState(FeeAmount.MEDIUM)
@@ -193,11 +196,20 @@ function V2PairMigration({
 
   // the following is a small hack to get access to price range data/input handlers
   const [baseToken, setBaseToken] = useState(token0)
-  const { ticks, pricesAtTicks, invertPrice, invalidRange, outOfRange, ticksAtLimit, price } = useV3DerivedMintInfo(
-    token0,
-    token1,
-    feeAmount,
-    baseToken
+  const {
+    ticks,
+    pricesAtTicks,
+    invertPrice,
+    invalidRange,
+    outOfRange,
+    ticksAtLimit,
+    price,
+    position: position2,
+  } = useV3DerivedMintInfo(token0, token1, feeAmount, baseToken)
+  console.log('price!!!', price?.toSignificant(), price)
+
+  const allowedSlippage = useUserSlippageToleranceWithDefault(
+    outOfRange ? ZERO_PERCENT : DEFAULT_MIGRATE_SLIPPAGE_TOLERANCE
   )
 
   // console.log(ticks, pricesAtTicks, invertPrice, invalidRange, outOfRange, ticksAtLimit, 'skdndkfndk')
@@ -218,11 +230,14 @@ function V2PairMigration({
   const { independentField, typedValue, startPriceTypedValue } = useV3MintState()
 
   // the v3 tick is either the pool's tickCurrent, or the tick closest to the v2 spot price
-  const tick = pool?.tickCurrent ?? priceToClosestTick(v2SpotPrice)
+  // const tick = pool?.tickCurrent ?? priceToClosestTick(v2SpotPrice)
+  const tick = pool?.tickCurrent ?? (price ? priceToClosestTick(price) : undefined)
+  // console.log('tick---', tick)
   // the price is either the current v3 price, or the price at the tick
-  const sqrtPrice = pool?.sqrtRatioX96 ?? TickMath.getSqrtRatioAtTick(tick)
+  const sqrtPrice = pool?.sqrtRatioX96 ?? (tick !== undefined ? TickMath.getSqrtRatioAtTick(tick) : undefined)
+  // const sqrtPrice = tick ? TickMath.getSqrtRatioAtTick(tick) : undefined
   const position =
-    typeof tickLower === 'number' && typeof tickUpper === 'number' && !invalidRange
+    typeof tickLower === 'number' && typeof tickUpper === 'number' && !invalidRange && sqrtPrice && tick
       ? Position.fromAmounts({
           pool: pool ?? new Pool(token0, token1, feeAmount, sqrtPrice, 0, tick, []),
           tickLower,
@@ -233,10 +248,20 @@ function V2PairMigration({
         })
       : undefined
 
-  const { amount0: v3Amount0Min, amount1: v3Amount1Min } = useMemo(
-    () => (position ? position.mintAmountsWithSlippage(allowedSlippage) : { amount0: undefined, amount1: undefined }),
-    [position, allowedSlippage]
-  )
+  console.log('sqrtPrice_migrate', sqrtPrice?.toString(), 'tick_migrate', tick, 'price', price?.toSignificant())
+  // const { amount0: v3Amount0Min, amount1: v3Amount1Min } = useMemo(
+  //   () => (position ? position.mintAmountsWithSlippage(allowedSlippage) : { amount0: undefined, amount1: undefined }),
+  //   [position, allowedSlippage]
+  // )
+  const { amount0: v3Amount0Min, amount1: v3Amount1Min } = useMemo(() => {
+    if (!position) {
+      return { amount0: undefined, amount1: undefined }
+    }
+    if (position.amount0.equalTo('0') || position.amount1.equalTo('0')) {
+      return { amount0: position.amount0.raw, amount1: position.amount1.raw }
+    }
+    return position.mintAmountsWithSlippage(allowedSlippage)
+  }, [position, allowedSlippage])
 
   const refund0 = useMemo(
     () =>
@@ -336,6 +361,7 @@ function V2PairMigration({
         sqrt_price_X96: cairo.uint256(position?.pool?.sqrtRatioX96.toString()),
       }
 
+      console.log('position?.pool?.sqrtRatioX96.toString()', position?.pool?.sqrtRatioX96.toString())
       const initializeCallData = CallData.compile(initializeData)
       const icalls = {
         contractAddress: routerAddress,
@@ -371,6 +397,7 @@ function V2PairMigration({
       recipient: account,
       deadline: cairo.felt(deadline.toString()),
     }
+    console.log('mintData', mintData)
     const mintCallData = CallData.compile(mintData)
     const mcalls = {
       contractAddress: routerAddress,
