@@ -11,7 +11,7 @@ import {
   TickMath,
   tickToPrice,
 } from '@vnaysn/jediswap-sdk-v3'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { usePool } from 'hooks/usePools'
 import JSBI from 'jsbi'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
@@ -166,13 +166,12 @@ export function useV3DerivedMintInfo(
   )
 
   // balances
-  const balances = useCurrencyBalances(
-    account ?? undefined,
-    useMemo(() => [currencies[Field.CURRENCY_A], currencies[Field.CURRENCY_B]], [currencies])
-  )
+  const { balanceCurrencyAmount: balanceCurrencyAmountA } = useAccountBalance(currencies[Field.CURRENCY_A])
+  const { balanceCurrencyAmount: balanceCurrencyAmountB } = useAccountBalance(currencies[Field.CURRENCY_B])
+
   const currencyBalances: { [field in Field]?: CurrencyAmount<Currency> } = {
-    [Field.CURRENCY_A]: balances[0],
-    [Field.CURRENCY_B]: balances[1],
+    [Field.CURRENCY_A]: balanceCurrencyAmountA,
+    [Field.CURRENCY_B]: balanceCurrencyAmountB,
   }
 
   // pool
@@ -250,7 +249,7 @@ export function useV3DerivedMintInfo(
       [Bound.LOWER]:
         typeof existingPosition?.tickLower === 'number'
           ? existingPosition.tickLower
-          : (invertPrice && typeof rightRangeTypedValue === 'boolean') ||
+          : (invertPrice && (typeof rightRangeTypedValue === 'boolean' || rightRangeTypedValue === '∞')) ||
             (!invertPrice && typeof leftRangeTypedValue === 'boolean')
           ? tickSpaceLimits[Bound.LOWER]
           : invertPrice
@@ -260,7 +259,7 @@ export function useV3DerivedMintInfo(
         typeof existingPosition?.tickUpper === 'number'
           ? existingPosition.tickUpper
           : (!invertPrice && typeof rightRangeTypedValue === 'boolean') ||
-            (invertPrice && typeof leftRangeTypedValue === 'boolean')
+            (invertPrice && (typeof leftRangeTypedValue === 'boolean' || leftRangeTypedValue === '0'))
           ? tickSpaceLimits[Bound.UPPER]
           : invertPrice
           ? tryParseTick(token1, token0, feeAmount, leftRangeTypedValue.toString())

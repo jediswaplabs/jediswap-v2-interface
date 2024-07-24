@@ -1,118 +1,47 @@
 import { Trans } from '@lingui/macro'
-import { BrowserEvent, InterfaceElementName, InterfaceEventName, InterfacePageName } from '@uniswap/analytics-events'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, BookOpen, ChevronDown, ChevronsRight, Inbox, Layers } from 'react-feather'
-import { Link } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styled, { css, useTheme } from 'styled-components'
-import { Trace, TraceEvent } from 'analytics'
 import { useToggleAccountDrawer } from 'components/AccountDrawer'
-import { ButtonGray, ButtonPrimary, ButtonText } from 'components/Button'
 import { AutoColumn } from 'components/Column'
-import { FlyoutAlignment, Menu } from 'components/Menu'
-import PositionList from 'components/PositionList'
 import Row, { AutoRow, RowBetween, RowFixed } from 'components/Row'
 import { SwitchLocaleLink } from 'components/SwitchLocaleLink'
 import { isSupportedChain } from 'constants/chains'
 // import { useFilterPossiblyMaliciousPositions } from 'hooks/useFilterPossiblyMaliciousPositions'
-import { useNetworkSupportsV2 } from 'hooks/useNetworkSupportsV2'
-import { FlattenedPositions, useV3PositionsFromTokenId } from 'hooks/useV3Positions'
-import { useUserHideClosedPositions } from 'state/user/hooks'
+import { useTokenIds } from 'hooks/useV3Positions'
 import { ThemedText } from 'theme/components'
-import { LoadingRows } from './styled'
-import fetchTokenIds from 'api/fetchTokenId'
-import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
-import { providerInstance } from 'utils/getLibrary'
-import { cairo, hash, num, uint256 } from 'starknet'
-import JSBI from 'jsbi'
+import {
+  ButtonRow,
+  ErrorContainer,
+  LoadingRows,
+  MainContentWrapper,
+  NetworkIcon,
+  OnlyRewardedSwitcher,
+  OnlyRewardedSwitcherContainer,
+  OnlyRewardedSwitcherLabel,
+  PageHeader,
+  PageWrapper,
+  Panel,
+  PanelTopLight,
+  PanelWrapper,
+  ResponsiveButtonPrimary,
+  ResponsiveButtonTabs,
+  TitleRow,
+} from './styled'
+import { getAllPools } from 'api/PoolsData'
+import Pools from 'components/Pools'
+import { formattedNum, formattedPercent, get2DayPercentChange, getPercentChange } from 'utils/formatNum'
+import { HISTORICAL_GLOBAL_DATA, STRK_REWARDS_DATA } from 'apollo/queries'
+import { apiTimeframeOptions } from 'constants/apiTimeframeOptions'
+import { ETH_ADDRESS } from 'constants/tokens'
+import { getClient } from 'apollo/client'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { useDefaultActiveTokens } from 'hooks/Tokens'
+import { PositionDetails } from './PositionDetails'
+import { ApolloQueryResult } from '@apollo/client'
 
-const PageWrapper = styled(AutoColumn)`
-  padding: 0px 8px 0px;
-  max-width: 920px;
-  width: 100%;
-
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
-    padding-top: 20px;
-  }
-`
-const TitleRow = styled(RowBetween)`
-  color: ${({ theme }) => theme.neutral2};
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    flex-wrap: wrap;
-    gap: 12px;
-    width: 100%;
-    padding-left: 12px;
-  }
-`
-
-const PositionsText = styled.div`
-  color: ${({ theme }) => theme.jediWhite};
-  font-family: DM Sans;
-  font-size: 20px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 100%; /* 20px */
-`
-const ButtonRow = styled(AutoRow)``
-
-const ErrorContainer = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  margin: auto;
-  min-height: 25vh;
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
-    padding: 0px 52px;
-  }
-
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    padding: 0px 52px;
-  }
-`
-
-const IconStyle = css`
-  width: 48px;
-  height: 48px;
-  margin-bottom: 0.5rem;
-`
-
-const NetworkIcon = styled(AlertTriangle)`
-  ${IconStyle}
-`
-
-const InboxIcon = styled(Inbox)`
-  ${IconStyle}
-`
-
-const ResponsiveButtonPrimary = styled(ButtonPrimary)`
-  border-radius: 8px;
-  font-size: 16px;
-  padding: 6px 8px;
-  width: 175px;
-  margin-left: auto;
-  height: 38px;
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    width: 132px;
-  }
-`
-
-const MainContentWrapper = styled.main<{ isWalletConnected?: boolean; filteredPositions?: any }>`
-  background-color: ${({ theme, isWalletConnected, filteredPositions }) =>
-    isWalletConnected && filteredPositions ? 'rgba(196, 196, 196, 0.01)' : theme.jediNavyBlue};
-  border-radius: 8px;
-  box-shadow: ${({ isWalletConnected, filteredPositions }) =>
-    isWalletConnected && filteredPositions
-      ? `0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
-        0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
-        0px 75.43767px 76.9772px -36.94907px rgba(202, 172, 255, 0.3) inset,
-        0px -63.12132px 52.3445px -49.26542px rgba(96, 68, 144, 0.3) inset`
-      : ''};
-  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
-  }
-`
-
-function PositionsLoadingPlaceholder() {
+export function PositionsLoadingPlaceholder() {
   return (
     <LoadingRows>
       <div />
@@ -163,104 +92,117 @@ function WrongNetworkCard() {
   )
 }
 
-function PositionDetails(props: any) {
-  const { address } = useAccountDetails()
-  const { tokenIds, showConnectAWallet, toggleWalletDrawer } = props
-  const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
-  const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds, address)
-  const theme = useTheme()
-  const [openPositions, closedPositions] = positions?.reduce<[FlattenedPositions[], FlattenedPositions[]]>(
-    (acc, p) => {
-      acc[!parseInt(p.liquidity.toString()) ? 1 : 0].push(p)
-      return acc
-    },
-    [[], []]
-  ) ?? [[], []]
-
-  const userSelectedPositionSet = useMemo(
-    () => [...openPositions, ...(userHideClosedPositions ? [] : closedPositions)],
-    [closedPositions, openPositions, userHideClosedPositions]
-  )
-
-  return (
-    <>
-      <>
-        {positionsLoading ? (
-          <PositionsLoadingPlaceholder />
-        ) : userSelectedPositionSet && userSelectedPositionSet.length > 0 ? (
-          <PositionList
-            positions={userSelectedPositionSet}
-            setUserHideClosedPositions={setUserHideClosedPositions}
-            userHideClosedPositions={userHideClosedPositions}
-          />
-        ) : (
-          <ErrorContainer>
-            <ThemedText.BodyPrimary color={theme.neutral3} textAlign="center">
-              <InboxIcon strokeWidth={1} style={{ marginTop: '2em' }} />
-              <div>
-                <Trans>Your active liquidity positions will appear here.</Trans>
-              </div>
-            </ThemedText.BodyPrimary>
-            {!showConnectAWallet && closedPositions.length > 0 && (
-              <ButtonText
-                style={{ marginTop: '.5rem' }}
-                onClick={() => setUserHideClosedPositions(!userHideClosedPositions)}
-              >
-                <Trans>Show closed positions</Trans>
-              </ButtonText>
-            )}
-            {showConnectAWallet && (
-              <ButtonPrimary
-                style={{ marginTop: '2em', marginBottom: '2em', padding: '8px 16px', width: 'fit-content' }}
-                onClick={toggleWalletDrawer}
-              >
-                <Trans>Connect wallet</Trans>
-              </ButtonPrimary>
-            )}
-          </ErrorContainer>
-        )}
-      </>
-      {/* {userSelectedPositionSet.length ? null : <CTACards />} */}
-    </>
-  )
+function getRewardsData(jediRewards: any, pool: any) {
+  if (!jediRewards) {
+    return
+  }
+  const pair1 = `${pool?.token0.symbol}/${pool?.token1.symbol}`.toLowerCase()
+  const pair2 = `${pool?.token1.symbol}/${pool?.token0.symbol}`.toLowerCase()
+  const pairKey = Object.keys(jediRewards).find((key) => key.toLowerCase() === pair1 || key.toLowerCase() === pair2)
+  if (pairKey && jediRewards[pairKey]) {
+    return jediRewards[pairKey]
+  }
 }
 
 export default function Pool() {
+  const [poolsData, setpoolsData] = useState<any[] | undefined>([])
   const { address, chainId } = useAccountDetails()
-  const [tokenIds, setTokenIds] = useState<number[]>([])
-  const [loadingPositions, setLoadingPositions] = useState<boolean>(false)
-  //fetch Token Ids
-  useEffect(() => {
-    const getTokenIds = async () => {
-      if (address && chainId) {
-        setLoadingPositions(true)
-        const provider = providerInstance(chainId ?? DEFAULT_CHAIN_ID)
-        const contract_address = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
-        const tokenIdsResults = await provider.callContract({
-          entrypoint: 'get_all_tokens_for_owner',
-          contractAddress: contract_address,
-          calldata: [address],
-        })
-        if (tokenIdsResults && tokenIdsResults.result) {
-          // Slice the first index
-          const tokenIdsResultsArr = tokenIdsResults.result
 
-          //converting array of uint256 tokenids into bn
-          const tokenIdsResultsArrWithoutLength = tokenIdsResultsArr.slice(1)
-          const returnDataIterator = tokenIdsResultsArrWithoutLength.flat()[Symbol.iterator]()
-          const tokenIdsArray = [...Array(tokenIdsResultsArrWithoutLength.length / 2)].map(() => {
-            return Number(
-              uint256.uint256ToBN({ low: returnDataIterator.next().value, high: returnDataIterator.next().value })
-            )
-          })
-          setTokenIds(tokenIdsArray)
+  const { tokenIds, loading: loadingPositions } = useTokenIds(address, chainId)
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const initialShowMyPos = location.pathname === '/positions' ? true : false
+  const [showMyPositions, setShowMyPositions] = useState<boolean>(initialShowMyPos)
+  const [showRewardedOnly, setShowRewardedOnly] = useState(false)
+  const [globalPoolsData, setGlobalPoolsData] = useState<any>({})
+  const chainIdFinal = chainId || ChainId.MAINNET
+  const allTokens = useDefaultActiveTokens(chainIdFinal)
+  const whitelistedIds = Object.keys(allTokens)
+  const graphqlClient = getClient(chainIdFinal)
+  useEffect(() => {
+    setShowMyPositions(initialShowMyPos)
+  }, [initialShowMyPos])
+  //fetch pools data and rewards data
+  useEffect(() => {
+    let ignore = false
+    const getPoolsData = async () => {
+      if (whitelistedIds.length === 0) {
+        return
+      }
+      const requests = [
+        getAllPools(graphqlClient, [...whitelistedIds, ETH_ADDRESS]), //add ETH token
+        graphqlClient.query({
+          query: STRK_REWARDS_DATA(),
+          fetchPolicy: 'cache-first',
+        }),
+      ]
+      const [poolsDataRawResult, rewardsRespResult] = await Promise.allSettled(requests)
+      let poolsDataRaw: any = null
+      if (poolsDataRawResult.status === 'fulfilled') {
+        poolsDataRaw = poolsDataRawResult.value as ApolloQueryResult<any>
+      }
+      let jediRewards: any = null
+      if (rewardsRespResult.status === 'fulfilled') {
+        const rewardsResp = rewardsRespResult.value as ApolloQueryResult<any>
+        jediRewards = rewardsResp.data?.strkGrantDataV2
+      }
+      const poolsData: any = {}
+      poolsDataRaw?.forEach((data: any) => {
+        const rewardsData = getRewardsData(jediRewards, data)
+        if (rewardsData) {
+          data.aprStarknet = rewardsData.apr
         }
-        setLoadingPositions(false)
+
+        data.rewarded = data.aprStarknet ? true : false
+
+        poolsData[data.poolAddress] = data
+      })
+      if (!ignore) {
+        setpoolsData(poolsData)
       }
     }
 
-    getTokenIds()
-  }, [chainId, address])
+    getPoolsData()
+    return () => {
+      ignore = true
+    }
+  }, [Object.keys(allTokens).join(','), chainIdFinal])
+
+  //fetch global pools data data
+  useEffect(() => {
+    let ignore = false
+    const getGlobalPoolsData = async () => {
+      try {
+        const historicalData = await graphqlClient.query({
+          query: HISTORICAL_GLOBAL_DATA(),
+          fetchPolicy: 'cache-first',
+        })
+        const oneDayData = historicalData.data.factoriesData[0][apiTimeframeOptions.oneDay]
+        const twoDaysData = historicalData.data.factoriesData[0][apiTimeframeOptions.twoDays]
+        if (!ignore) {
+          setGlobalPoolsData({
+            totalValueLockedUSD: oneDayData.totalValueLockedUSD,
+            totalValueLockedUSDChange: getPercentChange(
+              oneDayData.totalValueLockedUSD,
+              oneDayData.totalValueLockedUSDFirst
+            ),
+            volumeUSD: oneDayData.volumeUSD,
+            volumeUSDChange: get2DayPercentChange(oneDayData.volumeUSD, twoDaysData.volumeUSD),
+            feesUSD: oneDayData.feesUSD,
+            feesUSDChange: get2DayPercentChange(oneDayData.feesUSD, twoDaysData.feesUSD),
+          })
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
+
+    getGlobalPoolsData()
+    return () => {
+      ignore = true
+    }
+  }, [chainIdFinal])
 
   const toggleWalletDrawer = useToggleAccountDrawer()
   // const filteredPositions = useFilterPossiblyMaliciousPositions(userSelectedPositionSet)
@@ -270,26 +212,117 @@ export default function Pool() {
   }
 
   const showConnectAWallet = Boolean(!address)
+  const poolsTable = (
+    <div>
+      <OnlyRewardedSwitcherContainer>
+        <OnlyRewardedSwitcherLabel>Only Pools with Rewards</OnlyRewardedSwitcherLabel>
+        <OnlyRewardedSwitcher
+          onChange={(checked) => setShowRewardedOnly(checked)}
+          checked={showRewardedOnly}
+          handleDiameter={20}
+          uncheckedIcon={false}
+          checkedIcon={false}
+          width={35}
+          height={14}
+          offHandleColor={'#959595'}
+          onHandleColor={'#50D5FF'}
+          offColor={'#372554'}
+          onColor={'#26346d'}
+        />
+      </OnlyRewardedSwitcherContainer>
+      <Panel style={{ padding: '0', fontWeight: 700, fontSize: '0.875rem' }}>
+        <Pools pairs={poolsData} disbaleLinks={true} showRewardedOnly={showRewardedOnly} />
+      </Panel>
+    </div>
+  )
 
   return (
     <PageWrapper>
-      <AutoColumn gap="lg" justify="center">
+      <PageHeader>POOLS</PageHeader>
+      {/* <PageSection> */}
+      <AutoColumn style={{ gap: '12px' }}>
+        <PanelWrapper>
+          <PanelTopLight>
+            <AutoColumn gap="20px">
+              <RowBetween style={{ fontWeight: 700 }}>Total Liquidity</RowBetween>
+              <RowBetween align="baseline">
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
+                  {formattedNum(globalPoolsData.totalValueLockedUSD, true)}
+                </div>
+                <div>{formattedPercent(globalPoolsData.totalValueLockedUSDChange)}</div>
+              </RowBetween>
+            </AutoColumn>
+          </PanelTopLight>
+          <PanelTopLight>
+            <AutoColumn gap="20px">
+              <RowBetween style={{ fontWeight: 700 }}>
+                Volume (24hr)
+                <div />
+              </RowBetween>
+              <RowBetween align="baseline">
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>
+                  {formattedNum(globalPoolsData.volumeUSD, true)}
+                </div>
+                <div>{formattedPercent(globalPoolsData.volumeUSDChange)}</div>
+              </RowBetween>
+            </AutoColumn>
+          </PanelTopLight>
+          <PanelTopLight>
+            <AutoColumn gap="20px">
+              <RowBetween style={{ fontWeight: 700 }}>Total fees (24hr)</RowBetween>
+              <RowBetween align="baseline">
+                <div style={{ fontSize: '1.5rem', fontWeight: 500 }}>{formattedNum(globalPoolsData.feesUSD, true)}</div>
+                <div>{formattedPercent(globalPoolsData.feesUSDChange)}</div>
+              </RowBetween>
+            </AutoColumn>
+          </PanelTopLight>
+        </PanelWrapper>
+      </AutoColumn>
+      {/* </PageSection> */}
+      <AutoColumn gap="lg" justify="center" style={{ marginTop: 24 }}>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <ButtonRow justifyContent={'space-between'}>
-            <PositionsText>My Positions</PositionsText>
-            <ResponsiveButtonPrimary data-cy="join-pool-button" id="join-pool-button" as={Link} to="/add/ETH">
+            <ResponsiveButtonTabs
+              secondary={false}
+              active={!showMyPositions}
+              // onClick={() => setShowMyPositions(false)}
+              onClick={() => navigate('/pools')}
+              style={{ fontSize: '0.875rem' }}
+            >
+              <Trans>Top Pools</Trans>
+            </ResponsiveButtonTabs>
+            <ResponsiveButtonTabs
+              secondary={true}
+              active={showMyPositions}
+              // onClick={() => setShowMyPositions(true)}
+              onClick={() => navigate('/positions')}
+              style={{ fontSize: '0.875rem' }}
+            >
+              <Trans>My Positions</Trans>
+            </ResponsiveButtonTabs>
+            <ResponsiveButtonPrimary
+              data-cy="join-pool-button"
+              id="join-pool-button"
+              as={Link}
+              to="/add/ETH"
+              style={{ fontSize: '1.125rem', fontWeight: 750 }}
+            >
               + <Trans>New position</Trans>
             </ResponsiveButtonPrimary>
           </ButtonRow>
           <MainContentWrapper>
-            {loadingPositions ? (
-              <PositionsLoadingPlaceholder />
+            {showMyPositions ? (
+              loadingPositions ? (
+                <PositionsLoadingPlaceholder />
+              ) : (
+                <PositionDetails
+                  tokenIds={tokenIds}
+                  showConnectAWallet={showConnectAWallet}
+                  toggleWalletDrawer={toggleWalletDrawer}
+                />
+              )
             ) : (
-              <PositionDetails
-                tokenIds={tokenIds}
-                showConnectAWallet={showConnectAWallet}
-                toggleWalletDrawer={toggleWalletDrawer}
-              />
+              poolsTable
             )}
           </MainContentWrapper>
           {/* {userSelectedPositionSet.length ? null : <CTACards />} */}

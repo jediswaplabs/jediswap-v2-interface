@@ -75,7 +75,7 @@ import { useQuery } from 'react-query'
 import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import { isAddressValidForStarknet } from 'utils/addresses'
-import findClosestPrice from 'utils/getClosestPrice'
+import { findClosestPrice } from 'utils/getClosest'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -262,8 +262,12 @@ function AddLiquidity() {
       ? Number(separatedFiatValueofLiquidity.data.token1usdPrice) * Number(position?.amount1.toSignificant())
       : undefined
 
-    const isLiquidityToken0PositionToken0 =
-      position?.amount0.currency.address === (parsedAmounts.CURRENCY_A?.currency as any).address
+    const parsedAddressA = (parsedAmounts.CURRENCY_A?.currency as any)?.address
+    const parsedAddressB = (parsedAmounts.CURRENCY_B?.currency as any)?.address
+    const isLiquidityToken0PositionToken0 = parsedAddressA
+      ? position?.amount0.currency.address === parsedAddressA
+      : position?.amount1.currency.address === parsedAddressB
+
     return {
       token0usdPrice: isLiquidityToken0PositionToken0 ? token0usdPrice : token1usdPrice,
       token1usdPrice: isLiquidityToken0PositionToken0 ? token1usdPrice : token0usdPrice,
@@ -561,9 +565,9 @@ function AddLiquidity() {
 
   const Buttons = () =>
     !account ? (
-      <ButtonLight onClick={toggleWalletDrawer} $borderRadius="12px" padding="12px">
+      <ButtonPrimary onClick={toggleWalletDrawer} $borderRadius="12px" style={{ padding: '12px', fontSize: '18px' }}>
         <Trans>Connect wallet</Trans>
-      </ButtonLight>
+      </ButtonPrimary>
     ) : (
       <AutoColumn gap="md">
         <ButtonError
@@ -573,7 +577,7 @@ function AddLiquidity() {
           disabled={!isValid || showWarning}
           error={!isValid && !!parsedAmounts[Field.CURRENCY_A] && !!parsedAmounts[Field.CURRENCY_B]}
         >
-          <Text fontWeight={535}>
+          <Text fontWeight={750}>
             {showWarning ? 'Add liquidity is paused' : errorMessage ? errorMessage : <Trans>Preview</Trans>}
           </Text>
         </ButtonError>
@@ -760,24 +764,24 @@ function AddLiquidity() {
                     {outOfRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
                         <RowBetween>
-                          <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
-                          <ThemedText.DeprecatedYellow ml="12px" fontSize="12px">
+                          <AlertTriangle stroke={theme.jediPink} size="16px" />
+                          <ThemedText.UtilityBadge ml="12px" fontSize="12px" fontWeight={600}>
                             <Trans>
                               Your position will not earn fees or be used in trades until the market price moves into
                               your range.
                             </Trans>
-                          </ThemedText.DeprecatedYellow>
+                          </ThemedText.UtilityBadge>
                         </RowBetween>
                       </YellowCard>
                     )}
                     {invalidRange && (
                       <YellowCard padding="8px 12px" $borderRadius="12px">
-                        <RowBetween>
-                          <AlertTriangle stroke={theme.deprecated_yellow3} size="16px" />
-                          <ThemedText.DeprecatedYellow ml="12px" fontSize="12px">
+                        <Row>
+                          <AlertTriangle stroke={theme.jediPink} size="16px" />
+                          <ThemedText.UtilityBadge ml="12px" fontSize="12px" fontWeight={600}>
                             <Trans>Invalid range selected. The min price must be lower than the max price.</Trans>
-                          </ThemedText.DeprecatedYellow>
-                        </RowBetween>
+                          </ThemedText.UtilityBadge>
+                        </Row>
                       </YellowCard>
                     )}
                   </DynamicSection>

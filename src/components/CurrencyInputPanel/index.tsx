@@ -2,11 +2,11 @@ import { Trans } from '@lingui/macro'
 import { BrowserEvent, InterfaceElementName, SwapEventName } from '@uniswap/analytics-events'
 import { Currency, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
-import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { darken } from 'polished'
 import { ReactNode, useCallback, useState } from 'react'
 import styled, { useTheme } from 'styled-components'
 
+import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
 import { TraceEvent } from 'analytics'
 import { LoadingOpacityContainer, loadingOpacityMixin } from 'components/Loader/styled'
 import PrefetchBalancesWrapper from 'components/PrefetchBalancesWrapper/PrefetchBalancesWrapper'
@@ -160,6 +160,10 @@ const StyledBalanceMax = styled.button<{ disabled?: boolean }>`
 const StyledNumericalInput = styled(NumericalInput)<{ $loading: boolean }>`
   ${loadingOpacityMixin};
   text-align: left;
+
+  @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
+    font-size: 16px;
+  }
 `
 
 const StyledPrefetchBalancesWrapper = styled(PrefetchBalancesWrapper)<{ $fullWidth: boolean }>`
@@ -223,11 +227,14 @@ export default function CurrencyInputPanel({
   const chainAllowed = isSupportedChain(chainId)
 
   const handleMaxAmount = () => {
-    if (balance) onUserInput(balance)
+    if (balance) {
+      onUserInput(balance)
+    }
   }
 
   const containerStyles = hideShadow ? { boxShadow: 'none' } : {}
   const showMax = balance !== null && Number(value) !== Number(balance)
+
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>
       {!locked && (
@@ -293,7 +300,9 @@ export default function CurrencyInputPanel({
               <RowBetween>
                 {account && (
                   <RowFixed style={{ height: '17px' }}>
-                    {showMax && formatted && (
+                    {' '}
+                    {/*formatted can be NaN*/}
+                    {showMax && Boolean(formatted) && (
                       <StyledBalanceMax onClick={handleMaxAmount}>
                         <Trans>MAX</Trans>
                       </StyledBalanceMax>
@@ -305,7 +314,7 @@ export default function CurrencyInputPanel({
                       fontSize={14}
                       style={{ display: 'inline', cursor: 'pointer' }}
                     >
-                      {formatted && <>Bal: {formatted}</>}
+                      {Boolean(formatted) && <>Bal: {formatted}</>} {/*formatted can be NaN*/}
                     </ThemedText.DeprecatedBody>
                   </RowFixed>
                 )}

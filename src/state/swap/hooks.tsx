@@ -239,6 +239,15 @@ export function useDerivedSwapInfo(
   const allowedSlippage = uniswapXAutoSlippage ?? classicAllowedSlippage
 
   const connectionReady = useConnectionReady()
+  const maxAmountIn = trade?.trade?.maximumAmountIn(allowedSlippage)
+  const insufficientFunds =
+    token0balance &&
+    token0balance.balanceCurrencyAmount &&
+    maxAmountIn &&
+    token0balance.balanceCurrencyAmount.lessThan(maxAmountIn)
+      ? true
+      : false
+
   const inputError = useMemo(() => {
     let inputError: ReactNode | undefined
 
@@ -254,10 +263,7 @@ export function useDerivedSwapInfo(
       inputError = inputError ?? <Trans>Enter an amount</Trans>
     }
 
-    // compare input balance to max input based on version
-    const maxAmountIn = Number(trade?.trade?.maximumAmountIn(allowedSlippage)?.toSignificant())
-
-    if (token0balance && token0balance.balance && Number(token0balance.balance) < maxAmountIn) {
+    if (insufficientFunds) {
       inputError = <Trans>Insufficient {inputCurrency?.symbol} balance</Trans>
     }
 
@@ -270,7 +276,7 @@ export function useDerivedSwapInfo(
       currencyBalances,
       parsedAmount,
       inputError,
-      trade,
+      trade: insufficientFunds ? { state: TradeState.VALID, trade: null } : trade,
       autoSlippage,
       allowedSlippage,
       inputTax,

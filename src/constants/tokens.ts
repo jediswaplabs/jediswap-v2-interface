@@ -26,13 +26,23 @@ export function nativeOnChain(chainId: ChainId): NativeCurrency | Token {
   return (cachedNativeCurrency[chainId] = WETH[chainId])
 }
 
+export const getStarkRewardAddress = (chainId: ChainId) => {
+  return chainId === ChainId.MAINNET
+    ? '0x027dee8c8c7f28d67bc771afe0c786bfb59d78f0e1ce303a86006b91b98dc3cf'
+    : '0x01ba23f54ae0f830068314e8d3e9d3623e83ced3832d20ac61f598a969425747'
+}
+
+export const STARKNET_REWARDS_API_URL =
+  'https://kx58j6x5me.execute-api.us-east-1.amazonaws.com//starknet/fetchFile?file=qa_strk_grant.json'
+export const STRK_PRICE_API_URL = 'https://api.binance.com/api/v3/ticker/price?symbol=STRKUSDT'
+
 export const POOL_CLASS_HASH = {
-  [ChainId.MAINNET]: '0x426a4fb3b82644a07dbab45099214976f880d7aba0d399c88f59297a3cf1aa6',
-  [ChainId.GOERLI]: '0x426a4fb3b82644a07dbab45099214976f880d7aba0d399c88f59297a3cf1aa6',
+  [ChainId.MAINNET]: '0x2cd3c16a0112b22ded4903707f268125fcf46fd7733761e62c13fc0157afd8d',
+  [ChainId.GOERLI]: '0x2cd3c16a0112b22ded4903707f268125fcf46fd7733761e62c13fc0157afd8d',
 }
 export const FACTORY_ADDRESS = {
-  [ChainId.MAINNET]: '0x07bf9f8fc91a0c0814a254c8e77218620801e077d090cb627fa9a25674ce2970',
-  [ChainId.GOERLI]: '0x06dbda35590e23a4eb5f4550e4f783d3d3dc1f3cb7009dae72cf382fed225a0e',
+  [ChainId.MAINNET]: '0x01aa950c9b974294787de8df8880ecf668840a6ab8fa8290bf2952212b375148',
+  [ChainId.GOERLI]: '0x050d3df81b920d3e608c4f7aeb67945a830413f618a1cf486bdcce66a395109c',
 }
 
 export const FACTORY_ADDRESS_CLASS_HASH: { [chainId in ChainId]: string } = {
@@ -41,12 +51,12 @@ export const FACTORY_ADDRESS_CLASS_HASH: { [chainId in ChainId]: string } = {
 }
 
 export const NONFUNGIBLE_POOL_MANAGER_ADDRESS: { [chainId in ChainId]: string } = {
-  [ChainId.MAINNET]: '0x045cb97368b10d6a5345bf7cfde71bc99360687451519a0e2a3508b32f50ece0',
-  [ChainId.GOERLI]: '0x0039f2ddabfabc3ff69c27870ef5d10d5af29a268166e5cd5a557c2a0305e714',
+  [ChainId.MAINNET]: '0x0469b656239972a2501f2f1cd71bf4e844d64b7cae6773aa84c702327c476e5b',
+  [ChainId.GOERLI]: '0x024fd9721eea36cf8cebc226fd9414057bbf895b47739822f849f622029f9399',
 }
 export const SWAP_ROUTER_ADDRESS_V2 = {
-  [ChainId.MAINNET]: '0x039c6dac17d1968f5bbbf65b4180fc3cb83cfea08147cbb1950e053f647d21f8',
-  [ChainId.GOERLI]: '0x05e50cdc6062f96efdb7f871e04a8f878c827b8941cd4b4ddbc4d861e625b478',
+  [ChainId.MAINNET]: '0x0359550b990167afd6635fa574f3bdadd83cb51850e1d00061fe693158c23f80',
+  [ChainId.GOERLI]: '0x03c8e56d7f6afccb775160f1ae3b69e3db31b443e544e56bd845d8b3b3a87a21',
 }
 
 export const SWAP_ROUTER_ADDRESS_V1 = {
@@ -61,7 +71,7 @@ export const STARKSCAN_PROXY_ADDRESS = {
 
 export const STARKSCAN_PREFIXES: { [chainId in ChainId]: string } = {
   [ChainId.MAINNET]: '',
-  [ChainId.GOERLI]: 'testnet.',
+  [ChainId.GOERLI]: 'sepolia.',
 }
 
 export function getSwapCurrencyId(currency: Currency): string {
@@ -70,6 +80,20 @@ export function getSwapCurrencyId(currency: Currency): string {
   }
   return NATIVE_CHAIN_ID
 }
+
+export const vaultURL = (type: string, chainId: ChainId) => {
+  if (type === 'content') {
+    return chainId === ChainId.MAINNET
+      ? 'https://vault-content-api.teahouse.finance/vaults'
+      : 'https://test-vault-content-api.teahouse.finance/vaults'
+  } else {
+    return chainId === ChainId.MAINNET
+      ? 'https://vault-api.teahouse.finance/vaults/type/permissionless'
+      : 'https://test20-vault-api.teahouse.finance/vaults/type/permissionless'
+  }
+}
+
+export const TEAHOUSE_LOGO_URI = 'https://vault.teahouse.finance/icon-token'
 
 export const domainURL = (chainId: ChainId) => {
   return chainId === ChainId.MAINNET

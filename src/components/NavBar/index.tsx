@@ -18,6 +18,10 @@ import {
   Nav,
   StatusContainer,
 } from './styled'
+import { useIsVaultsPage } from '../../hooks/useIsVaultsPage'
+import { useAccountDetails } from 'hooks/starknet-react'
+import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import StarkIcon from 'assets/svg/starknet.svg'
 
 const MenuItemLink = ({ to, dataTestId, id, isActive, children }) => {
   const Component = isActive ? ActiveMenuItem : MenuItem
@@ -37,21 +41,30 @@ const ExternalMenuItemLink = ({ to, children }) => (
 export const PageTabs = () => {
   const { pathname } = useLocation()
   const isPoolActive = useIsPoolsPage()
+  const isVaultsActive = useIsVaultsPage()
+  const { chainId } = useAccountDetails()
 
   return (
     <>
       <MenuItemLink to="/swap" isActive={pathname.startsWith('/swap')}>
         <Trans>Trade</Trans>
       </MenuItemLink>
-      <MenuItemLink to="/pool" dataTestId="pool-nav-link" isActive={isPoolActive}>
+      <MenuItemLink to="/pools" dataTestId="pool-nav-link" isActive={isPoolActive}>
         <Trans>Pool</Trans>
       </MenuItemLink>
-      <ExternalMenuItemLink to="https://info.v2.jediswap.xyz/">
+      <ExternalMenuItemLink to={'https://info.v2.jediswap.xyz/'}>
         <Trans>Dashboard</Trans>
       </ExternalMenuItemLink>
+      <MenuItemLink to="/vaults" isActive={isVaultsActive}>
+        <Trans>Vaults</Trans>
+      </MenuItemLink>
       <ExternalMenuItemLink to="https://app.v1.jediswap.xyz/">
         <Trans>V1</Trans>
       </ExternalMenuItemLink>
+      <MenuItemLink to="/rewards" isActive={pathname.startsWith('/rewards')}>
+        <img src={StarkIcon} style={{ marginRight: '2px' }} alt="starknet_logo" />
+        <Trans>Rewards</Trans>
+      </MenuItemLink>
     </>
   )
 }

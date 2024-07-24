@@ -4,7 +4,7 @@ import { useAccountDetails } from 'hooks/starknet-react'
 import SettingsTab from 'components/Settings'
 import { ReactNode } from 'react'
 import { ArrowLeft } from 'react-feather'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Box } from 'rebass'
 import { useAppDispatch } from 'state/hooks'
 import { resetMintState } from 'state/mint/actions'
@@ -85,22 +85,29 @@ export function AddRemoveTabs({
   // reset states on back
   const dispatch = useAppDispatch()
   const location = useLocation()
+  const navigate = useNavigate()
 
   // detect if back should redirect to v3 or v2 pool page
-  const poolLink = location.pathname.includes('add/v2')
-    ? '/pools/v2'
-    : '/pools' + (positionID ? `/${positionID.toString()}` : '')
+  // const poolLink = location.pathname.includes('add/v2')
+  //   ? '/pools/v2'
+  //   : '/pools' + (positionID ? `/${positionID.toString()}` : '')
 
   return (
     <Tabs>
       <RowBetween style={{ padding: '16px' }} align="center">
         <StyledLink
-          to={poolLink}
-          onClick={() => {
+          to={'/'}
+          onClick={(e) => {
             if (adding) {
               // not 100% sure both of these are needed
               dispatch(resetMintState())
               dispatch(resetMintV3State())
+            }
+            e.preventDefault()
+            if (location.key === 'default') {
+              navigate('/pools')
+            } else {
+              navigate(-1)
             }
           }}
           flex={children ? '1' : undefined}

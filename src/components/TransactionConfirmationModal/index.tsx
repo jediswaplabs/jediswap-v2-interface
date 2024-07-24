@@ -2,7 +2,7 @@ import { t, Trans } from '@lingui/macro'
 import { ChainId, Currency } from '@vnaysn/jediswap-sdk-core'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { ReactNode, useCallback, useState } from 'react'
-import { AlertCircle, ArrowUpCircle, CheckCircle } from 'react-feather'
+import { AlertCircle, AlertTriangle, ArrowUpCircle, CheckCircle } from 'react-feather'
 import styled, { useTheme } from 'styled-components'
 
 import Badge from 'components/Badge'
@@ -20,6 +20,7 @@ import { AutoColumn, ColumnCenter } from '../Column'
 import Modal from '../Modal'
 import Row, { RowBetween, RowFixed } from '../Row'
 import AnimatedConfirmation from './AnimatedConfirmation'
+import { colors } from 'theme/colors'
 
 const Wrapper = styled.div`
   background-color: ${({ theme }) => theme.surface1};
@@ -41,6 +42,26 @@ const ConfirmedIcon = styled(ColumnCenter)<{ inline?: boolean }>`
 const ConfirmationModalContentWrapper = styled(AutoColumn)`
   padding-bottom: 12px;
 `
+
+export function TransactionErrorContent({ message, onDismiss }: { message: string; onDismiss: () => void }) {
+  return (
+    <Wrapper>
+      <AutoColumn gap="md">
+        <RowBetween>
+          <ThemedText.SubHeaderLarge textAlign="center"> Error</ThemedText.SubHeaderLarge>
+          <CloseIcon onClick={onDismiss} />
+        </RowBetween>
+        <AutoColumn style={{ marginTop: 20, padding: '2rem 0' }} gap="24px" justify="center">
+          <AlertTriangle color={colors.red100} style={{ strokeWidth: 1.5 }} size={64} />
+          <ThemedText.BodySecondary textAlign="center">{message}</ThemedText.BodySecondary>
+        </AutoColumn>
+      </AutoColumn>
+      <BottomSection gap="12px">
+        <ButtonPrimary onClick={onDismiss}>Dismiss</ButtonPrimary>
+      </BottomSection>
+    </Wrapper>
+  )
+}
 
 function ConfirmationPendingContent({
   onDismiss,
@@ -92,29 +113,6 @@ function TransactionSubmittedContent({
   inline?: boolean // not in modal
 }) {
   const theme = useTheme()
-
-  const { connector } = useAccountDetails()
-
-  const token = currencyToAdd?.wrapped
-  const logoURL = useCurrencyLogoURIs(token)[0]
-
-  const [success, setSuccess] = useState<boolean | undefined>()
-
-  // const addToken = useCallback(() => {
-  //   if (!token?.symbol || !connector.watchAsset) {
-  //     return
-  //   }
-  //   connector
-  //     .watchAsset({
-  //       address: token.address,
-  //       symbol: token.symbol,
-  //       decimals: token.decimals,
-  //       image: logoURL,
-  //     })
-  //     .then(() => setSuccess(true))
-  //     .catch(() => setSuccess(false))
-  // }, [connector, logoURL, token])
-
   const explorerText = chainId === ChainId.MAINNET ? t`View on  Starkscan` : t`View on Block Explorer`
 
   return (
