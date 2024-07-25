@@ -26,19 +26,20 @@ const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: calc(100vh);
+  height: calc(100vh);
   padding: ${({ theme }) => theme.navHeight}px 0px 5rem 0px;
   align-items: center;
   flex: 1;
   margin-top: 78px;
   font-family: 'DM Sans';
+  overflow: auto;
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
-    min-height: calc(100vh);
+    height: calc(100vh);
   }
 
   @media only screen and (max-width: ${({ theme }) => `${theme.breakpoint.sm}px`}) {
-    min-height: calc(100vh);
+    height: calc(100vh);
     margin-top: 0;
   }
 `
