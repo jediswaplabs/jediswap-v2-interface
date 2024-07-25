@@ -64,7 +64,6 @@ import { useMultipleContractSingleData, useSingleCallResult } from 'state/multic
 import { cairo, Call, CallData, Contract } from 'starknet'
 import { useV2Pair } from 'hooks/useV2Pairs'
 import JediswapPairABI from 'constants/abis/Pair.json'
-import { useV2MigratorContract } from 'hooks/useContract'
 import { Pair } from '@vnaysn/jediswap-sdk-v2'
 import { useContractWrite } from '@starknet-react/core'
 import { useApprovalCall } from 'hooks/useApproveCall'
@@ -123,9 +122,6 @@ function LiquidityInfo({
     </AutoColumn>
   )
 }
-
-// hard-code this for now
-const percentageToMigrate = 100
 
 function V2PairMigration({
   pair,
@@ -191,8 +187,6 @@ function V2PairMigration({
   // if (priceDifferenceFraction?.lessThan(ZERO)) {
   //   priceDifferenceFraction = priceDifferenceFraction.multiply(-1)
   // }
-
-  // const largePriceDifference = priceDifferenceFraction && !priceDifferenceFraction?.lessThan(JSBI.BigInt(2))
 
   // the following is a small hack to get access to price range data/input handlers
   const [baseToken, setBaseToken] = useState(token0)
@@ -277,15 +271,6 @@ function V2PairMigration({
   const [confirmingMigration, setConfirmingMigration] = useState<boolean>(false)
   const [pendingMigrationHash, setPendingMigrationHash] = useState<string | null>(null)
 
-  const migrator = useV2MigratorContract()
-
-  // approvals
-  const [approval, approveManually] = useApproveCallback(pairBalance, migrator?.address)
-  const { signatureData, gatherPermitSignature } = useV2LiquidityTokenPermit(pairBalance, migrator?.address)
-
-  const approve = useCallback(async () => {}, [gatherPermitSignature, approveManually])
-
-  const addTransaction = useTransactionAdder()
   const isMigrationPending = useIsTransactionPending(pendingMigrationHash ?? undefined)
 
   const { amount0: amount0Desired, amount1: amount1Desired } = position?.mintAmounts || {}
@@ -428,13 +413,6 @@ function V2PairMigration({
     <AutoColumn gap="20px">
       <ThemedText.DeprecatedBody my={9} style={{ fontWeight: 485 }}>
         <Trans>This tool will safely migrate your V1 liquidity to V2. The process is completely trustless.</Trans>
-        {/* {chainId && migrator && (
-          <ExternalLink href={getExplorerLink(chainId, migrator.address, ExplorerDataType.ADDRESS)}>
-            <ThemedText.DeprecatedBlue display="inline">
-              <Trans>Uniswap migration contract↗</Trans>
-            </ThemedText.DeprecatedBlue>
-          </ExternalLink>
-        )} */}
       </ThemedText.DeprecatedBody>
 
       <LightCard>
@@ -559,26 +537,6 @@ function V2PairMigration({
           {/* {noLiquidity && (
             <BlueCard style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <AlertCircle color={theme.neutral1} style={{ marginBottom: '12px', opacity: 0.8 }} />
-              <ThemedText.DeprecatedBody
-                fontSize={14}
-                style={{ marginBottom: 8, fontWeight: 535, opacity: 0.8 }}
-                textAlign="center"
-              >
-                <Trans>
-                  You are the first liquidity provider for this Uniswap V3 pool. Your liquidity will migrate at the
-                  current {false ? 'SushiSwap' : 'V2'} price.
-                </Trans>
-              </ThemedText.DeprecatedBody>
-
-              <ThemedText.DeprecatedBody
-                fontWeight={535}
-                textAlign="center"
-                fontSize={14}
-                style={{ marginTop: '8px', opacity: 0.8 }}
-              >
-                <Trans>Your transaction cost will be much higher as it includes the gas to create the pool.</Trans>
-              </ThemedText.DeprecatedBody>
-
               {v2SpotPrice && (
                 <AutoColumn gap="sm" style={{ marginTop: '12px' }}>
                   <RowBetween>
@@ -595,63 +553,6 @@ function V2PairMigration({
               )}
             </BlueCard>
           )} */}
-
-          {/* {largePriceDifference ? (
-            <YellowCard>
-              <AutoColumn gap="sm">
-                <RowBetween>
-                  <ThemedText.DeprecatedBody fontSize={14}>
-                    <Trans>
-                      {false ? 'SushiSwap' : 'V2'} {invertPrice ? currency1.symbol : currency0.symbol} Price:
-                    </Trans>
-                  </ThemedText.DeprecatedBody>
-                  <ThemedText.DeprecatedBlack fontSize={14}>
-                    {invertPrice
-                      ? `${v2SpotPrice?.invert()?.toSignificant(6)} ${currency0.symbol}`
-                      : `${v2SpotPrice?.toSignificant(6)} ${currency1.symbol}`}
-                  </ThemedText.DeprecatedBlack>
-                </RowBetween>
-
-                <RowBetween>
-                  <ThemedText.DeprecatedBody fontSize={14}>
-                    <Trans>V3 {invertPrice ? currency1.symbol : currency0.symbol} Price:</Trans>
-                  </ThemedText.DeprecatedBody>
-                  <ThemedText.DeprecatedBlack fontSize={14}>
-                    {invertPrice
-                      ? `${v3SpotPrice?.invert()?.toSignificant(6)} ${currency0.symbol}`
-                      : `${v3SpotPrice?.toSignificant(6)} ${currency1.symbol}`}
-                  </ThemedText.DeprecatedBlack>
-                </RowBetween>
-
-                <RowBetween>
-                  <ThemedText.DeprecatedBody fontSize={14} color="inherit">
-                    <Trans>Price difference:</Trans>
-                  </ThemedText.DeprecatedBody>
-                  <ThemedText.DeprecatedBlack fontSize={14} color="inherit">
-                    <Trans>{priceDifferenceFraction?.toSignificant(4)}%</Trans>
-                  </ThemedText.DeprecatedBlack>
-                </RowBetween>
-              </AutoColumn>
-              <ThemedText.DeprecatedBody fontSize={14} style={{ marginTop: 8, fontWeight: 485 }}>
-                <Trans>
-                  You should only deposit liquidity into Uniswap V3 at a price you believe is correct. <br />
-                  If the price seems incorrect, you can either make a swap to move the price or wait for someone else to
-                  do so.
-                </Trans>
-              </ThemedText.DeprecatedBody>
-            </YellowCard>
-          ) : !noLiquidity && v3SpotPrice ? ( */}
-          {/* <RowBetween>
-            <ThemedText.DeprecatedBody fontSize={14}>
-              <Trans>{invertPrice ? currency1.symbol : currency0.symbol} Price:</Trans>
-            </ThemedText.DeprecatedBody>
-            <ThemedText.DeprecatedBlack fontSize={14}>
-              {invertPrice
-                ? `${v3SpotPrice?.invert()?.toSignificant(6)} ${currency0.symbol}`
-                : `${v3SpotPrice?.toSignificant(6)} ${currency1.symbol}`}
-            </ThemedText.DeprecatedBlack>
-          </RowBetween> */}
-          {/* ) : null} */}
 
           <RowBetween>
             <ThemedText.DeprecatedLabel>
