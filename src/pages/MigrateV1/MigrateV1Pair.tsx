@@ -237,7 +237,7 @@ function V2PairMigration({
   const sqrtPrice = pool?.sqrtRatioX96 ?? (tick !== undefined ? TickMath.getSqrtRatioAtTick(tick) : undefined)
   // const sqrtPrice = tick ? TickMath.getSqrtRatioAtTick(tick) : undefined
   const position =
-    typeof tickLower === 'number' && typeof tickUpper === 'number' && !invalidRange && sqrtPrice && tick
+    typeof tickLower === 'number' && typeof tickUpper === 'number' && !invalidRange && sqrtPrice && tick !== undefined
       ? Position.fromAmounts({
           pool: pool ?? new Pool(token0, token1, feeAmount, sqrtPrice, 0, tick, []),
           tickLower,
@@ -249,19 +249,19 @@ function V2PairMigration({
       : undefined
 
   console.log('sqrtPrice_migrate', sqrtPrice?.toString(), 'tick_migrate', tick, 'price', price?.toSignificant())
-  // const { amount0: v3Amount0Min, amount1: v3Amount1Min } = useMemo(
-  //   () => (position ? position.mintAmountsWithSlippage(allowedSlippage) : { amount0: undefined, amount1: undefined }),
-  //   [position, allowedSlippage]
-  // )
-  const { amount0: v3Amount0Min, amount1: v3Amount1Min } = useMemo(() => {
-    if (!position) {
-      return { amount0: undefined, amount1: undefined }
-    }
-    if (position.amount0.equalTo('0') || position.amount1.equalTo('0')) {
-      return { amount0: position.amount0.raw, amount1: position.amount1.raw }
-    }
-    return position.mintAmountsWithSlippage(allowedSlippage)
-  }, [position, allowedSlippage])
+  const { amount0: v3Amount0Min, amount1: v3Amount1Min } = useMemo(
+    () => (position ? position.mintAmountsWithSlippage(allowedSlippage) : { amount0: undefined, amount1: undefined }),
+    [position, allowedSlippage]
+  )
+  // const { amount0: v3Amount0Min, amount1: v3Amount1Min } = useMemo(() => {
+  //   if (!position) {
+  //     return { amount0: undefined, amount1: undefined }
+  //   }
+  //   if (position.amount0.equalTo('0') || position.amount1.equalTo('0')) {
+  //     return { amount0: position.amount0.raw, amount1: position.amount1.raw }
+  //   }
+  //   return position.mintAmountsWithSlippage(allowedSlippage)
+  // }, [position, allowedSlippage])
 
   const refund0 = useMemo(
     () =>
@@ -287,6 +287,8 @@ function V2PairMigration({
 
   const addTransaction = useTransactionAdder()
   const isMigrationPending = useIsTransactionPending(pendingMigrationHash ?? undefined)
+
+  const { amount0: amount0Desired, amount1: amount1Desired } = position?.mintAmounts || {}
 
   const networkSupportsV2 = useNetworkSupportsV2()
 
@@ -315,8 +317,8 @@ function V2PairMigration({
 
   const approvalLiqCallback = useApprovalCall(liquidityAmount, router?.address)
   const routerAddress: string = NONFUNGIBLE_POOL_MANAGER_ADDRESS[chainId ?? DEFAULT_CHAIN_ID]
-  const approvalACallback = useApprovalCall(position?.amount0, routerAddress)
-  const approvalBCallback = useApprovalCall(position?.amount1, routerAddress)
+  const approvalACallback = useApprovalCall(CurrencyAmount.fromRawAmount(currency0, amount0Desired || 0), routerAddress)
+  const approvalBCallback = useApprovalCall(CurrencyAmount.fromRawAmount(currency1, amount1Desired || 0), routerAddress)
 
   const migrate = async () => {
     if (
@@ -337,7 +339,7 @@ function V2PairMigration({
       tokenA: token0.address,
       tokenB: token1.address,
       liquidity: cairo.uint256(liquidityAmount.raw.toString()),
-      amountAMin: cairo.uint256(v3Amount0Min.toString()),
+      amountAMin: cairo.uint256(v3Amount0Min.toString()), //change this to tokenoValue with slippage
       amountBMin: cairo.uint256(v3Amount1Min.toString()),
       to: account,
       deadline: deadline.toHexString(),
@@ -384,16 +386,23 @@ function V2PairMigration({
       callData.push(approvalB)
     }
 
+    const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
+    // adjust for slippage
+    console.log('allowedSlippage', allowedSlippage.toSignificant())
+    const minimumAmounts = position.mintAmountsWithSlippage(allowedSlippage)
+    const amount0Min = minimumAmounts.amount0
+    const amount1Min = minimumAmounts.amount1
+
     const mintData = {
       token0: position.pool.token0.address,
       token1: position.pool.token1.address,
       fee: position.pool.fee,
       tick_lower: toI32(position.tickLower),
       tick_upper: toI32(position.tickUpper),
-      amount0_desired: cairo.uint256(position.amount0.raw.toString()),
-      amount1_desired: cairo.uint256(position.amount1.raw.toString()),
-      amount0_min: cairo.uint256(v3Amount0Min.toString()),
-      amount1_min: cairo.uint256(v3Amount1Min.toString()),
+      amount0Desired: cairo.uint256(amount0Desired.toString()),
+      amount1Desired: cairo.uint256(amount1Desired.toString()),
+      amount0_min: cairo.uint256(amount0Min.toString()),
+      amount1_min: cairo.uint256(amount1Min.toString()),
       recipient: account,
       deadline: cairo.felt(deadline.toString()),
     }
