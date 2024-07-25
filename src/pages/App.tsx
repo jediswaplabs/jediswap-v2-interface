@@ -98,7 +98,7 @@ const HeaderWrapper = styled.div<{
 export default function App() {
   const isLoaded = useFeatureFlagsIsLoaded()
   const location = useLocation()
-  const { connect: connectWallet } = useConnect()
+  const { connectAsync } = useConnect()
   const connectors = useAvailableConnectors()
   const { pathname } = location
 
@@ -134,7 +134,7 @@ export default function App() {
       const { wallet } = await connect({ modalMode: 'neverAsk' })
       if (wallet && wallet.isConnected) {
         const connector = connectors.find((item) => item.id === wallet.id)
-        connectWallet({ connector })
+        await connectAsync({ connector })
       }
     }
 

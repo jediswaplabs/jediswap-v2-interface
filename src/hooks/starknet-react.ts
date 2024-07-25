@@ -46,7 +46,7 @@ const convertStarknetToChainId = (starknetId: StarknetChainId): ChainId | undefi
 
 export const useWalletConnect = () => {
   const connectors = useAvailableConnectors()
-  const { connect } = useConnect()
+  const { connectAsync } = useConnect()
 
   const { starknetkitConnectModal } = useStarknetkitConnectModal({
     connectors,
@@ -57,7 +57,7 @@ export const useWalletConnect = () => {
       return
     }
 
-    connect({ connector })
+    await connectAsync({ connector })
   }
 }
 
