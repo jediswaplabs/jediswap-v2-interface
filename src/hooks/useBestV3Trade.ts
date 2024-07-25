@@ -72,9 +72,11 @@ export function useBestV3TradeExactIn(
   const quoteExactInInputs = useMemo(() => {
     if (routesLoading || !amountIns || !address || !routes || !routes.length || !deadline) return
     return amountIns
-      .map((amountIn) => {
+      .map((amount) => {
+        // console.log(amount, 'amount')
         return routes.map((route: Route<Currency, Currency>) => {
           const isRouteSingleHop = route.pools.length === 1
+          // if (amount) console.log('amount_in', cairo.uint256(`0x${amount.raw.toString(16)}`))
 
           //multi hop
           if (!isRouteSingleHop) {
@@ -108,7 +110,7 @@ export function useBestV3TradeExactIn(
               path,
               recipient: address,
               deadline: cairo.felt(deadline.toString()),
-              amount_in: amountIn ? cairo.uint256(`0x${amountIn.raw.toString(16)}`) : 0,
+              amount_in: amount ? cairo.uint256(`0x${amount.raw.toString(16)}`) : 0,
               amount_out_minimum: cairo.uint256(0),
             }
 
@@ -137,7 +139,7 @@ export function useBestV3TradeExactIn(
               fee: route.pools[0].fee,
               recipient: address,
               deadline: cairo.felt(deadline.toString()),
-              amount_in: amountIn ? cairo.uint256(`0x${amountIn.raw.toString(16)}`) : 0,
+              amount_in: !!amount ? cairo.uint256(`0x${amount.raw.toString(16)}`) : 0,
               amount_out_minimum: cairo.uint256(0),
               sqrt_price_limit_X96: cairo.uint256(0),
             }
@@ -164,7 +166,7 @@ export function useBestV3TradeExactIn(
   const approveSelector = useMemo(() => {
     if (!amountIns) return
     return {
-      currency_address: amountIns[0]?.currency?.tokenInfo?.address,
+      currency_address: amountIns[0]?.currency?.address,
       selector: hash.getSelectorFromName('approve'),
     }
   }, [amountIns])
@@ -224,6 +226,7 @@ export function useBestV3TradeExactIn(
       const callPromises = quoteExactInInputs.map(async ({ call, input_call_data_length, inputSelector }, i) => {
         const provider = providerInstance(chainId)
         if (!provider) return
+
         const payloadForContractType1 = {
           contractAddress: address,
           calldata: CallData.compile({
@@ -236,6 +239,7 @@ export function useBestV3TradeExactIn(
             ...call.calldata,
           }),
         }
+
         const payloadForContractType0 = {
           contractAddress: address,
           calldata: CallData.compile({
@@ -266,30 +270,29 @@ export function useBestV3TradeExactIn(
       })
 
       const settledResults = await Promise.allSettled(callPromises as any)
-      console.log(settledResults, 'settledResults')
+      // console.log(settledResults, 'settledResults')
       const settledResultsWithRoute = settledResults.map((result, i) => {
         if (!amountIns || !percents) return
         const amountInsLength = amountIns.length
-        const routeIndex = Math.floor(i / amountInsLength)
+        const routeIndex = i % amountInsLength
+
         return {
           ...result,
           route: routes[routeIndex],
-          amountIn: amountIns[i % amountInsLength],
-          percent: percents[i % amountInsLength],
         }
       })
 
       const resolvedResults = settledResultsWithRoute
         .filter((result) => result?.status === 'fulfilled')
         .map((result: any) => {
-          const response = { ...result.value, route: result.route, amountIn: result.amountIn, percent: result.percent }
+          const response = { ...result.value, route: result.route }
           return response
         })
 
       return resolvedResults
     },
     onSuccess: async (data) => {
-      if (data && currencyOut) {
+      if (data && currencyOut && amountIns && currencyIn && percents) {
         // console.log(data, 'data')
         const validQuotes = data
           .filter((result: any) => {
@@ -300,17 +303,59 @@ export function useBestV3TradeExactIn(
             const value = selected_tx_result[selected_tx_result.length - 2]
             const amountOut = fromUint256ToNumber({ high: value })
 
+            const selected_call_data = result[0].transaction_trace.execute_invocation.calldata
+            const inputValue = selected_call_data[selected_call_data.length - 4]
+            const amountIn = fromUint256ToNumber({ high: inputValue })
+
+            const amountInIndex = amountIns.findIndex((amount) => {
+              return (
+                formatCurrencyAmount({
+                  amount: amount,
+                  type: NumberType.SwapTradeAmount,
+                  placeholder: '',
+                }) ==
+                formatCurrencyAmount({
+                  amount: CurrencyAmount.fromRawAmount(currencyIn!, num.hexToDecimalString(amountIn)),
+                  type: NumberType.SwapTradeAmount,
+                  placeholder: '',
+                })
+              )
+            })
+
+            console.log(
+              formatCurrencyAmount({
+                amount: CurrencyAmount.fromRawAmount(currencyOut, num.hexToDecimalString(amountOut)),
+                type: NumberType.SwapTradeAmount,
+                placeholder: '',
+              }),
+              percents[amountInIndex],
+              amountInIndex,
+              // formatCurrencyAmount({
+              //   amount: result.amountIn,
+              //   type: NumberType.SwapTradeAmount,
+              //   placeholder: '',
+              // }),
+
+              formatCurrencyAmount({
+                amount: CurrencyAmount.fromRawAmount(currencyIn!, num.hexToDecimalString(amountIn)),
+                type: NumberType.SwapTradeAmount,
+                placeholder: '',
+              }),
+              'outputAmount'
+            )
+
             return {
               ...result[0],
               route: result.route,
-              inputAmount: result.amountIn,
-              percent: result.percent,
+              inputAmount: CurrencyAmount.fromRawAmount(currencyIn, num.hexToDecimalString(amountIn)),
+              percent: percents[amountInIndex],
               poolAddresses: result.route.pools.map((pool: Pool) => {
                 return getPoolAddress(pool.token0, pool.token1, pool.fee, chainId)
               }),
               outputAmount: CurrencyAmount.fromRawAmount(currencyOut, num.hexToDecimalString(amountOut)),
             }
           })
+        console.log(validQuotes, 'validQuotes')
         const route = await getBestSwapRoute(validQuotes, TradeType.EXACT_INPUT, percents ?? [])
         setBestRoute(route)
       }
@@ -361,10 +406,10 @@ export function useBestV3TradeExactOut(
   const [bestRoute, setBestRoute] = useState<any>(null)
 
   const quoteExactOutInputs = useMemo(() => {
-    if (routesLoading || !amountOuts || !address || !routes || !routes.length || !deadline) return
+    if (routesLoading || !amountOut || !amountOuts || !address || !routes || !routes.length || !deadline) return
 
     return amountOuts
-      .map((amountOut) =>
+      .map((amount) =>
         routes.map((route: Route<Currency, Currency>) => {
           const isRouteSingleHop = route.pools.length === 1
 
@@ -402,7 +447,7 @@ export function useBestV3TradeExactOut(
               path: reversePath,
               recipient: address,
               deadline: cairo.felt(deadline.toString()),
-              amount_out: amountOut ? cairo.uint256(`0x${amountOut.raw.toString(16)}`) : 0,
+              amount_out: amount ? cairo.uint256(`0x${amount.raw.toString(16)}`) : 0,
               amount_in_maximum: cairo.uint256(2 ** 128),
             }
 
@@ -572,13 +617,11 @@ export function useBestV3TradeExactOut(
       const settledResultsWithRoute = settledResults.map((result, i) => {
         if (!amountOuts || !percents) return
         const amountInsLength = amountOuts.length
-        const routeIndex = Math.floor(i / amountInsLength)
+        const routeIndex = i % amountInsLength
 
         return {
           ...result,
           route: routes[routeIndex],
-          amountOut: amountOuts[i % amountInsLength],
-          percent: percents[i % amountInsLength],
         }
       })
       const resolvedResults = settledResultsWithRoute
@@ -587,15 +630,13 @@ export function useBestV3TradeExactOut(
           const response = {
             ...result.value,
             route: result.route,
-            amountOut: result.amountOut,
-            percent: result.percent,
           }
           return response
         })
       return resolvedResults
     },
     onSuccess: async (data) => {
-      if (data && currencyIn) {
+      if (data && currencyIn && amountOuts && currencyOut && percents) {
         const validQuotes = data
           .filter((result: any) => {
             return result[0].transaction_trace.execute_invocation.result
@@ -605,17 +646,52 @@ export function useBestV3TradeExactOut(
             const value = selected_tx_result[selected_tx_result.length - 2]
             const amountIn = fromUint256ToNumber({ high: value })
 
+            const selected_call_data = result[0].transaction_trace.execute_invocation.calldata
+            const outputValue = selected_call_data[selected_call_data.length - 4]
+            const amountOut = fromUint256ToNumber({ high: outputValue })
+
+            const amountOutIndex = amountOuts.findIndex((amount) => {
+              return (
+                formatCurrencyAmount({
+                  amount: amount,
+                  type: NumberType.SwapTradeAmount,
+                  placeholder: '',
+                }) ==
+                formatCurrencyAmount({
+                  amount: CurrencyAmount.fromRawAmount(currencyOut!, num.hexToDecimalString(amountOut)),
+                  type: NumberType.SwapTradeAmount,
+                  placeholder: '',
+                })
+              )
+            })
+
             return {
               ...result[0],
               route: result.route,
-              outputAmount: result.amountOut,
-              percent: result.percent,
+              outputAmount: CurrencyAmount.fromRawAmount(currencyOut, num.hexToDecimalString(amountOut)),
+              percent: percents[amountOutIndex],
               poolAddresses: result.route.pools.map((pool: Pool) => {
                 return getPoolAddress(pool.token0, pool.token1, pool.fee, chainId)
               }),
               inputAmount: CurrencyAmount.fromRawAmount(currencyIn, num.hexToDecimalString(amountIn)),
             }
           })
+        console.log(validQuotes, 'validQuotes')
+        // validQuotes.forEach((quote) => {
+        //   console.log(
+        //     formatCurrencyAmount({
+        //       amount: quote.outputAmount,
+        //       type: NumberType.SwapTradeAmount,
+        //       placeholder: '',
+        //     }),
+        //     formatCurrencyAmount({
+        //       amount: quote.inputAmount,
+        //       type: NumberType.SwapTradeAmount,
+        //       placeholder: '',
+        //     }),
+        //     'singleTrade'
+        //   )
+        // })
         const route = await getBestSwapRoute(validQuotes, TradeType.EXACT_OUTPUT, percents ?? [])
         setBestRoute(route)
       }

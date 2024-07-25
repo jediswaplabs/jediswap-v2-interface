@@ -218,22 +218,22 @@ export function useDerivedSwapInfo(
   // ? bestTradeExactIn
   // : bestTradeExactOut
 
-  // console.log(trade, bestV3TradeExactIn, bestV3TradeExactOut, 'finaltrade')
-  // trade.trade?.swaps.forEach((trade, index) => {
-  //   console.log(
-  //     formatCurrencyAmount({
-  //       amount: trade.inputAmount,
-  //       type: NumberType.SwapTradeAmount,
-  //       placeholder: '',
-  //     }),
-  //     formatCurrencyAmount({
-  //       amount: trade.outputAmount,
-  //       type: NumberType.SwapTradeAmount,
-  //       placeholder: '',
-  //     }),
-  //     'trade' + index
-  //   )
-  // })
+  console.log(trade, bestV3TradeExactIn, bestV3TradeExactOut, 'finaltrade')
+  trade.trade?.swaps.forEach((trade: any, index: any) => {
+    console.log(
+      formatCurrencyAmount({
+        amount: trade.inputAmount,
+        type: NumberType.SwapTradeAmount,
+        placeholder: '',
+      }),
+      formatCurrencyAmount({
+        amount: trade.outputAmount,
+        type: NumberType.SwapTradeAmount,
+        placeholder: '',
+      }),
+      'trade' + index
+    )
+  })
   const currencyBalances = useMemo(
     () => ({
       [Field.INPUT]: relevantTokenBalances[0],

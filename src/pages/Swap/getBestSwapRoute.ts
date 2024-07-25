@@ -24,7 +24,7 @@ export async function getBestSwapRoute(routesWithValidQuotes: any[], tradeType: 
     tradeType,
     percentToQuotes,
     percents,
-    tradeType === TradeType.EXACT_OUTPUT
+    tradeType === TradeType.EXACT_INPUT
       ? (routeQuote) => routeQuote.outputAmount
       : (routeQuote) => routeQuote.inputAmount
   )
