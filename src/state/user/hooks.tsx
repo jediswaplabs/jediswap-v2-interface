@@ -302,3 +302,7 @@ export function useTrackedTokenPairs(): [Token, Token][] {
     return Object.keys(keyed).map((key) => keyed[key])
   }, [combinedList])
 }
+
+export function getLiquidityToken([tokenA, tokenB]: [Token, Token]): Token {
+  return new Token(tokenA.chainId, Pair.getAddress(tokenA, tokenB), 18, 'JEDI-P', 'JediSwap Pair')
+}

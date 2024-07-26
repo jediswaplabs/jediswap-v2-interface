@@ -1,8 +1,8 @@
 import { Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
-import { useSingleCallResult } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
 
-import { useTokenContract } from './useContract'
+import { useTokenContract } from './useContractV2'
+import { useSingleCallResult } from 'state/multicall/hooks'
 
 // returns undefined if input token is undefined, or fails to get token contract,
 // or contract total supply cannot be fetched
