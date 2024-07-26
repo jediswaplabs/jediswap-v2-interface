@@ -479,6 +479,16 @@ const ConnectedToSepolia = () => {
   )
 }
 
+const AllocationError = () => {
+  return (
+    <ConnectWalletWrapper>
+      <ConnectWalletText>
+        An error occurred while checking your allocation. Don't worry; it is OK. Please try again later.
+      </ConnectWalletText>
+    </ConnectWalletWrapper>
+  )
+}
+
 function getRewardsData(jediRewards: any, pool: any) {
   if (!jediRewards) {
     return
@@ -598,6 +608,7 @@ export default function Rewards() {
 
   const [allocations, setAllocations] = useState<CurrencyAmount>()
   const [allocationsLoading, setAllocationsLoading] = useState(false)
+  const [allocationsLoadingError, setAllocationsLoadingError] = useState(false)
   const [claimData, setClaimData] = useState({})
   const [allocated, setAllocated] = useState(false)
   const [callData, setCallData] = useState<Call[]>([])
@@ -636,9 +647,11 @@ export default function Rewards() {
           setAllocated(isAllocatedMoreThanZero)
           setClaimData(call_data)
           setAllocationsLoading(false)
+          setAllocationsLoadingError(false)
         } catch (e) {
           setAllocationsLoading(false)
-          console.error(e)
+          setAllocationsLoadingError(true)
+          console.error('allocation_loading_error', e)
         }
       }
     }
@@ -835,6 +848,8 @@ export default function Rewards() {
               <WalletNotConnected />
             ) : isSepoliaSelected ? (
               <ConnectedToSepolia />
+            ) : allocationsLoadingError ? (
+              <AllocationError />
             ) : (
               <>
                 <AutoColumn>
