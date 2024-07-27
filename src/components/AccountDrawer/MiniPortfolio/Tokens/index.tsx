@@ -39,11 +39,6 @@ export default function Tokens({ account }: { account: string }) {
     return <PortfolioSkeleton />
   }
 
-  if (!tokenBalances?.length) {
-    // TODO: consider launching moonpay here instead of just closing the drawer
-    return <EmptyWalletModule type="token" onNavigateClick={toggleWalletDrawer} />
-  }
-
   const toggleHiddenTokens = () => setShowHiddenTokens((showHiddenTokens) => !showHiddenTokens)
 
   return (
@@ -81,7 +76,6 @@ function TokenRow({ token, quantity, denominatedValue, tokenProjectMarket }: Tok
 
   const navigateToTokenDetails = useCallback(async () => {
     navigate(getTokenDetailsURL({ ...token, isInfoExplorePageEnabled }))
-    toggleWalletDrawer()
   }, [navigate, token, isInfoExplorePageEnabled, toggleWalletDrawer])
   const { formatNumber } = useFormatter()
 

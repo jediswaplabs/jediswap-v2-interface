@@ -20,9 +20,9 @@ import {
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { ApolloProvider } from '@apollo/client'
 import { getClient } from 'apollo/client'
-import { connect } from 'starknetkit'
+import { connect, useStarknetkitConnectModal } from 'starknetkit'
 import { useConnect } from '@starknet-react/core'
-import { useAvailableConnectors } from 'context/StarknetProvider'
+import { connectors } from 'context/StarknetProvider'
 // import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
@@ -99,7 +99,6 @@ export default function App() {
   const isLoaded = useFeatureFlagsIsLoaded()
   const location = useLocation()
   const { connectAsync } = useConnect()
-  const connectors = useAvailableConnectors()
   const { pathname } = location
 
   const [scrollY, setScrollY] = useState(0)

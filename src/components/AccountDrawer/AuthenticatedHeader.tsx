@@ -88,8 +88,10 @@ export default function AuthenticatedHeader({
   const { disconnect } = useDisconnect()
 
   const disconnectWallet = useCallback(() => {
-    disconnect()
-    closeWalletDrawer()
+    if (connector) {
+      disconnect()
+      closeWalletDrawer()
+    }
   }, [connector])
 
   const [showDisconnectConfirm, setShowDisconnectConfirm] = useState(false)

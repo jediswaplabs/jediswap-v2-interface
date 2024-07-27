@@ -1,14 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Connector, useAccount, useBalance, useConnect, useProvider } from '@starknet-react/core'
-import { AccountInterface, constants } from 'starknet'
+import { AccountInterface, constants, RpcProvider } from 'starknet'
 import { ChainId, Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
 import { WETH } from '@jediswap/sdk'
 import { useDefaultActiveTokens } from './Tokens'
 import formatBalance from 'utils/formatBalance'
 import { useQuery } from 'react-query'
 import { ethers } from 'ethers'
-import { useAvailableConnectors } from 'context/StarknetProvider'
-import { useStarknetkitConnectModal } from 'starknetkit'
+import { connectors } from 'context/StarknetProvider'
+import { connect } from 'starknetkit'
 
 declare enum StarknetChainId {
   SN_MAIN = '0x534e5f4d41494e',
@@ -45,14 +45,17 @@ const convertStarknetToChainId = (starknetId: StarknetChainId): ChainId | undefi
 // }
 
 export const useWalletConnect = () => {
-  const connectors = useAvailableConnectors()
   const { connectAsync } = useConnect()
 
-  const { starknetkitConnectModal } = useStarknetkitConnectModal({
-    connectors,
-  })
   return async () => {
-    const { connector } = await starknetkitConnectModal()
+    const { connector } = await connect({
+      connectors: connectors,
+      modalTheme: 'light',
+      provider: new RpcProvider({
+        nodeUrl: 'https://api-starknet-mainnet.dwellir.com/dd28e566-3260-4d8d-8180-6ef1a161e41c',
+      }),
+    })
+
     if (!connector) {
       return
     }
