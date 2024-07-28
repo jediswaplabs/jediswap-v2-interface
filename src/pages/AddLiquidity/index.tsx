@@ -76,6 +76,7 @@ import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import { findClosestPrice } from 'utils/getClosest'
+import { useWalletModal } from 'context/WalletModalProvider'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -106,6 +107,7 @@ function AddLiquidity() {
   }>()
   const { address: account, chainId } = useAccountDetails()
   const theme = useTheme()
+  const { openModal } = useWalletModal()
   const toggleWalletDrawer = useWalletConnect() // toggle wallet when disconnected
   const positionManager = useV3NFTPositionManagerContract()
   const parsedTokenId = tokenId ? parseInt(tokenId) : undefined
@@ -565,7 +567,7 @@ function AddLiquidity() {
 
   const Buttons = () =>
     !account ? (
-      <ButtonPrimary onClick={toggleWalletDrawer} $borderRadius="12px" style={{ padding: '12px', fontSize: '18px' }}>
+      <ButtonPrimary onClick={openModal} $borderRadius="12px" style={{ padding: '12px', fontSize: '18px' }}>
         <Trans>Connect wallet</Trans>
       </ButtonPrimary>
     ) : (

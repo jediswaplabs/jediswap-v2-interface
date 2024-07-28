@@ -48,6 +48,7 @@ import { currencyId } from '../../utils/currencyId'
 import AppBody from '../AppBody'
 import { ClickableText, MaxButton, Wrapper } from '../Pool/styled'
 import { useProvider } from '@starknet-react/core'
+import { useWalletModal } from 'context/WalletModalProvider'
 
 const DEFAULT_REMOVE_LIQUIDITY_SLIPPAGE_TOLERANCE = new Percent(5, 100)
 
@@ -66,6 +67,7 @@ function RemoveLiquidity() {
   const { currencyIdA, currencyIdB } = useParams<{ currencyIdA: string; currencyIdB: string }>()
   const [currencyA, currencyB] = [useCurrency(currencyIdA) ?? undefined, useCurrency(currencyIdB) ?? undefined]
   const { address: account, chainId } = useAccountDetails()
+  const { openModal } = useWalletModal()
   const { provider } = useProvider()
   const [tokenA, tokenB] = useMemo(() => [currencyA?.wrapped, currencyB?.wrapped], [currencyA, currencyB])
 
@@ -659,7 +661,7 @@ function RemoveLiquidity() {
                   properties={{ received_swap_quote: false }}
                   element={InterfaceElementName.CONNECT_WALLET_BUTTON}
                 >
-                  <ButtonLight onClick={toggleWalletDrawer}>
+                  <ButtonLight onClick={openModal}>
                     <Trans>Connect wallet</Trans>
                   </ButtonLight>
                 </TraceEvent>

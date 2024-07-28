@@ -76,6 +76,7 @@ import { useQuery } from 'react-query'
 import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import { findClosestPrice } from 'utils/getClosest'
+import { useWalletModal } from 'context/WalletModalProvider'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -250,6 +251,7 @@ export function Swap({
 }) {
   const connectionReady = useConnectionReady()
   const { address, account, chainId: connectedChainId } = useAccountDetails()
+  const { openModal } = useWalletModal()
   const swapRouterAddressV2 = SWAP_ROUTER_ADDRESS_V2[connectedChainId ?? DEFAULT_CHAIN_ID]
   const swapRouterAddressV1 = SWAP_ROUTER_ADDRESS_V1[connectedChainId ?? DEFAULT_CHAIN_ID]
 
@@ -1001,7 +1003,7 @@ export function Swap({
               <Trans>Unsupported asset</Trans>
             </ButtonPrimary>
           ) : connectionReady && !account ? (
-            <ButtonPrimary onClick={toggleWalletModal} size={ButtonSize.large}>
+            <ButtonPrimary onClick={openModal} size={ButtonSize.large}>
               <Trans>Connect wallet</Trans>
             </ButtonPrimary>
           ) : isFetchingOutput ? (

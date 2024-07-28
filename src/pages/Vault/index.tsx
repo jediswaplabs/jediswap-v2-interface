@@ -53,6 +53,7 @@ import { useQuery } from 'react-query'
 import { TOKENS_DATA } from 'apollo/queries'
 import { getClient } from 'apollo/client'
 import { findClosestPrice } from 'utils/getClosest'
+import { useWalletModal } from 'context/WalletModalProvider'
 
 export const DEFAULT_VAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -634,6 +635,7 @@ export function VaultElement({
   const [activeButton, setActiveButton] = useState<string>('Deposit')
   const connectionReady = useConnectionReady()
   const { address: account } = useAccountDetails()
+  const { openModal } = useWalletModal()
   const { vaultId: vaultAddressFromUrl } = useParams()
   const vaultState = useVaultState()
   const { withdrawTypedValue } = vaultState
@@ -787,7 +789,7 @@ export function VaultElement({
     switch (true) {
       case connectionReady && !account:
         return (
-          <ButtonPrimary onClick={toggleWalletDrawer} size={ButtonSize.large}>
+          <ButtonPrimary onClick={openModal} size={ButtonSize.large}>
             <Trans>Connect wallet</Trans>
           </ButtonPrimary>
         )

@@ -33,6 +33,7 @@ import { formattedPercent } from 'utils/formattedPercent'
 import { apiTimeframeOptions } from 'constants/apiTimeframeOptions'
 import { ApolloQueryResult } from '@apollo/client'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { useWalletModal } from 'context/WalletModalProvider'
 
 const PageWrapper = styled(AutoColumn)`
   max-width: 996px;
@@ -455,15 +456,12 @@ const Coins = styled.div`
 `
 
 const WalletNotConnected = () => {
-  const toggleWalletDrawer = useWalletConnect()
+  const { openModal } = useWalletModal()
   return (
     <ConnectWalletWrapper>
       <img src={WalletIcon} />
       <ConnectWalletText>Connect wallet to see your STRK rewards</ConnectWalletText>
-      <ClaimButtonGradient
-        onClick={toggleWalletDrawer}
-        style={{ marginTop: '20px', padding: '10px 36px', width: 'auto' }}
-      >
+      <ClaimButtonGradient onClick={openModal} style={{ marginTop: '20px', padding: '10px 36px', width: 'auto' }}>
         <ClaimText>Connect Wallet</ClaimText>
       </ClaimButtonGradient>
     </ConnectWalletWrapper>

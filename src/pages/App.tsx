@@ -23,7 +23,6 @@ import { getClient } from 'apollo/client'
 import { connect, useStarknetkitConnectModal } from 'starknetkit'
 import { useConnect } from '@starknet-react/core'
 import { connectors } from 'context/StarknetProvider'
-// import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
   display: flex;
@@ -166,6 +165,7 @@ export default function App() {
             )}
           </Suspense>
         </BodyWrapper>
+
         {/* <Footer /> */}
         <MobileBottomBar>
           <PageTabs />
