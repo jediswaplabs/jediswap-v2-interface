@@ -411,7 +411,7 @@ export default function Vault({ className }: { className?: string }) {
     }
   }, [separatedFiatValueofLiquidity, totalToken0Amount, totalToken1Amount])
 
-  const sharesUSDPrice = token0usdPrice && token1usdPrice ? token0usdPrice + token1usdPrice : 0
+  const sharesUSDPrice = (token0usdPrice || 0) + (token1usdPrice || 0)
 
   const getContent = () => {
     switch (true) {
@@ -576,10 +576,10 @@ export default function Vault({ className }: { className?: string }) {
                     <MyDeposits>
                       <span>My Deposits</span>
                       <span>
-                        {token0usdPrice && token0usdPrice
-                          ? sharesUSDPrice
-                            ? `~$${sharesUSDPrice.toFixed(2)}`
-                            : 'NA'
+                        {sharesUSDPrice
+                          ? `~$${sharesUSDPrice.toFixed(2)}`
+                          : totalToken0Amount?.greaterThan('0') || totalToken1Amount?.greaterThan('0')
+                          ? 'NA'
                           : 0}
                       </span>
                     </MyDeposits>

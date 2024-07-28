@@ -370,7 +370,10 @@ const getVaultDetails = ({
   currency0: any
   currency1: any
   token0usdPrice: any
+  token1usdPrice: any
   sharesUSDPrice: any
+  totalToken0Amount: any
+  totalToken1Amount: any
 } => {
   const { chainId: chainIdConnected } = useAccountDetails()
   const chainId = chainIdConnected || DEFAULT_CHAIN_ID
@@ -461,7 +464,8 @@ const getVaultDetails = ({
     }
   }, [separatedFiatValueofLiquidity, totalToken0Amount, totalToken1Amount])
 
-  const sharesUSDPrice = token0usdPrice && token1usdPrice ? token0usdPrice + token1usdPrice : 0
+  // const sharesUSDPrice = token0usdPrice && token1usdPrice ? token0usdPrice + token1usdPrice : 0
+  const sharesUSDPrice = (token0usdPrice || 0) + (token1usdPrice || 0)
 
   let tvl
   let apr
@@ -485,11 +489,31 @@ const getVaultDetails = ({
     apr = (feeApr + vaultData.aprStarknet * 100).toFixed(2)
     shareTokenPriceUsd = shareTokenPriceInUnits * tokenPrice
   }
-  return { tvl, apr, currency0, currency1, token0usdPrice, sharesUSDPrice }
+  return {
+    tvl,
+    apr,
+    currency0,
+    currency1,
+    token0usdPrice,
+    token1usdPrice,
+    sharesUSDPrice,
+    totalToken0Amount,
+    totalToken1Amount,
+  }
 }
 
 const MobileVaultListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: ListItemProps) => {
-  const { tvl, apr, currency0, currency1, token0usdPrice, sharesUSDPrice } = getVaultDetails({
+  const {
+    tvl,
+    apr,
+    currency0,
+    currency1,
+    token0usdPrice,
+    token1usdPrice,
+    sharesUSDPrice,
+    totalToken0Amount,
+    totalToken1Amount,
+  } = getVaultDetails({
     index,
     vaultAddress,
     vaultData,
@@ -517,7 +541,12 @@ const MobileVaultListItem = ({ index, vaultAddress, vaultData, getUserBalance = 
           <MobileValues>{tvl ? formatUsdPrice(tvl) : '-'}</MobileValues>
           <MobileValues>{apr ? `${apr}%` : '-'}</MobileValues>
           <MobileValues style={{ color: '#2AAAFE' }}>
-            {token0usdPrice && token0usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0}
+            {/* {token0usdPrice || token1usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0} */}
+            {sharesUSDPrice
+              ? `~$${sharesUSDPrice.toFixed(2)}`
+              : totalToken0Amount?.greaterThan('0') || totalToken1Amount?.greaterThan('0')
+              ? 'NA'
+              : 0}
           </MobileValues>
         </PageTitleRow>
       </VaultMobileContainer>
@@ -529,7 +558,17 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
   const below600 = useMedia('(max-width: 600px)')
   const below768 = useMedia('(max-width: 768px)')
 
-  const { tvl, apr, currency0, currency1, token0usdPrice, sharesUSDPrice } = getVaultDetails({
+  const {
+    tvl,
+    apr,
+    currency0,
+    currency1,
+    token0usdPrice,
+    token1usdPrice,
+    sharesUSDPrice,
+    totalToken0Amount,
+    totalToken1Amount,
+  } = getVaultDetails({
     index,
     vaultAddress,
     vaultData,
@@ -564,7 +603,12 @@ const ListItem = ({ index, vaultAddress, vaultData, getUserBalance = noop }: Lis
         <DataText area="deposite">
           <ThemedText.BodySmall>
             <span>
-              {token0usdPrice && token0usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0}
+              {/* {token0usdPrice || token1usdPrice ? (sharesUSDPrice ? `~$${sharesUSDPrice.toFixed(2)}` : 'NA') : 0} */}
+              {sharesUSDPrice
+                ? `~$${sharesUSDPrice.toFixed(2)}`
+                : totalToken0Amount?.greaterThan('0') || totalToken1Amount?.greaterThan('0')
+                ? 'NA'
+                : 0}
             </span>
           </ThemedText.BodySmall>
         </DataText>
