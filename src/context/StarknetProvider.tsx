@@ -19,12 +19,12 @@ export const connectors = [
   new InjectedConnector({ options: { id: 'braavos', name: 'Braavos' } }),
   new InjectedConnector({ options: { id: 'argentX', name: 'Argent X' } }),
   new InjectedConnector({ options: { id: 'okxwallet', name: 'OKX' } }),
-  // new WebWalletConnector({
-  //   url: isTestnet ? 'https://web.hydrogen.argent47.net' : 'https://web.argent.xyz/',
-  //   provider: new RpcProvider({
-  //     nodeUrl: 'https://api-starknet-mainnet.dwellir.com/dd28e566-3260-4d8d-8180-6ef1a161e41c',
-  //   }),
-  // }),
+  new WebWalletConnector({
+    url: isTestnet ? 'https://web.hydrogen.argent47.net' : 'https://web.argent.xyz/',
+    provider: new RpcProvider({
+      nodeUrl: 'https://api-starknet-mainnet.dwellir.com/dd28e566-3260-4d8d-8180-6ef1a161e41c',
+    }),
+  }),
   new ArgentMobileConnector({
     projectId: '4b1e5f71ad6f3397afaf5cf19d816ca2',
     dappName: 'Jediswap Interface',
@@ -57,7 +57,6 @@ export const getConnectorDiscovery = (id: string) => {
 
   if (walletData.downloads && typeof navigator !== 'undefined') {
     const browser = getBrowser(navigator.userAgent)
-    console.log('browser')
     return walletData.downloads[browser as keyof typeof walletData.downloads] ?? walletData.website
   }
 

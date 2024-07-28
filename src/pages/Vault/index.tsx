@@ -9,7 +9,6 @@ import { ChainId, Currency, CurrencyAmount, ONE, Percent, Token } from '@vnaysn/
 import { DEFAULT_CHAIN_ID } from 'constants/tokens'
 import { isEmpty } from 'lodash'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { useBalance, useContractWrite } from '@starknet-react/core'
 import { useSelector } from 'react-redux'
 import JSBI from 'jsbi'
 import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
@@ -634,7 +633,7 @@ export function VaultElement({
   const [callData, setCallData] = useState<Call[]>([])
   const [activeButton, setActiveButton] = useState<string>('Deposit')
   const connectionReady = useConnectionReady()
-  const { address: account } = useAccountDetails()
+  const { address, account } = useAccountDetails()
   const { openModal } = useWalletModal()
   const { vaultId: vaultAddressFromUrl } = useParams()
   const vaultState = useVaultState()
@@ -664,30 +663,21 @@ export function VaultElement({
   const fee_configAll = useFeeConfig(vaultAddressFromUrl)
   const fee_config = fee_configAll ? Number(num.getDecimalString(fee_configAll[fee_configAll.length - 3])) : 0
   const { [Field.CURRENCY_A]: parsedAmountA, [Field.CURRENCY_B]: parsedAmountB } = parsedAmounts
-  const {
-    writeAsync,
-    data: txData,
-    error,
-  } = useContractWrite({
-    calls: callData,
-  })
 
   useEffect(() => {
-    if (callData) {
-      writeAsync()
-        .then((response) => {
-          setAttemptingTxn(false)
-          if (response?.transaction_hash) {
-            setTxHash(response.transaction_hash)
-          }
-        })
-        .catch((err) => {
-          console.log(err?.message)
-          setAttemptingTxn(false)
-          setShowConfirm(false)
-        })
+    const executeTransaction = async () => {
+      try {
+        const response: any = await account?.execute(callData)
+        if (response?.transaction_hash) setTxHash(response.transaction_hash)
+        setAttemptingTxn(false)
+      } catch (error) {
+        console.error('Error executing transaction:', error)
+        setAttemptingTxn(false)
+        setShowConfirm(false)
+      }
     }
-  }, [callData])
+    if (callData && callData.length && account) executeTransaction()
+  }, [callData, account])
 
   const vaultAddress = vaultAddressFromUrl // check - replace vault address
   const defaultDepositSlippage = new Percent(1, 100)
@@ -705,7 +695,7 @@ export function VaultElement({
   const approvalBCallback = useApprovalCall(amountBToApprove, vaultAddress)
 
   const onDeposit = () => {
-    if (!chainId || !account || !parsedAmountA || !parsedAmountB || !vaultAddress) {
+    if (!chainId || !address || !parsedAmountA || !parsedAmountB || !vaultAddress) {
       return
     }
     const callData = []
@@ -787,7 +777,7 @@ export function VaultElement({
   }
   const getActionContent = () => {
     switch (true) {
-      case connectionReady && !account:
+      case connectionReady && !address:
         return (
           <ButtonPrimary onClick={openModal} size={ButtonSize.large}>
             <Trans>Connect wallet</Trans>

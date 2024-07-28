@@ -14,7 +14,7 @@ import { CurrencyAmount, Token } from '@jediswap/sdk'
 import { ButtonPrimary, ButtonSecondary } from 'components/Button'
 import { RowBetween, RowFixed } from 'components/Row'
 import { Button as RebassButton, ButtonProps } from 'rebass/styled-components'
-import { useContractRead, useContractWrite } from '@starknet-react/core'
+import { useContractRead } from '@starknet-react/core'
 import { Call, CallData, validateAndParseAddress } from 'starknet'
 import { DEFAULT_CHAIN_ID, STARKNET_REWARDS_API_URL, STRK_PRICE_API_URL, getStarkRewardAddress } from 'constants/tokens'
 import REWARDS_ABI from 'abis/strk-rewards.json'
@@ -491,7 +491,7 @@ function getRewardsData(jediRewards: any, pool: any) {
 
 export default function Rewards() {
   const [allPools, setAllPools] = useState<any[]>([])
-  const { address, chainId } = useAccountDetails()
+  const { address, account, chainId } = useAccountDetails()
   const [poolsLoading, setPoolsLoading] = useState(true)
   const STRK_REWARDS_ADDRESS = getStarkRewardAddress(chainId ?? DEFAULT_CHAIN_ID)
   const allTokens = useDefaultActiveTokens(DEFAULT_CHAIN_ID)
@@ -599,9 +599,7 @@ export default function Rewards() {
   const [claimData, setClaimData] = useState({})
   const [allocated, setAllocated] = useState(false)
   const [callData, setCallData] = useState<Call[]>([])
-  const { writeAsync, data: txData } = useContractWrite({
-    calls: callData,
-  })
+
   const [txHash, setTxHash] = useState('')
   const [claimError, setClaimError] = useState('')
   const [txPending, setTxPending] = useState(false)
@@ -645,23 +643,21 @@ export default function Rewards() {
   }, [address, chainId])
 
   useEffect(() => {
-    if (callData.length && address) {
-      writeAsync()
-        .then((res) => {
-          if (res && res.transaction_hash) {
-            setTxHash(res.transaction_hash)
-          }
-        })
-        .catch((error) => {
-          const errorMessage = new Error(error)
-          setClaimError(errorMessage.message)
-        })
-        .finally(() => {
-          setAttemptingTxn(false)
-          setCallData([])
-        })
+    const executeTransaction = async () => {
+      try {
+        const response: any = await account?.execute(callData)
+        if (response?.transaction_hash) setTxHash(response.transaction_hash)
+      } catch (error) {
+        console.error('Error executing transaction:', error)
+        const errorMessage = new Error(error)
+        setClaimError(errorMessage.message)
+      } finally {
+        setAttemptingTxn(false)
+        setCallData([])
+      }
     }
-  }, [callData, address])
+    if (callData && callData.length && account) executeTransaction()
+  }, [callData, account])
 
   const onClaim = () => {
     setAttemptingTxn(true)

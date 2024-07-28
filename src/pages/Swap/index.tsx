@@ -65,9 +65,8 @@ import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
 import { SWAP_ROUTER_ADDRESS_V2, getSwapCurrencyId, DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS_V1 } from 'constants/tokens'
 import fetchAllPools from 'api/fetchAllPools'
-import { Call, CallData, cairo, num, validateAndParseAddress } from 'starknet'
+import { Call, CallData, InvokeFunctionResponse, cairo, num, validateAndParseAddress } from 'starknet'
 import { LoadingRows } from 'components/Loader/styled'
-import { useConnect, useContractWrite } from '@starknet-react/core'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useApprovalCall } from 'hooks/useApproveCall'
 import { Pool, TradeType, toHex } from '@vnaysn/jediswap-sdk-v3'
@@ -301,8 +300,6 @@ export function Swap({
 
   const theme = useTheme()
 
-  const toggleWalletModal = useWalletConnect()
-
   // swap state
   const prefilledState = useMemo(
     () => ({
@@ -520,29 +517,24 @@ export function Swap({
     }))
   }, [])
   const [swapCallData, setSwapCallData] = useState<Call[]>([])
-
-  const {
-    writeAsync,
-    data: txData,
-    error,
-  } = useContractWrite({
-    calls: swapCallData,
-  })
+  const [txData, setTxData] = useState<InvokeFunctionResponse | undefined>(undefined)
+  const [error, setError] = useState<Error | null>(null)
 
   const deadline = useTransactionDeadline() // custom from users settings
 
   useEffect(() => {
-    if (swapCallData) {
-      writeAsync()
-        .then((response) => {
-          if (response?.transaction_hash) {
-          }
-        })
-        .catch((err) => {
-          console.log(err?.message)
-        })
+    const executeTransaction = async () => {
+      try {
+        const response: any = await account?.execute(swapCallData)
+        setTxData(response)
+      } catch (error) {
+        console.error('Error executing transaction:', error)
+        setError(error)
+        // Handle the error, e.g., show an error message to the user
+      }
     }
-  }, [swapCallData])
+    if (swapCallData && swapCallData.length && account) executeTransaction()
+  }, [swapCallData, account])
 
   const separatedFiatValueofLiquidity = useQuery({
     queryKey: ['fiat_value', trade?.inputAmount, trade?.outputAmount],
