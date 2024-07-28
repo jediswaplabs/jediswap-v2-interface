@@ -10,3 +10,13 @@ export const isIOS = platform === 'iOS'
 export const isNonIOSPhone = !isIOS && type === 'mobile'
 
 export const isMobileSafari = isMobile && isIOS && name?.toLowerCase().includes('safari')
+
+export function getBrowser(userAgent: string): string | undefined {
+  if (userAgent.includes('Chrome')) {
+    return 'chrome'
+  } else if (userAgent.includes('Firefox')) {
+    return 'firefox'
+  } else {
+    return undefined
+  }
+}

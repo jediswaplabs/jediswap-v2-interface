@@ -2,7 +2,7 @@ import React, { FunctionComponent, useEffect, useState } from 'react'
 import { Connector } from 'starknetkit'
 import { useMedia } from 'react-use'
 import { isInArgentMobileAppBrowser } from 'starknetkit/argentMobile'
-import { getConnectorIcon, getConnectorName } from 'context/StarknetProvider'
+import { getConnectorDiscovery, getConnectorIcon, getConnectorName } from 'context/StarknetProvider'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { useConnect } from '@starknet-react/core'
 import Modal from 'components/Modal'
@@ -146,15 +146,17 @@ const WalletConnect = ({ closeModal, open }: WalletModalProps) => {
   const tryConnect = (connector: Connector, isAvailable: boolean) => {
     if (isAvailable) {
       connect(connector)
+    } else {
+      window.open(getConnectorDiscovery(connector.id))
     }
   }
 
   return (
     <Modal isOpen={open} onDismiss={closeModal} noBg>
       <Menu>
-        <MenuClose>
+        {/*  <MenuClose>
           <CloseIcon onClick={closeModal} />
-        </MenuClose>
+        </MenuClose> */}
         <ModalContent>
           <ModalTitle>
             <ModalTitleSpan>Connect to</ModalTitleSpan>
