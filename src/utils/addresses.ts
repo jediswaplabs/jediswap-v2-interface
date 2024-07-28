@@ -3,7 +3,7 @@ import { validateAndParseAddress } from 'starknet'
 import isZero from './isZero'
 
 // returns the checksummed address if the address is valid, otherwise returns false
-export function isAddress(value: any): string | false {
+export function isAddressERC20(value: any): string | false {
   try {
     // Alphabetical letters must be made lowercase for getAddress to work.
     // See documentation here: https://docs.ethers.io/v5/api/utils/address/

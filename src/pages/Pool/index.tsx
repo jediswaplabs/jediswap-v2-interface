@@ -1,5 +1,5 @@
 import { Trans } from '@lingui/macro'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import styled, { css, useTheme } from 'styled-components'
@@ -204,7 +204,7 @@ export default function Pool() {
     }
   }, [chainIdFinal])
 
-  const toggleWalletDrawer = useToggleAccountDrawer()
+  const toggleWalletDrawer = useWalletConnect()
   // const filteredPositions = useFilterPossiblyMaliciousPositions(userSelectedPositionSet)
 
   if (!isSupportedChain(chainId)) {

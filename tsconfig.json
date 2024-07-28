@@ -12,8 +12,8 @@
     "isolatedModules": true,
     "jsx": "react-jsx",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "ES2015",
+    "moduleResolution": "Bundler",
     "noEmit": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
@@ -29,8 +29,5 @@
     "types": ["jest"],
     "useUnknownInCatchVariables": false
   },
-  "include": [
-    "./src/**/*",
-    "./src/**/*.json"
-  ],
+  "include": ["./src/**/*", "./src/**/*.json"]
 }

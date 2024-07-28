@@ -38,7 +38,7 @@ import { ThemedText } from 'theme/components'
 import TransactionConfirmationModal, { ConfirmationModalContent } from '../../components/TransactionConfirmationModal'
 import AppBody from '../AppBody'
 import { ResponsiveHeaderText, SmallMaxButton, Wrapper } from './styled'
-import { useContractWrite, useProvider } from '@starknet-react/core'
+import { useProvider } from '@starknet-react/core'
 import { Call, CallData, cairo } from 'starknet'
 import { DEFAULT_CHAIN_ID, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from '../../constants/tokens'
 import JSBI from 'jsbi'
@@ -71,7 +71,7 @@ export default function RemoveLiquidityV3() {
 function Remove({ tokenId }: { tokenId: number }) {
   const { position } = useV3PosFromTokenId(tokenId)
   const theme = useTheme()
-  const { address: account, chainId } = useAccountDetails()
+  const { address, account, chainId } = useAccountDetails()
   const { provider } = useProvider()
   const trace = useTrace()
 
@@ -107,31 +107,26 @@ function Remove({ tokenId }: { tokenId: number }) {
   const [attemptingTxn, setAttemptingTxn] = useState(false)
   const [txnHash, setTxnHash] = useState<string | undefined>()
   const [mintCallData, setMintCallData] = useState<Call[]>([])
-  const { writeAsync, data: txData } = useContractWrite({
-    calls: mintCallData,
-  })
+
+  useEffect(() => {
+    const executeTransaction = async () => {
+      try {
+        const response: any = await account?.execute(mintCallData)
+        if (response?.transaction_hash) setTxnHash(response.transaction_hash)
+        setAttemptingTxn(false)
+      } catch (error) {
+        console.error('Error executing transaction:', error)
+        setAttemptingTxn(false)
+      }
+    }
+    if (mintCallData && mintCallData.length && account) executeTransaction()
+  }, [mintCallData, account])
 
   useEffect(() => {
     if (chainId) {
       if (chainId === ChainId.GOERLI) setShowWarning(false)
     }
   }, [chainId])
-
-  useEffect(() => {
-    if (mintCallData) {
-      writeAsync()
-        .then((response) => {
-          setAttemptingTxn(false)
-          if (response?.transaction_hash) {
-            setTxnHash(response.transaction_hash)
-          }
-        })
-        .catch((err) => {
-          console.log(err?.message)
-          setAttemptingTxn(false)
-        })
-    }
-  }, [mintCallData])
 
   const addTransaction = useTransactionAdder()
   const positionManager = useV3NFTPositionManagerContract()
@@ -140,7 +135,7 @@ function Remove({ tokenId }: { tokenId: number }) {
       !liquidityValue0 ||
       !liquidityValue1 ||
       !deadline ||
-      !account ||
+      !address ||
       !chainId ||
       !positionSDK ||
       !liquidityPercentage
@@ -171,7 +166,7 @@ function Remove({ tokenId }: { tokenId: number }) {
     // }
     const collectFeeParams = {
       tokenId: cairo.uint256(tokenId),
-      recipient: account,
+      recipient: address,
       amount0_max: MAX_UINT128,
       amount1_max: MAX_UINT128,
     }
@@ -197,7 +192,7 @@ function Remove({ tokenId }: { tokenId: number }) {
     liquidityValue0,
     liquidityValue1,
     deadline,
-    account,
+    address,
     chainId,
     positionSDK,
     liquidityPercentage,

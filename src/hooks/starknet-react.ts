@@ -1,13 +1,15 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { Connector, useAccount, useBalance, useConnect, useProvider } from '@starknet-react/core'
-import { AccountInterface, constants } from 'starknet'
+import { AccountInterface, constants, RpcProvider } from 'starknet'
 import { ChainId, Currency, CurrencyAmount, Token } from '@vnaysn/jediswap-sdk-core'
 import { WETH } from '@jediswap/sdk'
 import { useDefaultActiveTokens } from './Tokens'
 import formatBalance from 'utils/formatBalance'
 import { useQuery } from 'react-query'
 import { ethers } from 'ethers'
-// Define the type for the balances object
+import { connectors } from 'context/StarknetProvider'
+import { connect } from 'starknetkit'
+
 declare enum StarknetChainId {
   SN_MAIN = '0x534e5f4d41494e',
   SN_GOERLI = '0x534e5f5345504f4c4941',
@@ -25,6 +27,43 @@ const convertStarknetToChainId = (starknetId: StarknetChainId): ChainId | undefi
   }
 }
 
+// export const getAccountDetails = async () => {
+//   const un = undefined
+//   const { wallet } = await connect()
+//   if (wallet?.isConnected) {
+//     const { account, selectedAddress, isConnected, chainId } = wallet
+//     return { account, address: selectedAddress, isConnected, chainId, connector: un }
+//   }
+
+//   return {
+//     account: un,
+//     address: un,
+//     isConnected: un,
+//     chainId: un,
+//     connector: un,
+//   }
+// }
+
+export const useWalletConnect = () => {
+  const { connectAsync } = useConnect()
+
+  return async () => {
+    const { connector } = await connect({
+      connectors: connectors,
+      modalTheme: 'light',
+      provider: new RpcProvider({
+        nodeUrl: 'https://api-starknet-mainnet.dwellir.com/dd28e566-3260-4d8d-8180-6ef1a161e41c',
+      }),
+    })
+
+    if (!connector) {
+      return
+    }
+
+    await connectAsync({ connector })
+  }
+}
+
 export const useAccountDetails = (): {
   account: AccountInterface | undefined
   address: string | undefined
@@ -33,7 +72,6 @@ export const useAccountDetails = (): {
   connector: Connector | undefined
 } => {
   const { account, address, isConnected, status, connector } = useAccount()
-
   const { provider } = useProvider()
 
   const connectedChainId = useQuery({

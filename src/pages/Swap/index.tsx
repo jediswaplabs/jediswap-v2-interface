@@ -2,7 +2,7 @@
 
 import { Trans } from '@lingui/macro'
 import { ChainId, Currency, CurrencyAmount, Percent, Token } from '@vnaysn/jediswap-sdk-core'
-import { useAccountBalance, useAccountDetails } from 'hooks/starknet-react'
+import { useAccountBalance, useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 import JSBI from 'jsbi'
 import { ReactNode, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { ArrowDown } from 'react-feather'
@@ -65,9 +65,8 @@ import { useScreenSize } from '../../hooks/useScreenSize'
 import { OutputTaxTooltipBody } from './TaxTooltipBody'
 import { SWAP_ROUTER_ADDRESS_V2, getSwapCurrencyId, DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS_V1 } from 'constants/tokens'
 import fetchAllPools from 'api/fetchAllPools'
-import { Call, CallData, cairo, num, validateAndParseAddress } from 'starknet'
+import { Call, CallData, InvokeFunctionResponse, cairo, num, validateAndParseAddress } from 'starknet'
 import { LoadingRows } from 'components/Loader/styled'
-import { useContractWrite } from '@starknet-react/core'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import { useApprovalCall } from 'hooks/useApproveCall'
 import { Pool, TradeType, toHex } from '@vnaysn/jediswap-sdk-v3'
@@ -76,6 +75,7 @@ import { useQuery } from 'react-query'
 import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import { findClosestPrice } from 'utils/getClosest'
+import { useWalletModal } from 'context/WalletModalProvider'
 
 export const ArrowContainer = styled.div`
   display: inline-flex;
@@ -250,6 +250,7 @@ export function Swap({
 }) {
   const connectionReady = useConnectionReady()
   const { address, account, chainId: connectedChainId } = useAccountDetails()
+  const { openModal } = useWalletModal()
   const swapRouterAddressV2 = SWAP_ROUTER_ADDRESS_V2[connectedChainId ?? DEFAULT_CHAIN_ID]
   const swapRouterAddressV1 = SWAP_ROUTER_ADDRESS_V1[connectedChainId ?? DEFAULT_CHAIN_ID]
 
@@ -298,9 +299,6 @@ export function Swap({
   )
 
   const theme = useTheme()
-
-  // toggle wallet when disconnected
-  const toggleWalletDrawer = useToggleAccountDrawer()
 
   // swap state
   const prefilledState = useMemo(
@@ -519,29 +517,24 @@ export function Swap({
     }))
   }, [])
   const [swapCallData, setSwapCallData] = useState<Call[]>([])
-
-  const {
-    writeAsync,
-    data: txData,
-    error,
-  } = useContractWrite({
-    calls: swapCallData,
-  })
+  const [txData, setTxData] = useState<InvokeFunctionResponse | undefined>(undefined)
+  const [error, setError] = useState<Error | null>(null)
 
   const deadline = useTransactionDeadline() // custom from users settings
 
   useEffect(() => {
-    if (swapCallData) {
-      writeAsync()
-        .then((response) => {
-          if (response?.transaction_hash) {
-          }
-        })
-        .catch((err) => {
-          console.log(err?.message)
-        })
+    const executeTransaction = async () => {
+      try {
+        const response: any = await account?.execute(swapCallData)
+        setTxData(response)
+      } catch (error) {
+        console.error('Error executing transaction:', error)
+        setError(error)
+        // Handle the error, e.g., show an error message to the user
+      }
     }
-  }, [swapCallData])
+    if (swapCallData && swapCallData.length && account) executeTransaction()
+  }, [swapCallData, account])
 
   const separatedFiatValueofLiquidity = useQuery({
     queryKey: ['fiat_value', trade?.inputAmount, trade?.outputAmount],
@@ -559,7 +552,7 @@ export function Swap({
       try {
         if (result.data) {
           const tokensData = result.data.tokensData
-          if (tokensData) {
+          if (tokensData && tokensData.length) {
             const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
             const isToken0InputAmount =
               validateAndParseAddress((trade?.inputAmount.currency as any).address) ===
@@ -1002,7 +995,7 @@ export function Swap({
               <Trans>Unsupported asset</Trans>
             </ButtonPrimary>
           ) : connectionReady && !account ? (
-            <ButtonPrimary onClick={toggleWalletDrawer} size={ButtonSize.large}>
+            <ButtonPrimary onClick={openModal} size={ButtonSize.large}>
               <Trans>Connect wallet</Trans>
             </ButtonPrimary>
           ) : isFetchingOutput ? (

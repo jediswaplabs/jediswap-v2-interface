@@ -20,7 +20,7 @@ import { useUserSlippageToleranceWithDefault } from 'state/user/hooks'
 import { useCurrency } from '../../hooks/Tokens'
 import useENS from '../../hooks/useENS'
 import useParsedQueryString from '../../hooks/useParsedQueryString'
-import { isAddress } from '../../utils'
+import { isAddressERC20 } from '../../utils'
 import { useCurrencyBalances } from '../connection/hooks'
 import { Field, replaceSwapState, selectCurrency, setRecipient, switchCurrencies, typeInput } from './actions'
 import { SwapState } from './reducer'
@@ -288,7 +288,6 @@ export function useDerivedSwapInfo(
 
 function parseCurrencyFromURLParameter(urlParam: ParsedQs[string]): string {
   if (typeof urlParam === 'string') {
-    // const valid = isAddress(urlParam)
     const valid = isAddressValidForStarknet(urlParam)
     if (valid) return valid
     const upper = urlParam.toUpperCase()
@@ -310,7 +309,7 @@ const ENS_NAME_REGEX = /^[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-
 const ADDRESS_REGEX = /^0x[a-fA-F0-9]{40}$/
 function validatedRecipient(recipient: any): string | null {
   if (typeof recipient !== 'string') return null
-  const address = isAddress(recipient)
+  const address = isAddressERC20(recipient)
   if (address) return address
   if (ENS_NAME_REGEX.test(recipient)) return recipient
   if (ADDRESS_REGEX.test(recipient)) return recipient

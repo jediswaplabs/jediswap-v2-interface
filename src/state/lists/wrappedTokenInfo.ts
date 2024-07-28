@@ -1,7 +1,6 @@
 import { ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import { Tags, TokenInfo, TokenList } from '@uniswap/token-lists'
 
-import { isAddress } from '../../utils'
 import { isAddressValidForStarknet } from 'utils/addresses'
 
 type TagDetails = Tags[keyof Tags]

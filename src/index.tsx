@@ -28,6 +28,7 @@ import TransactionUpdater from './state/transactions/updater'
 import RadialGradientByChainUpdater from './theme/components/RadialGradientByChainUpdater'
 import { StarknetProvider } from 'context/StarknetProvider'
 import './App.css'
+import { WalletModalProvider } from 'context/WalletModalProvider'
 
 function Updaters() {
   const location = useLocation()
@@ -63,7 +64,9 @@ createRoot(container).render(
                   <Updaters />
                   <ThemeProvider>
                     <ThemedGlobalStyle />
-                    <App />
+                    <WalletModalProvider>
+                      <App />
+                    </WalletModalProvider>
                   </ThemeProvider>
                 </BlockNumberProvider>
                 {/* </Web3Provider> */}

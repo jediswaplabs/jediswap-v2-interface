@@ -65,9 +65,8 @@ import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { Dots } from '../Pool/styled'
 import { Review } from './Review'
 import { DynamicSection, MediumOnly, ResponsiveTwoColumns, ScrollablePage, StyledInput, Wrapper } from './styled'
-import { useAccountDetails } from 'hooks/starknet-react'
-import { useContractWrite, useProvider } from '@starknet-react/core'
-import { BigNumberish, cairo, Call, CallData, hash, num } from 'starknet'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
+import { BigNumberish, cairo, Call, CallData, hash, InvokeFunctionResponse, num } from 'starknet'
 import JSBI from 'jsbi'
 import { toI32 } from 'utils/toI32'
 import { useApprovalCall } from 'hooks/useApproveCall'
@@ -76,6 +75,7 @@ import { getClient } from 'apollo/client'
 import { TOKENS_DATA } from 'apollo/queries'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import { findClosestPrice } from 'utils/getClosest'
+import { useWalletModal } from 'context/WalletModalProvider'
 
 const DEFAULT_ADD_IN_RANGE_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -104,9 +104,10 @@ function AddLiquidity() {
     feeAmount?: string
     tokenId?: string
   }>()
-  const { address: account, chainId } = useAccountDetails()
+  const { address, account, chainId } = useAccountDetails()
   const theme = useTheme()
-  const toggleWalletDrawer = useToggleAccountDrawer() // toggle wallet when disconnected
+  const { openModal } = useWalletModal()
+  const toggleWalletDrawer = useWalletConnect() // toggle wallet when disconnected
   const positionManager = useV3NFTPositionManagerContract()
   const parsedTokenId = tokenId ? parseInt(tokenId) : undefined
 
@@ -163,9 +164,21 @@ function AddLiquidity() {
   const { onFieldAInput, onFieldBInput, onLeftRangeInput, onRightRangeInput, onStartPriceInput } =
     useV3MintActionHandlers(noLiquidity)
 
-  const { writeAsync, data: txData } = useContractWrite({
-    calls: mintCallData,
-  })
+  useEffect(() => {
+    const executeTransaction = async () => {
+      try {
+        const response: any = await account?.execute(mintCallData)
+        setAttemptingTxn(false)
+        if (response?.transaction_hash) {
+          setTxHash(response.transaction_hash)
+        }
+      } catch (error) {
+        console.error('Error executing transaction:', error)
+        setAttemptingTxn(false)
+      }
+    }
+    if (mintCallData && mintCallData.length && account) executeTransaction()
+  }, [mintCallData, account])
 
   const isValid = !errorMessage && !invalidRange
 
@@ -275,33 +288,13 @@ function AddLiquidity() {
   }, [separatedFiatValueofLiquidity])
 
   useEffect(() => {
-    if (txData) console.log(txData, 'txData')
-  }, [txData])
-
-  useEffect(() => {
     if (chainId) {
       if (chainId === ChainId.GOERLI) setShowWarning(false)
     }
   }, [chainId])
 
-  useEffect(() => {
-    if (mintCallData) {
-      writeAsync()
-        .then((response) => {
-          setAttemptingTxn(false)
-          if (response?.transaction_hash) {
-            setTxHash(response.transaction_hash)
-          }
-        })
-        .catch((err) => {
-          console.log(err?.message)
-          setAttemptingTxn(false)
-        })
-    }
-  }, [mintCallData])
-
   async function onAdd() {
-    if (!chainId || !account) {
+    if (!chainId || !address) {
       return
     }
 
@@ -317,7 +310,7 @@ function AddLiquidity() {
     if (parsedAmounts[Field.CURRENCY_B] && Number(parsedAmounts?.[Field.CURRENCY_B]?.raw.toString()) > 0)
       approvalB = approvalBCallback()
 
-    if (position && account && deadline) {
+    if (position && address && deadline) {
       // get amounts
       const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
 
@@ -387,7 +380,7 @@ function AddLiquidity() {
           amount1_desired: cairo.uint256(amount1Desired.toString()),
           amount0_min: cairo.uint256(amount0Min.toString()),
           amount1_min: cairo.uint256(amount1Min.toString()),
-          recipient: account,
+          recipient: address,
           deadline: cairo.felt(deadline.toString()),
         }
         const mintCallData = CallData.compile(mintData)
@@ -564,8 +557,8 @@ function AddLiquidity() {
   // END: sync values with query string
 
   const Buttons = () =>
-    !account ? (
-      <ButtonPrimary onClick={toggleWalletDrawer} $borderRadius="12px" style={{ padding: '12px', fontSize: '18px' }}>
+    !address ? (
+      <ButtonPrimary onClick={openModal} $borderRadius="12px" style={{ padding: '12px', fontSize: '18px' }}>
         <Trans>Connect wallet</Trans>
       </ButtonPrimary>
     ) : (
@@ -586,8 +579,8 @@ function AddLiquidity() {
 
   // const owner = useSingleCallResult(tokenId ? positionManager : null, 'ownerOf', [tokenId]).result?.[0]
   // const ownsNFT =
-  //   addressesAreEquivalent(owner, account) || addressesAreEquivalent(existingPositionDetails?.operator, account)
-  // const showOwnershipWarning = Boolean(hasExistingPosition && account && !ownsNFT)
+  //   addressesAreEquivalent(owner, address) || addressesAreEquivalent(existingPositionDetails?.operator, address)
+  // const showOwnershipWarning = Boolean(hasExistingPosition && address && !ownsNFT)
 
   return (
     <>

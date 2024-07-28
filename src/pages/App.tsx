@@ -20,7 +20,9 @@ import {
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { ApolloProvider } from '@apollo/client'
 import { getClient } from 'apollo/client'
-// import Footer from 'components/Footer'
+import { connect, useStarknetkitConnectModal } from 'starknetkit'
+import { useConnect } from '@starknet-react/core'
+import { connectors } from 'context/StarknetProvider'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
   display: flex;
@@ -96,6 +98,7 @@ const HeaderWrapper = styled.div<{
 export default function App() {
   const isLoaded = useFeatureFlagsIsLoaded()
   const location = useLocation()
+  const { connectAsync } = useConnect()
   const { pathname } = location
 
   const [scrollY, setScrollY] = useState(0)
@@ -125,6 +128,18 @@ export default function App() {
     return () => window.removeEventListener('scroll', scrollListener)
   }, [])
 
+  useEffect(() => {
+    const connectToStarknet = async () => {
+      const { wallet } = await connect({ modalMode: 'neverAsk' })
+      if (wallet && wallet.isConnected) {
+        const connector = connectors.find((item) => item.id === wallet.id)
+        await connectAsync({ connector })
+      }
+    }
+
+    connectToStarknet()
+  }, [])
+
   return (
     <ApolloProvider client={getClient(chainId)}>
       <ErrorBoundary>
@@ -151,6 +166,7 @@ export default function App() {
             )}
           </Suspense>
         </BodyWrapper>
+
         {/* <Footer /> */}
         <MobileBottomBar>
           <PageTabs />

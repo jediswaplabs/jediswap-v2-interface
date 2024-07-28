@@ -48,7 +48,6 @@ import { SwitchLocaleLink } from '../../components/SwitchLocaleLink'
 import { useV3PositionTokenURI } from '../../hooks/usePositionTokenURI'
 import { ExplorerDataType, getExplorerLink } from '../../utils/getExplorerLink'
 import { LoadingRows } from './styled'
-import { useContractWrite } from '@starknet-react/core'
 import { cairo, Call, CallData, validateAndParseAddress } from 'starknet'
 import { DEFAULT_CHAIN_ID, MAX_UINT128, NONFUNGIBLE_POOL_MANAGER_ADDRESS } from 'constants/tokens'
 import TokensList from 'data/tokens-list.json'
@@ -703,9 +702,20 @@ function PositionPageContent() {
   const isCollectPending = useIsTransactionPending(collectMigrationHash ?? undefined)
   const [showConfirm, setShowConfirm] = useState(false)
   const [callData, setCallData] = useState<Call[]>([])
-  const { writeAsync, data: txData } = useContractWrite({
-    calls: callData,
-  })
+
+  useEffect(() => {
+    const executeTransaction = async () => {
+      try {
+        const response: any = await account?.execute(callData)
+        setCollecting(false)
+        if (response?.transaction_hash) setTxHash(response.transaction_hash)
+      } catch (error) {
+        console.error('Error executing transaction:', error)
+        setCollecting(false)
+      }
+    }
+    if (callData && callData.length && account) executeTransaction()
+  }, [callData, account])
 
   const fiatPrices = useQuery({
     queryKey: [`fiat_prices_position/${tokenId}/${position?.amount0.toSignificant()}`],
@@ -730,22 +740,6 @@ function PositionPageContent() {
     }
     return undefined
   }, [token0usdValue, token1usdValue])
-
-  useEffect(() => {
-    if (callData) {
-      writeAsync()
-        .then((response) => {
-          setCollecting(false)
-          if (response?.transaction_hash) {
-            setTxHash(response.transaction_hash)
-          }
-        })
-        .catch((err) => {
-          console.log(err?.message)
-          setCollecting(false)
-        })
-    }
-  }, [callData])
 
   const addTransaction = useTransactionAdder()
   const positionManager = useV3NFTPositionManagerContract()

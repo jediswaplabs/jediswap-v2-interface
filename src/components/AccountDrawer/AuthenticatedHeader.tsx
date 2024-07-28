@@ -76,15 +76,21 @@ const PortfolioDrawerContainer = styled(Column)`
   flex: 1;
 `
 
-export default function AuthenticatedHeader({ account }: { account: string }) {
+export default function AuthenticatedHeader({
+  account,
+  closeWalletDrawer,
+}: {
+  account: string
+  closeWalletDrawer: any
+}) {
   const { connector, address, chainId } = useAccountDetails()
   const { data: starkProfile } = useStarkProfile({ address })
   const { disconnect } = useDisconnect()
 
-  // const connection = getConnection(connector)
   const disconnectWallet = useCallback(() => {
     if (connector) {
       disconnect()
+      closeWalletDrawer()
     }
   }, [connector])
 
@@ -103,32 +109,28 @@ export default function AuthenticatedHeader({ account }: { account: string }) {
     <AuthenticatedHeaderWrapper>
       <HeaderWrapper>
         <StatusWrapper>
-          {
-            starkProfile?.profilePicture ? (
-              <img
-                src={starkProfile?.profilePicture}
-                alt="Profile"
-                style={{ width: '40px', height: '40px', borderRadius: '20px', marginRight: '8px' }}
-              />
-            ) : (
-              <StatusIcon account={account} connection={connector} size={40} />
-            )
-          }
-          {
-            account && (
-              <AccountNamesWrapper>
-                <ThemedText.SubHeader>
-                  <CopyText toCopy={starkProfile?.name ?? account}>{starkProfile?.name ?? addressShort}</CopyText>
-                </ThemedText.SubHeader>
-                {/* Displays smaller view of account if ENS name was rendered above */}
-                {starkProfile?.name && (
-                  <ThemedText.BodySmall color="neutral2">
-                    <CopyText toCopy={account}>{shortenAddress(account)}</CopyText>
-                  </ThemedText.BodySmall>
-                )}
-              </AccountNamesWrapper>
-            )
-          }
+          {starkProfile?.profilePicture ? (
+            <img
+              src={starkProfile?.profilePicture}
+              alt="Profile"
+              style={{ width: '40px', height: '40px', borderRadius: '20px', marginRight: '8px' }}
+            />
+          ) : (
+            <StatusIcon account={account} connection={connector} size={40} />
+          )}
+          {account && (
+            <AccountNamesWrapper>
+              <ThemedText.SubHeader>
+                <CopyText toCopy={starkProfile?.name ?? account}>{starkProfile?.name ?? addressShort}</CopyText>
+              </ThemedText.SubHeader>
+              {/* Displays smaller view of account if ENS name was rendered above */}
+              {starkProfile?.name && (
+                <ThemedText.BodySmall color="neutral2">
+                  <CopyText toCopy={account}>{shortenAddress(account)}</CopyText>
+                </ThemedText.BodySmall>
+              )}
+            </AccountNamesWrapper>
+          )}
         </StatusWrapper>
         <IconContainer>
           <IconButton

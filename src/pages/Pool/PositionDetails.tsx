@@ -1,15 +1,16 @@
 import { Trans } from '@lingui/macro'
-import { useAccountDetails } from "hooks/starknet-react"
-import { useV3PositionsFromTokenId } from "hooks/useV3Positions"
-import { useMemo } from "react"
-import { useUserHideClosedPositions } from "state/user/hooks"
+import { useAccountDetails } from 'hooks/starknet-react'
+import { useV3PositionsFromTokenId } from 'hooks/useV3Positions'
+import { useMemo } from 'react'
+import { useUserHideClosedPositions } from 'state/user/hooks'
 import { FlattenedPositions } from 'hooks/useV3Positions'
 import styled, { css, useTheme } from 'styled-components'
-import { ButtonPrimary, ButtonText } from "components/Button"
-import { PositionsLoadingPlaceholder } from "."
+import { ButtonPrimary, ButtonText } from 'components/Button'
+import { PositionsLoadingPlaceholder } from '.'
 import { ThemedText } from 'theme/components'
 import { Inbox } from 'react-feather'
 import PositionList from 'components/PositionList'
+import { useWalletModal } from 'context/WalletModalProvider'
 
 const ErrorContainer = styled.div`
   align-items: center;
@@ -37,21 +38,29 @@ const InboxIcon = styled(Inbox)`
   ${IconStyle}
 `
 
-
 export function PositionDetails(props: any) {
   const { address } = useAccountDetails()
+  const { openModal } = useWalletModal()
   const { tokenIds, showConnectAWallet, toggleWalletDrawer, token0, token1, fee } = props
   const [userHideClosedPositions, setUserHideClosedPositions] = useUserHideClosedPositions()
   const { positions, loading: positionsLoading } = useV3PositionsFromTokenId(tokenIds, address)
   let filteredPositions = positions
   if (token0 && token1) {
-    filteredPositions = positions?.filter(pos => {
+    filteredPositions = positions?.filter((pos) => {
       //@ts-ignore
-      if (pos?.token0.toString(16) === token0.slice(2) && pos?.token1.toString(16) === token1.slice(2) && pos?.fee === fee) {
+      if (
+        pos?.token0.toString(16) === token0.slice(2) &&
+        pos?.token1.toString(16) === token1.slice(2) &&
+        pos?.fee === fee
+      ) {
         return true
       }
       //@ts-ignore
-      if (pos?.token0.toString(16) === token1.slice(2) && pos?.token1.toString(16) === token0.slice(2) && pos?.fee === fee) {
+      if (
+        pos?.token0.toString(16) === token1.slice(2) &&
+        pos?.token1.toString(16) === token0.slice(2) &&
+        pos?.fee === fee
+      ) {
         return true
       }
       return false
@@ -101,7 +110,7 @@ export function PositionDetails(props: any) {
             {showConnectAWallet && (
               <ButtonPrimary
                 style={{ marginTop: '2em', marginBottom: '2em', padding: '8px 16px', width: 'fit-content' }}
-                onClick={toggleWalletDrawer}
+                onClick={openModal}
               >
                 <Trans>Connect wallet</Trans>
               </ButtonPrimary>

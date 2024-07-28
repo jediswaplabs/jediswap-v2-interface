@@ -19,7 +19,7 @@ import PortfolioRow, { PortfolioSkeleton, PortfolioTabWrapper } from '../Portfol
 import { PositionInfo } from './cache'
 import { useFeeValues } from './hooks'
 import useMultiChainPositions from './useMultiChainPositions'
-import { useAccountDetails } from 'hooks/starknet-react'
+import { useAccountDetails, useWalletConnect } from 'hooks/starknet-react'
 
 /**
  * Takes an array of PositionInfo objects (format used by the Uniswap Labs gql API).
@@ -62,7 +62,7 @@ export default function Pools({ account }: { account: string }) {
     return [openPositions, closedPositions]
   }, [filteredPositions])
 
-  const toggleWalletDrawer = useToggleAccountDrawer()
+  const toggleWalletDrawer = useWalletConnect()
 
   if (!filteredPositions || loading) {
     return <PortfolioSkeleton />
@@ -126,7 +126,7 @@ function PositionListItem({ positionInfo }: { positionInfo: PositionInfo }) {
   const liquidityValue = calculcateLiquidityValue(priceA, priceB, position)
 
   const navigate = useNavigate()
-  const toggleWalletDrawer = useToggleAccountDrawer()
+  const toggleWalletDrawer = useWalletConnect()
   const { chainId: walletChainId, connector } = useAccountDetails()
   const switchChain = useSwitchChain()
   const onClick = useCallback(async () => {
