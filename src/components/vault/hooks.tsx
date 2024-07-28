@@ -81,7 +81,10 @@ export function useUserShares(
 
   const { token0All, token1All } = useMemo(() => {
     const result: any = data
-    if (!result || isError || !result[0] || !result[1]) return { token0All: undefined, token1All: undefined }
+    // if (!result || isError || !result[0] || !result[1]) return { token0All: undefined, token1All: undefined }
+    if (!result || isError || result[0] === undefined || result[1] === undefined)
+      //we can have zero values, so we can't do !result[0]
+      return { token0All: undefined, token1All: undefined }
     return {
       token0All: result[0],
       token1All: result[1],
@@ -98,7 +101,8 @@ export function useUserShares(
   }, [supply, supplyError])
 
   const token0: CurrencyAmount<Currency> | undefined = useMemo(() => {
-    if (!typedValue || !totalSupply || !token0All || !currencyA) {
+    if (!typedValue || !totalSupply || token0All === undefined || !currencyA) {
+      // token0All could be zero
       return undefined
     }
     const token0Amount =
@@ -110,7 +114,7 @@ export function useUserShares(
   }, [typedValue, totalSupply, token0All, currencyA])
 
   const token1: CurrencyAmount<Currency> | undefined = useMemo(() => {
-    if (!typedValue || !totalSupply || !token1All || !currencyB) {
+    if (!typedValue || !totalSupply || token1All === undefined || !currencyB) {
       return undefined
     }
     const token1Amount =
@@ -121,7 +125,7 @@ export function useUserShares(
   }, [typedValue, totalSupply, token1All, currencyB])
 
   const totalToken0Amount: CurrencyAmount<Currency> | undefined = useMemo(() => {
-    if (!shares || !totalSupply || !token0All || !currencyA) {
+    if (!shares || !totalSupply || token0All === undefined || !currencyA) {
       return undefined
     }
     const token0Amount =
@@ -131,7 +135,7 @@ export function useUserShares(
   }, [shares, totalSupply, token0All, currencyA])
 
   const totalToken1Amount: CurrencyAmount<Currency> | undefined = useMemo(() => {
-    if (!shares || !totalSupply || !token1All || !currencyB) {
+    if (!shares || !totalSupply || token1All === undefined || !currencyB) {
       return undefined
     }
     const token1Amount =
