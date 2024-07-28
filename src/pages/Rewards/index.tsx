@@ -15,7 +15,7 @@ import { ButtonPrimary, ButtonSecondary } from 'components/Button'
 import { RowBetween, RowFixed } from 'components/Row'
 import { Button as RebassButton, ButtonProps } from 'rebass/styled-components'
 import { useContractRead, useContractWrite } from '@starknet-react/core'
-import { Call, CallData, validateAndParseAddress } from 'starknet'
+import { BlockTag, Call, CallData, validateAndParseAddress } from 'starknet'
 import { DEFAULT_CHAIN_ID, STARKNET_REWARDS_API_URL, STRK_PRICE_API_URL, getStarkRewardAddress } from 'constants/tokens'
 import REWARDS_ABI from 'abis/strk-rewards.json'
 import { jediSwapClient } from 'apollo/client'
@@ -696,6 +696,7 @@ export default function Rewards() {
     abi: REWARDS_ABI,
     address: STRK_REWARDS_ADDRESS,
     watch: true,
+    blockIdentifier: BlockTag.pending,
   })
 
   const formattedClaimRewards: CurrencyAmount = useMemo(() => {
