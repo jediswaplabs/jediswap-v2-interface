@@ -137,10 +137,8 @@ export function useDerivedSwapInfo(
   // )
   const distributedAmount = useMemo(() => {
     if (!typedValue) return undefined
-    return getAmountDistribution(typedValue, 10, isExactIn ? inputCurrency : outputCurrency)
+    return getAmountDistribution(typedValue, 50, isExactIn ? inputCurrency : outputCurrency)
   }, [typedValue])
-
-  // console.log(distributedAmount, typedValue, 'parsedAmount')
 
   const bestV3TradeExactIn = useBestV3TradeExactIn(
     allPools,
@@ -218,22 +216,8 @@ export function useDerivedSwapInfo(
   // ? bestTradeExactIn
   // : bestTradeExactOut
 
-  console.log(trade, bestV3TradeExactIn, bestV3TradeExactOut, 'finaltrade')
-  trade.trade?.swaps.forEach((trade: any, index: any) => {
-    console.log(
-      formatCurrencyAmount({
-        amount: trade.inputAmount,
-        type: NumberType.SwapTradeAmount,
-        placeholder: '',
-      }),
-      formatCurrencyAmount({
-        amount: trade.outputAmount,
-        type: NumberType.SwapTradeAmount,
-        placeholder: '',
-      }),
-      'trade' + index
-    )
-  })
+  // console.log('finalTrade', trade)
+
   const currencyBalances = useMemo(
     () => ({
       [Field.INPUT]: relevantTokenBalances[0],
@@ -293,7 +277,7 @@ export function useDerivedSwapInfo(
     () => ({
       currencies,
       currencyBalances,
-      typedValue,
+      parsedAmount: distributedAmount ? distributedAmount[1][distributedAmount.length - 1] : undefined,
       inputError,
       trade,
       autoSlippage,
