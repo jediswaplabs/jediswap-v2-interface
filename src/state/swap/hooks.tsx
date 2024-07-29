@@ -293,7 +293,7 @@ export function useDerivedSwapInfo(
     () => ({
       currencies,
       currencyBalances,
-      typedValue,
+      parsedAmount: distributedAmount ? distributedAmount[1][distributedAmount.length - 1] : undefined,
       inputError,
       trade: insufficientFunds ? { state: TradeState.VALID, trade: null } : trade,
       autoSlippage,
