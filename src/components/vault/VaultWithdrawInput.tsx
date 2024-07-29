@@ -166,11 +166,14 @@ const StyledBalanceMax = styled.button<{ disabled?: boolean }>`
 
 const StyledNumericalInput = styled(NumericalInput)<{ $loading: boolean }>`
   ${loadingOpacityMixin};
-  text-align: left;
+  width: 100% !important;
 
   @media (max-width: ${({ theme }) => `${theme.breakpoint.md}px`}) {
     font-size: 16px;
   }
+`
+const WithdrawInput = styled.div`
+  width: 50%;
 `
 
 const StyledPrefetchBalancesWrapper = styled(PrefetchBalancesWrapper)`
@@ -272,7 +275,7 @@ export default function VaultWithdrawInput({
               </CurrencySelect>
             </StyledPrefetchBalancesWrapper>
             {!hideInput && (
-              <div>
+               <WithdrawInput>
                 <StyledNumericalInput
                   className="token-amount-input"
                   value={value}
@@ -281,7 +284,7 @@ export default function VaultWithdrawInput({
                   $loading={loading}
                   style={{ width: 'auto', textAlign: 'right' }}
                 />
-              </div>
+              </WithdrawInput>
             )}
           </InputRow>
           {Boolean(!hideInput && !hideBalance) && (
