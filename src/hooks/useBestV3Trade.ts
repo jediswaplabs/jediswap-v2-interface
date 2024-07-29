@@ -667,9 +667,17 @@ export function useBestV3TradeExactOut(
         trade: null,
       }
     }
-    if (!bestRoute) {
+
+    if (routesLoading) {
       return {
-        state: TradeState.INVALID,
+        state: TradeState.LOADING,
+        trade: null,
+      }
+    }
+
+    if (!bestRoute || !amountOut) {
+      return {
+        state: TradeState.NO_ROUTE_FOUND,
         trade: null,
       }
     }
