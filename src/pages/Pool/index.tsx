@@ -240,7 +240,8 @@ export default function Pool() {
     <PageWrapper>
       <PageHeader>POOLS</PageHeader>
       {/* <PageSection> */}
-      <AutoColumn style={{ gap: '12px' }}>
+      {/* <AutoColumn style={{ gap: '12px' }}> */}
+      <AutoColumn style={{ gap: '12px', display: 'none' }}>
         <PanelWrapper>
           <PanelTopLight>
             <AutoColumn gap="20px">
@@ -279,7 +280,8 @@ export default function Pool() {
         </PanelWrapper>
       </AutoColumn>
       {/* </PageSection> */}
-      <AutoColumn gap="lg" justify="center" style={{ marginTop: 24 }}>
+      {/* need torevert margin to 24 after fixiing backend */}
+      <AutoColumn gap="lg" justify="center" style={{ marginTop: 14 }}>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
           <ButtonRow justifyContent={'space-between'}>
             <ResponsiveButtonTabs
