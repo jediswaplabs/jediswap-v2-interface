@@ -503,7 +503,8 @@ function getRewardsData(jediRewards: any, pool: any) {
 
 export default function Rewards() {
   const [allPools, setAllPools] = useState<any[]>([])
-  const { address, chainId } = useAccountDetails()
+  const { address: rawAddress, chainId } = useAccountDetails()
+  const address = rawAddress?.replace(/^0x0*/, '0x')
   const [poolsLoading, setPoolsLoading] = useState(true)
   const STRK_REWARDS_ADDRESS = getStarkRewardAddress(chainId ?? DEFAULT_CHAIN_ID)
   const allTokens = useDefaultActiveTokens(DEFAULT_CHAIN_ID)
