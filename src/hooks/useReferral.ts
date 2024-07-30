@@ -100,11 +100,11 @@ export function getReferralInfoFromStorage() {
  * @returns {Object} The referral code from local storage.
  */
 
-function getNoWalletReferralCodeFromStorage(chainId: string) {
+function getNoWalletReferralCodeFromStorage(chainId: string | undefined) {
   const rawLocalStorageData = localStorage.getItem(noWalletReferralCodeObjectName)
   const localStorageData: { [chainId: string]: string } | undefined =
     rawLocalStorageData && JSON.parse(rawLocalStorageData)
-  if (localStorageData) {
+  if (localStorageData && chainId) {
     return localStorageData[chainId]
   }
   return undefined
@@ -149,8 +149,8 @@ export function useReferralstate() {
   const chainIdFromUrl: unknown = parsedQs.chainId
 
   useEffect(() => {
-    if (chainId && account && chainIdFromUrl) {
-      const referralCodeFromLocalStorage = getNoWalletReferralCodeFromStorage(chainIdFromUrl as string)
+    if (chainId && account) {
+      const referralCodeFromLocalStorage = getNoWalletReferralCodeFromStorage(chainIdFromUrl as string | undefined)
       if (!referralCodeFromUrl && referralCodeFromLocalStorage) {
         const { referralInfoLocal: referralData, userReferralInfoLocal: localStorageData } =
           getReferralInfoFromLocalStorageForUser(chainId, account)
