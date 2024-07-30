@@ -64,13 +64,12 @@ const noWalletReferralCodeObjectName = 'noWalletReferralCodeV2'
  * This function sets referral data to local storage.
  * @param {string} data - The referral data to be stored. In Json format.
  */
-function setReferralDataToLocalStore(data: string, isTestnet: boolean) {
+function setReferralDataToLocalStore(data: string, chainId: string) {
   localStorage.setItem(localStoreReferralDataObjectName, data)
 
   // remove the mainnet or testnet key data pair accordingly from nowalletreferralcode
-  const noWalletReferralCode = getNoWalletReferralCodeFromStorage(!isTestnet)
+  const noWalletReferralCode = getNoWalletReferralCodeFromStorage(chainId)
   if (noWalletReferralCode) {
-    const chainId = !isTestnet ? ChainId.GOERLI : ChainId.MAINNET
     const newObject = {
       [chainId]: noWalletReferralCode,
     }
@@ -101,12 +100,12 @@ export function getReferralInfoFromStorage() {
  * @returns {Object} The referral code from local storage.
  */
 
-function getNoWalletReferralCodeFromStorage(isTestnet: boolean) {
+function getNoWalletReferralCodeFromStorage(chainId: string) {
   const rawLocalStorageData = localStorage.getItem(noWalletReferralCodeObjectName)
   const localStorageData: { [chainId: string]: string } | undefined =
     rawLocalStorageData && JSON.parse(rawLocalStorageData)
   if (localStorageData) {
-    return isTestnet ? localStorageData[ChainId.GOERLI] : localStorageData[ChainId.MAINNET]
+    return localStorageData[chainId]
   }
   return undefined
 }
@@ -146,11 +145,12 @@ export function useReferralstate() {
   const { chainId, address: account } = useAccountDetails()
   const parsedQs = useParsedQueryString()
   const referralCodeFromUrl = parseReferralCodeURLParameter(parsedQs.referralCode)
-  const isTestnet = parsedQs.testnet == 'true'
+  // const isTestnet = parsedQs.testnet == 'true'
+  const chainIdFromUrl: unknown = parsedQs.chainId
 
   useEffect(() => {
-    if (chainId && account) {
-      const referralCodeFromLocalStorage = getNoWalletReferralCodeFromStorage(isTestnet)
+    if (chainId && account && chainIdFromUrl) {
+      const referralCodeFromLocalStorage = getNoWalletReferralCodeFromStorage(chainIdFromUrl as string)
       if (!referralCodeFromUrl && referralCodeFromLocalStorage) {
         const { referralInfoLocal: referralData, userReferralInfoLocal: localStorageData } =
           getReferralInfoFromLocalStorageForUser(chainId, account)
@@ -164,7 +164,7 @@ export function useReferralstate() {
           if (!referralData) {
             setReferralDataToLocalStore(
               JSON.stringify({ [chainId]: { [account]: referralCodeObject } }),
-              chainId == ChainId.GOERLI
+              chainIdFromUrl as string
             )
           } else {
             const newLocalStorageData = {
@@ -174,7 +174,7 @@ export function useReferralstate() {
                 [account]: referralCodeObject,
               },
             }
-            setReferralDataToLocalStore(JSON.stringify(newLocalStorageData), chainId == ChainId.GOERLI)
+            setReferralDataToLocalStore(JSON.stringify(newLocalStorageData), chainIdFromUrl as string)
           }
         }
       }
@@ -194,7 +194,7 @@ export function useReferralstate() {
               if (!referralData) {
                 setReferralDataToLocalStore(
                   JSON.stringify({ [chainId]: { [account]: referralCodeObject } }),
-                  chainId == ChainId.GOERLI
+                  chainIdFromUrl as string
                 )
               } else {
                 const newLocalStorageData = {
@@ -204,12 +204,9 @@ export function useReferralstate() {
                     [account]: referralCodeObject,
                   },
                 }
-                setReferralDataToLocalStore(JSON.stringify(newLocalStorageData), chainId == ChainId.GOERLI)
+                setReferralDataToLocalStore(JSON.stringify(newLocalStorageData), chainIdFromUrl as string)
               }
-            } else if (
-              referralCodeFromUrl &&
-              ((isTestnet && chainId != ChainId.MAINNET) || (!isTestnet && chainId == ChainId.MAINNET))
-            ) {
+            } else if (referralCodeFromUrl && chainIdFromUrl && chainIdFromUrl == chainId) {
               const referralCodeObject: ILocalStorageUserData = {
                 referredBy: referralCodeFromUrl,
                 onChain: false,
@@ -219,7 +216,7 @@ export function useReferralstate() {
               if (!referralData) {
                 setReferralDataToLocalStore(
                   JSON.stringify({ [chainId]: { [account]: referralCodeObject } }),
-                  chainId == ChainId.GOERLI
+                  chainIdFromUrl as string
                 )
               } else {
                 const newLocalStorageData = {
@@ -229,7 +226,7 @@ export function useReferralstate() {
                     [account]: referralCodeObject,
                   },
                 }
-                setReferralDataToLocalStore(JSON.stringify(newLocalStorageData), chainId == ChainId.GOERLI)
+                setReferralDataToLocalStore(JSON.stringify(newLocalStorageData), chainIdFromUrl as string)
               }
             }
           }
@@ -237,7 +234,7 @@ export function useReferralstate() {
       }
     } else if (referralCodeFromUrl) {
       const noWalletReferralCode = localStorage.getItem(noWalletReferralCodeObjectName)
-      const chainId = isTestnet ? ChainId.GOERLI : ChainId.MAINNET
+      const chainId = chainIdFromUrl as string
       if (!noWalletReferralCode) {
         const newObject = { [chainId]: referralCodeFromUrl }
         setNoWalletReferralCodeToLocalStore(JSON.stringify(newObject))
@@ -249,7 +246,7 @@ export function useReferralstate() {
         setNoWalletReferralCodeToLocalStore(JSON.stringify(newObject))
       }
     }
-  }, [chainId, account, referralCodeFromUrl, isTestnet])
+  }, [chainId, account, referralCodeFromUrl, chainIdFromUrl])
 }
 
 /**
@@ -293,7 +290,7 @@ export function setOnChainReferralTrueForuser(userAddress: string, chainId: Chai
           [userAddress]: newInfo,
         },
       }
-      setReferralDataToLocalStore(JSON.stringify(newLocalStorageData), chainId == ChainId.GOERLI)
+      setReferralDataToLocalStore(JSON.stringify(newLocalStorageData), chainId)
     }
   }
 }
@@ -320,7 +317,7 @@ export function setIsNotifClosedForuser(userAddress: string, chainId: ChainId) {
         [userAddress]: newInfo,
       },
     }
-    setReferralDataToLocalStore(JSON.stringify(newLocalStorageData), chainId == ChainId.GOERLI)
+    setReferralDataToLocalStore(JSON.stringify(newLocalStorageData), chainId)
   }
 }
 

@@ -133,10 +133,7 @@ export function Referral() {
         {!account ? (
           <ConnectWalletBox />
         ) : (
-          <CopyReferralCodeBox
-            userReferralCode={getChecksumAddress(account.address)}
-            isTestnet={chainId != ChainId.MAINNET}
-          />
+          <CopyReferralCodeBox userReferralCode={getChecksumAddress(account.address)} chainId={chainId} />
         )}
         {account && <LpLeaderboardLink />}
       </ReferralWrapper>
@@ -144,14 +141,15 @@ export function Referral() {
   )
 }
 
-const CopyReferralCodeBox: React.FC<{ userReferralCode: string; isTestnet: boolean }> = ({
+const CopyReferralCodeBox: React.FC<{ userReferralCode: string; chainId: ChainId | undefined }> = ({
   userReferralCode,
-  isTestnet,
+  chainId,
 }) => {
-  let referralLink = `https://${window.location.hostname}/#/swap?referralCode=${userReferralCode}`
-  if (isTestnet) {
-    referralLink = `https://${window.location.hostname}/#/swap?referralCode=${userReferralCode}&testnet=true`
+  let referralLink = ''
+  if (chainId) {
+    referralLink = `https://${window.location.hostname}/#/swap?referralCode=${userReferralCode}&chainId=${chainId}`
   }
+
   return (
     <PanelTopLight className={''} id="referral-page-copy">
       <div className="heading">
