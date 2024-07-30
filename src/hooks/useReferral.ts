@@ -130,6 +130,10 @@ export function getReferralInfoFromLocalStorageForUser(
   return { referralInfoLocal, userReferralInfoLocal }
 }
 
+function isChainIdCorrect(chainId: string) {
+  return chainId == ChainId.MAINNET || chainId == ChainId.GOERLI
+}
+
 /**
  * This hook is used to get the referral state of the user.
  * It checks the local storage for the referral code of the user.
@@ -233,8 +237,9 @@ export function useReferralstate() {
         )
       }
     } else if (referralCodeFromUrl) {
+      const chainId = chainIdFromUrl as string | undefined
+      if (!chainId || !isChainIdCorrect(chainId)) return
       const noWalletReferralCode = localStorage.getItem(noWalletReferralCodeObjectName)
-      const chainId = chainIdFromUrl as string
       if (!noWalletReferralCode) {
         const newObject = { [chainId]: referralCodeFromUrl }
         setNoWalletReferralCodeToLocalStore(JSON.stringify(newObject))
