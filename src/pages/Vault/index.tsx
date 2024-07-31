@@ -651,7 +651,7 @@ export function VaultElement({
 
   const vaultInfo = useVaultDerivedInfo(vaultState, baseCurrency ?? undefined, currencyB ?? undefined)
 
-  const { inputError: depositError, insufficientBalance, parsedAmounts, token0All, totalSupply } = vaultInfo
+  const { inputError: depositError, insufficientBalance, parsedAmounts, token0All, token1All, totalSupply } = vaultInfo
   const {
     token0,
     token1,
@@ -716,7 +716,9 @@ export function VaultElement({
     if (parsedAmountA && parsedAmountA?.greaterThan(0)) approvalA = approvalACallback()
     if (parsedAmountB && parsedAmountB?.greaterThan(0)) approvalB = approvalBCallback()
 
-    const derivedShares = (BigInt(parsedAmountA.raw.toString()) * totalSupply) / token0All
+    const derivedShares = token0All
+      ? (BigInt(parsedAmountA.raw.toString()) * totalSupply) / token0All
+      : (BigInt(parsedAmountB.raw.toString()) * totalSupply) / token1All
 
     const callParams = {
       shares: cairo.uint256(derivedShares),
@@ -754,12 +756,9 @@ export function VaultElement({
       withdrawTypedValue,
       new Token(DEFAULT_CHAIN_ID, '', 18)
     )
-    const defaultWithdrawSlippage = new Percent(99, 10000)
+    const defaultWithdrawSlippage = new Percent(10, 100)
 
-    const vaultFee = new Percent(
-      Number(new Percent(100, 100).subtract(new Percent(fee_config, 1000000)).toSignificant()) * 100,
-      1000000
-    )
+    const vaultFee = new Percent(fee_config, 1000000)
 
     const amount0_min = calculateMinimumAmountWithSlippage(token0, defaultWithdrawSlippage)
     const amount1_min = calculateMinimumAmountWithSlippage(token1, defaultWithdrawSlippage)

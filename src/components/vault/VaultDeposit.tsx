@@ -28,7 +28,7 @@ function VaultDeposit({ currentVault }: { currentVault: any }) {
 
   // vault state state
   const { independentField, typedValue } = useVaultState()
-  const { dependentField, currencies, parsedAmounts } = useVaultDerivedInfo(
+  const { dependentField, currencies, parsedAmounts, token0All, token1All } = useVaultDerivedInfo(
     vaultState,
     baseCurrency ?? undefined,
     currencyB ?? undefined
@@ -40,20 +40,24 @@ function VaultDeposit({ currentVault }: { currentVault: any }) {
   }
   return (
     <DepositWrapper>
-      <CurrencyInputPanel
-        value={formattedAmounts[Field.CURRENCY_A]}
-        onUserInput={onFieldAInput}
-        showMaxButton
-        currency={currencies[Field.CURRENCY_A] ?? null}
-        id="add-liquidity-input-tokena"
-      />
-      <CurrencyInputPanel
-        value={formattedAmounts[Field.CURRENCY_B]}
-        onUserInput={onFieldBInput}
-        showMaxButton
-        currency={currencies[Field.CURRENCY_B] ?? null}
-        id="add-liquidity-input-tokena"
-      />
+      {token0All && (
+        <CurrencyInputPanel
+          value={formattedAmounts[Field.CURRENCY_A]}
+          onUserInput={onFieldAInput}
+          showMaxButton
+          currency={currencies[Field.CURRENCY_A] ?? null}
+          id="add-liquidity-input-tokena"
+        />
+      )}
+      {token1All && (
+        <CurrencyInputPanel
+          value={formattedAmounts[Field.CURRENCY_B]}
+          onUserInput={onFieldBInput}
+          showMaxButton
+          currency={currencies[Field.CURRENCY_B] ?? null}
+          id="add-liquidity-input-tokenb"
+        />
+      )}
     </DepositWrapper>
   )
 }
