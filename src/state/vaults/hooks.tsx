@@ -282,6 +282,7 @@ export function useVaultDerivedInfo(
   inputError: any
   insufficientBalance: any
   token0All: any
+  token1All: any
   totalSupply: any
 } {
   const { address: account } = useAccountDetails()
@@ -325,7 +326,7 @@ export function useVaultDerivedInfo(
   )
 
   const dependentAmount: CurrencyAmount<Currency> | undefined = useMemo(() => {
-    if (independentAmount && priceRatio) {
+    if (independentAmount && (token0All || token1All)) {
       const dependentTokenAmount =
         independentAmount.toExact() && token1All && token0All
           ? dependentField === Field.CURRENCY_B
@@ -378,6 +379,7 @@ export function useVaultDerivedInfo(
     inputError,
     insufficientBalance,
     token0All,
+    token1All,
     totalSupply,
   }
 }
