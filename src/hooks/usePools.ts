@@ -1,9 +1,9 @@
 import { useToken } from 'hooks/Tokens'
 import { useAccountDetails } from './starknet-react'
 // import { Interface } from '@ethersproject/abi'
-import { BigintIsh, Currency, Token } from '@vnaysn/jediswap-sdk-core'
+import { BigintIsh, ChainId, Currency, Token } from '@vnaysn/jediswap-sdk-core'
 import IUniswapV3PoolStateJSON from '@uniswap/v3-core/artifacts/contracts/interfaces/pool/IUniswapV3PoolState.sol/IUniswapV3PoolState.json'
-import { computePoolAddress, toHex } from '@vnaysn/jediswap-sdk-v3'
+import { POOL_INIT_CODE_HASH, toHex } from '@vnaysn/jediswap-sdk-v3'
 import { FeeAmount, Pool } from '@vnaysn/jediswap-sdk-v3'
 import JSBI from 'jsbi'
 import { useMultipleContractSingleData } from 'lib/hooks/multicall'
@@ -11,12 +11,42 @@ import { useMemo } from 'react'
 import { IUniswapV3PoolStateInterface } from '../types/v3/IUniswapV3PoolState'
 import { V3_CORE_FACTORY_ADDRESSES } from 'constants/addresses'
 import { useAllPairs } from 'state/pairs/hooks'
-import { BigNumberish, BlockTag, CallData, Contract, ec, hash, num } from 'starknet'
+import { BigNumberish, BlockTag, CallData, Contract, ec, getChecksumAddress, hash, num } from 'starknet'
 import { useContractRead } from '@starknet-react/core'
 import POOL_ABI from 'contracts/pool/abi.json'
 import FACTORY_ABI from 'contracts/factoryAddress/abi.json'
 import { POOL_CLASS_HASH, FACTORY_ADDRESS } from 'constants/tokens'
 import { toInt } from 'utils/toInt'
+import { defaultAbiCoder, getCreate2Address, solidityKeccak256 } from 'ethers/lib/utils'
+
+function computePoolAddress({
+  factoryAddress,
+  tokenA,
+  tokenB,
+  fee,
+  initCodeHashManualOverride,
+}: {
+  factoryAddress: string
+  tokenA: Token
+  tokenB: Token
+  fee: FeeAmount
+  initCodeHashManualOverride?: string
+}): string {
+  const [token0, token1] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA] // does safety checks
+  return getCreate2Address(
+    factoryAddress,
+    solidityKeccak256(
+      ['bytes'],
+      [
+        defaultAbiCoder.encode(
+          ['address', 'address', 'uint24'],
+          [getChecksumAddress(token0.address), getChecksumAddress(token1.address), fee]
+        ),
+      ]
+    ),
+    initCodeHashManualOverride ?? POOL_INIT_CODE_HASH
+  )
+}
 
 // const POOL_STATE_INTERFACE = new Interface(IUniswapV3PoolStateJSON.abi) as IUniswapV3PoolStateInterface
 
@@ -40,7 +70,6 @@ export class PoolCache {
     const key = `${factoryAddress}:${addressA}:${addressB}:${fee.toString()}`
     const found = this.addresses.find((address) => address.key === key)
     if (found) return found.address
-
     const address = {
       key,
       address: computePoolAddress({
@@ -50,6 +79,7 @@ export class PoolCache {
         fee,
       }),
     }
+    console.log(factoryAddress, tokenA, tokenB, fee, this.addresses, address, 'test')
     this.addresses.unshift(address)
     return address.address
   }
@@ -78,6 +108,7 @@ export class PoolCache {
     })
     if (found) return found
     const pool = new Pool(tokenA, tokenB, fee, sqrtPriceX96, liquidity, tick)
+
     this.pools.unshift(pool)
     return pool
   }
@@ -209,7 +240,7 @@ export function usePools(
 export function usePoolsForSwap(results: any): [PoolState, Pool | null][] {
   return useMemo(() => {
     return results.map((result: any) => {
-      const { tickCurrent, liquidity, sqrtPriceX96, token0, token1, fee } = result
+      const { tickCurrent, liquidity, sqrtPriceX96, token0, token1, fee, address } = result
       const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(num.toHex(sqrtPriceX96 as BigNumberish))
       const liquidityHex = Boolean(liquidity) ? JSBI.BigInt(num.toHex(liquidity as BigNumberish)) : JSBI.BigInt('0x0')
 
@@ -236,6 +267,37 @@ export function usePool(
   )
 
   return usePools(poolKeys)[0]
+}
+
+export function getPoolAddress(
+  currencyA: Currency | undefined,
+  currencyB: Currency | undefined,
+  feeAmount: FeeAmount | undefined,
+  chainId: ChainId | undefined
+): string | undefined {
+  if (currencyA && currencyB && feeAmount && chainId) {
+    const tokenA = currencyA.wrapped
+    const tokenB = currencyB.wrapped
+    if (tokenA.equals(tokenB)) return undefined
+    const tokens = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA] // does safety checks
+
+    //compute pool contract address
+    const { calculateContractAddressFromHash } = hash
+
+    const salt = ec.starkCurve.poseidonHashMany([
+      BigInt(tokens[0].address),
+      BigInt(tokens[1].address),
+      BigInt(feeAmount),
+    ])
+
+    const contructorCalldata = CallData.compile([tokens[0].address, tokens[1].address, feeAmount, feeAmount / 50])
+
+    return tokenA && tokenB && !tokenA.equals(tokenB)
+      ? calculateContractAddressFromHash(salt, POOL_CLASS_HASH[chainId], contructorCalldata, FACTORY_ADDRESS[chainId])
+      : undefined
+  }
+
+  return undefined
 }
 
 export function usePoolAddress(
