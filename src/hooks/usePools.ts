@@ -210,10 +210,9 @@ export function usePoolsForSwap(results: any): [PoolState, Pool | null][] {
   return useMemo(() => {
     return results.map((result: any) => {
       const { tickCurrent, liquidity, sqrtPriceX96, token0, token1, fee } = result
-      const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(num.toHex(sqrtPriceX96 as BigNumberish))
-      const liquidityHex = Boolean(liquidity) ? JSBI.BigInt(num.toHex(liquidity as BigNumberish)) : JSBI.BigInt('0x0')
-
-      if (!liquidityHex || !sqrtPriceHex || !token0) return [PoolState.NOT_EXISTS, null]
+      const sqrtPriceHex = sqrtPriceX96 && JSBI.BigInt(sqrtPriceX96)
+      const liquidityHex = Boolean(liquidity) ? JSBI.BigInt(liquidity) : JSBI.BigInt('0x0')
+      if (!liquidityHex || !sqrtPriceHex) return [PoolState.NOT_EXISTS, null]
       try {
         const pool = PoolCache.getPool(token0, token1, fee, sqrtPriceHex, liquidityHex, tickCurrent)
         return [PoolState.EXISTS, pool]

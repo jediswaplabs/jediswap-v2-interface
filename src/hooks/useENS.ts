@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { isAddress } from '../utils'
+import { isAddressERC20 } from '../utils'
 import useENSAddress from './useENSAddress'
 import useENSName from './useENSName'
 
@@ -13,7 +13,7 @@ export default function useENS(nameOrAddress?: string | null): {
   address: string | null
   name: string | null
 } {
-  const validated = isAddress(nameOrAddress)
+  const validated = isAddressERC20(nameOrAddress)
   const reverseLookup = useENSName(validated ? validated : undefined)
   const lookup = useENSAddress(nameOrAddress)
 

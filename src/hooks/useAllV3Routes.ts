@@ -49,13 +49,9 @@ function computeAllRoutes(
  * @param currencyIn the input currency
  * @param currencyOut the output currency
  */
-export function useAllV3Routes(
-  allPools: string[],
-  currencyIn?: Currency,
-  currencyOut?: Currency
-): { loading: boolean; routes: any[] } {
+export function useAllV3Routes(currencyIn?: Currency, currencyOut?: Currency): { loading: boolean; routes: any[] } {
   const { chainId } = useAccountDetails()
-  const { pools, loading: poolsLoading } = useV3SwapPools(allPools, currencyIn, currencyOut)
+  const { pools, loading: poolsLoading } = useV3SwapPools(currencyIn, currencyOut)
 
   // const [singleHopOnly] = useUserSingleHopOnly()
   const singleHopOnly = false

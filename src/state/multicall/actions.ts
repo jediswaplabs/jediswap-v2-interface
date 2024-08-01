@@ -1,6 +1,5 @@
 import { FunctionAbi, Calldata } from 'starknet'
 import { createAction } from '@reduxjs/toolkit'
-import { isAddress } from '../../utils'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { isAddressValidForStarknet } from 'utils/addresses'
 

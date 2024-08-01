@@ -57,7 +57,7 @@ export function useBestV3TradeExactIn(
   amountIn?: any,
   currencyOut?: Currency
 ): { state: TradeState; trade: any | null } {
-  const { routes, loading: routesLoading } = useAllV3Routes(allPools, amountIn?.currency, currencyOut)
+  const { routes, loading: routesLoading } = useAllV3Routes(amountIn?.currency, currencyOut)
   // State to store the resolved result
 
   if (!routes)
@@ -373,7 +373,7 @@ export function useBestV3TradeExactOut(
 ): { state: TradeState; trade: any | null } {
   // : { state: V3TradeState; trade: any | null }
   // const quoter = useV3Quoter()
-  const { routes, loading: routesLoading } = useAllV3Routes(allPools, currencyIn, amountOut?.currency)
+  const { routes, loading: routesLoading } = useAllV3Routes(currencyIn, amountOut?.currency)
   const { address, account, chainId, connector } = useAccountDetails()
   const swapRouterAddress = SWAP_ROUTER_ADDRESS_V2[chainId ?? DEFAULT_CHAIN_ID]
   const deadline = useTransactionDeadline()

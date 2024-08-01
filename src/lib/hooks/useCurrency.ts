@@ -11,7 +11,6 @@ import { useEffect, useMemo } from 'react'
 
 import { DEFAULT_CHAIN_ID, DEFAULT_ERC20_DECIMALS, WETH } from '../../constants/tokens'
 // import { TOKEN_SHORTHANDS } from '../../constants/tokens'
-import { isAddress } from '../../utils'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import { useContractRead } from '@starknet-react/core'
 import ERC20_ABI from 'abis/erc20.json'

@@ -559,7 +559,7 @@ export function Swap({
       try {
         if (result.data) {
           const tokensData = result.data.tokensData
-          if (tokensData) {
+          if (tokensData && tokensData.length) {
             const [price0Obj, price1Obj] = [tokensData[0], tokensData[1]]
             const isToken0InputAmount =
               validateAndParseAddress((trade?.inputAmount.currency as any).address) ===

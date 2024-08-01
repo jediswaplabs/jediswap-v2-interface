@@ -1,13 +1,13 @@
-import { isAddress } from '@ethersproject/address';
-import gql from 'graphql-tag';
-import { useMemo } from 'react';
+import { isAddress } from '@ethersproject/address'
+import gql from 'graphql-tag'
+import { useMemo } from 'react'
 
-import { GenieCollection } from 'nft/types';
-import { blocklistedCollections } from 'nft/utils';
-import { NftCollection, useCollectionSearchQuery } from '../types-and-hooks';
-import { formatCollectionQueryData, useCollection } from './Collection';
+import { GenieCollection } from 'nft/types'
+import { blocklistedCollections } from 'nft/utils'
+import { NftCollection, useCollectionSearchQuery } from '../types-and-hooks'
+import { formatCollectionQueryData, useCollection } from './Collection'
 
-const MAX_SEARCH_RESULTS = 6;
+const MAX_SEARCH_RESULTS = 6
 
 gql`
   query CollectionSearch($query: String!) {
@@ -44,7 +44,7 @@ gql`
       }
     }
   }
-`;
+`
 
 interface useCollectionSearchReturnProps {
   data: GenieCollection[]
@@ -57,31 +57,35 @@ function useCollectionQuerySearch(query: string, skip?: boolean): useCollectionS
       query,
     },
     skip: skip || !query,
-  });
+  })
 
-  return useMemo(() => ({
-    data:
+  return useMemo(
+    () => ({
+      data:
         queryData?.nftCollections?.edges
           ?.filter(
-            (collectionEdge) => collectionEdge.node.nftContracts?.[0]?.address
-              && !blocklistedCollections.includes(collectionEdge.node.nftContracts?.[0]?.address),
+            (collectionEdge) =>
+              collectionEdge.node.nftContracts?.[0]?.address &&
+              !blocklistedCollections.includes(collectionEdge.node.nftContracts?.[0]?.address)
           )
           .slice(0, MAX_SEARCH_RESULTS)
           .map((collectionEdge) => {
-            const queryCollection = collectionEdge.node as NonNullable<NftCollection>;
-            return formatCollectionQueryData(queryCollection);
+            const queryCollection = collectionEdge.node as NonNullable<NftCollection>
+            return formatCollectionQueryData(queryCollection)
           }) ?? [],
-    loading,
-  }), [loading, queryData]);
+      loading,
+    }),
+    [loading, queryData]
+  )
 }
 
 export function useCollectionSearch(queryOrAddress: string): useCollectionSearchReturnProps {
-  const isName = !isAddress(queryOrAddress.toLowerCase());
-  const queryResult = useCollectionQuerySearch(queryOrAddress, /* skip= */ !isName);
-  const addressResult = useCollection(queryOrAddress, /* skip= */ isName);
+  const isName = !isAddress(queryOrAddress.toLowerCase())
+  const queryResult = useCollectionQuerySearch(queryOrAddress, /* skip= */ !isName)
+  const addressResult = useCollection(queryOrAddress, /* skip= */ isName)
   return isName
     ? queryResult
     : blocklistedCollections.includes(queryOrAddress)
-      ? { data: [], loading: false }
-      : { data: [addressResult.data], loading: addressResult.loading };
+    ? { data: [], loading: false }
+    : { data: [addressResult.data], loading: addressResult.loading }
 }
