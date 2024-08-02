@@ -148,7 +148,7 @@ export function useBestV3TradeExactIn(
           }
         })
       })
-      .flat()
+      .flat(1)
   }, [routes, amountIn, address, currencyOut, deadline])
 
   const approveSelector = useMemo(() => {
@@ -453,7 +453,7 @@ export function useBestV3TradeExactOut(
               fee: route.pools[0].fee,
               recipient: address,
               deadline: cairo.felt(deadline.toString()),
-              amount_out: amountOut ? cairo.uint256(`0x${amountOut.raw.toString(16)}`) : 0,
+              amount_out: amount ? cairo.uint256(`0x${amount.raw.toString(16)}`) : 0,
               amount_in_maximum: cairo.uint256(2 ** 128),
               sqrt_price_limit_X96: cairo.uint256(0),
             }

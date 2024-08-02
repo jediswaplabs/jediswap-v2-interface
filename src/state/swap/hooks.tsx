@@ -136,8 +136,10 @@ export function useDerivedSwapInfo(
   //   [inputCurrency, isExactIn, outputCurrency, typedValue]
   // )
   const distributedAmount = useMemo(() => {
-    if (!typedValue) return undefined
-    return getAmountDistribution(typedValue, 50, isExactIn ? inputCurrency : outputCurrency)
+    if (!typedValue || !inputCurrency || !outputCurrency) return undefined
+    const amount = tryParseCurrencyAmount(typedValue, isExactIn ? inputCurrency : outputCurrency) as CurrencyAmount<any>
+    if (!amount) return undefined
+    return getAmountDistribution(amount, 50, formatCurrencyAmount)
   }, [typedValue])
 
   const bestV3TradeExactIn = useBestV3TradeExactIn(
@@ -382,17 +384,44 @@ export function useDefaultsFromURLSearch(): SwapState {
 // This is reconcilled at the end of the algorithm by adding any lost precision to one of
 // the splits in the route.
 export function getAmountDistribution(
-  amount: string,
+  amount: CurrencyAmount<any>,
   distributionPercent: number,
-  currency?: Currency
-): [number[], (CurrencyAmount<any> | undefined)[]] {
+  formatCurrencyAmount: any
+): [number[], CurrencyAmount<any>[]] {
   const percents = []
   const amounts = []
 
+  // console.log(
+  //   'amount',
+  //   formatCurrencyAmount({
+  //     amount: amount,
+  //     type: NumberType.SwapTradeAmount,
+  //     placeholder: '',
+  //   })
+  // )
+
   for (let i = 1; i <= 100 / distributionPercent; i++) {
     percents.push(i * distributionPercent)
-    amounts.push((Number(amount) * (i * distributionPercent)) / 100)
+    const partial = amount.multiply(new Fraction(i * distributionPercent, 100))
+    const parsedAmount = formatCurrencyAmount({
+      amount: partial,
+      type: NumberType.SwapTradeAmount,
+      placeholder: '',
+    })
+    amounts.push(tryParseCurrencyAmount(parsedAmount, amount.currency)!)
   }
 
-  return [percents, amounts.map((number) => tryParseCurrencyAmount(number.toString(), currency ?? undefined))]
+  // amounts.forEach((amount, i) => {
+  //   console.log(
+  //     'amounts',
+  //     amount,
+  //     formatCurrencyAmount({
+  //       amount: amount,
+  //       type: NumberType.SwapTradeAmount,
+  //       placeholder: '',
+  //     })
+  //   )
+  // })
+
+  return [percents, amounts]
 }
