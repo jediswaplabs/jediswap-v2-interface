@@ -139,7 +139,7 @@ export function useDerivedSwapInfo(
     if (!typedValue || !inputCurrency || !outputCurrency) return undefined
     const amount = tryParseCurrencyAmount(typedValue, isExactIn ? inputCurrency : outputCurrency) as CurrencyAmount<any>
     if (!amount) return undefined
-    return getAmountDistribution(amount, 50, formatCurrencyAmount)
+    return getAmountDistribution(amount, 100, formatCurrencyAmount)
   }, [typedValue])
 
   const bestV3TradeExactIn = useBestV3TradeExactIn(

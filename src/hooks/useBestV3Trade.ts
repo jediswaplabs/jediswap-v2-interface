@@ -260,8 +260,9 @@ export function useBestV3TradeExactIn(
       const settledResultsWithRoute = settledResults.map((result, i) => {
         if (!amountIns || !percents) return
         const amountInsLength = amountIns.length
-        const routeIndex = i % amountInsLength
+        const routesLength = routes.length
 
+        const routeIndex = i % routesLength
         return {
           ...result,
           route: routes[routeIndex],
