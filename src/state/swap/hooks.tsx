@@ -143,7 +143,7 @@ export function useDerivedSwapInfo(
 
   const distributedAmount = useMemo(() => {
     if (!parsedAmount) return undefined
-    return getAmountDistribution(parsedAmount, 100, formatCurrencyAmount)
+    return getAmountDistribution(parsedAmount, 50, formatCurrencyAmount)
   }, [parsedAmount])
 
   const bestV3TradeExactIn = useBestV3TradeExactIn(
