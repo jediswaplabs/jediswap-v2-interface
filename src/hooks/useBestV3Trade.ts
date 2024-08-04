@@ -594,8 +594,8 @@ export function useBestV3TradeExactOut(
       const settledResults = await Promise.allSettled(callPromises as any)
       const settledResultsWithRoute = settledResults.map((result, i) => {
         if (!amountOuts || !percents) return
-        const amountInsLength = amountOuts.length
-        const routeIndex = i % amountInsLength
+        const routesLength = routes.length
+        const routeIndex = i % routesLength
 
         return {
           ...result,
