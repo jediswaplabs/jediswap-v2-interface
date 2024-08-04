@@ -135,12 +135,16 @@ export function useDerivedSwapInfo(
   //   () => tryParseCurrencyAmount(typedValue, (isExactIn ? inputCurrency : outputCurrency) ?? undefined),
   //   [inputCurrency, isExactIn, outputCurrency, typedValue]
   // )
-  const distributedAmount = useMemo(() => {
+
+  const parsedAmount = useMemo(() => {
     if (!typedValue || !inputCurrency || !outputCurrency) return undefined
-    const amount = tryParseCurrencyAmount(typedValue, isExactIn ? inputCurrency : outputCurrency) as CurrencyAmount<any>
-    if (!amount) return undefined
-    return getAmountDistribution(amount, 100, formatCurrencyAmount)
+    return tryParseCurrencyAmount(typedValue, isExactIn ? inputCurrency : outputCurrency)
   }, [typedValue])
+
+  const distributedAmount = useMemo(() => {
+    if (!parsedAmount) return undefined
+    return getAmountDistribution(parsedAmount, 100, formatCurrencyAmount)
+  }, [parsedAmount])
 
   const bestV3TradeExactIn = useBestV3TradeExactIn(
     allPools,
@@ -279,7 +283,7 @@ export function useDerivedSwapInfo(
     () => ({
       currencies,
       currencyBalances,
-      parsedAmount: distributedAmount ? distributedAmount[1][distributedAmount.length - 1] : undefined,
+      parsedAmount,
       inputError,
       trade,
       autoSlippage,
@@ -287,7 +291,7 @@ export function useDerivedSwapInfo(
       inputTax,
       outputTax,
     }),
-    [allowedSlippage, autoSlippage, currencies, currencyBalances, inputError, inputTax, outputTax, typedValue, trade]
+    [allowedSlippage, autoSlippage, currencies, currencyBalances, inputError, inputTax, outputTax, parsedAmount, trade]
   )
 }
 
