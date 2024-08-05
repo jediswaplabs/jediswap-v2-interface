@@ -16,6 +16,7 @@ import { Z_INDEX } from 'theme/zIndex'
 import { RoutingDiagramEntry } from 'utils/getRoutingDiagramEntries'
 import { ReactComponent as DotLine } from '../../assets/svg/dot_line.svg'
 import { MouseoverTooltip, TooltipSize } from '../Tooltip'
+import { useFormatter } from 'utils/formatNumbers'
 
 const Wrapper = styled(Box)`
   align-items: center;
@@ -107,19 +108,19 @@ export default function RoutingDiagram({
 }) {
   const tokenIn = useTokenInfoFromActiveList(currencyIn)
   const tokenOut = useTokenInfoFromActiveList(currencyOut)
+  const { formatPercent } = useFormatter()
 
   return (
     <Wrapper>
       {routes.map((entry, index) => (
         <RouteContainerRow key={index}>
-          {index === 0 && (
-            <WrapperLabel>
-              <CurrencyLogo currency={tokenIn} size="20px" />
-              <PoolBadgeWhite>
-                {routes?.[0].type} <BadgeText style={{ fontWeight: 300, marginLeft: '4px' }}>100%</BadgeText>
-              </PoolBadgeWhite>
-            </WrapperLabel>
-          )}
+          <WrapperLabel>
+            <CurrencyLogo currency={tokenIn} size="20px" />
+            <PoolBadgeWhite>
+              {entry.type}
+              <BadgeText style={{ fontWeight: 300, marginLeft: '4px' }}>{formatPercent(entry.percent)}%</BadgeText>
+            </PoolBadgeWhite>
+          </WrapperLabel>
           <Route entry={entry} />
           <CurrencyLogo currency={tokenOut} size="20px" />
         </RouteContainerRow>
