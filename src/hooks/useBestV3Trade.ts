@@ -58,6 +58,7 @@ export function useBestV3TradeExactIn(
   const deadline = useTransactionDeadline()
 
   const [bestRoute, setBestRoute] = useState<any>(null)
+  const [isFetching, setIsFetching] = useState(false)
 
   useEffect(() => {
     setBestRoute(null)
@@ -211,120 +212,131 @@ export function useBestV3TradeExactIn(
         !deadline
       )
         return
+      try {
+        setIsFetching(true)
+        const nonce = Number(nonce_results.data)
+        const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
+        const callPromises = quoteExactInInputs.map(async ({ call, input_call_data_length, inputSelector }, i) => {
+          const provider = providerInstance(chainId)
+          if (!provider) return
 
-      const nonce = Number(nonce_results.data)
-      const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
-      const callPromises = quoteExactInInputs.map(async ({ call, input_call_data_length, inputSelector }, i) => {
-        const provider = providerInstance(chainId)
-        if (!provider) return
-
-        const payloadForContractType1 = {
-          contractAddress: address,
-          calldata: CallData.compile({
-            ...totalTx,
-            ...approveSelector,
-            ...approve_call_data_length,
-            ...approve_call_data,
-            ...inputSelector,
-            ...input_call_data_length,
-            ...call.calldata,
-          }),
-        }
-
-        const payloadForContractType0 = {
-          contractAddress: address,
-          calldata: CallData.compile({
-            ...totalTx,
-            ...approveSelector,
-            ...{ approve_offset: '0x0' },
-            ...approve_call_data_length,
-            ...inputSelector,
-            ...{ input_offset: approve_call_data_length },
-            ...input_call_data_length,
-            ...{ total_call_data_length: '0xe' },
-            ...approve_call_data,
-            ...call.calldata,
-          }),
-        }
-        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero
-          ? payloadForContractType1
-          : payloadForContractType0
-
-        const response = provider.simulateTransaction(
-          [{ type: TransactionType.INVOKE, ...payloadBasedOnCairoVersion, signature, nonce }],
-          {
-            skipValidate: true,
+          const payloadForContractType1 = {
+            contractAddress: address,
+            calldata: CallData.compile({
+              ...totalTx,
+              ...approveSelector,
+              ...approve_call_data_length,
+              ...approve_call_data,
+              ...inputSelector,
+              ...input_call_data_length,
+              ...call.calldata,
+            }),
           }
-        )
 
-        return response
-      })
+          const payloadForContractType0 = {
+            contractAddress: address,
+            calldata: CallData.compile({
+              ...totalTx,
+              ...approveSelector,
+              ...{ approve_offset: '0x0' },
+              ...approve_call_data_length,
+              ...inputSelector,
+              ...{ input_offset: approve_call_data_length },
+              ...input_call_data_length,
+              ...{ total_call_data_length: '0xe' },
+              ...approve_call_data,
+              ...call.calldata,
+            }),
+          }
+          const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero
+            ? payloadForContractType1
+            : payloadForContractType0
 
-      const settledResults = await Promise.allSettled(callPromises as any)
-      const settledResultsWithRoute = settledResults.map((result, i) => {
-        if (!amountIns || !percents) return
-        const amountInsLength = amountIns.length
-        const routesLength = routes.length
+          const response = provider.simulateTransaction(
+            [{ type: TransactionType.INVOKE, ...payloadBasedOnCairoVersion, signature, nonce }],
+            {
+              skipValidate: true,
+            }
+          )
 
-        const routeIndex = i % routesLength
-        return {
-          ...result,
-          route: routes[routeIndex],
-        }
-      })
-
-      const resolvedResults = settledResultsWithRoute
-        .filter((result) => result?.status === 'fulfilled')
-        .map((result: any) => {
-          const response = { ...result.value, route: result.route }
           return response
         })
 
-      return resolvedResults
+        const settledResults = await Promise.allSettled(callPromises as any)
+        const settledResultsWithRoute = settledResults.map((result, i) => {
+          if (!amountIns || !percents) return
+          const amountInsLength = amountIns.length
+          const routesLength = routes.length
+
+          const routeIndex = i % routesLength
+          return {
+            ...result,
+            route: routes[routeIndex],
+          }
+        })
+
+        const resolvedResults = settledResultsWithRoute
+          .filter((result) => result?.status === 'fulfilled')
+          .map((result: any) => {
+            const response = { ...result.value, route: result.route }
+            return response
+          })
+
+        return resolvedResults
+      } catch (e) {
+        console.error(e)
+        return undefined
+      }
     },
     onSuccess: async (data) => {
-      if (data && currencyOut && amountIns && currencyIn && percents) {
-        const validQuotes = data
-          .filter((result: any) => {
-            return result[0].transaction_trace.execute_invocation.result
-          })
-          .map((result: any) => {
-            const selected_tx_result = result[0].transaction_trace.execute_invocation.result
-            const value = selected_tx_result[selected_tx_result.length - 2]
-            const amountOut = fromUint256ToNumber({ high: value })
-
-            const selected_call_data = result[0].transaction_trace.execute_invocation.calldata
-            const inputValue = selected_call_data[selected_call_data.length - 4]
-            const amountIn = fromUint256ToNumber({ high: inputValue })
-
-            const amountInIndex = amountIns.findIndex((amount) => {
-              return (
-                formatCurrencyAmount({
-                  amount: amount,
-                  type: NumberType.SwapTradeAmount,
-                  placeholder: '',
-                }) ==
-                formatCurrencyAmount({
-                  amount: CurrencyAmount.fromRawAmount(currencyIn!, num.hexToDecimalString(amountIn)),
-                  type: NumberType.SwapTradeAmount,
-                  placeholder: '',
-                })
-              )
+      try {
+        if (data && currencyOut && amountIns && currencyIn && percents) {
+          const validQuotes = data
+            .filter((result: any) => {
+              return result[0].transaction_trace.execute_invocation.result
             })
+            .map((result: any) => {
+              const selected_tx_result = result[0].transaction_trace.execute_invocation.result
+              const value = selected_tx_result[selected_tx_result.length - 2]
+              const amountOut = fromUint256ToNumber({ high: value })
 
-            return {
-              ...result[0],
-              route: result.route,
-              inputAmount: CurrencyAmount.fromRawAmount(currencyIn, num.hexToDecimalString(amountIn)),
-              percent: percents[amountInIndex],
-              poolAddresses: result.route.pools.map((pool: Pool) => {
-                return getPoolAddress(pool.token0, pool.token1, pool.fee, chainId)
-              }),
-              outputAmount: CurrencyAmount.fromRawAmount(currencyOut, num.hexToDecimalString(amountOut)),
-            }
-          })
-        const route = await getBestSwapRoute(validQuotes, TradeType.EXACT_INPUT, percents ?? [])
-        setBestRoute(route)
+              const selected_call_data = result[0].transaction_trace.execute_invocation.calldata
+              const inputValue = selected_call_data[selected_call_data.length - 4]
+              const amountIn = fromUint256ToNumber({ high: inputValue })
+
+              const amountInIndex = amountIns.findIndex((amount) => {
+                return (
+                  formatCurrencyAmount({
+                    amount: amount,
+                    type: NumberType.SwapTradeAmount,
+                    placeholder: '',
+                  }) ==
+                  formatCurrencyAmount({
+                    amount: CurrencyAmount.fromRawAmount(currencyIn!, num.hexToDecimalString(amountIn)),
+                    type: NumberType.SwapTradeAmount,
+                    placeholder: '',
+                  })
+                )
+              })
+
+              return {
+                ...result[0],
+                route: result.route,
+                inputAmount: CurrencyAmount.fromRawAmount(currencyIn, num.hexToDecimalString(amountIn)),
+                percent: percents[amountInIndex],
+                poolAddresses: result.route.pools.map((pool: Pool) => {
+                  return getPoolAddress(pool.token0, pool.token1, pool.fee, chainId)
+                }),
+                outputAmount: CurrencyAmount.fromRawAmount(currencyOut, num.hexToDecimalString(amountOut)),
+              }
+            })
+          const route = await getBestSwapRoute(validQuotes, TradeType.EXACT_INPUT, percents ?? [])
+          setBestRoute(route)
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setIsFetching(false)
       }
     },
   })
@@ -336,7 +348,7 @@ export function useBestV3TradeExactIn(
         trade: null,
       }
     }
-    if (!amountIn || !currencyOut) {
+    if (!amountIn || !currencyOut || isFetching) {
       return {
         state: TradeState.INVALID,
         trade: null,
@@ -386,6 +398,7 @@ export function useBestV3TradeExactOut(
   const { formatCurrencyAmount } = useFormatter()
 
   const [bestRoute, setBestRoute] = useState<any>(null)
+  const [isFetching, setIsFetching] = useState(false)
 
   useEffect(() => {
     setBestRoute(null)
@@ -552,119 +565,131 @@ export function useBestV3TradeExactOut(
         !deadline
       )
         return
-      const nonce = Number(nonce_results.data)
-      const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
-      const callPromises = quoteExactOutInputs.map(async ({ call, outputSelector, output_call_data_length }) => {
-        const provider = providerInstance(chainId)
-        if (!provider) return
-        const payloadForContractType1 = {
-          contractAddress: address,
-          calldata: CallData.compile({
-            ...totalTx,
-            ...approveSelector,
-            ...approve_call_data_length,
-            ...approve_call_data,
-            ...outputSelector,
-            ...output_call_data_length,
-            ...call.calldata,
-          }),
-        }
-
-        const payloadForContractType0 = {
-          contractAddress: address,
-          calldata: CallData.compile({
-            ...totalTx,
-            ...approveSelector,
-            ...{ approve_offset: '0x0' },
-            ...approve_call_data_length,
-            ...outputSelector,
-            ...{ input_offset: approve_call_data_length },
-            ...output_call_data_length,
-            ...{ total_call_data_length: '0xe' },
-            ...approve_call_data,
-            ...call.calldata,
-          }),
-        }
-        const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero
-          ? payloadForContractType1
-          : payloadForContractType0
-
-        const response = provider.simulateTransaction(
-          [{ type: TransactionType.INVOKE, ...payloadBasedOnCairoVersion, signature, nonce }],
-          {
-            skipValidate: true,
+      try {
+        setIsFetching(true)
+        const nonce = Number(nonce_results.data)
+        const isWalletCairoVersionGreaterThanZero = Boolean(contract_version.data)
+        const callPromises = quoteExactOutInputs.map(async ({ call, outputSelector, output_call_data_length }) => {
+          const provider = providerInstance(chainId)
+          if (!provider) return
+          const payloadForContractType1 = {
+            contractAddress: address,
+            calldata: CallData.compile({
+              ...totalTx,
+              ...approveSelector,
+              ...approve_call_data_length,
+              ...approve_call_data,
+              ...outputSelector,
+              ...output_call_data_length,
+              ...call.calldata,
+            }),
           }
-        )
 
-        return response
-      })
-
-      const settledResults = await Promise.allSettled(callPromises as any)
-      const settledResultsWithRoute = settledResults.map((result, i) => {
-        if (!amountOuts || !percents) return
-        const routesLength = routes.length
-        const routeIndex = i % routesLength
-
-        return {
-          ...result,
-          route: routes[routeIndex],
-        }
-      })
-      const resolvedResults = settledResultsWithRoute
-        .filter((result) => result?.status === 'fulfilled')
-        .map((result: any) => {
-          const response = {
-            ...result.value,
-            route: result.route,
+          const payloadForContractType0 = {
+            contractAddress: address,
+            calldata: CallData.compile({
+              ...totalTx,
+              ...approveSelector,
+              ...{ approve_offset: '0x0' },
+              ...approve_call_data_length,
+              ...outputSelector,
+              ...{ input_offset: approve_call_data_length },
+              ...output_call_data_length,
+              ...{ total_call_data_length: '0xe' },
+              ...approve_call_data,
+              ...call.calldata,
+            }),
           }
+          const payloadBasedOnCairoVersion = isWalletCairoVersionGreaterThanZero
+            ? payloadForContractType1
+            : payloadForContractType0
+
+          const response = provider.simulateTransaction(
+            [{ type: TransactionType.INVOKE, ...payloadBasedOnCairoVersion, signature, nonce }],
+            {
+              skipValidate: true,
+            }
+          )
+
           return response
         })
-      return resolvedResults
+
+        const settledResults = await Promise.allSettled(callPromises as any)
+        const settledResultsWithRoute = settledResults.map((result, i) => {
+          if (!amountOuts || !percents) return
+          const routesLength = routes.length
+          const routeIndex = i % routesLength
+
+          return {
+            ...result,
+            route: routes[routeIndex],
+          }
+        })
+        const resolvedResults = settledResultsWithRoute
+          .filter((result) => result?.status === 'fulfilled')
+          .map((result: any) => {
+            const response = {
+              ...result.value,
+              route: result.route,
+            }
+            return response
+          })
+        return resolvedResults
+      } catch (e) {
+        console.error(e)
+        return undefined
+      }
     },
     onSuccess: async (data) => {
-      if (data && currencyIn && amountOuts && currencyOut && percents) {
-        const validQuotes = data
-          .filter((result: any) => {
-            return result[0].transaction_trace.execute_invocation.result
-          })
-          .map((result: any) => {
-            const selected_tx_result = result[0].transaction_trace.execute_invocation.result
-            const value = selected_tx_result[selected_tx_result.length - 2]
-            const amountIn = fromUint256ToNumber({ high: value })
+      try {
+        if (data && currencyIn && amountOuts && currencyOut && percents) {
+          const validQuotes = data
+            .filter((result: any) => {
+              return result[0].transaction_trace.execute_invocation.result
+            })
+            .map((result: any) => {
+              const selected_tx_result = result[0].transaction_trace.execute_invocation.result
+              const value = selected_tx_result[selected_tx_result.length - 2]
+              const amountIn = fromUint256ToNumber({ high: value })
 
-            const selected_call_data = result[0].transaction_trace.execute_invocation.calldata
-            const outputValue = selected_call_data[selected_call_data.length - 4]
-            const amountOut = fromUint256ToNumber({ high: outputValue })
+              const selected_call_data = result[0].transaction_trace.execute_invocation.calldata
+              const outputValue = selected_call_data[selected_call_data.length - 4]
+              const amountOut = fromUint256ToNumber({ high: outputValue })
 
-            const amountOutIndex = amountOuts.findIndex((amount) => {
-              return (
-                formatCurrencyAmount({
-                  amount: amount,
-                  type: NumberType.SwapTradeAmount,
-                  placeholder: '',
-                }) ==
-                formatCurrencyAmount({
-                  amount: CurrencyAmount.fromRawAmount(currencyOut!, num.hexToDecimalString(amountOut)),
-                  type: NumberType.SwapTradeAmount,
-                  placeholder: '',
-                })
-              )
+              const amountOutIndex = amountOuts.findIndex((amount) => {
+                return (
+                  formatCurrencyAmount({
+                    amount: amount,
+                    type: NumberType.SwapTradeAmount,
+                    placeholder: '',
+                  }) ==
+                  formatCurrencyAmount({
+                    amount: CurrencyAmount.fromRawAmount(currencyOut!, num.hexToDecimalString(amountOut)),
+                    type: NumberType.SwapTradeAmount,
+                    placeholder: '',
+                  })
+                )
+              })
+
+              return {
+                ...result[0],
+                route: result.route,
+                outputAmount: CurrencyAmount.fromRawAmount(currencyOut, num.hexToDecimalString(amountOut)),
+                percent: percents[amountOutIndex],
+                poolAddresses: result.route.pools.map((pool: Pool) => {
+                  return getPoolAddress(pool.token0, pool.token1, pool.fee, chainId)
+                }),
+                inputAmount: CurrencyAmount.fromRawAmount(currencyIn, num.hexToDecimalString(amountIn)),
+              }
             })
 
-            return {
-              ...result[0],
-              route: result.route,
-              outputAmount: CurrencyAmount.fromRawAmount(currencyOut, num.hexToDecimalString(amountOut)),
-              percent: percents[amountOutIndex],
-              poolAddresses: result.route.pools.map((pool: Pool) => {
-                return getPoolAddress(pool.token0, pool.token1, pool.fee, chainId)
-              }),
-              inputAmount: CurrencyAmount.fromRawAmount(currencyIn, num.hexToDecimalString(amountIn)),
-            }
-          })
-
-        const route = await getBestSwapRoute(validQuotes, TradeType.EXACT_OUTPUT, percents ?? [])
-        setBestRoute(route)
+          const route = await getBestSwapRoute(validQuotes, TradeType.EXACT_OUTPUT, percents ?? [])
+          setBestRoute(route)
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setIsFetching(false)
       }
     },
   })
@@ -676,7 +701,12 @@ export function useBestV3TradeExactOut(
         trade: null,
       }
     }
-
+    if (!amountOut || !currencyOut || isFetching) {
+      return {
+        state: TradeState.INVALID,
+        trade: null,
+      }
+    }
     if (routesLoading) {
       return {
         state: TradeState.LOADING,

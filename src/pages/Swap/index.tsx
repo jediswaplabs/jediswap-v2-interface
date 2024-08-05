@@ -478,7 +478,7 @@ export function Swap({
   )
 
   const isFetchingOutput = Boolean(
-    userHasSpecifiedInputOutput && formattedAmounts[dependentField] === '' && !routeNotFound
+    userHasSpecifiedInputOutput && formattedAmounts[dependentField] === '' && !routeNotFound && !swapInputError
   )
 
   const maximumAmountIn = useMaxAmountIn(trade, allowedSlippage)
