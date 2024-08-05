@@ -1,7 +1,7 @@
 import { Token, Currency, TradeType, CurrencyAmount } from '@vnaysn/jediswap-sdk-core'
 import { Pool, Route } from '@vnaysn/jediswap-sdk-v3'
 import { Trade } from '@harshalmaniya/jediswap-sdk-v3'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAllV3Routes } from './useAllV3Routes'
 import { DEFAULT_CHAIN_ID, SWAP_ROUTER_ADDRESS_V2 } from 'constants/tokens'
 import { BigNumberish, CallData, TransactionType, cairo, num } from 'starknet'
@@ -58,6 +58,10 @@ export function useBestV3TradeExactIn(
   const deadline = useTransactionDeadline()
 
   const [bestRoute, setBestRoute] = useState<any>(null)
+
+  useEffect(() => {
+    setBestRoute(null)
+  }, [amountIn, currencyOut, currencyIn, routesLoading])
 
   const quoteExactInInputs = useMemo(() => {
     if (routesLoading || !amountIns || !address || !routes || !routes.length || !deadline) return
@@ -382,6 +386,10 @@ export function useBestV3TradeExactOut(
   const { formatCurrencyAmount } = useFormatter()
 
   const [bestRoute, setBestRoute] = useState<any>(null)
+
+  useEffect(() => {
+    setBestRoute(null)
+  }, [amountOut, currencyOut, currencyIn, routesLoading])
 
   const quoteExactOutInputs = useMemo(() => {
     if (routesLoading || !amountOut || !amountOuts || !address || !routes || !routes.length || !deadline) return
