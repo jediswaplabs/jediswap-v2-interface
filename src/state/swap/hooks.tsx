@@ -22,6 +22,7 @@ import { SwapState } from './reducer'
 import { isAddressValidForStarknet } from 'utils/addresses'
 import { useBestV3TradeExactIn, useBestV3TradeExactOut } from 'hooks/useBestV3Trade'
 import { NumberType, useFormatter } from 'utils/formatNumbers'
+import { useTradeExactIn, useTradeExactOut } from 'hooks/Trades'
 
 export function useSwapActionHandlers(dispatch: React.Dispatch<AnyAction>): {
   onCurrencySelection: (field: Field, currency: Currency) => void
@@ -143,7 +144,7 @@ export function useDerivedSwapInfo(
 
   const distributedAmount = useMemo(() => {
     if (!parsedAmount) return undefined
-    return getAmountDistribution(parsedAmount, 50, formatCurrencyAmount)
+    return getAmountDistribution(parsedAmount, 25, formatCurrencyAmount)
   }, [parsedAmount])
 
   const bestV3TradeExactIn = useBestV3TradeExactIn(
@@ -163,64 +164,64 @@ export function useDerivedSwapInfo(
     typedValue
   )
 
-  // const [bestV2TradeExactIn] = useTradeExactIn(
-  //   allPairs,
-  //   isExactIn ? parsedAmount : undefined,
-  //   outputCurrency ?? undefined
-  // )
+  const [bestV2TradeExactIn] = useTradeExactIn(
+    allPairs,
+    isExactIn ? parsedAmount : undefined,
+    outputCurrency ?? undefined
+  )
 
-  // const [bestV2TradeExactOut] = useTradeExactOut(
-  //   allPairs,
-  //   inputCurrency ?? undefined,
-  //   !isExactIn ? parsedAmount : undefined
-  // )
+  const [bestV2TradeExactOut] = useTradeExactOut(
+    allPairs,
+    inputCurrency ?? undefined,
+    !isExactIn ? parsedAmount : undefined
+  )
 
-  // const bestTradeExactIn = useMemo(() => {
-  //   if (bestV2TradeExactIn && bestV3TradeExactIn && bestV3TradeExactIn.trade) {
-  //     const v2OutputAmount = BigInt(bestV2TradeExactIn.outputAmount.raw.toString())
-  //     const v3OutputAmount = BigInt(bestV3TradeExactIn.trade.outputAmount.raw.toString())
-  //     return v2OutputAmount > v3OutputAmount
-  //       ? { state: TradeState.VALID, trade: bestV2TradeExactIn }
-  //       : bestV3TradeExactIn
-  //   } else if (!bestV2TradeExactIn && bestV3TradeExactIn) {
-  //     return bestV3TradeExactIn
-  //   } else if (bestV2TradeExactIn && !bestV3TradeExactIn?.trade) {
-  //     return { state: TradeState.VALID, trade: bestV2TradeExactIn }
-  //   }
+  const bestTradeExactIn = useMemo(() => {
+    if (bestV2TradeExactIn && bestV3TradeExactIn && bestV3TradeExactIn.trade) {
+      const v2OutputAmount = BigInt(bestV2TradeExactIn.outputAmount.raw.toString())
+      const v3OutputAmount = BigInt(bestV3TradeExactIn.trade.outputAmount.raw.toString())
+      return v2OutputAmount > v3OutputAmount
+        ? { state: TradeState.VALID, trade: bestV2TradeExactIn }
+        : bestV3TradeExactIn
+    } else if (!bestV2TradeExactIn && bestV3TradeExactIn) {
+      return bestV3TradeExactIn
+    } else if (bestV2TradeExactIn && !bestV3TradeExactIn?.trade) {
+      return { state: TradeState.VALID, trade: bestV2TradeExactIn }
+    }
 
-  //   return {
-  //     state: TradeState.INVALID,
-  //     trade: null,
-  //   }
-  // }, [bestV2TradeExactIn, bestV3TradeExactIn])
+    return {
+      state: TradeState.INVALID,
+      trade: null,
+    }
+  }, [bestV2TradeExactIn, bestV3TradeExactIn])
 
-  // const bestTradeExactOut = useMemo(() => {
-  //   if (bestV2TradeExactOut && bestV3TradeExactOut && bestV3TradeExactOut.trade) {
-  //     const v2InputAmount = BigInt(bestV2TradeExactOut.inputAmount.raw.toString())
-  //     const v3InputAmount = BigInt(bestV3TradeExactOut.trade.inputAmount.raw.toString())
-  //     return v2InputAmount < v3InputAmount
-  //       ? { state: TradeState.VALID, trade: bestV2TradeExactOut }
-  //       : bestV3TradeExactOut
-  //   } else if (!bestV2TradeExactOut && bestV3TradeExactOut) {
-  //     return bestV3TradeExactOut
-  //   } else if (bestV2TradeExactOut && !bestV3TradeExactOut?.trade) {
-  //     return { state: TradeState.VALID, trade: bestV2TradeExactOut }
-  //   }
+  const bestTradeExactOut = useMemo(() => {
+    if (bestV2TradeExactOut && bestV3TradeExactOut && bestV3TradeExactOut.trade) {
+      const v2InputAmount = BigInt(bestV2TradeExactOut.inputAmount.raw.toString())
+      const v3InputAmount = BigInt(bestV3TradeExactOut.trade.inputAmount.raw.toString())
+      return v2InputAmount < v3InputAmount
+        ? { state: TradeState.VALID, trade: bestV2TradeExactOut }
+        : bestV3TradeExactOut
+    } else if (!bestV2TradeExactOut && bestV3TradeExactOut) {
+      return bestV3TradeExactOut
+    } else if (bestV2TradeExactOut && !bestV3TradeExactOut?.trade) {
+      return { state: TradeState.VALID, trade: bestV2TradeExactOut }
+    }
 
-  //   return {
-  //     state: TradeState.INVALID,
-  //     trade: null,
-  //   }
-  // }, [bestV2TradeExactOut, bestV3TradeExactOut])
+    return {
+      state: TradeState.INVALID,
+      trade: null,
+    }
+  }, [bestV2TradeExactOut, bestV3TradeExactOut])
 
   const trade =
-    // chainId === ChainId.GOERLI
-    //   ?
-    isExactIn ? bestV3TradeExactIn : bestV3TradeExactOut
-  // :
-  // isExactIn
-  // ? bestTradeExactIn
-  // : bestTradeExactOut
+    chainId === ChainId.GOERLI
+      ? isExactIn
+        ? bestV3TradeExactIn
+        : bestV3TradeExactOut
+      : isExactIn
+      ? bestTradeExactIn
+      : bestTradeExactOut
 
   // console.log('finalTrade', trade)
 
