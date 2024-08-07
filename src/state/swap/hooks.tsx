@@ -177,18 +177,19 @@ export function useDerivedSwapInfo(
   )
 
   const bestTradeExactIn = useMemo(() => {
-    if (bestV2TradeExactIn && bestV3TradeExactIn && bestV3TradeExactIn.trade) {
-      const v2OutputAmount = BigInt(bestV2TradeExactIn.outputAmount.raw.toString())
-      const v3OutputAmount = BigInt(bestV3TradeExactIn.trade.outputAmount.raw.toString())
-      return v2OutputAmount > v3OutputAmount
-        ? { state: TradeState.VALID, trade: bestV2TradeExactIn }
-        : bestV3TradeExactIn
-    } else if (!bestV2TradeExactIn && bestV3TradeExactIn) {
-      return bestV3TradeExactIn
-    } else if (bestV2TradeExactIn && !bestV3TradeExactIn?.trade) {
-      return { state: TradeState.VALID, trade: bestV2TradeExactIn }
+    if (bestV3TradeExactIn.state !== TradeState.INVALID && bestV3TradeExactIn.state !== TradeState.LOADING) {
+      if (bestV2TradeExactIn && bestV3TradeExactIn && bestV3TradeExactIn.trade) {
+        const v2OutputAmount = BigInt(bestV2TradeExactIn.outputAmount.raw.toString())
+        const v3OutputAmount = BigInt(bestV3TradeExactIn.trade.outputAmount.raw.toString())
+        return v2OutputAmount > v3OutputAmount
+          ? { state: TradeState.VALID, trade: bestV2TradeExactIn }
+          : bestV3TradeExactIn
+      } else if (!bestV2TradeExactIn && bestV3TradeExactIn) {
+        return bestV3TradeExactIn
+      } else if (bestV2TradeExactIn && !bestV3TradeExactIn?.trade) {
+        return { state: TradeState.VALID, trade: bestV2TradeExactIn }
+      }
     }
-
     return {
       state: TradeState.INVALID,
       trade: null,
@@ -196,16 +197,18 @@ export function useDerivedSwapInfo(
   }, [bestV2TradeExactIn, bestV3TradeExactIn])
 
   const bestTradeExactOut = useMemo(() => {
-    if (bestV2TradeExactOut && bestV3TradeExactOut && bestV3TradeExactOut.trade) {
-      const v2InputAmount = BigInt(bestV2TradeExactOut.inputAmount.raw.toString())
-      const v3InputAmount = BigInt(bestV3TradeExactOut.trade.inputAmount.raw.toString())
-      return v2InputAmount < v3InputAmount
-        ? { state: TradeState.VALID, trade: bestV2TradeExactOut }
-        : bestV3TradeExactOut
-    } else if (!bestV2TradeExactOut && bestV3TradeExactOut) {
-      return bestV3TradeExactOut
-    } else if (bestV2TradeExactOut && !bestV3TradeExactOut?.trade) {
-      return { state: TradeState.VALID, trade: bestV2TradeExactOut }
+    if (bestV3TradeExactOut.state !== TradeState.INVALID && bestV3TradeExactOut.state !== TradeState.LOADING) {
+      if (bestV2TradeExactOut && bestV3TradeExactOut && bestV3TradeExactOut.trade) {
+        const v2InputAmount = BigInt(bestV2TradeExactOut.inputAmount.raw.toString())
+        const v3InputAmount = BigInt(bestV3TradeExactOut.trade.inputAmount.raw.toString())
+        return v2InputAmount < v3InputAmount
+          ? { state: TradeState.VALID, trade: bestV2TradeExactOut }
+          : bestV3TradeExactOut
+      } else if (!bestV2TradeExactOut && bestV3TradeExactOut) {
+        return bestV3TradeExactOut
+      } else if (bestV2TradeExactOut && !bestV3TradeExactOut?.trade) {
+        return { state: TradeState.VALID, trade: bestV2TradeExactOut }
+      }
     }
 
     return {
