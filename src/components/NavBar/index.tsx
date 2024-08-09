@@ -8,7 +8,6 @@ import MobileLogo from 'assets/jedi/squareLogo.png'
 import { useAccountDrawer } from 'components/AccountDrawer'
 import Web3Status from 'components/Web3Status'
 import { useIsPoolsPage } from 'hooks/useIsPoolsPage'
-import { NetworkName } from './NetworkName'
 import {
   ActiveMenuItem,
   ExternalMenuItem,
@@ -61,6 +60,9 @@ export const PageTabs = () => {
       <ExternalMenuItemLink to="https://app.v1.jediswap.xyz/">
         <Trans>V1</Trans>
       </ExternalMenuItemLink>
+      <MenuItemLink to="/referral" isActive={pathname.startsWith('/referral')}>
+        <Trans>Referral</Trans>
+      </MenuItemLink>
       <MenuItemLink to="/rewards" isActive={pathname.startsWith('/rewards')}>
         <img src={StarkIcon} style={{ marginRight: '2px' }} alt="starknet_logo" />
         <Trans>Rewards</Trans>

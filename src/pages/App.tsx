@@ -3,7 +3,6 @@ import { useAtom } from 'jotai'
 import { lazy, Suspense, useEffect, useLayoutEffect, useMemo, useState } from 'react'
 import { Navigate, Route, Routes, useLocation, useSearchParams } from 'react-router-dom'
 import styled from 'styled-components'
-
 import ErrorBoundary from 'components/ErrorBoundary'
 import Loader from 'components/Icons/LoadingSpinner'
 import NavBar, { PageTabs } from 'components/NavBar'
@@ -11,15 +10,18 @@ import { useFeatureFlagsIsLoaded } from 'featureFlags'
 import { flexRowNoWrap } from 'theme/styles'
 import { Z_INDEX } from 'theme/zIndex'
 import { RouteDefinition, routes, useRouterConfig } from './RouteDefinitions'
-import {
-  UK_BANNER_HEIGHT,
-  UK_BANNER_HEIGHT_MD,
-  UK_BANNER_HEIGHT_SM,
-  WarningBanner,
-} from 'components/NavBar/WarningBanner'
+import { UK_BANNER_HEIGHT, UK_BANNER_HEIGHT_MD, UK_BANNER_HEIGHT_SM } from 'components/NavBar/WarningBanner'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import useParsedQueryString from 'hooks/useParsedQueryString'
+import { parseReferralCodeURLParameter } from 'state/swap/hooks'
+import { isAddressValidForStarknet, shortenAddress } from 'utils/addresses'
 import { ApolloProvider } from '@apollo/client'
 import { getClient } from 'apollo/client'
+import { getChecksumAddress, validateChecksumAddress } from 'starknet'
+import { bannerType, WarningBanner } from './Referral/Warning'
+import { getReferralInfoFromLocalStorageForUser, setIsNotifClosedForuser, useReferralstate } from 'hooks/useReferral'
+import fetchReferrer from 'api/fetchReferrer'
+import { has } from 'immer/dist/internal'
 // import Footer from 'components/Footer'
 
 const BodyWrapper = styled.div<{ bannerIsVisible?: boolean }>`
@@ -97,25 +99,44 @@ export default function App() {
   const isLoaded = useFeatureFlagsIsLoaded()
   const location = useLocation()
   const { pathname } = location
-
   const [scrollY, setScrollY] = useState(0)
-  const [showWarning, setShowWarning] = useState(false)
+  const [warningType, setWarningType] = useState<bannerType | undefined>(undefined)
+  const [hasUserClosedWarning, setHasUserClosedWarning] = useState(false)
   const scrolledState = scrollY > 0
   const routerConfig = useRouterConfig()
-  const { chainId } = useAccountDetails()
-
+  const { chainId, address: account } = useAccountDetails()
+  const { referralInfoLocal: localStorageData, userReferralInfoLocal: userStorageReferralData } =
+    getReferralInfoFromLocalStorageForUser(chainId, account)
   const isHeaderTransparent = !scrolledState
+  useReferralstate()
+
+  useEffect(() => {
+    if (
+      userStorageReferralData &&
+      account &&
+      hasUserClosedWarning === false &&
+      userStorageReferralData.isNotifClosed === false
+    ) {
+      if (userStorageReferralData.isCorrect === false) {
+        setWarningType('warning')
+      } else {
+        setWarningType('success')
+      }
+    } else {
+      setWarningType(undefined)
+    }
+  }, [localStorageData, account, hasUserClosedWarning])
 
   useEffect(() => {
     window.scrollTo(0, 0)
     setScrollY(0)
   }, [pathname])
 
-  useEffect(() => {
-    if (chainId) {
-      if (chainId === ChainId.GOERLI) setShowWarning(false)
-    }
-  }, [chainId])
+  // useEffect(() => {
+  //   if (chainId) {
+  //     if (chainId === ChainId.MAINNET) setWarningType('error')
+  //   }
+  // }, [chainId])
 
   useEffect(() => {
     const scrollListener = () => {
@@ -125,11 +146,38 @@ export default function App() {
     return () => window.removeEventListener('scroll', scrollListener)
   }, [])
 
+  let content = (
+    <>
+      Warning: Deposit liquidity is currently paused in v2. No swap will route through v2 pools. We recommend you remove
+      the liquidity from Jediswap v2.
+    </>
+  )
+  if (warningType === 'success') {
+    content = <>Referred by {shortenAddress(userStorageReferralData?.referredBy ?? '', 4, 4)}</>
+  } else if (warningType === 'warning') {
+    content = (
+      <>Caution: The referral link doesn’t seem to be correct. Please use the correct link to get referral points.</>
+    )
+  }
+
   return (
     <ApolloProvider client={getClient(chainId)}>
+      {warningType !== undefined && (
+        <WarningBanner
+          type={warningType}
+          content={content}
+          onClose={
+            warningType !== 'error'
+              ? () => {
+                  setHasUserClosedWarning(true)
+                  setIsNotifClosedForuser(account!, chainId!)
+                }
+              : undefined
+          }
+        />
+      )}
       <ErrorBoundary>
-        {showWarning && <WarningBanner />}
-        <HeaderWrapper scrollY={scrollY} transparent={isHeaderTransparent} bannerIsVisible={showWarning}>
+        <HeaderWrapper scrollY={scrollY} transparent={isHeaderTransparent} bannerIsVisible={false}>
           <NavBar />
         </HeaderWrapper>
         <BodyWrapper>
