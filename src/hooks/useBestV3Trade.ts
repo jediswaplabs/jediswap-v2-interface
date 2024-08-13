@@ -200,6 +200,7 @@ export function useBestV3TradeExactIn(
   const signature: WeierstrassSignatureType = ec.starkCurve.sign(msgHash, privateKey)
   useQuery({
     queryKey: ['get_simulation', address, amountIn, nonce_results?.data, currencyOut?.symbol, contract_version?.data],
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       if (
         !address ||
@@ -288,6 +289,7 @@ export function useBestV3TradeExactIn(
         return undefined
       }
     },
+
     onSuccess: async (data) => {
       try {
         if (data && currencyOut && amountIns && currencyIn && percents) {
@@ -553,6 +555,7 @@ export function useBestV3TradeExactOut(
       currencyIn?.symbol,
       contract_version?.data,
     ],
+    refetchOnWindowFocus: false,
     queryFn: async () => {
       if (
         !address ||
