@@ -5,7 +5,7 @@ import Queue from 'mnemonist/queue'
 import _ from 'lodash'
 
 const routingConfig = {
-  minSplits: 1,
+  minSplits: 0,
   maxSplits: 3,
   forceCrossProtocol: false,
 }

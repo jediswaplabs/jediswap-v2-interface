@@ -303,7 +303,9 @@ export function useBestV3TradeExactIn(
               const amountOut = fromUint256ToNumber({ high: value })
 
               const selected_call_data = result[0].transaction_trace.execute_invocation.calldata
-              const inputValue = selected_call_data[selected_call_data.length - 4]
+              const isSingleHop = result.route.pools.length === 1
+              const inputIndex = isSingleHop ? selected_call_data.length - 6 : selected_call_data.length - 4
+              const inputValue = selected_call_data[inputIndex]
               const amountIn = fromUint256ToNumber({ high: inputValue })
 
               const amountInIndex = amountIns.findIndex((amount) => {
@@ -332,6 +334,7 @@ export function useBestV3TradeExactIn(
                 outputAmount: CurrencyAmount.fromRawAmount(currencyOut, num.hexToDecimalString(amountOut)),
               }
             })
+          console.log(validQuotes, 'validQuotes')
           const route = await getBestSwapRoute(validQuotes, TradeType.EXACT_INPUT, percents ?? [])
           setBestRoute(route)
         }
@@ -656,7 +659,9 @@ export function useBestV3TradeExactOut(
               const amountIn = fromUint256ToNumber({ high: value })
 
               const selected_call_data = result[0].transaction_trace.execute_invocation.calldata
-              const outputValue = selected_call_data[selected_call_data.length - 4]
+              const isSingleHop = result.route.pools.length === 1
+              const outputIndex = isSingleHop ? selected_call_data.length - 6 : selected_call_data.length - 4
+              const outputValue = selected_call_data[outputIndex]
               const amountOut = fromUint256ToNumber({ high: outputValue })
 
               const amountOutIndex = amountOuts.findIndex((amount) => {
