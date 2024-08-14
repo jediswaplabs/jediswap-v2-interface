@@ -165,12 +165,17 @@ function V2PairMigration({
     () => pair.getLiquidityValue(pair.token0, totalSupply, pairBalance, false),
     [token0, pairBalance, reserve0, totalSupply]
   )
-  console.log('token0Value', token0Value.toExact())
   const token1Value = useMemo(
     () => pair.getLiquidityValue(pair.token1, totalSupply, pairBalance, false),
     [token1, pairBalance, reserve1, totalSupply]
   )
-  console.log('token1Value', token1Value.toExact())
+
+  const allowedSlippageForRemoving = useUserSlippageToleranceWithDefault(DEFAULT_MIGRATE_SLIPPAGE_TOLERANCE)
+
+  const token0ValueWithSlippage = token0Value.multiply(new Percent(1).subtract(allowedSlippageForRemoving))
+  const token1ValueWithSlippage = token1Value.multiply(new Percent(1).subtract(allowedSlippageForRemoving))
+  console.log('token0Value', token0Value.toExact(), 'token0ValueWithSlip', token0ValueWithSlippage.toExact())
+  console.log('token1Value', token1Value.toExact(), 'token1ValueWithSlip', token1ValueWithSlippage.toExact())
 
   // set up v3 pool
   const [feeAmount, setFeeAmount] = useState(FeeAmount.MEDIUM)
@@ -205,6 +210,7 @@ function V2PairMigration({
   const allowedSlippage = useUserSlippageToleranceWithDefault(
     outOfRange ? ZERO_PERCENT : DEFAULT_MIGRATE_SLIPPAGE_TOLERANCE
   )
+  // console.log('allowedSlippage1111122', allowedSlippage.toFixed(8))
 
   // console.log(ticks, pricesAtTicks, invertPrice, invalidRange, outOfRange, ticksAtLimit, 'skdndkfndk')
 
@@ -247,6 +253,7 @@ function V2PairMigration({
     () => (position ? position.mintAmountsWithSlippage(allowedSlippage) : { amount0: undefined, amount1: undefined }),
     [position, allowedSlippage]
   )
+  console.log('v3Amount0Min', v3Amount0Min?.toString(), token0ValueWithSlippage.quotient.toString())
   // const { amount0: v3Amount0Min, amount1: v3Amount1Min } = useMemo(() => {
   //   if (!position) {
   //     return { amount0: undefined, amount1: undefined }
@@ -324,8 +331,8 @@ function V2PairMigration({
       tokenA: token0.address,
       tokenB: token1.address,
       liquidity: cairo.uint256(liquidityAmount.raw.toString()),
-      amountAMin: cairo.uint256(v3Amount0Min.toString()), //change this to tokenoValue with slippage
-      amountBMin: cairo.uint256(v3Amount1Min.toString()),
+      amountAMin: cairo.uint256(token0ValueWithSlippage.quotient.toString()),
+      amountBMin: cairo.uint256(token1ValueWithSlippage.quotient.toString()),
       to: account,
       deadline: deadline.toHexString(),
     }
