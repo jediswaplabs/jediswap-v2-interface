@@ -371,14 +371,15 @@ function V2PairMigration({
       callData.push(approval)
     }
     callData.push(calls)
-    if (approvalA) {
+    const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
+
+    if (approvalA && JSBI.GT(amount0Desired, 0)) {
       callData.push(approvalA)
     }
-    if (approvalB) {
+    if (approvalB && JSBI.GT(amount1Desired, 0)) {
       callData.push(approvalB)
     }
 
-    const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
     // adjust for slippage
     console.log('allowedSlippage', allowedSlippage.toSignificant())
     const minimumAmounts = position.mintAmountsWithSlippage(allowedSlippage)
