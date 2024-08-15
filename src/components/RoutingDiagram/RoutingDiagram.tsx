@@ -118,7 +118,7 @@ export default function RoutingDiagram({
             <CurrencyLogo currency={tokenIn} size="20px" />
             <PoolBadgeWhite>
               {entry.type}
-              <BadgeText style={{ fontWeight: 300, marginLeft: '4px' }}>{formatPercent(entry.percent)}%</BadgeText>
+              <BadgeText style={{ fontWeight: 300, marginLeft: '4px' }}>{formatPercent(entry.percent)}</BadgeText>
             </PoolBadgeWhite>
           </WrapperLabel>
           <Route entry={entry} />
