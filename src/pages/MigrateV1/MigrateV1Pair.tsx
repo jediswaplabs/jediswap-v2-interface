@@ -174,8 +174,6 @@ function V2PairMigration({
 
   const token0ValueWithSlippage = token0Value.multiply(new Percent(1).subtract(allowedSlippageForRemoving))
   const token1ValueWithSlippage = token1Value.multiply(new Percent(1).subtract(allowedSlippageForRemoving))
-  console.log('token0Value', token0Value.toExact(), 'token0ValueWithSlip', token0ValueWithSlippage.toExact())
-  console.log('token1Value', token1Value.toExact(), 'token1ValueWithSlip', token1ValueWithSlippage.toExact())
 
   // set up v3 pool
   const [feeAmount, setFeeAmount] = useState(FeeAmount.MEDIUM)
@@ -205,12 +203,11 @@ function V2PairMigration({
     price,
     position: position2,
   } = useV3DerivedMintInfo(token0, token1, feeAmount, baseToken)
-  console.log('price!!!', price?.toSignificant(), price)
+  // console.log('price!!!', price?.toSignificant(), price)
 
   const allowedSlippage = useUserSlippageToleranceWithDefault(
     outOfRange ? ZERO_PERCENT : DEFAULT_MIGRATE_SLIPPAGE_TOLERANCE
   )
-  // console.log('allowedSlippage1111122', allowedSlippage.toFixed(8))
 
   // console.log(ticks, pricesAtTicks, invertPrice, invalidRange, outOfRange, ticksAtLimit, 'skdndkfndk')
 
@@ -232,7 +229,7 @@ function V2PairMigration({
   // the v3 tick is either the pool's tickCurrent, or the tick closest to the v2 spot price
   // const tick = pool?.tickCurrent ?? priceToClosestTick(v2SpotPrice)
   const tick = pool?.tickCurrent ?? (price ? priceToClosestTick(price) : undefined)
-  // console.log('tick---', tick)
+  // console.log('tick', tick)
   // the price is either the current v3 price, or the price at the tick
   const sqrtPrice = pool?.sqrtRatioX96 ?? (tick !== undefined ? TickMath.getSqrtRatioAtTick(tick) : undefined)
   // const sqrtPrice = tick ? TickMath.getSqrtRatioAtTick(tick) : undefined
@@ -248,21 +245,11 @@ function V2PairMigration({
         })
       : undefined
 
-  console.log('sqrtPrice_migrate', sqrtPrice?.toString(), 'tick_migrate', tick, 'price', price?.toSignificant())
+  // console.log('sqrtPrice_migrate', sqrtPrice?.toString(), 'tick_migrate', tick, 'price', price?.toSignificant())
   const { amount0: v3Amount0Min, amount1: v3Amount1Min } = useMemo(
     () => (position ? position.mintAmountsWithSlippage(allowedSlippage) : { amount0: undefined, amount1: undefined }),
     [position, allowedSlippage]
   )
-  console.log('v3Amount0Min', v3Amount0Min?.toString(), token0ValueWithSlippage.quotient.toString())
-  // const { amount0: v3Amount0Min, amount1: v3Amount1Min } = useMemo(() => {
-  //   if (!position) {
-  //     return { amount0: undefined, amount1: undefined }
-  //   }
-  //   if (position.amount0.equalTo('0') || position.amount1.equalTo('0')) {
-  //     return { amount0: position.amount0.raw, amount1: position.amount1.raw }
-  //   }
-  //   return position.mintAmountsWithSlippage(allowedSlippage)
-  // }, [position, allowedSlippage])
 
   const refund0 = useMemo(
     () =>
@@ -355,7 +342,7 @@ function V2PairMigration({
         sqrt_price_X96: cairo.uint256(position?.pool?.sqrtRatioX96.toString()),
       }
 
-      console.log('position?.pool?.sqrtRatioX96.toString()', position?.pool?.sqrtRatioX96.toString())
+      // console.log('position?.pool?.sqrtRatioX96.toString()', position?.pool?.sqrtRatioX96.toString())
       const initializeCallData = CallData.compile(initializeData)
       const icalls = {
         contractAddress: routerAddress,
@@ -381,7 +368,6 @@ function V2PairMigration({
     }
 
     // adjust for slippage
-    console.log('allowedSlippage', allowedSlippage.toSignificant())
     const minimumAmounts = position.mintAmountsWithSlippage(allowedSlippage)
     const amount0Min = minimumAmounts.amount0
     const amount1Min = minimumAmounts.amount1
