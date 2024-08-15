@@ -95,6 +95,7 @@ const MixedProtocolBadge = styled(ProtocolBadge)`
 
 const BadgeText = styled(ThemedText.LabelMicro)`
   word-break: normal;
+  margin: 0 6px 0 12px !important;
 `
 
 export default function RoutingDiagram({
@@ -154,7 +155,7 @@ function Pool({ currency0, currency1, feeAmount }: { currency0: Currency; curren
       size={TooltipSize.ExtraSmall}
     >
       <PoolBadge>
-        <Box margin="0 4px 0 12px">
+        <Box margin="0 4px 0 4px">
           <DoubleCurrencyLogo currency0={tokenInfo1} currency1={tokenInfo0} size={20} />
         </Box>
         <BadgeText>{feeAmount / BIPS_BASE}%</BadgeText>
