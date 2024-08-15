@@ -14,7 +14,7 @@ import { Text } from 'rebass'
 import { useTheme } from 'styled-components'
 import { BackArrowLink, StyledInternalLink, ThemedText } from 'theme/components'
 
-import { LightCard } from '../../components/Card'
+import { BlueCard, LightCard } from '../../components/Card'
 import { AutoColumn } from '../../components/Column'
 import QuestionHelper from '../../components/QuestionHelper'
 import { AutoRow } from '../../components/Row'
@@ -27,6 +27,8 @@ import { useAccountDetails } from 'hooks/starknet-react'
 import { useAllPairs } from 'state/pairs/hooks'
 import fetchAllPairs from 'api/fetchAllPairs'
 import useFetchAllPairsCallback from 'hooks/useFetchAllPairs'
+import { ButtonPrimary } from 'components/Button'
+import { useToggleAccountDrawer } from 'components/AccountDrawer'
 
 function EmptyState({ message }: { message: ReactNode }) {
   return (
@@ -60,7 +62,7 @@ export default function MigrateV2() {
   const { account, address, chainId: connectedChainId } = useAccountDetails()
   // fetch the user's balances of all tracked V2 LP tokens
   const trackedTokenPairs = useTrackedTokenPairs()
-
+  const toggleWalletDrawer = useToggleAccountDrawer()
   const tokenPairsWithLiquidityTokens = useMemo(
     () => trackedTokenPairs.map((tokens) => ({ liquidityToken: getLiquidityToken(tokens), tokens })),
     [trackedTokenPairs]
@@ -109,7 +111,7 @@ export default function MigrateV2() {
       <BodyWrapper style={{ padding: 24, maxWidth: 600 }}>
         <AutoColumn gap="16px">
           <AutoRow style={{ alignItems: 'center', justifyContent: 'space-between' }} gap="8px">
-            <BackArrowLink to="/pools" />
+            <BackArrowLink to="/positions" />
             <ThemedText.DeprecatedMediumHeader>
               <Trans>Migrate V1 liquidity</Trans>
             </ThemedText.DeprecatedMediumHeader>
@@ -126,19 +128,32 @@ export default function MigrateV2() {
           </ThemedText.DeprecatedBody>
 
           {!account ? (
-            <LightCard padding="40px">
+            <BlueCard padding="40px">
               <ThemedText.DeprecatedBody color={theme.neutral3} textAlign="center">
                 <Trans>Connect to a wallet to view your V1 liquidity.</Trans>
+                <ButtonPrimary
+                  style={{
+                    marginTop: '2em',
+                    marginBottom: '2em',
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                    padding: '8px 16px',
+                    width: 'fit-content',
+                  }}
+                  onClick={toggleWalletDrawer}
+                >
+                  <Trans>Connect wallet</Trans>
+                </ButtonPrimary>
               </ThemedText.DeprecatedBody>
-            </LightCard>
+            </BlueCard>
           ) : pairIsLoading ? (
-            <LightCard padding="40px">
+            <BlueCard padding="40px">
               <ThemedText.DeprecatedBody color={theme.neutral3} textAlign="center">
                 <Dots>
                   <Trans>Loading</Trans>
                 </Dots>
               </ThemedText.DeprecatedBody>
-            </LightCard>
+            </BlueCard>
           ) : pairs.filter(([, pair]) => !!pair).length > 0 ? (
             <>
               {allPairsWithLiquidity.map((v2Pair) => (

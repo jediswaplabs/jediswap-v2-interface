@@ -22,7 +22,7 @@ import { AutoColumn } from '../Column'
 import DoubleCurrencyLogo from '../DoubleLogo'
 import { CardNoise } from '../earn/styled'
 import CurrencyLogo from '../Logo/CurrencyLogo'
-import { AutoRow, RowBetween, RowFixed } from '../Row'
+import Row, { AutoRow, RowBetween, RowFixed } from '../Row'
 import { Dots } from '../swap/styled'
 import { FixedHeightRow } from '.'
 import { useToken } from 'hooks/Tokens'
@@ -188,7 +188,7 @@ export default function V2PositionCard({ pair, border, stakedBalance }: Position
             </FixedHeightRow>
 
             {userDefaultPoolBalance && JSBI.greaterThan(userDefaultPoolBalance.quotient, BIG_INT_ZERO) && (
-              <RowBetween marginTop="10px">
+              <Row marginTop="10px" style={{ justifyContent: 'center' }}>
                 <ButtonPrimary
                   padding="8px"
                   $borderRadius="8px"
@@ -198,7 +198,7 @@ export default function V2PositionCard({ pair, border, stakedBalance }: Position
                 >
                   <Trans>Migrate</Trans>
                 </ButtonPrimary>
-                <ButtonSecondary
+                {/* <ButtonSecondary
                   padding="8px"
                   $borderRadius="8px"
                   as={Link}
@@ -206,8 +206,8 @@ export default function V2PositionCard({ pair, border, stakedBalance }: Position
                   to={`/remove/v2/${currencyId(currency0)}/${currencyId(currency1)}`}
                 >
                   <Trans>Remove</Trans>
-                </ButtonSecondary>
-              </RowBetween>
+                </ButtonSecondary> */}
+              </Row>
             )}
           </AutoColumn>
         )}

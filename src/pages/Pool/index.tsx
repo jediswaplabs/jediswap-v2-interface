@@ -29,6 +29,7 @@ import {
   ResponsiveButtonTabs,
   TitleRow,
 } from './styled'
+import { ButtonOutlined, ButtonLight, ButtonSecondary } from 'components/Button'
 import { getAllPools } from 'api/PoolsData'
 import Pools from 'components/Pools'
 import { formattedNum, formattedPercent, get2DayPercentChange, getPercentChange } from 'utils/formatNum'
@@ -40,6 +41,14 @@ import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import { useDefaultActiveTokens } from 'hooks/Tokens'
 import { PositionDetails } from './PositionDetails'
 import { ApolloQueryResult } from '@apollo/client'
+
+export const MigrateButton = styled(ButtonSecondary)`
+  width: 200px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 15px;
+  border-color: ${({ theme }) => `${theme.jediGrey}`};
+`
 
 export function PositionsLoadingPlaceholder() {
   return (
@@ -315,11 +324,16 @@ export default function Pool() {
               loadingPositions ? (
                 <PositionsLoadingPlaceholder />
               ) : (
-                <PositionDetails
-                  tokenIds={tokenIds}
-                  showConnectAWallet={showConnectAWallet}
-                  toggleWalletDrawer={toggleWalletDrawer}
-                />
+                <>
+                  <MigrateButton as={Link} to="/migrate">
+                    Migrate v1 Liquidity
+                  </MigrateButton>
+                  <PositionDetails
+                    tokenIds={tokenIds}
+                    showConnectAWallet={showConnectAWallet}
+                    toggleWalletDrawer={toggleWalletDrawer}
+                  />
+                </>
               )
             ) : (
               poolsTable
