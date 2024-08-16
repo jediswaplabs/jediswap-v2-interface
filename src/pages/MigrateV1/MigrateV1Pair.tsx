@@ -425,7 +425,7 @@ function V2PairMigration({
                 </Trans>
               </ThemedText.DeprecatedMediumHeader>
             </RowFixed>
-            <Badge variant={BadgeVariant.WARNING}>V1</Badge>
+            <Badge variant={BadgeVariant.SOFT}>V1</Badge>
           </RowBetween>
           <LiquidityInfo token0Amount={token0Value} token1Amount={token1Value} />
         </AutoColumn>
