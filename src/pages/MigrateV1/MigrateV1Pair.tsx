@@ -71,6 +71,9 @@ import { toI32 } from 'utils/toI32'
 import { DynamicSection, StyledInput } from 'pages/AddLiquidity/styled'
 import HoverInlineText from 'components/HoverInlineText'
 import { ZERO_PERCENT } from 'constants/misc'
+import { useQuery } from 'react-query'
+import { providerInstance } from 'utils/getLibrary'
+import { uint256 } from 'starknet'
 
 const ZERO = JSBI.BigInt(0)
 
@@ -265,7 +268,8 @@ function V2PairMigration({
   const [confirmingMigration, setConfirmingMigration] = useState<boolean>(false)
   const [pendingMigrationHash, setPendingMigrationHash] = useState<string | null>(null)
 
-  const isMigrationPending = useIsTransactionPending(pendingMigrationHash ?? undefined)
+  // const isMigrationPending = useIsTransactionPending(pendingMigrationHash ?? undefined)
+  const isMigrationPending = !!pendingMigrationHash
 
   const { amount0: amount0Desired, amount1: amount1Desired } = position?.mintAmounts || {}
 
@@ -277,7 +281,7 @@ function V2PairMigration({
         .then((response) => {
           // setAttemptingTxn(false)
           if (response?.transaction_hash) {
-            // setTxHash(response.transaction_hash)
+            setPendingMigrationHash(response.transaction_hash)
           }
         })
         .catch((err) => {
@@ -400,7 +404,8 @@ function V2PairMigration({
     setConfirmingMigration(true)
   }
 
-  const isSuccessfullyMigrated = !!pendingMigrationHash && JSBI.equal(pairBalance.quotient, ZERO)
+  // const isSuccessfullyMigrated = !!pendingMigrationHash && JSBI.equal(pairBalance.quotient, ZERO)
+  const isSuccessfullyMigrated = pairBalance.equalTo(0)
   // if (!networkSupportsV2) return <V2Unsupported />
 
   return (
@@ -707,7 +712,36 @@ export default function MigrateV2Pair() {
   const [pairState, pair] = useV2Pair(currency0, currency1)
 
   // // get data required for V2 pair migration
-  const pairBalance = useTokenBalance(account ?? undefined, pair?.liquidityToken)
+  // const pairBalance = useTokenBalance(account ?? undefined, pair?.liquidityToken)
+  const { isLoading, data: pairBalanceData } = useQuery(
+    [pair, account],
+    async () => {
+      if (!pair || !account) {
+        return undefined
+      }
+      const provider = providerInstance(chainId ?? DEFAULT_CHAIN_ID)
+      const results = await provider.callContract({
+        entrypoint: 'balanceOf',
+        contractAddress: pair?.liquidityToken.address,
+        calldata: CallData.compile({
+          address: account,
+        }),
+      })
+      const uint256Value = uint256.uint256ToBN({
+        low: results.result[0],
+        high: results.result[1],
+      })
+      return uint256Value
+    },
+    {
+      refetchInterval: 6000,
+    }
+  )
+  const pairBalance =
+    pair?.liquidityToken && pairBalanceData !== undefined
+      ? CurrencyAmount.fromRawAmount(pair.liquidityToken, pairBalanceData.toString())
+      : undefined
+
   const totalSupply = useTotalSupply(pair?.liquidityToken)
   const results = useMultipleContractSingleData(
     [validatedAddress ? validatedAddress : undefined],
