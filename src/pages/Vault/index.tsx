@@ -638,8 +638,9 @@ export default function Vault({ className }: { className?: string }) {
     <PageWrapper>
       <BreadcrumbsRow>
         <Breadcrumbs>
-          <ArrowLeft width={20} />
-          <BreadcrumbsNavLink to={'/vaults/'}>Back to vaults</BreadcrumbsNavLink>
+          <BreadcrumbsNavLink to={'/vaults/'} style={{ display: 'flex', alignItems: 'center' }}>
+            <ArrowLeft width={20} style={{ color: '#fff', marginRight: '8px' }} /> Back to vaults
+          </BreadcrumbsNavLink>
         </Breadcrumbs>
       </BreadcrumbsRow>
       {getContent()}
