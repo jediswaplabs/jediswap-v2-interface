@@ -586,7 +586,7 @@ export default function Vault({ className }: { className?: string }) {
                     <MyDepositWrapperInner style={{ padding: 20 }}>
                       <MyDeposits>
                         <span>{currency0?.symbol}</span>
-                        <span>{totalToken1Amount ? totalToken0Amount?.toSignificant() : 0}</span>
+                        <span>{totalToken0Amount ? totalToken0Amount?.toSignificant() : 0}</span>
                       </MyDeposits>
                       <MyDeposits style={{ marginBottom: 0 }}>
                         <span>{currency1?.symbol}</span>
