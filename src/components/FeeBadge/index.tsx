@@ -1,7 +1,7 @@
 import React from 'react'
 import styled from 'styled-components'
 
-const FeeBadgeContainer = styled.div`
+export const FeeBadgeContainer = styled.div`
   display: inline-flex;
   padding: 4px 8px;
   border-radius: 4px;
@@ -12,6 +12,6 @@ const FeeBadgeContainer = styled.div`
   line-height: 1;
 `
 
-const FeeBadge = ({ children}: {children: string}) => <FeeBadgeContainer>{children}</FeeBadgeContainer>
+const FeeBadge = ({ children }: { children: string }) => <FeeBadgeContainer>{children}</FeeBadgeContainer>
 
 export default FeeBadge
