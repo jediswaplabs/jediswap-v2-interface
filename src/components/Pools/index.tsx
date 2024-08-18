@@ -288,6 +288,7 @@ function PairList({
         extraPages = 0
       }
       setMaxPage(Math.floor(filteredPairsAddresses.length / ITEMS_PER_PAGE) + extraPages)
+      setPage(1)
     }
   }, [ITEMS_PER_PAGE, filteredPairsAddresses])
 
