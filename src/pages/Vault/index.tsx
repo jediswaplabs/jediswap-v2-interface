@@ -54,6 +54,7 @@ import { TOKENS_DATA } from 'apollo/queries'
 import { getClient } from 'apollo/client'
 import { findClosestPrice } from 'utils/getClosest'
 import CurrencyLogo from 'components/Logo/CurrencyLogo'
+import FeeBadge, { FeeBadgeContainer } from 'components/FeeBadge'
 
 export const DEFAULT_VAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -340,6 +341,7 @@ export default function Vault({ className }: { className?: string }) {
 
   const { data: allVaults, error: allVaultsError, isLoading: isAllVaultsLoading } = useAllVaults()
   const currentVault: any = allVaults && vaultIdFromUrl ? allVaults[vaultIdFromUrl] : {}
+  console.log('currentVault', currentVault)
   const currency0: any = useCurrency(currentVault?.token0?.address, chainId)
   const currency1: any = useCurrency(currentVault?.token1?.address, chainId)
   const vaultState = useVaultState()
@@ -436,23 +438,23 @@ export default function Vault({ className }: { className?: string }) {
       }
       default: {
         const performanceData = currentVault.performance[currentVault.mainAssetKey]
-        const token0 = new Token(
+        const token0: any = new Token(
           currentVault.token0.chainId,
           currentVault.token0.address,
           currentVault.token0.decimals,
           currentVault.token0.symbol,
           currentVault.token0.name
         )
-        // token0.logoURI = currentVault.token0.logoURI
+        token0.logoURI = currentVault.token0.logoURI
 
-        const token1 = new Token(
+        const token1: any = new Token(
           currentVault.token1.chainId,
           currentVault.token1.address,
           currentVault.token1.decimals,
           currentVault.token1.symbol,
           currentVault.token1.name
         )
-        // token1.logoURI = currentVault.token1.logoURI
+        token1.logoURI = currentVault.token1.logoURI
 
         let tvl
         let apr
@@ -486,6 +488,13 @@ export default function Vault({ className }: { className?: string }) {
 
         return (
           <AutoColumn gap={'18px'}>
+            <Flex alignItems={'center'} style={{ gap: '8px', fontSize: '1.4rem', fontWeight: 700 }}>
+              <DoubleCurrencyLogo size={24} currency0={token0} currency1={token1} />
+              <span style={{ marginLeft: '10px' }}>
+                {token0?.symbol}-{token1?.symbol}
+              </span>
+              <FeeBadgeContainer style={{ fontSize: '1.1rem' }}>{currentVault.feeTier}</FeeBadgeContainer>
+            </Flex>
             <PageContentWrapper>
               <VaultDetailsContainer>
                 <AutoColumn gap="37px">
