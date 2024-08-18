@@ -22,7 +22,7 @@ export const PageWrapper = styled.div`
 
 // Mostly copied from `AppBody` but it was getting too hard to maintain backwards compatibility.
 const VaultWrapperOuter = styled.main`
-  width: 466px;
+  // width: 466px;
   position: relative;
   z-index: ${Z_INDEX.default};
   transition: transform 250ms ease;
