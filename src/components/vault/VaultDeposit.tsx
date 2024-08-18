@@ -16,7 +16,15 @@ const DepositWrapper = styled(AutoColumn)`
   gap: 12px;
 `
 
-function VaultDeposit({ currentVault }: { currentVault: any }) {
+function VaultDeposit({
+  currentVault,
+  fiatPrice0,
+  fiatPrice1,
+}: {
+  currentVault: any
+  fiatPrice0?: number
+  fiatPrice1?: number
+}) {
   const { onFieldAInput, onFieldBInput } = useVaultActionHandlers()
   const { chainId: chainIdConnected } = useAccountDetails()
   const chainId = chainIdConnected || DEFAULT_CHAIN_ID
@@ -38,6 +46,15 @@ function VaultDeposit({ currentVault }: { currentVault: any }) {
     [independentField]: typedValue,
     [dependentField]: parsedAmounts[dependentField]?.toSignificant(6) ?? '',
   }
+  const fiatValue0 =
+    fiatPrice0 && formattedAmounts[Field.CURRENCY_A]
+      ? fiatPrice0 * Number(formattedAmounts[Field.CURRENCY_A])
+      : undefined
+  const fiatValue1 =
+    fiatPrice1 && formattedAmounts[Field.CURRENCY_B]
+      ? fiatPrice1 * Number(formattedAmounts[Field.CURRENCY_B])
+      : undefined
+
   return (
     <DepositWrapper>
       {token0All && (
@@ -47,6 +64,7 @@ function VaultDeposit({ currentVault }: { currentVault: any }) {
           showMaxButton
           currency={currencies[Field.CURRENCY_A] ?? null}
           id="add-liquidity-input-tokena"
+          fiatValue={fiatValue0}
         />
       )}
       {token1All && (
@@ -56,6 +74,7 @@ function VaultDeposit({ currentVault }: { currentVault: any }) {
           showMaxButton
           currency={currencies[Field.CURRENCY_B] ?? null}
           id="add-liquidity-input-tokenb"
+          fiatValue={fiatValue1}
         />
       )}
     </DepositWrapper>

@@ -234,7 +234,7 @@ export default function CurrencyInputPanel({
 
   const containerStyles = hideShadow ? { boxShadow: 'none' } : {}
   const showMax = balance !== null && Number(value) !== Number(balance)
-
+  const fiatRowAlignMent = formatted ? 'space-between' : 'right'
   return (
     <InputPanel id={id} hideInput={hideInput} {...rest}>
       {!locked && (
@@ -297,7 +297,7 @@ export default function CurrencyInputPanel({
           </InputRow>
           {Boolean(!hideInput && !hideBalance && currency) && (
             <FiatRow>
-              <RowBetween>
+              <RowBetween style={{ justifyContent: fiatRowAlignMent }}>
                 {account && (
                   <RowFixed style={{ height: '17px' }}>
                     {' '}

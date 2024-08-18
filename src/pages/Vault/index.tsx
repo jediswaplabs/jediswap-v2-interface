@@ -341,7 +341,6 @@ export default function Vault({ className }: { className?: string }) {
 
   const { data: allVaults, error: allVaultsError, isLoading: isAllVaultsLoading } = useAllVaults()
   const currentVault: any = allVaults && vaultIdFromUrl ? allVaults[vaultIdFromUrl] : {}
-  console.log('currentVault', currentVault)
   const currency0: any = useCurrency(currentVault?.token0?.address, chainId)
   const currency1: any = useCurrency(currentVault?.token1?.address, chainId)
   const vaultState = useVaultState()
@@ -400,6 +399,13 @@ export default function Vault({ className }: { className?: string }) {
       }
     },
   })
+
+  const fiatPrice0 = separatedFiatValueofLiquidity?.data?.token0usdPrice
+    ? Number(separatedFiatValueofLiquidity.data.token0usdPrice)
+    : undefined
+  const fiatPrice1 = separatedFiatValueofLiquidity?.data?.token1usdPrice
+    ? Number(separatedFiatValueofLiquidity.data.token1usdPrice)
+    : undefined
 
   const { token0usdPrice, token1usdPrice } = useMemo(() => {
     if (!separatedFiatValueofLiquidity.data || !totalToken0Amount || !totalToken1Amount)
@@ -580,7 +586,12 @@ export default function Vault({ className }: { className?: string }) {
                 </VaultDetailsBottom>
               </VaultDetailsContainer>
               <VaultTransactionPanel>
-                <VaultElement chainId={chainId} currentVault={currentVault} />
+                <VaultElement
+                  chainId={chainId}
+                  currentVault={currentVault}
+                  fiatPrice0={fiatPrice0}
+                  fiatPrice1={fiatPrice1}
+                />
                 <MyDepositWrapperOuter>
                   <MyDepositWrapperInner>
                     <MyDeposits>
@@ -627,8 +638,9 @@ export default function Vault({ className }: { className?: string }) {
     <PageWrapper>
       <BreadcrumbsRow>
         <Breadcrumbs>
-          <ArrowLeft width={20} />
-          <BreadcrumbsNavLink to={'/vaults/'}>Back to vaults</BreadcrumbsNavLink>
+          <BreadcrumbsNavLink to={'/vaults/'} style={{ display: 'flex', alignItems: 'center' }}>
+            <ArrowLeft width={20} style={{ color: '#fff', marginRight: '8px' }} /> Back to vaults
+          </BreadcrumbsNavLink>
         </Breadcrumbs>
       </BreadcrumbsRow>
       {getContent()}
@@ -639,12 +651,16 @@ export default function Vault({ className }: { className?: string }) {
 export function VaultElement({
   chainId,
   currentVault,
+  fiatPrice0,
+  fiatPrice1,
 }: //   className,
 //   onCurrencyChange,
 //   disableTokenInputs = false,
 {
   chainId?: ChainId
   currentVault: any
+  fiatPrice0?: number
+  fiatPrice1?: number
   //   className?: string
   //   onCurrencyChange?: (selected: Pick<SwapState, Field.INPUT | Field.OUTPUT>) => void
   //   disableTokenInputs?: boolean
@@ -861,7 +877,9 @@ export function VaultElement({
       <VaultHeader activeButton={activeButton} setActiveButton={setActiveButton} chainId={chainId} />
       <FullDivider />
       <VaultInputWrapper>
-        {activeButton === 'Deposit' && <VaultDeposit currentVault={currentVault} />}
+        {activeButton === 'Deposit' && (
+          <VaultDeposit currentVault={currentVault} fiatPrice0={fiatPrice0} fiatPrice1={fiatPrice1} />
+        )}
         {activeButton === 'Withdraw' && (
           <VaultWithdraw
             currentVault={currentVault}
