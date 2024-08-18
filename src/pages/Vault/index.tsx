@@ -53,6 +53,7 @@ import { useQuery } from 'react-query'
 import { TOKENS_DATA } from 'apollo/queries'
 import { getClient } from 'apollo/client'
 import { findClosestPrice } from 'utils/getClosest'
+import CurrencyLogo from 'components/Logo/CurrencyLogo'
 
 export const DEFAULT_VAULT_SLIPPAGE_TOLERANCE = new Percent(50, 10_000)
 
@@ -585,11 +586,21 @@ export default function Vault({ className }: { className?: string }) {
                     </MyDeposits>
                     <MyDepositWrapperInner style={{ padding: 20 }}>
                       <MyDeposits>
-                        <span>{currency0?.symbol}</span>
+                        <div style={{ display: 'flex' }}>
+                          {currency0 && (
+                            <CurrencyLogo style={{ marginRight: '6px' }} currency={currency0} size="24px" />
+                          )}
+                          <span>{currency0?.symbol}</span>
+                        </div>
                         <span>{totalToken0Amount ? totalToken0Amount?.toSignificant() : 0}</span>
                       </MyDeposits>
                       <MyDeposits style={{ marginBottom: 0 }}>
-                        <span>{currency1?.symbol}</span>
+                        <div style={{ display: 'flex' }}>
+                          {currency1 && (
+                            <CurrencyLogo style={{ marginRight: '6px' }} currency={currency1} size="24px" />
+                          )}
+                          <span>{currency1?.symbol}</span>
+                        </div>
                         <span>{totalToken1Amount ? totalToken1Amount?.toSignificant() : 0}</span>
                       </MyDeposits>
                     </MyDepositWrapperInner>
