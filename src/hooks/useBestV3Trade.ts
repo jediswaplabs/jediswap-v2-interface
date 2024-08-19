@@ -334,7 +334,6 @@ export function useBestV3TradeExactIn(
                 outputAmount: CurrencyAmount.fromRawAmount(currencyOut, num.hexToDecimalString(amountOut)),
               }
             })
-          console.log(validQuotes, 'validQuotes')
           const route = await getBestSwapRoute(validQuotes, TradeType.EXACT_INPUT, percents ?? [])
           setBestRoute(route)
         }
