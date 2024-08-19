@@ -98,6 +98,10 @@ const BadgeText = styled(ThemedText.LabelMicro)`
   margin: 0 6px 0 12px !important;
 `
 
+const VersionBadgeText = styled(ThemedText.LabelMicro)`
+  word-break: normal;
+`
+
 export default function RoutingDiagram({
   currencyIn,
   currencyOut,
@@ -119,7 +123,9 @@ export default function RoutingDiagram({
             <CurrencyLogo currency={tokenIn} size="20px" />
             <PoolBadgeWhite>
               {entry.type}
-              <BadgeText style={{ fontWeight: 300, marginLeft: '4px' }}>{formatPercent(entry.percent)}</BadgeText>
+              <VersionBadgeText style={{ fontWeight: 300, marginLeft: '4px' }}>
+                {formatPercent(entry.percent)}
+              </VersionBadgeText>
             </PoolBadgeWhite>
           </WrapperLabel>
           <Route entry={entry} />
