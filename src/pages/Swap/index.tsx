@@ -619,20 +619,17 @@ export function Swap({
     const handleApproval = approveCallback()
     if (!handleApproval) return
     const isTradeTypeV2 = (trade as any).swaps
-    // const { inputAmount, outputAmount } = trade
-    // const route = (trade as any).route
+
     const swaps = (trade as any).swaps
     const callData = []
     callData.push(handleApproval)
-    console.log('tradeswaps', trade, swaps)
+    if (isTradeTypeV2) {
+      swaps.forEach((swap: any) => {
+        const { inputAmount, outputAmount, route } = swap
+        const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
+        const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
 
-    swaps.forEach((swap: any) => {
-      const { inputAmount, outputAmount, route } = swap
-      const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
-      const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
-      if (isTradeTypeV2) {
         const isRouteSingleHop = route.pools.length === 1
-        console.log('isRouteSingleHop', isRouteSingleHop, route)
         if (trade.tradeType === TradeType.EXACT_INPUT) {
           if (isRouteSingleHop) {
             const exactInputSingleParams = {
@@ -744,8 +741,6 @@ export function Swap({
               { inputToken: firstInputToken, path: [], types: [] }
             )
 
-            console.log('path', path)
-
             const reversePath = path.reverse()
 
             const exactOutputParams = {
@@ -766,47 +761,50 @@ export function Swap({
             callData.push(calls)
           }
         }
+      })
+    } else {
+      const { inputAmount, outputAmount } = trade
+      const route = (trade as any).route
+      const path: string[] = route.path.map((token: any) => token.address)
+      const amountIn: string = toHex(trade.maximumAmountIn(allowedSlippage, inputAmount).quotient)
+      const amountOut: string = toHex(trade.minimumAmountOut(allowedSlippage, outputAmount).quotient)
+      if (trade.tradeType === TradeType.EXACT_INPUT) {
+        const swapArgs = {
+          amountIn: cairo.uint256(inputAmount.raw.toString()),
+          amountOutMin: cairo.uint256(amountOut),
+          path,
+          to: address,
+          deadline: cairo.felt(deadline.toString()),
+        }
+        const compiledSwapCalls = CallData.compile(swapArgs)
+
+        const calls = {
+          contractAddress: swapRouterAddressV1,
+          entrypoint: 'swap_exact_tokens_for_tokens',
+          calldata: compiledSwapCalls,
+        }
+
+        callData.push(calls)
+      } else {
+        const swapArgs = {
+          amountOut: cairo.uint256(outputAmount.raw.toString()),
+          amountInMax: cairo.uint256(amountIn),
+          path,
+          to: address,
+          deadline: cairo.felt(deadline.toString()),
+        }
+
+        const compiledSwapCalls = CallData.compile(swapArgs)
+
+        const calls = {
+          contractAddress: swapRouterAddressV1,
+          entrypoint: 'swap_tokens_for_exact_tokens',
+          calldata: compiledSwapCalls,
+        }
+        callData.push(calls)
       }
-    })
+    }
 
-    //  else {
-    //   const path: string[] = route.path.map((token: any) => token.address)
-    //   if (trade.tradeType === TradeType.EXACT_INPUT) {
-    //     const swapArgs = {
-    //       amountIn: cairo.uint256(inputAmount.raw.toString()),
-    //       amountOutMin: cairo.uint256(amountOut),
-    //       path,
-    //       to: address,
-    //       deadline: cairo.felt(deadline.toString()),
-    //     }
-    //     const compiledSwapCalls = CallData.compile(swapArgs)
-
-    //     const calls = {
-    //       contractAddress: swapRouterAddressV1,
-    //       entrypoint: 'swap_exact_tokens_for_tokens',
-    //       calldata: compiledSwapCalls,
-    //     }
-
-    //     callData.push(calls)
-    //   } else {
-    //     const swapArgs = {
-    //       amountOut: cairo.uint256(outputAmount.raw.toString()),
-    //       amountInMax: cairo.uint256(amountIn),
-    //       path,
-    //       to: address,
-    //       deadline: cairo.felt(deadline.toString()),
-    //     }
-
-    //     const compiledSwapCalls = CallData.compile(swapArgs)
-
-    //     const calls = {
-    //       contractAddress: swapRouterAddressV1,
-    //       entrypoint: 'swap_tokens_for_exact_tokens',
-    //       calldata: compiledSwapCalls,
-    //     }
-    //     callData.push(calls)
-    //   }
-    // }
     setSwapCallData(callData)
   }, [trade, address, deadline, approveCallback])
 
