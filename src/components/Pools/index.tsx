@@ -276,6 +276,25 @@ function PairList({
     )
   }, [pairs, showRewardedOnly])
 
+  useMemo(() => {
+    for (const token of Object.values(allTokens)) {
+      if (!token?.address) {
+        continue
+      }
+      for (const pair of Object.values(pairs) as any) {
+        if (!pair?.token0 || !pair?.token1) {
+          continue
+        }
+        if (validateAndParseAddress(pair?.token0?.tokenAddress) === validateAndParseAddress(token?.address)) {
+          pair.token0.symbol = token?.symbol
+        }
+        if (validateAndParseAddress(pair?.token1?.tokenAddress) === validateAndParseAddress(token?.address)) {
+          pair.token1.symbol = token?.symbol
+        }
+      }
+    }
+  }, [Object.keys(allTokens).join(''), Object.keys(pairs).join('')])
+
   useEffect(() => {
     setMaxPage(1) // edit this to do modular
     setPage(1)
