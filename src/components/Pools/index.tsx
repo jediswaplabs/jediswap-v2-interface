@@ -29,6 +29,7 @@ import { WETH } from 'constants/tokens'
 import StarknetIcon from 'assets/svg/starknet.svg'
 import LocalLoader from 'components/LocalLoader'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { ButtonEmpty } from 'components/Button'
 
 dayjs.extend(utc)
 
@@ -63,6 +64,8 @@ const List = styled(Box)`
 `
 const PlaceholderContainer = styled.div`
   padding: 20px;
+  text-align: center;
+  font-size: 1rem;
 `
 
 const DashGrid = styled.div<{ fade?: boolean; disbaleLinks?: boolean; focus?: boolean; center?: boolean }>`
@@ -260,6 +263,7 @@ function PairList({
   noPairsPlaceholderText = DEFAULT_NO_PAIRS_PLACEHOLDER_TEXT,
   showRewardedOnly = false,
   searchQuery = '',
+  setSearchQuery,
 }: {
   pairs: any
   color?: string
@@ -270,6 +274,7 @@ function PairList({
   noPairsPlaceholderText?: string
   showRewardedOnly?: boolean
   searchQuery?: string
+  setSearchQuery: (q: string) => void
 }) {
   const below600 = useMedia('(max-width: 600px)')
   const below740 = useMedia('(max-width: 740px)')
@@ -543,20 +548,22 @@ function PairList({
         )
       })
 
-  if (!pairList) {
+  if (!pairs || Object.keys(pairs).length === 0) {
     return <LocalLoader />
   }
 
-  if (waitForData && !pairList.length) {
-    return <LocalLoader />
-  }
-
-  if (!waitForData && !pairList.length) {
+  if (pairList.length === 0) {
     return (
       <PlaceholderContainer>
-        {/* <TYPE.main fontSize={'16px'} fontWeight={'400'}> */}
-        {noPairsPlaceholderText}
-        {/* </TYPE.main> */}
+        <div>No pools were found</div>
+        <div>
+          <ButtonEmpty
+            onClick={() => setSearchQuery('')}
+            style={{ width: '300px', margin: '0 auto', fontSize: '1.2rem' }}
+          >
+            Clear the search criteria
+          </ButtonEmpty>
+        </div>
       </PlaceholderContainer>
     )
   }

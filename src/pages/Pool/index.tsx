@@ -262,7 +262,13 @@ export default function Pool() {
         />
       </OnlyRewardedSwitcherContainer>
       <Panel style={{ padding: '0', fontWeight: 700, fontSize: '0.875rem' }}>
-        <Pools pairs={poolsData} disbaleLinks={true} showRewardedOnly={showRewardedOnly} searchQuery={searchQuery} />
+        <Pools
+          pairs={poolsData}
+          disbaleLinks={true}
+          showRewardedOnly={showRewardedOnly}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
       </Panel>
     </div>
   )
