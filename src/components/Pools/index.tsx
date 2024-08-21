@@ -219,6 +219,27 @@ const formatDataText = (
 
 const DEFAULT_NO_PAIRS_PLACEHOLDER_TEXT = 'Pairs will appear here'
 
+const searchFilterFunction = (pair: any, searchQuery?: string) => {
+  const searchQueryClean = searchQuery?.replaceAll(' ', '').toLowerCase()
+  if (!searchQueryClean) {
+    return true
+  }
+  const symbol0 = pair.token0.symbol.toLowerCase()
+  const symbol1 = pair.token1.symbol.toLowerCase()
+  if (symbol0.includes(searchQueryClean)) {
+    return true
+  }
+  if (symbol1.includes(searchQueryClean)) {
+    return true
+  }
+  if (searchQueryClean === symbol0 + '-' + symbol1) {
+    return true
+  }
+  if (searchQueryClean === symbol1 + '-' + symbol0) {
+    return true
+  }
+  return false
+}
 function calcCommonApr(pairData: any) {
   const feeRatio24H = pairData.oneDayFeesUSD / pairData.totalValueLockedUSD
   const aprFee = feeRatio24H * 365 * 100
@@ -238,6 +259,7 @@ function PairList({
   waitForData = true,
   noPairsPlaceholderText = DEFAULT_NO_PAIRS_PLACEHOLDER_TEXT,
   showRewardedOnly = false,
+  searchQuery = '',
 }: {
   pairs: any
   color?: string
@@ -247,6 +269,7 @@ function PairList({
   waitForData?: boolean
   noPairsPlaceholderText?: string
   showRewardedOnly?: boolean
+  searchQuery?: string
 }) {
   const below600 = useMedia('(max-width: 600px)')
   const below740 = useMedia('(max-width: 740px)')
@@ -267,14 +290,12 @@ function PairList({
     return (
       pairs &&
       Object.keys(pairs).filter((address: string) => {
-        if (!showRewardedOnly) {
-          return true
-        }
         const pair = pairs[address]
-        return pair.rewarded
+        const rewardsFilter = showRewardedOnly ? pair.rewarded : true
+        return rewardsFilter && searchFilterFunction(pair, searchQuery)
       })
     )
-  }, [pairs, showRewardedOnly])
+  }, [pairs, showRewardedOnly, searchQuery])
 
   useMemo(() => {
     for (const token of Object.values(allTokens)) {
