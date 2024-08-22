@@ -235,10 +235,14 @@ const searchFilterFunction = (pair: any, searchQuery?: string) => {
   if (symbol1.includes(searchQueryClean)) {
     return true
   }
-  if (searchQueryClean === symbol0 + '-' + symbol1) {
+  const parts = searchQueryClean.split('-')
+  if (parts.length !== 2) {
+    return false
+  }
+  if (symbol0.includes(parts[0]) && symbol1.includes(parts[1])) {
     return true
   }
-  if (searchQueryClean === symbol1 + '-' + symbol0) {
+  if (symbol0.includes(parts[1]) && symbol1.includes(parts[0])) {
     return true
   }
   return false
