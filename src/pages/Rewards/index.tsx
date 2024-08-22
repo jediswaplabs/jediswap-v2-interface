@@ -340,7 +340,8 @@ const shimmerMixin = css`
 `
 
 export const LoadingRows = styled.div`
-  display: grid;
+  /* display: grid; */
+  width: 30%;
 
   & > div {
     ${shimmerMixin}
@@ -792,77 +793,85 @@ export default function Rewards() {
           pendingText={''}
         />
       )}
-      {poolsLoading ? (
-        <LoadingRows>
-          <div style={{ height: 450 }} />
-        </LoadingRows>
-      ) : (
-        <LiquidityWrapperCard style={{ marginBottom: '14px', padding: '18px' }}>
-          <RowContainer>
-            <FirstColumn>
+
+      <LiquidityWrapperCard style={{ marginBottom: '14px', padding: '18px' }}>
+        <RowContainer>
+          <FirstColumn>
+            <DefiSpringWrapper>
+              <DefiSpringTitle>StarkNet DeFi Spring</DefiSpringTitle>
+              <DefiSpringSubTitle>
+                90M <img src={StarkIcon} alt="starknet_logo" /> STRK
+              </DefiSpringSubTitle>
+              <IncentivesText>
+                JediSwap users will receive STRK incentives as part of the StarkNet DeFi Spring Program.
+              </IncentivesText>
+            </DefiSpringWrapper>
+            <DefiSpringLink href="https://docs.jediswap.xyz/defi-spring-strk-incentives-for-v2" target="_blank">
+              See How we are calculating it <img src={ArrowRight} />
+            </DefiSpringLink>
+          </FirstColumn>
+          <SecondColumn>
+            <MobileWrapper>
               <DefiSpringWrapper>
-                <DefiSpringTitle>StarkNet DeFi Spring</DefiSpringTitle>
-                <DefiSpringSubTitle>
-                  90M <img src={StarkIcon} alt="starknet_logo" /> STRK
-                </DefiSpringSubTitle>
-                <IncentivesText>
-                  JediSwap users will receive STRK incentives as part of the StarkNet DeFi Spring Program.
-                </IncentivesText>
+                <DefiSpringTitleEarn>Earn STRK incentives by providing liquidity to these pools:</DefiSpringTitleEarn>
               </DefiSpringWrapper>
-              <DefiSpringLink href="https://docs.jediswap.xyz/defi-spring-strk-incentives-for-v2" target="_blank">
-                See How we are calculating it <img src={ArrowRight} />
-              </DefiSpringLink>
-            </FirstColumn>
-            <SecondColumn>
-              <MobileWrapper>
-                <DefiSpringWrapper>
-                  <DefiSpringTitleEarn>Earn STRK incentives by providing liquidity to these pools:</DefiSpringTitleEarn>
-                </DefiSpringWrapper>
-                <Container>
-                  <RowWrapper>
-                    {allPools.map((pool) => (
-                      <PairListItem key={pool.poolAddress} pool={pool} />
-                    ))}
-                  </RowWrapper>
-                </Container>
-              </MobileWrapper>
-            </SecondColumn>
-          </RowContainer>
-        </LiquidityWrapperCard>
-      )}
-      {allocationsLoading ? (
-        <LoadingRows>
-          <div style={{ height: 450 }} />
-        </LoadingRows>
-      ) : (
-        <LiquidityWrapperCard style={{ position: 'relative' }}>
-          {/* <Coins>
+              <Container>
+                <RowWrapper>
+                  {poolsLoading
+                    ? Array.from({ length: 7 }, (_, index) => index).map((index) => {
+                        return (
+                          <LoadingRows>
+                            <div style={{ height: 160 }} />
+                          </LoadingRows>
+                        )
+                      })
+                    : allPools.map((pool) => <PairListItem key={pool.poolAddress} pool={pool} />)}
+                </RowWrapper>
+              </Container>
+            </MobileWrapper>
+          </SecondColumn>
+        </RowContainer>
+      </LiquidityWrapperCard>
+
+      <LiquidityWrapperCard style={{ position: 'relative' }}>
+        {/* <Coins>
             <img src={CoinsIcon}/>
           </Coins> */}
-          <RowBetween>
-            <ClaimHeader>
-              <ClaimHeaderText>Next claim available on August 23</ClaimHeaderText>
-              <img src={StarsIcon} style={{ marginLeft: '20px', marginBottom: '15px' }} />
-            </ClaimHeader>
-          </RowBetween>
-          <CardSection style={{ padding: isMainnetSelected ? '32px' : '0 32px 32px 32px' }}>
-            {!chainId ? (
-              <WalletNotConnected />
-            ) : isSepoliaSelected ? (
-              <ConnectedToSepolia />
-            ) : allocationsLoadingError ? (
-              <AllocationError />
-            ) : (
-              <>
-                <AutoColumn>
-                  <Coins>
-                    <img src={CoinsIcon} />
-                  </Coins>
-                  <RowBetween>
-                    <StarkRewardsText>Your STRK Rewards</StarkRewardsText>
-                  </RowBetween>
+        <RowBetween>
+          <ClaimHeader>
+            <ClaimHeaderText>Next claim available on August 23</ClaimHeaderText>
+            <img src={StarsIcon} style={{ marginLeft: '20px', marginBottom: '15px' }} />
+          </ClaimHeader>
+        </RowBetween>
+        <CardSection style={{ padding: isMainnetSelected ? '32px' : '0 32px 32px 32px' }}>
+          {!chainId ? (
+            <WalletNotConnected />
+          ) : isSepoliaSelected ? (
+            <ConnectedToSepolia />
+          ) : allocationsLoadingError ? (
+            <AllocationError />
+          ) : (
+            <>
+              <AutoColumn>
+                <Coins>
+                  <img src={CoinsIcon} />
+                </Coins>
+                <RowBetween>
+                  <StarkRewardsText>Your STRK Rewards</StarkRewardsText>
+                </RowBetween>
 
-                  <Container>
+                <Container>
+                  {allocationsLoading ? (
+                    <Row>
+                      {Array.from({ length: 3 }, (_, index) => index).map((index) => {
+                        return (
+                          <LoadingRows>
+                            <div style={{ height: 115 }} />
+                          </LoadingRows>
+                        )
+                      })}
+                    </Row>
+                  ) : (
                     <Row>
                       <Column>
                         <HeaderText>
@@ -900,16 +909,16 @@ export default function Rewards() {
                         </ClaimWrapper>
                       </Column>
                     </Row>
-                  </Container>
-                </AutoColumn>
-                {/* <div style={{ marginTop: '20px', fontSize: '20px' }}>
+                  )}
+                </Container>
+              </AutoColumn>
+              {/* <div style={{ marginTop: '20px', fontSize: '20px' }}>
                   NOTE: Jediswap v2 LPs are accumulating STRK rewards already. Claim for v2 rewards will go live soon.
                 </div> */}
-              </>
-            )}
-          </CardSection>
-        </LiquidityWrapperCard>
-      )}
+            </>
+          )}
+        </CardSection>
+      </LiquidityWrapperCard>
     </PageWrapper>
   )
 }
