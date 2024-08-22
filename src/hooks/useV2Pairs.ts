@@ -51,8 +51,8 @@ export function useV2Pairs(
   return useMemo(() => {
     return results.map((result: any, i: number) => {
       const { result: reserves, loading } = result
-      const tokenA = tokens[i][0]
-      const tokenB = tokens[i][1]
+      const tokenA = tokens[i]?.[0]
+      const tokenB = tokens[i]?.[1]
 
       if (loading) return [PairState.LOADING, null]
       if (!tokenA || !tokenB || tokenA.equals(tokenB)) return [PairState.INVALID, null]
@@ -72,5 +72,5 @@ export function useV2Pairs(
 
 export function useV2Pair(tokenA?: Currency, tokenB?: Currency): [PairState, Pair | null] {
   const inputs: [[Currency | undefined, Currency | undefined]] = useMemo(() => [[tokenA, tokenB]], [tokenA, tokenB])
-  return useV2Pairs([], inputs)[0]
+  return useV2Pairs([], inputs)[0] || []
 }

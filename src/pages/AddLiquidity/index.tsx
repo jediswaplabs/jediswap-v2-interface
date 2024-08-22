@@ -322,6 +322,7 @@ function AddLiquidity() {
       const { amount0: amount0Desired, amount1: amount1Desired } = position.mintAmounts
 
       // adjust for slippage
+      console.log('allowedSlippage', allowedSlippage.toSignificant())
       const minimumAmounts = position.mintAmountsWithSlippage(allowedSlippage)
       const amount0Min = minimumAmounts.amount0
       const amount1Min = minimumAmounts.amount1
@@ -390,6 +391,7 @@ function AddLiquidity() {
           recipient: account,
           deadline: cairo.felt(deadline.toString()),
         }
+        console.log('mintdata_add', mintData)
         const mintCallData = CallData.compile(mintData)
         const mcalls = {
           contractAddress: router_address,

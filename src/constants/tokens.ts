@@ -144,7 +144,7 @@ export const DAI = {
   ),
   [ChainId.MAINNET]: new Token(
     ChainId.MAINNET,
-    '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+    '0x00da114221cb83fa859dbdb4c44beeaa0bb37c7537ad5ae66fe5e0efd20e6eb3',
     18,
     'DAI',
     'Dai Stablecoin'
@@ -152,24 +152,52 @@ export const DAI = {
 }
 export const USDC = {
   [ChainId.GOERLI]: new Token(ChainId.GOERLI, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDC', 'USD//C'),
-  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDC', 'USD//C'),
+  [ChainId.MAINNET]: new Token(
+    ChainId.MAINNET,
+    '0x053c91253bc9682c04929ca02ed00b3e423f6710d2ee7e0d5ebb06f3ecf368a8',
+    6,
+    'USDC',
+    'USD//C'
+  ),
 }
 
 export const USDT = {
   [ChainId.GOERLI]: new Token(ChainId.GOERLI, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDT', 'Tether USD'),
-  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 6, 'USDT', 'Tether USD'),
+  [ChainId.MAINNET]: new Token(
+    ChainId.MAINNET,
+    '0x068f5c6a61780768455de69077e07e89787839bf8166decfbf92b645209c0fb8',
+    6,
+    'USDT',
+    'Tether USD'
+  ),
 }
 
 export const WBTC = {
   [ChainId.GOERLI]: new Token(ChainId.GOERLI, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 8, 'WBTC', 'Wrapped BTC'),
-  [ChainId.MAINNET]: new Token(ChainId.MAINNET, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 8, 'WBTC', 'Wrapped BTC'),
+  [ChainId.MAINNET]: new Token(
+    ChainId.MAINNET,
+    '0x03fe2B97c1Fd336e750087d68B9B867997Fd64a2661fF3CA5a7C771641E8e7Ac',
+    8,
+    'WBTC',
+    'Wrapped BTC'
+  ),
+}
+
+export const STRK = {
+  [ChainId.MAINNET]: new Token(
+    ChainId.MAINNET,
+    '0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d',
+    18,
+    'STRK',
+    'Starknet'
+  ),
 }
 
 export const wstETH = {
   [ChainId.GOERLI]: new Token(ChainId.GOERLI, '0x6B175474E89094C44Da98b954EedeAC495271d0F', 18, 'USDT', 'Tether USD'),
   [ChainId.MAINNET]: new Token(
     ChainId.MAINNET,
-    '0x6B175474E89094C44Da98b954EedeAC495271d0F',
+    '0x042b8F0484674Ca266ac5D08E4ac6A3fE65bd3129795def2dCA5c34ecc5f96d2',
     18,
     'wstETH',
     'Wrapped stETH'
@@ -242,6 +270,7 @@ export const BASES_TO_TRACK_LIQUIDITY_FOR: ChainTokenList = {
     USDT[ChainId.MAINNET],
     WBTC[ChainId.MAINNET],
     wstETH[ChainId.MAINNET],
+    STRK[ChainId.MAINNET],
   ],
 }
 
