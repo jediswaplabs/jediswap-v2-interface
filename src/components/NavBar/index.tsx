@@ -22,6 +22,9 @@ import { useIsVaultsPage } from '../../hooks/useIsVaultsPage'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import StarkIcon from 'assets/svg/starknet.svg'
+import AuditedIcon from 'assets/images/audited.png'
+import styled from 'styled-components'
+import { BREAKPOINTS } from 'theme'
 
 const MenuItemLink = ({ to, dataTestId, id, isActive, children }) => {
   const Component = isActive ? ActiveMenuItem : MenuItem
@@ -37,6 +40,12 @@ const ExternalMenuItemLink = ({ to, children }) => (
     {children}
   </ExternalMenuItem>
 )
+
+const Audit = styled.a`
+  @media screen and (max-width: ${BREAKPOINTS.xxl}px) {
+    display: none;
+  }
+`
 
 export const PageTabs = () => {
   const { pathname } = useLocation()
@@ -102,6 +111,12 @@ const Navbar = () => {
           onClick={handleLogoIconClick}
           className={'mobile'}
         />
+        <Audit
+          href="https://github.com/NethermindEth/PublicAuditReports/blob/main/NM0180-FINAL_JEDISWAP.pdf"
+          target="_blank"
+        >
+          <img style={{ width: '170px', marginLeft: '30px' }} src={AuditedIcon} />
+        </Audit>
       </LogoContainer>
 
       <MenuContainer>
