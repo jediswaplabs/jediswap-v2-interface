@@ -261,9 +261,9 @@ const ButtonConfirmedStyle = styled(BaseButton)`
   /* border: 1px solid ${({ theme }) => theme.success}; */
 
   &:disabled {
-    opacity: 50%;
-    background-color: ${({ theme }) => theme.surface3};
-    color: ${({ theme }) => theme.neutral2};
+    opacity: 100%;
+    background-color: #3a056c;
+    color: ${({ theme }) => theme.jediWhite};
     cursor: auto;
   }
 `

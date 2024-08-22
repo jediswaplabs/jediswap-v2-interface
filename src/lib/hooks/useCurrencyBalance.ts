@@ -3,12 +3,16 @@ import { useAccountDetails } from 'hooks/starknet-react'
 import ERC20ABI from 'abis/erc20.json'
 import { Erc20Interface } from 'abis/types/Erc20'
 import JSBI from 'jsbi'
-import { useMultipleContractSingleData, useSingleContractMultipleData } from 'lib/hooks/multicall'
+import { useSingleContractMultipleData } from 'lib/hooks/multicall'
 import { useMemo } from 'react'
 
 import { nativeOnChain } from '../../constants/tokens'
 import { useInterfaceMulticall } from '../../hooks/useContract'
 import { isAddress } from '../../utils'
+import { useMultipleContractSingleData } from 'state/multicall/hooks'
+import ERC20_ABI from 'constants/abis/erc20.json'
+import { Abi } from 'starknet'
+import { isAddressValidForStarknet } from 'utils/addresses'
 
 /**
  * Returns a map of the given addresses to their eventually consistent ETH balances.
@@ -55,25 +59,34 @@ export function useTokenBalancesWithLoadingIndicator(
   address?: string,
   tokens?: (Token | undefined)[]
 ): [{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }, boolean] {
-  const { chainId } = useAccountDetails() // we cannot fetch balances cross-chain
-  // const validatedTokens: Token[] = useMemo(
-  //   () => tokens?.filter((t?: Token): t is Token => isAddress(t?.address) !== false && t?.chainId === chainId) ?? [],
-  //   [chainId, tokens]
-  // )
-  const validatedTokens: Token[] = []
+  const validatedTokens: Token[] = useMemo(
+    () => tokens?.filter((t?: Token): t is Token => isAddressValidForStarknet(t?.address) !== false) ?? [],
+    [tokens]
+  )
   const validatedTokenAddresses = useMemo(() => validatedTokens.map((vt) => vt.address), [validatedTokens])
 
-  // const balances = useMultipleContractSingleData(
-  //   validatedTokenAddresses,
-  //   ERC20Interface,
-  //   'balanceOf',
-  //   useMemo(() => [address], [address]),
-  //   tokenBalancesGasRequirement
-  // )
+  const balances = useMultipleContractSingleData(validatedTokenAddresses, ERC20_ABI as Abi, 'balanceOf', {
+    account: address ?? '0',
+  })
 
-  // const anyLoading: boolean = useMemo(() => balances.some((callState) => callState.loading), [balances])
+  const anyLoading: boolean = useMemo(() => balances.some((callState) => callState.loading), [balances])
 
-  return useMemo(() => [{}, false], [address, validatedTokens])
+  return useMemo(
+    () => [
+      address && validatedTokens.length > 0
+        ? validatedTokens.reduce<{ [tokenAddress: string]: CurrencyAmount<Token> | undefined }>((memo, token, i) => {
+            const value = balances?.[i]?.result?.[0]
+            const amount = value ? JSBI.BigInt(value.toString()) : undefined
+            if (amount) {
+              memo[token.address] = CurrencyAmount.fromRawAmount(token, amount)
+            }
+            return memo
+          }, {})
+        : {},
+      anyLoading,
+    ],
+    [address, validatedTokens, anyLoading, balances]
+  )
 }
 
 export function useTokenBalances(

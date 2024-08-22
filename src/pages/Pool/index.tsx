@@ -29,6 +29,7 @@ import {
   ResponsiveButtonTabs,
   TitleRow,
 } from './styled'
+import { ButtonOutlined, ButtonLight, ButtonSecondary } from 'components/Button'
 import { getAllPools } from 'api/PoolsData'
 import Pools from 'components/Pools'
 import { formattedNum, formattedPercent, get2DayPercentChange, getPercentChange } from 'utils/formatNum'
@@ -69,6 +70,13 @@ const Input = styled.input`
   ::placeholder {
     color: #959595;
   }
+`
+export const MigrateButton = styled(ButtonSecondary)`
+  width: 200px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 15px;
+  border-color: ${({ theme }) => `${theme.jediGrey}`};
 `
 
 export function PositionsLoadingPlaceholder() {
@@ -359,11 +367,16 @@ export default function Pool() {
               loadingPositions ? (
                 <PositionsLoadingPlaceholder />
               ) : (
-                <PositionDetails
-                  tokenIds={tokenIds}
-                  showConnectAWallet={showConnectAWallet}
-                  toggleWalletDrawer={toggleWalletDrawer}
-                />
+                <>
+                  <MigrateButton as={Link} to="/migrate">
+                    Migrate v1 Liquidity
+                  </MigrateButton>
+                  <PositionDetails
+                    tokenIds={tokenIds}
+                    showConnectAWallet={showConnectAWallet}
+                    toggleWalletDrawer={toggleWalletDrawer}
+                  />
+                </>
               )
             ) : (
               poolsTable
