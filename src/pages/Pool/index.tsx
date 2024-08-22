@@ -42,6 +42,35 @@ import { useDefaultActiveTokens } from 'hooks/Tokens'
 import { PositionDetails } from './PositionDetails'
 import { ApolloQueryResult } from '@apollo/client'
 
+const Input = styled.input`
+  font-size: 16px;
+  outline: none;
+  border: none;
+  flex: 1 1 auto;
+  width: 0;
+  background-color: ${({ theme }) => theme.surface1};
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 535;
+  min-width: fit-content;
+  margin: 0 15px;
+  padding: 0 15px;
+  -webkit-appearance: textfield;
+
+  ::-webkit-search-decoration {
+    -webkit-appearance: none;
+  }
+
+  ::-webkit-outer-spin-button,
+  ::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+  }
+
+  ::placeholder {
+    color: #959595;
+  }
+`
 export const MigrateButton = styled(ButtonSecondary)`
   width: 200px;
   margin-left: auto;
@@ -123,6 +152,7 @@ export default function Pool() {
 
   const initialShowMyPos = location.pathname === '/positions' ? true : false
   const [showMyPositions, setShowMyPositions] = useState<boolean>(initialShowMyPos)
+  const [searchQuery, setSearchQuery] = useState('')
   const [showRewardedOnly, setShowRewardedOnly] = useState(false)
   const [globalPoolsData, setGlobalPoolsData] = useState<any>({})
   const chainIdFinal = chainId || ChainId.MAINNET
@@ -240,7 +270,13 @@ export default function Pool() {
         />
       </OnlyRewardedSwitcherContainer>
       <Panel style={{ padding: '0', fontWeight: 700, fontSize: '0.875rem' }}>
-        <Pools pairs={poolsData} disbaleLinks={true} showRewardedOnly={showRewardedOnly} />
+        <Pools
+          pairs={poolsData}
+          disbaleLinks={true}
+          showRewardedOnly={showRewardedOnly}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
       </Panel>
     </div>
   )
@@ -292,7 +328,7 @@ export default function Pool() {
       {/* need torevert margin to 24 after fixiing backend */}
       <AutoColumn gap="lg" justify="center" style={{ marginTop: 14 }}>
         <AutoColumn gap="lg" style={{ width: '100%' }}>
-          <ButtonRow justifyContent={'space-between'}>
+          <ButtonRow justifyContent={'space-between'} style={{ alignItems: 'stretch' }}>
             <ResponsiveButtonTabs
               secondary={false}
               active={!showMyPositions}
@@ -311,6 +347,11 @@ export default function Pool() {
             >
               <Trans>My Positions</Trans>
             </ResponsiveButtonTabs>
+            <Input
+              value={searchQuery}
+              onInput={(e) => setSearchQuery(e.currentTarget.value)}
+              placeholder="&#x1F50E;&#xFE0E; &nbsp;Search pools like: USDC or USDC-DAI"
+            />
             <ResponsiveButtonPrimary
               data-cy="join-pool-button"
               id="join-pool-button"

@@ -29,6 +29,7 @@ import { WETH } from 'constants/tokens'
 import StarknetIcon from 'assets/svg/starknet.svg'
 import LocalLoader from 'components/LocalLoader'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
+import { ButtonEmpty } from 'components/Button'
 
 dayjs.extend(utc)
 
@@ -63,6 +64,8 @@ const List = styled(Box)`
 `
 const PlaceholderContainer = styled.div`
   padding: 20px;
+  text-align: center;
+  font-size: 1rem;
 `
 
 const DashGrid = styled.div<{ fade?: boolean; disbaleLinks?: boolean; focus?: boolean; center?: boolean }>`
@@ -219,6 +222,31 @@ const formatDataText = (
 
 const DEFAULT_NO_PAIRS_PLACEHOLDER_TEXT = 'Pairs will appear here'
 
+const searchFilterFunction = (pair: any, searchQuery?: string) => {
+  const searchQueryClean = searchQuery?.replaceAll(' ', '').toLowerCase()
+  if (!searchQueryClean) {
+    return true
+  }
+  const symbol0 = pair.token0.symbol.toLowerCase()
+  const symbol1 = pair.token1.symbol.toLowerCase()
+  if (symbol0.includes(searchQueryClean)) {
+    return true
+  }
+  if (symbol1.includes(searchQueryClean)) {
+    return true
+  }
+  const parts = searchQueryClean.split('-')
+  if (parts.length !== 2) {
+    return false
+  }
+  if (symbol0.includes(parts[0]) && symbol1.includes(parts[1])) {
+    return true
+  }
+  if (symbol0.includes(parts[1]) && symbol1.includes(parts[0])) {
+    return true
+  }
+  return false
+}
 function calcCommonApr(pairData: any) {
   const feeRatio24H = pairData.oneDayFeesUSD / pairData.totalValueLockedUSD
   const aprFee = feeRatio24H * 365 * 100
@@ -238,6 +266,8 @@ function PairList({
   waitForData = true,
   noPairsPlaceholderText = DEFAULT_NO_PAIRS_PLACEHOLDER_TEXT,
   showRewardedOnly = false,
+  searchQuery = '',
+  setSearchQuery,
 }: {
   pairs: any
   color?: string
@@ -247,6 +277,8 @@ function PairList({
   waitForData?: boolean
   noPairsPlaceholderText?: string
   showRewardedOnly?: boolean
+  searchQuery?: string
+  setSearchQuery: (q: string) => void
 }) {
   const below600 = useMedia('(max-width: 600px)')
   const below740 = useMedia('(max-width: 740px)')
@@ -267,14 +299,12 @@ function PairList({
     return (
       pairs &&
       Object.keys(pairs).filter((address: string) => {
-        if (!showRewardedOnly) {
-          return true
-        }
         const pair = pairs[address]
-        return pair.rewarded
+        const rewardsFilter = showRewardedOnly ? pair.rewarded : true
+        return rewardsFilter && searchFilterFunction(pair, searchQuery)
       })
     )
-  }, [pairs, showRewardedOnly])
+  }, [pairs, showRewardedOnly, searchQuery])
 
   useMemo(() => {
     for (const token of Object.values(allTokens)) {
@@ -522,20 +552,22 @@ function PairList({
         )
       })
 
-  if (!pairList) {
+  if (!pairs || Object.keys(pairs).length === 0) {
     return <LocalLoader />
   }
 
-  if (waitForData && !pairList.length) {
-    return <LocalLoader />
-  }
-
-  if (!waitForData && !pairList.length) {
+  if (pairList.length === 0) {
     return (
       <PlaceholderContainer>
-        {/* <TYPE.main fontSize={'16px'} fontWeight={'400'}> */}
-        {noPairsPlaceholderText}
-        {/* </TYPE.main> */}
+        <div>No pools were found</div>
+        <div>
+          <ButtonEmpty
+            onClick={() => setSearchQuery('')}
+            style={{ width: '300px', margin: '0 auto', fontSize: '1.2rem' }}
+          >
+            Clear the search criteria
+          </ButtonEmpty>
+        </div>
       </PlaceholderContainer>
     )
   }
