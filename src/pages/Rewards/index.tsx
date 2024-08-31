@@ -839,7 +839,7 @@ export default function Rewards() {
           </Coins> */}
         <RowBetween>
           <ClaimHeader>
-            <ClaimHeaderText>Next claim available on August 30</ClaimHeaderText>
+            <ClaimHeaderText>Next claim available September 06</ClaimHeaderText>
             <img src={StarsIcon} style={{ marginLeft: '20px', marginBottom: '15px' }} />
           </ClaimHeader>
         </RowBetween>
