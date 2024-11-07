@@ -1,7 +1,7 @@
 {
-  "name": "@jediswap/interface",
+  "name": "@a51finance/starknet-interface",
   "version": "9.1.21",
-  "description": "Jediswap Interface",
+  "description": "A51 StarkNet Interface",
   "homepage": ".",
   "scripts": {
     "i18n:extract": "lingui extract --locale en-US",

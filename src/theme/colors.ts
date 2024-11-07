@@ -9,6 +9,10 @@ const signalGreen = '#21E70F'
 const jediGreyBorder = '#444'
 const signalRed = '#FC4D4D'
 
+const a51Orange = '#FF7034'
+const a51Blue = '#026271'
+const a51Black = '#0F1118'
+
 export const colors = {
   white: '#FFFFFF',
   black: '#000000',
@@ -125,7 +129,7 @@ export const colors = {
   surface6_dark: '#323C5C',
 
   accent1_dark: jediBlue,
-  accent2_dark: jediPink,
+  accent2_dark: jediBlue,
 
   neutral1_light: jediWhite,
   neutral2_light: '#7D7D7D',

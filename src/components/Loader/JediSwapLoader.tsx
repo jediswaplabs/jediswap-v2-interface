@@ -39,7 +39,7 @@ const JediSwapLoader = ({ fill = undefined, ...attr }) => {
   return (
     <Wrapper fill={fill} {...attr}>
       <AnimatedImg>
-        <img src={require('../../assets/jedi/squareLogo.png')} alt="loading-icon" />
+        <img src={require('../../assets/jedi/a51-token.png')} alt="loading-icon" />
       </AnimatedImg>
     </Wrapper>
   )

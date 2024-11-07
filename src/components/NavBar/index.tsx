@@ -3,8 +3,8 @@ import { Trans } from '@lingui/macro'
 import { useCallback } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-import Logo from 'assets/jedi/logo.png'
-import MobileLogo from 'assets/jedi/squareLogo.png'
+import Logo from 'assets/jedi/logo.svg'
+import MobileLogo from 'assets/jedi/a51-token.png'
 import { useAccountDrawer } from 'components/AccountDrawer'
 import Web3Status from 'components/Web3Status'
 import { useIsPoolsPage } from 'hooks/useIsPoolsPage'
@@ -22,7 +22,7 @@ import { useIsVaultsPage } from '../../hooks/useIsVaultsPage'
 import { useAccountDetails } from 'hooks/starknet-react'
 import { ChainId } from '@vnaysn/jediswap-sdk-core'
 import StarkIcon from 'assets/svg/starknet.svg'
-import AuditedIcon from 'assets/images/audited.png'
+import AuditedIcon from 'assets/jedi/jediswap_logo.png'
 import styled from 'styled-components'
 import { BREAKPOINTS } from 'theme'
 
@@ -115,7 +115,7 @@ const Navbar = () => {
           href="https://github.com/NethermindEth/PublicAuditReports/blob/main/NM0180-FINAL_JEDISWAP.pdf"
           target="_blank"
         >
-          <img style={{ width: '170px', marginLeft: '30px' }} src={AuditedIcon} />
+          <img style={{ width: '170px', marginLeft: '0px' }} src={AuditedIcon} />
         </Audit>
       </LogoContainer>
 
