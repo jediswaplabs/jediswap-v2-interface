@@ -92,7 +92,7 @@ export const ButtonPrimary = styled(BaseButton<BaseThemeButtonProps>)`
   &:disabled {
     cursor: default;
     opacity: 100%;
-    background: ${({ theme }) => theme.jediNavyBlue};
+    background: ${({ theme }) => theme.jediBlue};
     color: #9b9b9b;
     box-shadow: 0px 0.76977px 30.79088px 0px rgba(227, 222, 255, 0.2) inset,
       0px 3.07909px 13.8559px 0px rgba(154, 146, 210, 0.3) inset,
@@ -319,7 +319,7 @@ export function ButtonDropdownLight({ disabled = false, children, ...rest }: { d
 }
 
 const ActiveOutlined = styled(ButtonOutlined)`
-  border: ${({ theme }) => `1px solid ${theme.jediBlue}`} !important ;
+  border: ${({ theme }) => `1px solid ${theme.a51Orange}`} !important ;
 `
 
 const Circle = styled.div`

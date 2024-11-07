@@ -14,7 +14,7 @@ import {
   updateChainId,
 } from './reducer'
 import { useAppDispatch, useAppSelector } from '../hooks'
-import teahouseLogo from '../../assets/vaults/teahouse.svg'
+import teahouseLogo from '../../assets/vaults/logo.svg'
 import { useAccountBalance, useAccountDetails } from '../../hooks/starknet-react'
 import formatBalance from '../../utils/formatBalance'
 import { Field } from './actions'
@@ -102,7 +102,7 @@ const getVaultListWithContents = async (
     data.type = vault.type
     data.chainId = ChainId.MAINNET
     data.provider = {
-      name: 'Teahouse',
+      name: 'A51 Finance',
       logo: teahouseLogo,
     }
     result[shareAddress] = data as Vault

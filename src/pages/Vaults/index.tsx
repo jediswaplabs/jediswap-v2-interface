@@ -815,7 +815,6 @@ export default function Vaults({ maxItems = 10 }) {
 
   return (
     <PageWrapper>
-      <PromotionalBanner noDecorations={below600} />
       <PageTitleRow>
         <PageTitle>Vaults</PageTitle>
         <MyVaultsSwitcherContainer>

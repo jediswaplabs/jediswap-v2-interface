@@ -253,22 +253,6 @@ export default function Pool() {
   const showConnectAWallet = Boolean(!address)
   const poolsTable = (
     <div>
-      <OnlyRewardedSwitcherContainer>
-        <OnlyRewardedSwitcherLabel>Only Pools with Rewards</OnlyRewardedSwitcherLabel>
-        <OnlyRewardedSwitcher
-          onChange={(checked) => setShowRewardedOnly(checked)}
-          checked={showRewardedOnly}
-          handleDiameter={20}
-          uncheckedIcon={false}
-          checkedIcon={false}
-          width={35}
-          height={14}
-          offHandleColor={'#959595'}
-          onHandleColor={'#50D5FF'}
-          offColor={'#372554'}
-          onColor={'#26346d'}
-        />
-      </OnlyRewardedSwitcherContainer>
       <Panel style={{ padding: '0', fontWeight: 700, fontSize: '0.875rem' }}>
         <Pools
           pairs={poolsData}
@@ -368,9 +352,6 @@ export default function Pool() {
                 <PositionsLoadingPlaceholder />
               ) : (
                 <>
-                  <MigrateButton as={Link} to="/migrate">
-                    Migrate v1 Liquidity
-                  </MigrateButton>
                   <PositionDetails
                     tokenIds={tokenIds}
                     showConnectAWallet={showConnectAWallet}

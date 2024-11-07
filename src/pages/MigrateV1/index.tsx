@@ -112,9 +112,6 @@ export default function MigrateV2() {
         <AutoColumn gap="16px">
           <AutoRow style={{ alignItems: 'center', justifyContent: 'space-between' }} gap="8px">
             <BackArrowLink to="/positions" />
-            <ThemedText.DeprecatedMediumHeader>
-              <Trans>Migrate V1 liquidity</Trans>
-            </ThemedText.DeprecatedMediumHeader>
             <div>
               {/* <QuestionHelper text={<Trans>Migrate your liquidity tokens from Uniswap V2 to Uniswap V3.</Trans>} /> */}
             </div>
