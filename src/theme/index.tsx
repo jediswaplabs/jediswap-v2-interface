@@ -126,7 +126,7 @@ export const ThemedGlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     overscroll-behavior: none;
-    background: ${({ theme }) => theme.bgdGradient};
+    background: ${({ theme }) => theme.a51Black};
     background-repeat: no-repeat;
     background-size: cover;
   }

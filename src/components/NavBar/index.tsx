@@ -55,6 +55,18 @@ export const PageTabs = () => {
 
   return (
     <>
+      <MenuItemLink to="/pools" dataTestId="pool-nav-link" isActive={isPoolActive}>
+        <Trans>Create Auto-Pool</Trans>
+      </MenuItemLink>
+      <MenuItemLink to="/vaults" isActive={isVaultsActive}>
+        <Trans>A51 Auto-Pools</Trans>
+      </MenuItemLink>
+    </>
+  )
+
+  /** 
+  return (
+    <>
       <MenuItemLink to="/swap" isActive={pathname.startsWith('/swap')}>
         <Trans>Trade</Trans>
       </MenuItemLink>
@@ -76,6 +88,7 @@ export const PageTabs = () => {
       </MenuItemLink>
     </>
   )
+  */
 }
 
 const Navbar = () => {
