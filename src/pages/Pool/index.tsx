@@ -152,6 +152,7 @@ export default function Pool() {
 
   const initialShowMyPos = location.pathname === '/positions' ? true : false
   const [showMyPositions, setShowMyPositions] = useState<boolean>(initialShowMyPos)
+  //const [temp, setShowMyPositions] = useState<boolean>(initialShowMyPos)
   const [searchQuery, setSearchQuery] = useState('')
   const [showRewardedOnly, setShowRewardedOnly] = useState(false)
   const [globalPoolsData, setGlobalPoolsData] = useState<any>({})
@@ -324,9 +325,9 @@ export default function Pool() {
             </ResponsiveButtonTabs>
             <ResponsiveButtonTabs
               secondary={true}
-              active={showMyPositions}
+              //active={showMyPositions}
               // onClick={() => setShowMyPositions(true)}
-              onClick={() => navigate('/positions')}
+              //onClick={() => navigate('/positions')}
               style={{ fontSize: '0.875rem' }}
             >
               <Trans>My Auto-Pools</Trans>
