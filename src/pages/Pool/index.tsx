@@ -329,6 +329,15 @@ export default function Pool() {
               onClick={() => navigate('/positions')}
               style={{ fontSize: '0.875rem' }}
             >
+              <Trans>My Auto-Pools</Trans>
+            </ResponsiveButtonTabs>
+            <ResponsiveButtonTabs
+              secondary={true}
+              active={showMyPositions}
+              // onClick={() => setShowMyPositions(true)}
+              onClick={() => navigate('/positions')}
+              style={{ fontSize: '0.875rem' }}
+            >
               <Trans>My Positions</Trans>
             </ResponsiveButtonTabs>
             <Input
