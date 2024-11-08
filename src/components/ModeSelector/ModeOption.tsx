@@ -3,7 +3,7 @@ import { FeeAmount } from '@vnaysn/jediswap-sdk-v3'
 import React from 'react'
 import styled from 'styled-components'
 
-import { ButtonRadioChecked } from 'components/Button'
+import { ButtonRadioChecked } from 'components/button-modes'
 import { AutoColumn } from 'components/Column'
 import { useFeeTierDistribution } from 'hooks/useFeeTierDistribution'
 import { PoolState } from 'hooks/usePools'
@@ -31,13 +31,13 @@ interface FeeOptionProps {
 
 export function ModeOption({ feeAmount, active, poolState, distributions, onClick }: FeeOptionProps) {
   return (
-    <ButtonRadioChecked active={active} onClick={onClick} style={{ border: '1px solid #444', borderRadius: '8px' }}>
-      <AutoColumn gap="sm" justify="flex-start">
-        <AutoColumn justify="flex-start" gap="6px">
+    <ButtonRadioChecked active={false}  style={{ border: '1px solid #444', borderRadius: '8px' }}>
+      <AutoColumn gap="sm" justify="flex-start" >
+        <AutoColumn justify="flex-start" gap="6px" >
           <ResponsiveText>
             <Trans>{FEE_AMOUNT_DETAIL[feeAmount].label}</Trans>
           </ResponsiveText>
-          <ThemedText.DeprecatedMain fontWeight={485} fontSize="12px" textAlign="left">
+          <ThemedText.DeprecatedMain fontWeight={485} fontSize="12px" textAlign="left" >
             {FEE_AMOUNT_DETAIL[feeAmount].description}
           </ThemedText.DeprecatedMain>
         </AutoColumn>
