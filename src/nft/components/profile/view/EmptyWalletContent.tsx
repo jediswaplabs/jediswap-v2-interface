@@ -66,7 +66,7 @@ const EMPTY_WALLET_CONTENT: { [key in EmptyWalletContentType]: EmptyWalletConten
   pool: {
     title: <Trans>No pools yet</Trans>,
     subtitle: <Trans>Open a new position or create a pool to get started.</Trans>,
-    actionText: <Trans>+ New position</Trans>,
+    actionText: <Trans>Create Auto-Pool</Trans>,
     urlPath: '/pool',
     icon: <EmptyPoolsIcon />,
   },

@@ -155,7 +155,7 @@ export default function PoolDetails() {
         {poolData?.token0?.symbol} - {poolData?.token1?.symbol}
         <FeeBadge>{feePercent}</FeeBadge>
         <ResponsiveButtonPrimary as={Link} to={`/add/${poolData?.token0?.tokenAddress}/${poolData?.token1?.tokenAddress}/${poolData?.fee}`} style={{fontSize: "1.125rem", fontWeight: 750 }}>
-          + New position
+          Create Auto-Pool
         </ResponsiveButtonPrimary>
       </Row>
       <AutoColumn gap="12px">

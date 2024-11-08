@@ -33,6 +33,7 @@ import { BlueCard, LightCard, OutlineCard, YellowCard } from '../../components/C
 import { AutoColumn } from '../../components/Column'
 import CurrencyInputPanel from '../../components/CurrencyInputPanel'
 import FeeSelector from '../../components/FeeSelector'
+import ModeSelector from '../../components/ModeSelector'
 import HoverInlineText from '../../components/HoverInlineText'
 import LiquidityChartRangeInput from '../../components/LiquidityChartRangeInput'
 import { AddRemoveTabs } from '../../components/NavigationTabs'
@@ -601,7 +602,7 @@ function AddLiquidity() {
           hash={txHash}
           reviewContent={() => (
             <ConfirmationModalContent
-              title={<Trans>Add Liquidity</Trans>}
+              title={<Trans>Create Auto-Pool</Trans>}
               onDismiss={handleDismissConfirmation}
               topContent={() => (
                 <Review
@@ -693,6 +694,13 @@ function AddLiquidity() {
                         feeAmount={feeAmount}
                         handleFeePoolSelect={handleFeePoolSelect}
                       />
+
+                      <ModeSelector   
+                        disabled={!quoteCurrency || !baseCurrency}
+                        feeAmount={feeAmount}
+                        handleFeePoolSelect={handleFeePoolSelect}
+                      />
+                      
                     </AutoColumn>{' '}
                   </>
                 )}

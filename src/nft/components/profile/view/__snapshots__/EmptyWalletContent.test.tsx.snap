@@ -222,7 +222,7 @@ exports[`EmptyWalletContent.tsx matches base snapshot 1`] = `
         class="c5"
         data-testid="nft-explore-nfts-button"
       >
-        + New position
+        Create Auto-Pool
       </button>
     </div>
   </div>

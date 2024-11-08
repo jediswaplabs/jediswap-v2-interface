@@ -343,7 +343,7 @@ export default function Pool() {
               to="/add/ETH"
               style={{ fontSize: '1.125rem', fontWeight: 750 }}
             >
-              + <Trans>New position</Trans>
+              <Trans>Create Auto-Pool</Trans>
             </ResponsiveButtonPrimary>
           </ButtonRow>
           <MainContentWrapper>

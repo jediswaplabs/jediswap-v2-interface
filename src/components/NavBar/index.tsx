@@ -101,7 +101,7 @@ const Navbar = () => {
       toggleAccountDrawer()
     }
     navigate({
-      pathname: '/',
+      pathname: '/pools',
     })
   }, [accountDrawerOpen, navigate, toggleAccountDrawer])
 
@@ -125,7 +125,6 @@ const Navbar = () => {
           className={'mobile'}
         />
         <Audit
-          href="https://github.com/NethermindEth/PublicAuditReports/blob/main/NM0180-FINAL_JEDISWAP.pdf"
           target="_blank"
         >
           <img style={{ width: '170px', marginLeft: '0px' }} src={AuditedIcon} />

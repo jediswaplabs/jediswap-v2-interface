@@ -89,7 +89,7 @@ const getVaultListWithContents = async (
 
     data.poolAddress = vault.poolAddress
     data.defaultSlippage = vault.defaultSlippage
-    data.details = vault.details
+    data.details = "A51's single-sided strategy that gives you the best returns."
     data.feeTier = vault.feeTier
     data.mainAssetKey = `token${vault.mainAssetIndex}`
     data.links = vault.links

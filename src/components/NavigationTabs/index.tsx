@@ -118,7 +118,7 @@ export function AddRemoveTabs({
           {creating ? (
             <Trans>Create a pair</Trans>
           ) : adding ? (
-            <Trans>Add Liquidity</Trans>
+            <Trans>Create Auto-Pool</Trans>
           ) : (
             <Trans>Remove liquidity</Trans>
           )}
