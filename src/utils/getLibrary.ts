@@ -18,9 +18,9 @@ const provider = jsonRpcProvider({
 
     let nodeUrl = 'https://rpc.starknet-testnet.lava.build/'
     if (chainType === 'sepolia') {
-      nodeUrl = 'https://api-starknet-sepolia.dwellir.com/dd28e566-3260-4d8d-8180-6ef1a161e41c'
+      nodeUrl = 'https://api-starknet-sepolia.dwellir.com/5d261670-e8d7-417d-9873-f721ab91ef04'
     } else if (chainType === 'mainnet') {
-      nodeUrl = 'https://api-starknet-mainnet.dwellir.com/dd28e566-3260-4d8d-8180-6ef1a161e41c'
+      nodeUrl = 'https://api-starknet-mainnet.dwellir.com/5d261670-e8d7-417d-9873-f721ab91ef04'
     } else if (chainType === 'goerli') {
       nodeUrl = 'https://rpc.starknet-testnet.lava.build/'
     }
@@ -38,8 +38,8 @@ export const providerInstance = (chainId: string) => {
   return new RpcProvider({
     nodeUrl:
       chainId === ChainId.GOERLI
-        ? 'https://api-starknet-sepolia.dwellir.com/dd28e566-3260-4d8d-8180-6ef1a161e41c'
-        : 'https://api-starknet-mainnet.dwellir.com/dd28e566-3260-4d8d-8180-6ef1a161e41c',
+        ? 'https://api-starknet-sepolia.dwellir.com/5d261670-e8d7-417d-9873-f721ab91ef04'
+        : 'https://api-starknet-mainnet.dwellir.com/5d261670-e8d7-417d-9873-f721ab91ef04',
   })
 }
 
