@@ -70,10 +70,10 @@ export const PageTabs = () => {
       <ExternalMenuItemLink to="https://app.v1.jediswap.xyz/">
         <Trans>V1</Trans>
       </ExternalMenuItemLink>
-      <MenuItemLink to="/rewards" isActive={pathname.startsWith('/rewards')}>
+      {/* <MenuItemLink to="/rewards" isActive={pathname.startsWith('/rewards')}>
         <img src={StarkIcon} style={{ marginRight: '2px' }} alt="starknet_logo" />
         <Trans>Rewards</Trans>
-      </MenuItemLink>
+      </MenuItemLink> */}
     </>
   )
 }
