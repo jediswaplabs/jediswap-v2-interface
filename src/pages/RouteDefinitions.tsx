@@ -9,7 +9,7 @@ import Vaults from './Vaults'
 
 const AddLiquidity = lazy(() => import('pages/AddLiquidity'))
 const Vault = lazy(() => import('pages/Vault'))
-import Rewards from './Rewards'
+// import Rewards from './Rewards'
 
 const RedirectDuplicateTokenIds = lazy(() => import('pages/AddLiquidity/redirects'))
 
@@ -71,7 +71,7 @@ export const routes: RouteDefinition[] = [
   createRouteDefinition({ path: '/positions/:tokenId', getElement: () => <PositionPage /> }),
   createRouteDefinition({ path: '/vaults', getElement: () => <Vaults /> }),
   createRouteDefinition({ path: '/vaults/:vaultId', getElement: () => <Vault /> }),
-  createRouteDefinition({ path: '/rewards', getElement: () => <Rewards /> }),
+  // createRouteDefinition({ path: '/rewards', getElement: () => <Rewards /> }),
   createRouteDefinition({ path: '/migrate/', getElement: () => <MigrateV1 /> }),
   createRouteDefinition({ path: '/migrate/:address', getElement: () => <MigrateV1Pair /> }),
   createRouteDefinition({
