@@ -1,18 +1,21 @@
 import { isLocalEnvironment, isStagingEnvironment, isTestnetEnvironment } from 'connectors/index'
 const getDefaultTokensListUrl = () => {
-  const getUrl = (env = 'testnet', name = 'jediswap-default.tokenlist.json') =>
+  const getUrl = (env = '', name = 'jediswap-default.tokenlist.json') =>
     `https://static.${env ? `${env}.` : ''}jediswap.xyz/tokens-list/${name}`
 
   if (isStagingEnvironment()) {
-    return getUrl('staging')
+    return getUrl()
+    // return getUrl('staging')
   }
 
   if (isTestnetEnvironment()) {
-    return getUrl('testnet')
+    return getUrl()
+    // return getUrl('testnet')
   }
 
   if (isLocalEnvironment()) {
-    return getUrl('testnet')
+    return getUrl()
+    // return getUrl('testnet')
   }
 
   return getUrl()
