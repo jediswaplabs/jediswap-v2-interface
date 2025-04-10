@@ -65,8 +65,8 @@ export const SWAP_ROUTER_ADDRESS_V1 = {
 }
 
 export const STARKSCAN_PROXY_ADDRESS = {
-  [ChainId.MAINNET]: 'https://starkscan-proxy.jediswap.xyz/api/v0/',
-  [ChainId.GOERLI]: 'https://starkscan-proxy.testnet.jediswap.xyz/api/v0/',
+  [ChainId.MAINNET]: 'https://api.voyager.online/beta/classes',
+  [ChainId.GOERLI]: 'https://sepolia-api.voyager.online/beta/classes',
 }
 
 export const STARKSCAN_PREFIXES: { [chainId in ChainId]: string } = {

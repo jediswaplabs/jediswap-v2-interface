@@ -3,7 +3,11 @@ import { FACTORY_ADDRESS_CLASS_HASH, STARKSCAN_PROXY_ADDRESS } from 'constants/t
 
 const options = {
   method: 'GET',
-  headers: { accept: 'application/json' },
+  headers: {
+    accept: 'application/json',
+    'Content-Type': 'application/json',
+    'x-api-key': 'CLZigI5Cn93Rs2T8hU8U7abCDI30eHa76yCbb5Bi',
+  },
 }
 
 const fetchAllPairs = async (chainId: ChainId) => {
@@ -11,7 +15,7 @@ const fetchAllPairs = async (chainId: ChainId) => {
     const api = STARKSCAN_PROXY_ADDRESS[chainId]
     const classHash = FACTORY_ADDRESS_CLASS_HASH[chainId]
 
-    const response = await fetch(`${api}contracts/?class_hash=${classHash}&limit=100&order_by=asc`, options)
+    const response = await fetch(`${api}/${classHash}/contracts`, options)
 
     if (!response.ok) {
       throw new Error('Failed to fetch data')
