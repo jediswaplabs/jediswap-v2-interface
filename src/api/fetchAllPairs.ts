@@ -14,14 +14,15 @@ const fetchAllPairs = async (chainId: ChainId) => {
   try {
     const api = STARKSCAN_PROXY_ADDRESS[chainId]
     const classHash = FACTORY_ADDRESS_CLASS_HASH[chainId]
+    throw 'DISABLING API'
 
-    const response = await fetch(`${api}/${classHash}/contracts`, options)
+    // const response = await fetch(`${api}/${classHash}/contracts`, options)
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch data')
-    }
-    const data = await response.json()
-    return data
+    // if (!response.ok) {
+    //   throw new Error('Failed to fetch data')
+    // }
+    // const data = await response.json()
+    // return data
   } catch (error) {
     throw new Error('An error occurred while fetching data')
   }
