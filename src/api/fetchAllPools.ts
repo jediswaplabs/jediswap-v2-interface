@@ -14,14 +14,15 @@ const fetchAllPools = async (chainId: ChainId) => {
   try {
     const api = STARKSCAN_PROXY_ADDRESS[chainId]
     const classHash = POOL_CLASS_HASH[chainId]
-    // const response = await fetch(`${api}contracts/?class_hash=${classHash}`, options)
-    const response = await fetch(`${api}/${classHash}/contracts`, options)
+    throw 'DISABLING API'
+    // // const response = await fetch(`${api}contracts/?class_hash=${classHash}`, options)
+    // const response = await fetch(`${api}/${classHash}/contracts`, options)
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch data')
-    }
-    const data = await response.json()
-    return data
+    // if (!response.ok) {
+    //   throw new Error('Failed to fetch data')
+    // }
+    // const data = await response.json()
+    // return data
   } catch (error) {
     throw new Error('An error occurred while fetching data')
   }
